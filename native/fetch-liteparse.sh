@@ -42,8 +42,16 @@ esac
 
 verify() {
   if command -v sha256sum >/dev/null 2>&1; then
-    printf '%s  %s\n' "$1" "$2" | sha256sum --check
+    # Some macOS runners provide a sha256sum wrapper with only short options.
+    # Presence of the command does not imply GNU long-option compatibility:
+    # --check failed before provisioning, despite a valid reviewed archive.
+    # -c requests the same checksum-file verification on both implementations;
+    # it must still exit nonzero on a mismatch. Never replace this with a
+    # successful existence check, unchecked extraction, or automatic downloader.
+    printf '%s  %s\n' "$1" "$2" | sha256sum -c
   else
+    # Perl shasum is the existing fallback when no sha256sum command is present.
+    # Select SHA-256 explicitly and verify the supplied pinned checksum record.
     printf '%s  %s\n' "$1" "$2" | shasum -a 256 --check
   fi
 }

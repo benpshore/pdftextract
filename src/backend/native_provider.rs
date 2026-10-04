@@ -310,14 +310,35 @@ impl Api {
     }
 }
 
+/// Interpret one C character as its original byte, independently of ABI signedness.
+///
+/// `c_char` is an alias: it is `i8` on some targets and `u8` on others (including
+/// Linux ARM64). Calling a signed-only method such as `cast_unsigned()` therefore
+/// compiles on one architecture and fails on another. Both integer aliases expose
+/// `to_ne_bytes()`, which returns the same one-byte bit pattern; `from_ne_bytes()`
+/// then constructs the unsigned byte needed by Rust's UTF-8 string APIs.
+///
+/// This is a bit-preserving conversion, not a numeric Unicode-codepoint mapping:
+/// for example, the UTF-8 byte 0xce must remain 0xce even when C calls it -50.
+/// Endianness is immaterial for a single byte. Avoiding `as` also keeps the
+/// conversion explicit without target-dependent signedness/lossy-cast warnings.
+/// No pointer, allocation, string length, or provider ownership changes here.
+fn c_char_byte(value: c_char) -> u8 {
+    u8::from_ne_bytes(value.to_ne_bytes())
+}
+
 // SAFETY requirement: provider string is readable through its NUL, max 255 bytes.
+// The provider owns that allocation; this function only copies bytes while the
+// caller keeps it alive. The length check cannot validate an arbitrary dangling
+// pointer. Identity strings must be valid UTF-8; malformed bytes fail rather than
+// manufacturing a replacement-character identity for a provider fingerprint.
 unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     if pointer.is_null() {
         return Err("provider returned a null identity string".to_string());
     }
     let mut bytes = Vec::new();
     for offset in 0..256 {
-        let byte = unsafe { *pointer.add(offset) }.cast_unsigned();
+        let byte = c_char_byte(unsafe { *pointer.add(offset) });
         if byte == 0 {
             return String::from_utf8(bytes).map_err(|e| e.to_string());
         }
@@ -326,11 +347,15 @@ unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     Err("provider identity string exceeds 255 bytes".to_string())
 }
 fn error_message(error: &[c_char]) -> String {
+    // Diagnostics already have a Rust slice bound. Stop at the first C NUL and
+    // preserve high bytes before lossy UTF-8 decoding; error text may be malformed
+    // without becoming a trusted identity. The borrowed slice remains owned by
+    // the caller, and the collected bytes are an independent Rust allocation.
     String::from_utf8_lossy(
         &error
             .iter()
             .take_while(|&&b| b != 0)
-            .map(|b| b.cast_unsigned())
+            .map(|&b| c_char_byte(b))
             .collect::<Vec<_>>(),
     )
     .into_owned()
@@ -612,6 +637,43 @@ fn parse_page(bytes: &[u8], requested: u32) -> Result<PageText, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn provider_c_char_preserves_high_bytes_and_utf8_on_each_target() {
+        // `from_ne_bytes` creates the target's actual c_char alias without an
+        // architecture-specific cast. These tests must run on both native ARM64
+        // and x86-64; a cross-compile alone does not establish runtime behavior.
+        for byte in [0, 0x7f, 0x80, 0xce, 0xff] {
+            assert_eq!(c_char_byte(c_char::from_ne_bytes([byte])), byte);
+        }
+        let expected = "Provider α 日本語";
+        let chars: Vec<c_char> = expected
+            .as_bytes()
+            .iter()
+            .copied()
+            .chain([0, b'!'])
+            .map(|byte| c_char::from_ne_bytes([byte]))
+            .collect();
+        // SAFETY: the owned vector is live and readable through its first NUL,
+        // well within the 255-byte identity bound. The trailing ! must be ignored.
+        assert_eq!(unsafe { bounded_string(chars.as_ptr()) }.unwrap(), expected);
+        assert_eq!(error_message(&chars), expected);
+        let malformed = [c_char::from_ne_bytes([0xff]), c_char::from_ne_bytes([0])];
+        // SAFETY: both initialized elements remain live through their NUL.
+        assert!(unsafe { bounded_string(malformed.as_ptr()) }.is_err());
+        assert_eq!(error_message(&malformed), "�");
+    }
+    #[test]
+    fn provider_identity_keeps_null_and_termination_bounds() {
+        // SAFETY: null is rejected before any dereference.
+        assert!(unsafe { bounded_string(std::ptr::null()) }.is_err());
+        let mut chars = [c_char::from_ne_bytes([b'a']); 256];
+        // SAFETY: all 256 initialized bytes are readable. Without a NUL the
+        // bounded copy must fail, rather than reading a 257th byte.
+        assert!(unsafe { bounded_string(chars.as_ptr()) }.is_err());
+        chars[255] = c_char::from_ne_bytes([0]);
+        // SAFETY: the final initialized element is the required NUL terminator.
+        assert_eq!(unsafe { bounded_string(chars.as_ptr()) }.unwrap().len(), 255);
+    }
     fn fixture() -> serde_json::Value {
         serde_json::json!({"abi":1,"page":2,"bounds":[10,20,210,320],"rotation":0,"page_size":[200,300],"to_pdf":[1,0,0,-1,-10,320],"characters":3,"unmapped":0,"warnings":0,"structured":{"blocks":[{"type":"text","bbox":{"x":20,"y":30,"w":40,"h":15},"lines":[{"bbox":{"x":20,"y":30,"w":40,"h":15},"font":{"name":"Times","size":12},"text":"abc"}]}]},"links":[{"uri":"https://doi.org/10.1234/a?x=\"b\"","bounds":[20,30,60,45]}]})
     }

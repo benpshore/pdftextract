@@ -73,3 +73,27 @@ was found; the un-PR'd WIP branch limits repeated PR workflow starts, and eventu
 integration checks remain mandatory. API delays/disconnections can exceed the
 target; record failures/gaps and resume from verified remote state. No absolute
 background timer or credit usage visibility exists.
+
+## Active continuation checkpoint
+
+Root resumed Bob after the handoff: finish Native37212097012 and diagnose/fix
+focused PDFium platform and Poppler export compatibility issues. Integration #234
+remains frozen at 82f95ad99185b6641023169f8dd99d6f92438ac1 for independent
+Architecture/Synthesis review. Current WIP code preserves c_char bytes across
+signed/unsigned ABIs and uses sha256sum -c for short-option macOS wrappers.
+These edits are not locally Rust-compiled (Cargo unavailable); native-target
+fixtures/hosted checks and focused provisioning fixtures are next. Source pins,
+FFI pointer ownership/bounds and checksum failures remain unchanged.
+
+Root reports Native now failed its strict coverage/bounded-outcomes validator;
+reviewer reports exactly 209 Partial/incomplete errors and rejected historical
+exceptions due dependency-lock identity. Verify diagnostic summaries only;
+never change exceptions to hide this. Architecture reviewer additionally found
+root HTML lang provenance lost in inert template parsing: implement focused inert
+preservation and regression. Reviewer reports are preliminary, not approval;
+canonical reviewer identities/configurations/final artifact references pending.
+Ben wants copious truthful comments about intention, expectations, alternatives,
+syntax/ownership/FFI and doubts on changed code; no unrelated comment rewrite.
+Root coordinates the independent reviewers; Bob remains sole integrating owner.
+Poppler Partial exit semantics and selected cohort/export authority require
+assessment before any workflow repair; do not retrieve or publish held-out data.
