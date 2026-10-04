@@ -1,0 +1,47 @@
+{
+  "status": "stopped-at-parent-checkpoint",
+  "runtime_pid": 18639,
+  "runtime_exit": 0,
+  "container_name": "tpe-scholarly-local-20261004",
+  "container_id": "9d71760d107dc238fcc4d50b6ff60d6073754c93d32e88adda39c47b6c6a0a3c",
+  "container_running": false,
+  "container_removed": false,
+  "endpoint_before_stop": "http://127.0.0.1:32768",
+  "bridge_before_stop": "http://127.0.0.1:8072",
+  "image": "grobid/grobid@sha256:223957791ac2bbe48609dcc58a689b16b60baeae13a8734ef440ae6bfb38f4cd",
+  "native_binary": "/tmp/pdftextract-pr206-native/target/debug/tpe",
+  "native_source_commit": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "native_binary_sha256": "280fc91832368ebc4420a2a67eb98d7ffa6a4e3b7cb10ef8410063da41aba108",
+  "request": {
+    "mode": "live-native",
+    "http_status": 200,
+    "seconds": 29.342337,
+    "output_bytes": 22027,
+    "output_sha256": "72185305619cbdf8289c512135ec227a51e4b2be41e2158c135d34cdf0b7c799",
+    "source_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+    "tei_sha256": "ee31f5cf640f31bdf67cf7fa2535c4f1e53a2d7b46db8fbbb8bb0590bad03618",
+    "pages": 2,
+    "citations": 2,
+    "empty_coordinate_attributes": 3,
+    "warnings": [
+      "server returned empty coordinate attributes; geometry is unavailable and no boxes were inferred",
+      "semantic structure is not proof of complete PDF text or glyph coverage"
+    ]
+  },
+  "focused_tests": {
+    "passed": 14,
+    "failed": 0,
+    "command": "node --test scripts/scholarly-local-runtime.test.mjs"
+  },
+  "resolver": {
+    "configured": true,
+    "actual_registry_request_started": false,
+    "remaining": "Current child environment strips all proxies and cert settings. Parent authorized preserving existing proxy/cert env for optional resolver only; not implemented before checkpoint. No resolution success claimed."
+  },
+  "remaining": [
+    "Restore optional resolver proxy/cert inheritance without credentials or logging values; run actual bibliography lookup and retain attempts/errors.",
+    "Review bibliography child memory bound: wall/input/output limited, but existing CLI is not memory-supervised like grobid.",
+    "Finish root-owned API/browser live E2E and local documentation."
+  ],
+  "active_external_jobs": []
+}

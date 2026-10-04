@@ -37,6 +37,14 @@ const localBindingConfig = {
 };
 
 export default defineConfig(async ({ command }) => {
+  // Explicit local-only native bridge. It creates no public endpoint or production binding.
+  const scholarlyUrl = command === "serve" ? process.env.TPE_SCHOLARLY_LOCAL_URL : undefined;
+  if (scholarlyUrl) {
+    const local = new URL(scholarlyUrl);
+    if (local.protocol !== "http:" || local.hostname !== "127.0.0.1" || local.username || local.password || local.pathname !== "/" || local.search || local.hash) {
+      throw new Error("TPE_SCHOLARLY_LOCAL_URL must be an HTTP 127.0.0.1 runtime base URL.");
+    }
+  }
   // Use Miniflare's local Request.cf placeholder unless fetching is requested.
   process.env.CLOUDFLARE_CF_FETCH_ENABLED ??= "false";
   process.env.WRANGLER_SEND_METRICS ??= "false";
@@ -53,7 +61,9 @@ export default defineConfig(async ({ command }) => {
 
   return {
     server: {
-      ...(managedLinux
+      ...(scholarlyUrl
+        ? { host: "127.0.0.1", allowedHosts: ["127.0.0.1", "localhost"] }
+        : managedLinux
         ? { host: "0.0.0.0", allowedHosts: ["terminal.local"] }
         : {}),
       ...(isCodexSeatbeltSandbox
@@ -62,7 +72,7 @@ export default defineConfig(async ({ command }) => {
     },
     plugins: [
       vinext(),
-      sites({ mockAuth: !managedLinux }),
+      sites({ mockAuth: scholarlyUrl ? true : !managedLinux }),
       connectorPreview(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
@@ -77,6 +87,7 @@ export default defineConfig(async ({ command }) => {
                     service: "sites-connector-preview",
                     entrypoint: "ConnectorPreview",
                   },
+                  ...(scholarlyUrl ? [{binding: "SCHOLARLY", service: "tpe-scholarly-local"}] : []),
                 ],
               }
             : {}),
@@ -91,6 +102,12 @@ export default defineConfig(async ({ command }) => {
                     compatibility_date: "2026-05-15",
                   },
                 },
+                ...(scholarlyUrl ? [{config: {
+                  name: "tpe-scholarly-local",
+                  main: "./build/scholarly-local-worker.mjs",
+                  compatibility_date: "2026-05-15",
+                  vars: {SCHOLARLY_LOCAL_URL: scholarlyUrl},
+                }}] : []),
               ],
             }
           : {}),

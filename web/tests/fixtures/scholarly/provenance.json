@@ -1,0 +1,13 @@
+{
+  "kind": "captured-runtime-evidence",
+  "description": "Unmodified actual GROBID/Rust output and authored synthetic PDF copied from PR206; adapter tests replay this capture and do not run a live scholarly service.",
+  "repository": "https://github.com/benpshore/pdftextract",
+  "commit": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "source_json_path": "docs/validation/grobid-cpu/rust-client-fixed-live.json",
+  "source_pdf_path": "docs/validation/grobid-cpu/synthetic-scholarly.pdf",
+  "json_sha256": "1aadf263bbfe76e06a65cb8043fb9c86928dd3ace22499a6daae510da74999f4",
+  "pdf_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+  "tei_sha256": "439bface8b48fda35736ea13436ae90581d2587c187a721421e1531ce6383090",
+  "expected": {"references": 2, "body_reference_elements": 0, "explicit_empty_coordinate_attributes": 3, "warnings": 2},
+  "scope": "Benign authored two-page scholarly fixture; actual loopback CPU model output, not authenticated deployed service or general scholarly accuracy evidence."
+}
