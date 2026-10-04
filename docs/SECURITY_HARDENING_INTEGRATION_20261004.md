@@ -1,3 +1,7 @@
+Current follow-up checkpoint 2026-10-04T16:13:47Z: candidate code `c308680f9d5b1aaabf0fdc202513e44a0f91a852`; original independent review target `82f95ad99185b6641023169f8dd99d6f92438ac1`. [Terminal hosted evidence](stewardship/security-integration-20261004/terminal-ci-20261004.json) supersedes pending observations below without changing their dates. Native209Partial remains red; binaries and two-case live Registry smoke passed. [Focused delta/evidence](stewardship/security-integration-20261004/continuation-scope.json), [architecture walkthrough](HARDENING_WALKTHROUGH.md), and append-only 40-record journal `989de19c9a3ddec2528fb60833a5d8888f78efcfc3513485acd3eebf1083cfea`. Main/release/deploy held; new exact-head native hosted qualification and delta reviews pending.
+
+Historical staging checkpoints:
+
 # Security hardening integration ledger — 2026-10-04
 
 Owner: **Busybody Bob** (Mara Keel alias). Next review: **2026-10-05 UTC**, or any

@@ -101,3 +101,7 @@ assessment before any workflow repair; do not retrieve or publish held-out data.
 ### WIP fixture correction
 
 Checkpoint d6ea11d79dc79b0390ab7531ce60a9c8074fc98e's message prematurely says affected web checks passed. Its run actually stopped on an extra tiny article-only `lang=es` expectation; the complete-root, absent-root, encoded/quoted prologue and spoofed-language cases had passed before that assertion. That assertion describes no established Readability behavior and is removed from this focused root-language repair. New affected checks and browser evidence must be recorded separately. This corrects the claim without rewriting the commit or old test records.
+
+### Focused continuation checkpoint
+
+Candidate code c308680f9d5b1aaabf0fdc202513e44a0f91a852 is recoverable on Bob WIP, with 14 web commands/five Chromium/234 Python/28 source checks passing and a159-file manifest. Native ABI fixtures require hosted execution. 40-record segment 989de19c9a3ddec2528fb60833a5d8888f78efcfc3513485acd3eebf1083cfea preserves the earlier17 records. Original reviewed82f95ad must remain explicitly identifiable; later candidate requires delta rereview. Main/release/deploy held. Archie canonical entry is in policy head82904e9; Sylvie exact bytes/original companion reports requested; Rick full-report gap remains. Separate makeghrepo focused review is queued next, with automatic-release semantics unresolved before any merge. No empty checkpoints, timer guarantee, CI skipping, held-out artifact retrieval or quality waiver.

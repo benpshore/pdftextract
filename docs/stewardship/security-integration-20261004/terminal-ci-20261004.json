@@ -1,0 +1,107 @@
+{
+  "observed_at": "2026-10-04 16:13:45 UTC",
+  "reviewed_head": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+  "runs": [
+    {
+      "id": 37212097048,
+      "name": "Web alpha source",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097048",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212097041,
+      "name": "Native repair checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097041",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212097064,
+      "name": "PDFium Unicode checks",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097064",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212097051,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097051",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212097072,
+      "name": "Native bibliography evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097072",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212096993,
+      "name": "Poppler comparison",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212096993",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212096979,
+      "name": "Registry accuracy smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212096979",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212096981,
+      "name": "Build binaries",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212096981",
+      "event": "pull_request"
+    },
+    {
+      "id": 37212097012,
+      "name": "Native",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37212097012",
+      "event": "pull_request"
+    }
+  ],
+  "registry": {
+    "job": 111465183866,
+    "run": 37212096979,
+    "tests": [
+      "live_biomedical_exact_identifiers",
+      "live_crossref_exact_identifier"
+    ],
+    "passed": 2,
+    "failed": 0,
+    "live_execution": true
+  },
+  "native": {
+    "run": 37212097012,
+    "job": 111465233082,
+    "incomplete_partial_diagnostics": 209,
+    "exception_policy": "Dependency lock differs; historical exceptions inapplicable; zero applied",
+    "all_evaluation_commands_completed": true,
+    "quality_accepted": false
+  },
+  "scope": "Fresh hosted results for frozen reviewed head only; six workflows successful, three failed. Listing limited to first100 returned runs/pull_request events. No corpus/heldout artifacts downloaded. Not a general accuracy/security/release result."
+}
