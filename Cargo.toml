@@ -35,6 +35,8 @@ path = "src/lib.rs"
 
 [features]
 default = []
+# External acquisition and registry requests are a separate, explicit capability.
+network = ["dep:ureq", "tpe-biblio/network"]
 # Optional user-built providers; no native engine is linked or distributed.
 mupdf = ["dep:libloading"]
 poppler = ["dep:libloading"]
@@ -85,7 +87,7 @@ tar = "0.4"
 tempfile = "3"
 thiserror = "2"
 unicode-normalization = "0.1"
-ureq = "3"
+ureq = { version = "3", optional = true }
 pdf-extract = { version = "=0.12.1", default-features = false, optional = true }
 # Same parser as pdf-extract; validate its mapping against actual glyph IDs.
 cff-parser = { version = "=0.2.0", optional = true }

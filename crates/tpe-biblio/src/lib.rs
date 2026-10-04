@@ -3,6 +3,8 @@
 //! Each source module has a pure `parse_*` function (JSON text in, records out,
 //! tested on recorded responses) and a thin `fetch_*` wrapper that performs the
 //! HTTP request through a shared [`Client`] (per-host rate limiting, offline mode).
+//! HTTP transport requires the explicit `network` Cargo feature. The default
+//! build keeps parsers and static candidate links without making requests.
 //! Sources: `OpenAlex`, Crossref, Semantic Scholar, NCBI E-utilities (PMC),
 //! Europe PMC, Unpaywall, and `OpenURL` link resolvers. [`dedupe`] merges records
 //! from several sources and [`resolve`] lists candidate full-text locations.

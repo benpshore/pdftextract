@@ -82,6 +82,11 @@ returns its **last** list only. Exactness and field fixes deserve separate PRs.
 
 ## Resolution accuracy
 
+Registry requests require a build with the explicit `network` feature. The
+default build rejects `--resolve` before reading inputs or writing a CSV.
+Local bibliography extraction and the retained DOI/link strings do not enable
+this capability. See [the capability boundary](NETWORK_CAPABILITY.md).
+
 `--resolve` preserves balanced DOI suffix punctuation, including older SICI
 identifiers. Parser-repaired wrapped DOIs take precedence over raw prefixes;
 raw text is preferred only when it extends the same parsed identifier. A DOI
@@ -99,7 +104,7 @@ five query results.
 
 Offline regression tests cover balanced identifiers, missing title evidence,
 query-order independence, duplicate DOI hits, and venue-based version selection.
-`cargo test --lib resolve::tests::live_crossref_exact_identifier -- --ignored`
+`cargo test --features network --lib resolve::tests::live_crossref_exact_identifier -- --ignored`
 checks the production resolver against one known live Crossref record. It is
 opt-in because registry availability must not determine ordinary test success.
 

@@ -39,7 +39,7 @@ pub mod bibliography;
 pub mod citations;
 pub mod corpus;
 pub mod eval;
-#[cfg(feature = "grobid")]
+#[cfg(all(feature = "grobid", feature = "network"))]
 pub mod grobid;
 pub mod latex_refs;
 pub mod ledger;
