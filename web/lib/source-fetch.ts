@@ -1,3 +1,7 @@
+// Security contract: this module runs behind Workers' public-only global fetch
+// egress, with global_fetch_strictly_public enabled. The DoH lookup below is an
+// additional preflight, not DNS pinning. Do not reuse with unrestricted Node
+// fetch or a VPC/network binding: check the actual connection address there.
 function publicIp(ip:string){
  if(ip.includes(':'))return !/^(::|fc|fd|fe[89ab]|ff|2001:db8)/i.test(ip)&&!ip.toLowerCase().includes('ffff:');
  const [a,b]=ip.split('.').map(Number);return Number.isFinite(a)&&![0,10,127].includes(a)&&a<224&&!(a===169&&b===254)&&!(a===172&&b>=16&&b<=31)&&!(a===192&&b===168)&&!(a===100&&b>=64&&b<=127)&&!(a===198&&(b===18||b===19));
