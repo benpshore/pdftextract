@@ -69,9 +69,9 @@ test('configuration restricts endpoint, command path and explicit mode', () => {
   assert.throws(() => configuration({ TPE_NATIVE_BIN: '/tmp/tpe', SCHOLARLY_CAPTURED_JSON: '/tmp/result.json' }));
   assert.throws(() => configuration({ SCHOLARLY_MAX_INPUT_BYTES: 'Infinity' }));
 });
-test('explicit resolver preserves existing proxy/certificate settings without unrelated credentials',()=>{
+test('release hold ignores old resolver settings and does not forward network configuration',()=>{
   const env={TPE_SCHOLARLY_RESOLVE:'1',HTTPS_PROXY:'http://proxy.fixture.invalid:8080',NO_PROXY:'127.0.0.1',SSL_CERT_FILE:'/tmp/synthetic-existing-ca.pem',API_KEY:'synthetic-do-not-forward',NODE_OPTIONS:'--synthetic'};
-  const config=configuration(env);assert.equal(config.childEnv.HTTPS_PROXY,env.HTTPS_PROXY);assert.equal(config.childEnv.SSL_CERT_FILE,env.SSL_CERT_FILE);assert.equal(config.childEnv.NO_PROXY,env.NO_PROXY);
+  const config=configuration(env);assert.equal(config.resolveIdentifiers,false);assert.equal(config.childEnv.HTTPS_PROXY,undefined);assert.equal(config.childEnv.SSL_CERT_FILE,undefined);assert.equal(config.childEnv.NO_PROXY,undefined);
   assert.equal(config.childEnv.API_KEY,undefined);assert.equal(config.childEnv.NODE_OPTIONS,undefined);
   assert.equal(configuration({...env,TPE_SCHOLARLY_RESOLVE:'0'}).childEnv.HTTPS_PROXY,undefined);
 });
@@ -119,12 +119,11 @@ test('invokes native CLI with fixed safe arguments, retains all JSON and removes
   assert.ok(!invocation.env.includes('TPE_GROBID_BEARER_TOKEN')); assert.ok(!invocation.env.includes('HTTP_PROXY'));
   await new Promise(resolve => setTimeout(resolve, 20)); await assert.rejects(access(invocation.file));
 });
-test('optional resolver calls the real bibliography command separately and retains partial evidence', async t => {
+test('old resolver opt-in cannot execute the bibliography command during the release hold', async t => {
   const { url, proof } = await nativeRuntime(t, 'ok', { TPE_SCHOLARLY_RESOLVE: '1' });
-  assert.equal((await (await fetch(url + '/health')).json()).resolver, true);
+  assert.equal((await (await fetch(url + '/health')).json()).resolver, false);
   const response = await fetch(url + '/bibliography', { method: 'POST', headers, body: pdf });
-  assert.equal(response.status, 200); assert.equal((await response.json()).status, 'not_found');
-  const invocation = await waitForProof(proof); assert.equal(invocation.args[0], 'bibliography'); assert.ok(invocation.args.includes('--resolve'));
+  assert.equal(response.status, 503); await assert.rejects(access(proof));
 });
 for (const mode of ['overflow', 'invalid-utf8', 'wrong-hash', 'failed']) {
   test(`rejects ${mode} native output without publishing result`, async t => {

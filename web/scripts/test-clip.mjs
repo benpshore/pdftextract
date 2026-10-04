@@ -28,9 +28,10 @@ assert.match(clipped.markdown, /const value = 42/);
 assert.ok(clipped.links.some(link => link.doi === '10.1234/real-target' && link.label === 'Research paper'));
 assert.ok(!clipped.links.some(link => /account|noise|sidebar/.test(link.url)));
 assert.deepEqual(clipped.tables, [[['Test', 'Result'], ['Power', '18 watts']]]);
-assert.deepEqual(clipped.metadata.images.map(image => image.url), ['https://journal.test/photo-large.jpg', 'https://journal.test/lazy-photo.jpg']);
-assert.equal(clipped.metadata.images[0].caption, 'Measured hardware on the bench.');
-assert.match(clipped.html, /data-image-id="image-1"/);
+assert.deepEqual(clipped.metadata.images, []);
+assert.match(clipped.text, /Measured hardware on the bench/);
+assert.match(clipped.text, /Ports and connectors/);
+assert.ok(!clipped.html.includes('<img'));
 assert.ok(!/\[Image:|data:image|blob:|srcset=/.test(clipped.html));
 assert.ok(clipped.metadata.headings.some(heading => heading.title === 'Design and measurements'));
 const structuredSource = `<main><article><h1>Measured comparison</h1><p>${paragraph}</p><h2>Reference grid</h2><table role="presentation"><tr><td>Equation reference</td><td>Structured value 17</td></tr></table><h2>Second grid</h2><table><tr><td>Independent row</td><td>Structured value 29</td></tr></table><p>${paragraph}</p></article></main>`;
@@ -64,8 +65,8 @@ if (process.env.HTML_REVIEW_FIXTURE) {
   assert.match(actual.title, /Lenovo/i);
   assert.match(actual.text, /Yoga Mini Gen 11/i);
   assert.ok(actual.text.length > 5000);
-  assert.ok(actual.metadata.images.length > 0);
+  assert.equal(actual.metadata.images.length, 0);
   assert.ok(!/<script|data:image|blob:|\[Image:/.test(actual.html));
   console.log(JSON.stringify({ actualFixture: process.env.HTML_REVIEW_FIXTURE, textCharacters: actual.text.length, images: actual.metadata.images.length, tables: actual.tables.length, headings: actual.metadata.headings.length, links: actual.links.length }));
 }
-console.log('HTML cleanup, Unicode, DOI targets, lazy images/captions, tables, CSS, >4 MiB input, >1000 DOIs, and >500 feed entries passed.');
+console.log('Local HTML cleanup, Unicode, DOI targets, omitted remote images with retained captions, tables, CSS, >4 MiB input, >1000 DOIs, and >500 feed entries passed.');

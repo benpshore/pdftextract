@@ -3,6 +3,7 @@ import {boundedBody, ownedRecord, storage} from './server';
 import {assertDocumentNotDeleted} from './document-lifecycle';
 import {adaptGrobidResult} from './scholarly-adapter';
 import type {DocumentRow, Extracted} from './types';
+import {metadataResolutionEnabled} from './network-capabilities';
 
 export type ScholarlyMode = 'live-native' | 'captured-native';
 type RuntimeHealth = {available:boolean; mode:ScholarlyMode|null; reason?:string; resolver:boolean; max_input_bytes:number; max_output_bytes:number};
@@ -21,7 +22,7 @@ export async function scholarlyHealth(signal:AbortSignal):Promise<RuntimeHealth>
     const health=JSON.parse(new TextDecoder().decode(await boundedBody(response,16384)));
     if(health.status!=='ready'||!['live-native','captured-native'].includes(health.mode))return unavailable('The local scholarly runtime is not ready.');
     const limit=(value:unknown)=>Number.isSafeInteger(value)&&(value as number)>0?Math.min(value as number,LOCAL_BODY_LIMIT):LOCAL_BODY_LIMIT;
-    return {available:true,mode:health.mode,resolver:health.resolver===true,max_input_bytes:limit(health.max_input_bytes),max_output_bytes:limit(health.max_output_bytes)};
+    return {available:true,mode:health.mode,resolver:metadataResolutionEnabled&&health.resolver===true,max_input_bytes:limit(health.max_input_bytes),max_output_bytes:limit(health.max_output_bytes)};
   }catch(error){signal.throwIfAborted();return unavailable('The local scholarly runtime could not be reached.');}
 }
 function pdf(record:Record<string,unknown>){return record.kind==='pdf' || record.mime==='application/pdf';}

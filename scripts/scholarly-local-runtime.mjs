@@ -34,7 +34,9 @@ export function configuration(env = process.env) {
   const capturedPath = absoluteFile(env.SCHOLARLY_CAPTURED_JSON, 'SCHOLARLY_CAPTURED_JSON');
   const binary = absoluteFile(env.TPE_NATIVE_BIN, 'TPE_NATIVE_BIN');
   if (capturedPath && binary) throw new Error('Choose live native or captured replay explicitly, not both');
-  const resolveIdentifiers=env.TPE_SCHOLARLY_RESOLVE==='1'&&!capturedPath;
+  // Release hold: the local-file workflow must not perform registry lookups,
+  // including when an older preview environment still requests resolution.
+  const resolveIdentifiers=false;
   const resolverEnvironment={};
   // Preserve existing network/certificate settings only for explicit resolution.
   // Do not inherit unrelated credentials or arbitrary command settings.
