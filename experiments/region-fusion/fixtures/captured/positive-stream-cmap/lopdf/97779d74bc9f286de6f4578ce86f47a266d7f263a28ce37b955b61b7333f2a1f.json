@@ -1,0 +1,129 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f",
+    "size": 10736,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/pdftextract-region-fusion/experiments/region-fusion/fixtures/positive-stream-cmap.pdf",
+        "inode": 1445418,
+        "device": 27,
+        "mtime_unix": 1791081682,
+        "size": 10736
+      }
+    ]
+  },
+  "backend": {
+    "name": "lopdf",
+    "version": "0.45.0",
+    "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+  },
+  "status": "partial",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "BASELINE REGION RETAINS THIS TEXT.",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 288.0,
+            "y1": 733.2
+          },
+          "font": "Helvetica",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "������������������",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 617.6,
+            "x1": 298.24112,
+            "y1": 639.6
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 22.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "BASELINE REGION RETAINS THIS TEXT.",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 288.0,
+            "y1": 733.2
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "������������������",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 617.6,
+            "x1": 298.24112,
+            "y1": 639.6
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "BASELINE REGION RETAINS THIS TEXT.\n\n������������������",
+      "warnings": [
+        "unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "partial",
+      "text_sha256": "46455dd4d8d689b7838f7e63ca41fa3e68b440b0d80ab34f409d19a3dda5394d",
+      "ms": 23.133881000000002
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": null,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {}
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [
+    "page 1: unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+  ],
+  "timings": {
+    "acquire_ms": 0.041303,
+    "parse_ms": 3.456515,
+    "order_ms": 19.677366000000003,
+    "metadata_ms": 15.036984,
+    "citations_ms": 55.417886,
+    "write_ms": 1.979392,
+    "hash_ms": 0.391272
+  }
+}
