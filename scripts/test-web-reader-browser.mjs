@@ -41,6 +41,20 @@ const checks = [];
 const browserErrors = [];
 const pass = name => { checks.push(name); console.log('PASS ' + name); };
 
+// Independent CSV reader for downloaded bytes, including quoted newlines.
+function parseDownloadedCsv(csv) {
+  const rows=[];let row=[],cell='',quoted=false;
+  const input=csv.replace(/^\uFEFF/,'');
+  for(let i=0;i<input.length;i++){
+    const ch=input[i];
+    if(ch==='"'){if(quoted&&input[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}
+    else if(ch===','&&!quoted){row.push(cell);cell='';}
+    else if(ch==='\r'&&input[i+1]==='\n'&&!quoted){row.push(cell);rows.push(row);row=[];cell='';i++;}
+    else cell+=ch;
+  }
+  assert.equal(quoted,false,'CSV quotes must balance');assert.equal(cell,'','CSV ends with a complete CRLF row');assert.equal(row.length,0);return rows;
+}
+
 const fixture = String.raw`
 import {readWorkspace as actualReadWorkspace, writeWorkspace as actualWriteWorkspace, clearSavedWorkspaceCache as actualClearSavedWorkspaceCache} from ${JSON.stringify(path.join(web,'lib/workspace-storage.ts'))};
 const persisted=JSON.parse(localStorage.getItem('synthetic-backend')||'{}');
@@ -48,11 +62,12 @@ const rows = new Map(persisted.rows||[]), results = new Map(persisted.results||[
 let nextId=persisted.nextId||0, snapshot=null;
 const persistBackend=()=>localStorage.setItem('synthetic-backend',JSON.stringify({rows:[...rows],results:[...results],originals:[...originals],nextId}));
 const gates=new Map(), failures=new Map();let prefixArmed=false;
-const qa=window.__qa={events:[],operations:[],networkCalls:[],workerCalls:0,holdAfterReload:key=>sessionStorage.setItem('qa-hold-on-start',key),holdPrefix:()=>{prefixArmed=true;qa.hold('prefix');},rows:()=>[...rows.values()],snapshot:()=>snapshot,
+const qa=window.__qa={events:[],operations:[],networkCalls:[],workerCalls:0,clipboardReads:0,supply:({record,result})=>{rows.set(record.id,record);results.set(record.id,result);originals.set(record.id,'Synthetic original fixture');persistBackend();},holdAfterReload:key=>sessionStorage.setItem('qa-hold-on-start',key),holdPrefix:()=>{prefixArmed=true;qa.hold('prefix');},rows:()=>[...rows.values()],snapshot:()=>snapshot,
  hold:(key)=>{let resolve;const promise=new Promise(done=>resolve=done);gates.set(key,{promise,resolve});},
  release:key=>{gates.get(key)?.resolve();gates.delete(key);},
  failOnce:key=>failures.set(key,true),
  seed:async(name,source)=>{const record=await uploadOriginal(new File([source],name,{type:'text/html'}),{});await saveExtracted(record,clipHtml(source,'https://fixture.invalid/',name));return record.id;}};
+const clipboardRead=navigator.clipboard?.readText?.bind(navigator.clipboard);if(clipboardRead)Object.defineProperty(navigator.clipboard,'readText',{configurable:true,value:()=>{qa.clipboardReads++;return clipboardRead();}});
 const startupGate=sessionStorage.getItem('qa-hold-on-start');if(startupGate){qa.hold(startupGate);sessionStorage.removeItem('qa-hold-on-start');}
 async function stage(key,signal){
  qa.events.push(key);signal?.throwIfAborted();
@@ -79,9 +94,9 @@ window.fetch=async(input,options={})=>{
 };
 window.Worker=class {constructor(){qa.workerCalls++;throw Error('PDF workers are outside this synthetic reader QA');}};
 export async function uploadOriginal(file,{signal,onProgress}){
- onProgress?.(.25);await stage('upload:'+file.name,signal);
+ onProgress?.(.25);await stage('upload:'+file.name,signal);if(file.type==='image/png')await stage('image-upload',signal);
  const source=await file.text(),id='fixture-'+(++nextId);
- const row={id,title:file.name,original_name:file.name,kind:source.startsWith('<')?'html':'text',mime:file.type,status:'uploaded',engine:'',created_at:'2026-10-04T00:00:00Z',sha256:'synthetic-checksum-hidden-in-details',bytes:file.size,source_url:null};
+ const row={id,title:file.name,original_name:file.name,kind:file.type==='image/png'?'image':source.startsWith('<')?'html':'text',mime:file.type,status:'uploaded',engine:'',created_at:'2026-10-04T00:00:00Z',sha256:'synthetic-checksum-hidden-in-details',bytes:file.size,source_url:null};
  rows.set(id,row);originals.set(id,source);persistBackend();onProgress?.(1);return row;
 }
 export async function decodeSource(file,type,signal){await stage('decode:'+file.name,signal);return file.text();}
@@ -103,7 +118,7 @@ export const textDois=()=>[];
 export const doiFrom=()=>undefined;
 export function safeUrl(value){try{const u=new URL(value);return /^https?:$/.test(u.protocol)?u.href:null;}catch{return null;}}
 export async function* expandUploads(files){for(const file of files)yield {file,path:file.name};}
-export const recognizeImage=()=>{throw Error('Unexpected OCR');};
+export const recognizeImage=async file=>({title:file.name,text:'Synthetic clipboard image result; OCR is mocked.',links:[],warnings:[],engine:'Synthetic OCR fixture',status:'ready'});
 export const extractOffice=()=>{throw Error('Unexpected Office parsing');};
 export const retainArticleImages=async(record,result)=>result;
 export const retainOfficeAssets=async(record,result)=>result;
@@ -111,7 +126,7 @@ export const retainOfficeAssets=async(record,result)=>result;
 const mocked = new Set(['clip','imports','image-ocr','office','upload-client','article-assets','workspace-storage']);
 let server, browser;
 try {
-  const testedSources={};for(const name of ['web/app/workspace.tsx','web/app/globals.css','web/lib/import-queue.ts','web/components/import-controls.tsx','web/lib/document-client.ts','web/lib/text-import.ts','web/lib/workspace-storage.ts'])testedSources[name]=createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
+  const testedSources={};for(const name of ['web/app/workspace.tsx','web/app/globals.css','web/lib/import-queue.ts','web/components/import-controls.tsx','web/lib/document-client.ts','web/lib/text-import.ts','web/lib/workspace-storage.ts','web/lib/citations.ts','web/components/citation-browser.tsx','web/lib/types.ts'])testedSources[name]=createHash('sha256').update(await fs.readFile(path.join(root,name))).digest('hex');
   const entry = path.join(temporary, 'entry.tsx');
   await fs.writeFile(entry, `import React from 'react';import {createRoot} from 'react-dom/client';import Workspace from ${JSON.stringify(path.join(web, 'app/workspace.tsx'))};createRoot(document.getElementById('root')!).render(<Workspace userId="synthetic-owner"/>);`);
   await build({entryPoints:[entry],outfile:path.join(temporary,'bundle.js'),bundle:true,format:'iife',platform:'browser',jsx:'automatic',nodePaths:[path.join(web,'node_modules')],define:{'process.env.NODE_ENV':'"test"'},plugins:[{name:'synthetic-services',setup(builder){builder.onResolve({filter:/^@\//},args=>{if(mocked.has(args.path.replace('@/lib/','')))return {path:'fixture',namespace:'synthetic'};return {path:path.join(web,args.path.slice(2)+(args.path.startsWith('@/components/')?'.tsx':'.ts'))};});builder.onLoad({filter:/.*/,namespace:'synthetic'},()=>({contents:fixture,loader:'js',resolveDir:web}));}}]});
@@ -294,11 +309,73 @@ try {
   pass('503 deletion blocks stale reader/list and Back; reload preserves unrelated library and explicit cleanup retry through cache clear');
   await lifecycle.close();
 
+  const interactionContext=await browser.newContext({viewport:{width:1280,height:900},permissions:['clipboard-read','clipboard-write']});const interaction=await interactionContext.newPage();interaction.on('pageerror',error=>browserErrors.push(String(error)));await interaction.goto(origin);await interaction.getByText('Bring your reading here.',{exact:true}).waitFor();
+  const disclosure=interaction.locator('.add-menu'),uploadTrigger=interaction.locator('.add-menu > summary');
+  for(let count=0;count<10;count++){await interaction.keyboard.press('Tab');if(await uploadTrigger.evaluate(el=>el===document.activeElement))break;}
+  assert.equal(await uploadTrigger.evaluate(el=>el===document.activeElement),true);await interaction.keyboard.press('Enter');assert.equal(await disclosure.evaluate(el=>el.open),true);
+  const uploadAccessibility=await disclosure.ariaSnapshot();for(const name of ['Add files','Add folder','Add photos']){const child=disclosure.getByRole('button',{name,exact:true});assert.equal(await child.count(),1);assert.equal(await child.isVisible(),true);}
+  await interaction.keyboard.press('Tab');assert.equal(await disclosure.getByRole('button',{name:'Add files',exact:true}).evaluate(el=>el===document.activeElement),true);await interaction.keyboard.press('Escape');assert.equal(await disclosure.evaluate(el=>el.open),false);assert.equal(await uploadTrigger.evaluate(el=>el===document.activeElement),true);
+  await interaction.keyboard.press('Enter');await interaction.getByLabel('Paste a link or text',{exact:true}).click();assert.equal(await disclosure.evaluate(el=>el.open),false);assert.equal(await interaction.getByLabel('Paste a link or text',{exact:true}).evaluate(el=>el===document.activeElement),true);
+  await uploadTrigger.focus();await interaction.keyboard.press('Enter');for(let count=0;count<4;count++)await interaction.keyboard.press('Tab');assert.equal(await disclosure.evaluate(el=>el.open),false);assert.equal(await disclosure.evaluate(el=>el.contains(document.activeElement)),false);
+  await uploadTrigger.click();const menuPickerPromise=interaction.waitForEvent('filechooser');await disclosure.getByRole('button',{name:'Add files',exact:true}).click();const menuPicker=await menuPickerPromise;assert.equal(await disclosure.evaluate(el=>el.open),false);assert.equal(await uploadTrigger.evaluate(el=>el===document.activeElement),true);await menuPicker.setFiles([]);assert.equal(await uploadTrigger.evaluate(el=>el===document.activeElement),true);await interaction.getByLabel('Choose source files',{exact:true}).dispatchEvent('cancel');assert.equal(await uploadTrigger.evaluate(el=>el===document.activeElement),true);
+  await fs.writeFile(path.join(output,'upload-accessibility.txt'),uploadAccessibility+'\n');
+  pass('Upload children have names; Escape restores focus, outside click and Tab dismiss, picker activation preserves trigger focus');
+
+  await interaction.evaluate(()=>navigator.clipboard.writeText('https://example.invalid/never-auto-read'));const draftInput=interaction.getByLabel('Paste a link or text',{exact:true});await draftInput.focus();await interaction.waitForTimeout(100);assert.equal(await draftInput.inputValue(),'');assert.equal(await interaction.evaluate(()=>window.__qa.clipboardReads),0);
+  await draftInput.fill('Existing draft: ');await interaction.evaluate(()=>navigator.clipboard.writeText('https://example.invalid/native-paste'));await draftInput.focus();await interaction.keyboard.press('End');await interaction.keyboard.press('Control+V');await interaction.waitForFunction(()=>document.querySelector('#source-paste').value==='Existing draft: https://example.invalid/native-paste');await uploadTrigger.focus();await draftInput.focus();assert.equal(await draftInput.inputValue(),'Existing draft: https://example.invalid/native-paste');assert.equal(await interaction.evaluate(()=>window.__qa.clipboardReads),0);assert.equal(await interaction.evaluate(()=>window.__qa.rows().length),0);assert.equal(await interaction.locator('.queue-item').count(),0);await interaction.screenshot({path:path.join(output,'native-paste-draft.png')});
+  pass('focusing composer never reads clipboard; native paste edits and preserves the draft without importing');
+  await interaction.getByLabel('Choose source files',{exact:true}).setInputFiles(file('clipboard-reader.txt','Existing reader remains during clipboard image import'));await interaction.locator('.queue-item').filter({hasText:'clipboard-reader.txt'}).locator('.phase-saved').waitFor();await interaction.evaluate(async()=>{window.__qa.hold('image-upload');document.querySelector('#source-paste').addEventListener('paste',event=>{window.__qa.pastedFiles=Array.from(event.clipboardData.files,file=>({name:file.name,type:file.type}));});const canvas=document.createElement('canvas');canvas.width=2;canvas.height=2;const context=canvas.getContext('2d');context.fillStyle='#447766';context.fillRect(0,0,2,2);const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));await navigator.clipboard.write([new ClipboardItem({'image/png':png})]);});await draftInput.focus();await interaction.keyboard.press('Control+V');await interaction.waitForFunction(()=>window.__qa.pastedFiles?.some(file=>file.type==='image/png'));await interaction.locator('.phase-uploading').waitFor();const clipboardImageName=await interaction.evaluate(()=>window.__qa.pastedFiles.find(file=>file.type==='image/png').name);assert.equal(await draftInput.inputValue(),'Existing draft: https://example.invalid/native-paste');assert.equal(await interaction.locator('.reading').textContent(),'Existing reader remains during clipboard image import');assert.equal(await interaction.evaluate(()=>window.__qa.clipboardReads),0);await interaction.evaluate(()=>window.__qa.release('image-upload'));await interaction.locator('.queue-item').filter({has:interaction.locator('.queue-open strong').filter({hasText:clipboardImageName})}).locator('.phase-saved').waitFor();assert.equal(await interaction.locator('.reading').textContent(),'Existing reader remains during clipboard image import');await interaction.screenshot({path:path.join(output,'native-png-paste-reader-preserved.png')});await interactionContext.close();
+  pass('native Chromium PNG clipboard paste appends an image while preserving draft and reader; OCR is mocked');
+
+
+  // These records exercise a supplied-data consumer boundary, not reference extraction.
+  const citationPage=await browser.newPage({viewport:{width:1440,height:1000}});citationPage.on('pageerror',error=>browserErrors.push(String(error)));await citationPage.goto(origin);await citationPage.getByText('Bring your reading here.',{exact:true}).waitFor();
+  const suppliedFixture=(id,title)=>{
+    const record={id,title,original_name:title,kind:'pdf',mime:'application/pdf',status:'ready',engine:'Synthetic supplied backend record',created_at:'2026-10-04T00:00:00Z',sha256:createHash('sha256').update('Synthetic original fixture').digest('hex'),bytes:26,source_url:null,result_key:'synthetic-results/'+id+'/v1.json'};
+    const result={title,text:'Synthetic document body. Source text alone must never fabricate a bibliography.',links:[],warnings:[],engine:'Synthetic supplied backend record',status:'ready',bibliography:{schema:'tpe.web-citations',version:1,source:{document_id:id,sha256:record.sha256,result_key:record.result_key,original_name:title},provenance:{producer:'native-grobid',native_version:'synthetic-native',grobid_version:'synthetic-grobid',generated_at:'2026-10-04T00:00:00Z'},document:{title:'Supplied metadata does not rename the original',authors:['Fixture document author']},references:{state:'ready',items:[{id:'ref-alpha',label:'[1]',page:7,title:'Synthetic "Alpha", reference',authors:['Rivera, A.','Chen, B.'],year:'2024',venue:'Fixture Journal',raw:'Line one, "quoted"\nLine two',doi:'10.5555/synthetic.alpha',resolution:{status:'not-requested',providers:[]}},{id:'ref-formula',title:'=SUM(1,2)',authors:['SECOND_ONLY Author'],raw:'Synthetic unresolved bibliography record',url:'javascript:alert(1)',resolution:{status:'unresolved',providers:['crossref'],note:'Supplied fixture outcome'}}]},mentions:{state:'ready',items:[{id:'mention-one',text:'[1]',context:'Synthetic mention with explicit producer linkage.',page:3,reference_ids:['ref-alpha']}]}}};
+    return {record,result};
+  };
+  const citedA=suppliedFixture('citation-a','Reference fixture A.pdf'),citedB=suppliedFixture('citation-b','Reference fixture B.pdf');citedB.result.bibliography.references.items=[{id:'ref-beta',title:'Beta second-document reference',authors:['Beta Author'],raw:'Another supplied synthetic reference',resolution:{status:'not-requested',providers:[]}}];delete citedB.result.bibliography.source.result_key;citedB.result.bibliography.mentions={state:'unavailable',reason:'Synthetic bibliography contains no supplied mention extraction'};
+  const unavailable=suppliedFixture('citation-unavailable','No supplied citations.pdf');delete unavailable.result.bibliography;unavailable.result.text='Printed DOI 10.5555/not-a-bibliography and [99] must not become invented references.';unavailable.result.links=[{url:'https://doi.org/10.5555/not-a-bibliography',kind:'printed DOI'}];
+  const rejected=[];for(const [id,title,corrupt] of [
+    ['bad-schema','Rejected schema.pdf',value=>{value.result.bibliography.version=99;}],
+    ['bad-document','Rejected document binding.pdf',value=>{value.result.bibliography.source.document_id='another-document';}],
+    ['bad-hash','Rejected hash binding.pdf',value=>{value.result.bibliography.source.sha256='b'.repeat(64);}],
+    ['bad-revision','Rejected result revision.pdf',value=>{value.result.bibliography.source.result_key='stale-result';}],
+    ['bad-field','Rejected malformed authors.pdf',value=>{value.result.bibliography.references.items[0].authors='not-an-array';}],
+  ]){const value=suppliedFixture(id,title);corrupt(value);rejected.push(value);}
+  await citationPage.evaluate(fixtures=>{for(const fixture of fixtures)window.__qa.supply(fixture);},[unavailable,citedA,citedB,...rejected]);
+  const citationLibrary=citationPage.locator('.library');await citationLibrary.locator('summary').first().click();await citationLibrary.getByRole('button',{name:'Search',exact:true}).click();
+  const citationDetails=citationPage.locator('.reader-secondary > details').filter({has:citationPage.locator('summary').filter({hasText:/^Citations$/})});
+  const citationPane=citationPage.getByRole('region',{name:'Citations',exact:true});
+  const openCitationDetails=async()=>{if((await citationDetails.getAttribute('open'))===null)await citationDetails.locator('summary').first().click();await citationPane.waitFor({state:'visible'});};
+  const selectCitationDocument=async title=>{if((await citationLibrary.getAttribute('open'))===null)await citationLibrary.locator('summary').first().click();await citationLibrary.locator('.document-item').filter({hasText:title}).click();await citationPage.waitForFunction(title=>document.querySelector('.reader-heading h2')?.textContent===title,title);await openCitationDetails();};
+  await selectCitationDocument(unavailable.record.title);await citationPane.getByText('Bibliography unavailable',{exact:true}).waitFor();assert.match(await citationPane.innerText(),/No native\/GROBID bibliography result was supplied/);assert.equal(await citationPane.getByRole('button',{name:'Download CSV',exact:true}).count(),0);assert.equal(await citationPane.locator('.citation-fields').count(),0);
+  pass('absent citation payload stays explicitly unavailable and printed DOI/source links never create fake references');
+
+  await selectCitationDocument(citedA.record.title);const citationView=citationPane.getByLabel('Citation view',{exact:true}),citationFilter=citationPane.getByLabel('Filter citations',{exact:true});await citationView.selectOption('references');await citationPane.getByText('Synthetic "Alpha", reference',{exact:true}).waitFor();assert.match(await citationPane.innerText(),/Supplied provenance is unverified/);assert.match(await citationPane.innerText(),/Printed label/);assert.equal(await citationPane.getByText('ref-alpha',{exact:true}).isVisible(),false);assert.equal(await citationPane.locator('a[href^="https://doi.org/"],a[href^="javascript:"]').count(),0);assert.equal(await citationPage.locator('.reader-heading h2').textContent(),citedA.record.title);
+  await citationFilter.fill('SECOND_ONLY');await citationPane.getByText('=SUM(1,2)',{exact:true}).waitFor();assert.equal(await citationPane.getByText('Synthetic "Alpha", reference',{exact:true}).count(),0);await citationFilter.fill('');await citationView.selectOption('mentions');await citationPane.getByText('[1]',{exact:true}).waitFor();assert.match(await citationPane.innerText(),/Synthetic mention with explicit producer linkage/);assert.equal(await citationPane.getByText('ref-alpha',{exact:true}).isVisible(),false);await citationPane.locator('.citation-card details > summary').click();assert.match(await citationPane.innerText(),/ref-alpha/);
+  pass('typed supplied references and mentions browse/filter without guessed DOI links or source renaming');
+
+  await citationView.selectOption('csv');await citationFilter.fill('');const allCsvDownload=citationPage.waitForEvent('download');await citationPane.getByRole('button',{name:'Download CSV',exact:true}).click();const csvDownload=await allCsvDownload;assert.match(csvDownload.suggestedFilename(),/\.csv$/);const csvBytes=await fs.readFile(await csvDownload.path(),'utf8');const parsedCsv=parseDownloadedCsv(csvBytes),columns=parsedCsv[0];assert.deepEqual(columns,['type','id','label','title','authors','year','venue','raw','doi','pmid','url','page','mention','reference_ids','context','resolution_status','resolution_providers','resolution_note']);const csvRecords=parsedCsv.slice(1).map(row=>Object.fromEntries(columns.map((column,index)=>[column,row[index]])));assert.equal(csvRecords.length,3);const alphaCsv=csvRecords.find(row=>row.id==='ref-alpha'),formulaCsv=csvRecords.find(row=>row.id==='ref-formula'),mentionCsv=csvRecords.find(row=>row.id==='mention-one');assert.equal(alphaCsv.label,'[1]');assert.equal(alphaCsv.page,'7');assert.equal(alphaCsv.title,'Synthetic "Alpha", reference');assert.deepEqual(JSON.parse(alphaCsv.authors),['Rivera, A.','Chen, B.']);assert.equal(alphaCsv.raw,'Line one, "quoted"\nLine two');assert.equal(formulaCsv.title,"'=SUM(1,2)");assert.deepEqual(JSON.parse(mentionCsv.reference_ids),['ref-alpha']);assert.equal(mentionCsv.page,'3');await fs.writeFile(path.join(output,'supplied-citations.csv'),csvBytes);
+  await citationFilter.fill('SECOND_ONLY');const filteredDownloadEvent=citationPage.waitForEvent('download');await citationPane.getByRole('button',{name:'Download CSV',exact:true}).click();const filteredCsv=await fs.readFile(await (await filteredDownloadEvent).path(),'utf8');const filteredRows=parseDownloadedCsv(filteredCsv);assert.equal(filteredRows.length,2);assert.equal(filteredRows[1][columns.indexOf('id')],'ref-formula');assert.equal(filteredRows[1][columns.indexOf('title')],"'=SUM(1,2)");await fs.writeFile(path.join(output,'supplied-citations-filtered.csv'),filteredCsv);await citationFilter.fill('');
+  pass('actual citation CSV download preserves quoted fields/authors/mention links and neutralizes formula-looking cells');
+
+  await selectCitationDocument(citedB.record.title);await citationPane.getByLabel('Citation view',{exact:true}).selectOption('references');await citationPane.getByText('Beta second-document reference',{exact:true}).waitFor();assert.equal(await citationPane.getByText('Synthetic "Alpha", reference',{exact:true}).count(),0);await citationPane.locator('.citation-details > summary').click();assert.match(await citationPane.innerText(),/Not checked: no result revision supplied/);await citationPane.getByLabel('Citation view',{exact:true}).selectOption('mentions');await citationPane.getByText('In-text mentions unavailable.',{exact:true}).waitFor();await citationPane.locator('.citation-state details > summary').click();assert.match(await citationPane.innerText(),/Synthetic bibliography contains no supplied mention extraction/);
+  await citationPage.goBack();await citationPage.waitForFunction(title=>document.querySelector('.reader-heading h2')?.textContent===title,citedA.record.title);await openCitationDetails();await citationView.selectOption('references');await citationFilter.fill('');await citationPane.getByText('Synthetic "Alpha", reference',{exact:true}).waitFor();assert.equal(await citationPane.getByText('Beta second-document reference',{exact:true}).count(),0);await citationPage.waitForTimeout(400);await citationPage.reload();await citationPage.waitForFunction(title=>document.querySelector('.reader-heading h2')?.textContent===title,citedA.record.title);await openCitationDetails();await citationPane.getByLabel('Citation view',{exact:true}).selectOption('references');await citationPane.getByText('Synthetic "Alpha", reference',{exact:true}).waitFor();
+  pass('citation document switches, Back, and IndexedDB reload show only the matching supplied bibliography');
+
+  for(const rejectedFixture of rejected){await selectCitationDocument(rejectedFixture.record.title);await citationPane.getByText('Supplied citations unavailable',{exact:true}).waitFor();await citationPane.locator(':scope > details > summary').click();assert.match(await citationPane.innerText(),/Supplied citations cannot be shown/);assert.equal(await citationPane.getByRole('button',{name:'Download CSV',exact:true}).count(),0);assert.equal(await citationPane.locator('.citation-fields').count(),0);}
+  pass('malformed schema/fields and mismatched document/hash/result bindings reject citation rendering and CSV');
+
+  await selectCitationDocument(citedA.record.title);for(const view of ['references','mentions','csv']){await citationPane.getByLabel('Citation view',{exact:true}).selectOption(view);for(const width of [390,768]){await citationPage.setViewportSize({width,height:1000});await citationPage.evaluate(()=>{document.documentElement.style.fontSize='36px';document.querySelector('[aria-label="Citations"]')?.scrollIntoView();});const citationLayout=await citationPage.evaluate(()=>({width:innerWidth,document:document.documentElement.scrollWidth,body:document.body.scrollWidth}));assert(citationLayout.document<=width+1&&citationLayout.body<=width+1,JSON.stringify({view,...citationLayout}));await citationPage.screenshot({path:path.join(output,`citations-${view}-${width}-text-200.png`),fullPage:true});await citationPage.screenshot({path:path.join(output,`citations-${view}-${width}-text-200-viewport.png`)});}}
+  pass('supplied citation references/mentions/CSV remain within390px and768px layouts at200% text');await citationPage.close();
+
   assert.deepEqual(browserErrors,[]);pass('no browser runtime errors');
 
   const live=await context.newPage();let liveSite;
   try{const response=await live.goto('https://pdftextract-alpha.junkmail-edu228.chatgpt.site',{waitUntil:'domcontentloaded',timeout:20000});liveSite={status:response?.status(),url:live.url(),title:await live.title(),text:(await live.locator('body').innerText()).slice(0,650),scope:'Read-only unauthenticated navigation; no login bypass or user documents accessed'};await live.screenshot({path:path.join(output,'private-site-access.png')});}catch(error){liveSite={error:String(error),scope:'Read-only unauthenticated navigation failed; no authentication bypass attempted'};}
-  await fs.writeFile(path.join(output,'report.json'),JSON.stringify({checks,testedSources,browserVersion:browser.version(),liveSite,browserErrors,evidence:'Actual Chromium/React/CSS, text preparation, import lifecycle and IndexedDB; synthetic extraction and remote API services; not production Site functional validation'},null,2)+'\n');
+  await fs.writeFile(path.join(output,'report.json'),JSON.stringify({checks,testedSources,browserVersion:browser.version(),liveSite,browserErrors,evidence:'Actual Chromium/React/CSS, text preparation, import lifecycle, IndexedDB and citation validation/rendering; supplied synthetic bibliography and remote API fixtures, not scholarly extraction end-to-end or production Site validation'},null,2)+'\n');
   await fs.rm(path.join(output,'failure.json'),{force:true});
   console.log(JSON.stringify({passed:checks.length,output,testedSources,liveSite},null,2));
 }catch(error){await fs.writeFile(path.join(output,'failure.json'),JSON.stringify({error:String(error),stack:error.stack,checks,browserErrors},null,2)+'\n');throw error;}

@@ -6,6 +6,13 @@ See the [integration handoff](../docs/WEB_ALPHA_INTEGRATION_20261004.md) for
 combined evidence, required database migration, and rollback constraints.
 These repository changes are not a new Site deployment.
 
+The next citation/menu increment is documented in the
+[consumer-boundary handoff](../docs/WEB_CITATIONS_MENU_BOUNDARY_20261004.md).
+Its reference browser accepts supplied typed results; it does not run a
+native/GROBID service or turn source links into a bibliography. The
+[citation contract](docs/CITATIONS.md) documents source binding, independent
+availability states, unverified provenance and the CSV projection.
+
 This directory is the complete portable application source for the private TPE ChatGPT Site. It belongs to **benpshore/pdftextract**. It is separate from the repository's native Rust engine and macOS app.
 
 - Private Site: https://pdftextract-alpha.junkmail-edu228.chatgpt.site
@@ -53,10 +60,12 @@ node scripts/test-import-queue.mjs
 node scripts/test-import-controls.mjs
 node scripts/test-workspace-storage.mjs
 node scripts/test-text-import.mjs
+node scripts/test-citations.mjs
 node scripts/test-office.mjs
 node scripts/test-node-imports.mjs
 node ../scripts/test-web-workspace.cjs
 node ../scripts/test-web-reader.cjs
+node ../scripts/test-web-upload-menu.cjs
 node ../scripts/test-web-workspace-lifecycle.cjs
 node --experimental-strip-types ../scripts/test-site-mcp.mjs
 node --experimental-strip-types ../scripts/test-site-uploads-workers.mjs
