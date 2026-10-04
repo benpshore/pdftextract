@@ -1,0 +1,5 @@
+{
+  "count": 8,
+  "head_sha256": "65de5e4a22d33bc3c3e0cdaf6e0389243a9b63b8b9d52075f2f0df96c68b50be",
+  "scope": "New integration segment, not a rewrite/continuation claim of #226's existing 100-record journal. Hash lookup/order/integrity only, not signing or authorship/correctness proof."
+}

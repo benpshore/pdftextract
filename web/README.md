@@ -8,6 +8,12 @@ This directory is the complete portable application source for the private TPE C
 - User request history: [USER_REQUIREMENTS_HISTORY.md](../docs/USER_REQUIREMENTS_HISTORY.md)
 - Source exchange and deployment boundary: [WEB_ALPHA.md](../docs/WEB_ALPHA.md)
 
+The hardening integration branch defaults to local files and pasted text. URL
+capture and remote asset acquisition are disabled, including resources embedded
+in local HTML; existing owned stored assets remain readable. See
+[the integration boundary](docs/HARDENING_INTEGRATION.md) for behavior, evidence
+and qualification limits. The private deployed Site has not been changed.
+
 ## Application ownership
 
 | Source | Web-app responsibility |
@@ -38,6 +44,7 @@ pnpm install --frozen-lockfile
 node scripts/copy-pdf-wasm.mjs
 node scripts/copy-ocr-assets.mjs
 pnpm exec tsc --noEmit
+node scripts/test-network-capabilities.mjs
 node scripts/test-clip.mjs
 node scripts/test-web-extraction-review.mjs
 node scripts/test-import-flow.mjs

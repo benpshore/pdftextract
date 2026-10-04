@@ -7,16 +7,16 @@
       "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
     },
     {
-      "bytes": 5234,
+      "bytes": 5656,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "0f1d1656f513b231d06fe0ca4fd34ce8da0ce4b0c6b21d1f5a51cdd96f9bcfac"
+      "sha256": "bc209a57b0a6af617a966062bb42ff43e9460cb6f784bc1340344540c5e7c016"
     },
     {
-      "bytes": 996,
+      "bytes": 1090,
       "mode": "0644",
       "path": "app/api/capture/route.ts",
-      "sha256": "62623348695027ccb0b86c028da0356e92b52b057f558fafd4ac7a107d89f4f8"
+      "sha256": "731f35056b54f95e97a780a0697976e4df1fe3bc3befd62f7ff453f60a139f15"
     },
     {
       "bytes": 744,
@@ -25,10 +25,10 @@
       "sha256": "963a4d297a00c461e4dc9d90165ae1f6575d5171b4f357fd4f4a61eff71d4f4e"
     },
     {
-      "bytes": 1217,
+      "bytes": 1311,
       "mode": "0644",
       "path": "app/api/documents/[id]/assets/route.ts",
-      "sha256": "0ecf56b1d620fa98ebf0f084e458f629992a54a426310ba4f2a99562f3d2fc77"
+      "sha256": "70916ad025f0e062a28679f73cc042dd294fa357864c39fbd48eabd3a252e08e"
     },
     {
       "bytes": 1627,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 42834,
+      "bytes": 43592,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "d9fa2a7133125191a6e605b08aad024fb40e77d2d9807048be28feeb209df044"
+      "sha256": "eaaee447761b929c2603146a043eb5a69436d59b995597ce403b762c7da2c70d"
     },
     {
       "bytes": 7211,
@@ -529,16 +529,22 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
+      "bytes": 2742,
+      "mode": "0644",
+      "path": "docs/HARDENING_INTEGRATION.md",
+      "sha256": "d92d540523caaf9ca01748090886e59fb280fb79261aa6e13b487acf0862a56e"
+    },
+    {
       "bytes": 5163,
       "mode": "0644",
       "path": "docs/OFFICE.md",
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
     },
     {
-      "bytes": 3440,
+      "bytes": 3926,
       "mode": "0644",
       "path": "docs/SOURCE_EGRESS.md",
-      "sha256": "24a293eabbd0da91574ea6f8f4c78f599d34add205e116474346e8de1f5c4873"
+      "sha256": "ec51457ed10a4085dc4399ec038a51af455b657e0c0f06475876304233421963"
     },
     {
       "bytes": 148,
@@ -589,10 +595,10 @@
       "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
     },
     {
-      "bytes": 1917,
+      "bytes": 2257,
       "mode": "0644",
       "path": "lib/article-assets.ts",
-      "sha256": "7a2a7b86dcb16b6efe1bce966d1e1a6884ea8cd289f94330bd373cf84373a1b0"
+      "sha256": "858509e2e73fa03e3fbbb27d1dca7c6c1c0548cbb607eece6ab3ad5f967e3aa2"
     },
     {
       "bytes": 1103,
@@ -601,10 +607,10 @@
       "sha256": "1692f6e3a838c919dd4b8019050692dd45b54b5138e105d10d112a56073470ef"
     },
     {
-      "bytes": 20905,
+      "bytes": 21380,
       "mode": "0644",
       "path": "lib/clip.ts",
-      "sha256": "136045b0df9249b22a1f36a4425651b64568f8df96e61926c81254ed123d7c50"
+      "sha256": "10df7f03b037cd64c81e4ea5af3c608542ba6ad448209e0ffb7f380484b46688"
     },
     {
       "bytes": 612,
@@ -655,10 +661,22 @@
       "sha256": "2e35a517687c7076f4f632b886247f6f95309b6902475d0cf7004fffc282c272"
     },
     {
+      "bytes": 506,
+      "mode": "0644",
+      "path": "lib/network-capabilities.ts",
+      "sha256": "abbacb8917d5af07a953af9bb1ce2b8051daedd6d2ead6085d89fc46246a1eaf"
+    },
+    {
       "bytes": 33567,
       "mode": "0644",
       "path": "lib/office.ts",
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
+    },
+    {
+      "bytes": 1678,
+      "mode": "0644",
+      "path": "lib/passive-html.ts",
+      "sha256": "6d42e6fc12c9b900920439b84e7fdb7fa43af74922ce27d3e5fc5acaf6e70fbb"
     },
     {
       "bytes": 2920,
@@ -667,10 +685,10 @@
       "sha256": "2e017bd5ce8d8d7f69eaa5f61b099a391f0ecfaacd2e34b064350e0877de3065"
     },
     {
-      "bytes": 2521,
+      "bytes": 2641,
       "mode": "0644",
       "path": "lib/source-fetch.ts",
-      "sha256": "87a3f39dd5985b18beaadc2589bd7d02528c34ca62d2817608d16af149f38b4a"
+      "sha256": "f3e04ef9ab5893ea64cdf3d31c0ab9fb7501a58edd608c429a79b0384dc8019e"
     },
     {
       "bytes": 132,
@@ -685,10 +703,10 @@
       "sha256": "bf82a0edd24c7a4659ab952b72fcefe336c4a33dc0c3d50cfbbca4d9904eeceb"
     },
     {
-      "bytes": 7062,
+      "bytes": 7221,
       "mode": "0644",
       "path": "lib/upload-client.ts",
-      "sha256": "3a772b085d586480c7f4fe175c87a2638f7a1ad14d0d60395a8708cd77030af4"
+      "sha256": "1545c4d875621c998adb5843ddeef3e3f742888dfa235802a42a9d7223f6b84f"
     },
     {
       "bytes": 3860,
@@ -871,16 +889,22 @@
       "sha256": "cb725294534dc9dd16b529d5f9e267ef956704d7c88a1e1f140de454cbe0f811"
     },
     {
-      "bytes": 8235,
+      "bytes": 8183,
       "mode": "0644",
       "path": "scripts/test-clip.mjs",
-      "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
+      "sha256": "4c8e2bbe989c36ef8a52c7d73c1ac3a509f6db185fab2561a95567c24f0ca811"
     },
     {
       "bytes": 3497,
       "mode": "0644",
       "path": "scripts/test-import-flow.mjs",
       "sha256": "c22f7ec322106d635798332e083b617c94185707373e790db1396b3b71d25b85"
+    },
+    {
+      "bytes": 3687,
+      "mode": "0644",
+      "path": "scripts/test-network-capabilities.mjs",
+      "sha256": "9a9727fd277c738c975101133836d2677a6cad664fb1c1a986f8f58c249b823b"
     },
     {
       "bytes": 10873,
@@ -895,16 +919,16 @@
       "sha256": "0c35e57e6a1c7159a57dfe7ab624c51b58c3d5b3bb3324afa5e9f43c34fb967b"
     },
     {
-      "bytes": 7039,
+      "bytes": 8354,
       "mode": "0644",
       "path": "scripts/test-source-fetch.mjs",
-      "sha256": "b0aef1b8a0045a8e47962be91cf2e85d143895d94d26729de0596f2a3c79c02d"
+      "sha256": "4badc65a4d991a656ee0663622835236082fd988bdb3a36d494e391fb908262c"
     },
     {
-      "bytes": 11241,
+      "bytes": 11214,
       "mode": "0644",
       "path": "scripts/test-web-extraction-review.mjs",
-      "sha256": "c8c4b7dbe1875795bd3f789baebce5c031c82488994f000a09dc842a1c895817"
+      "sha256": "844680f6e119ccc2ac0277dafc1866254ed11414f8d925579bba76a25839695d"
     },
     {
       "bytes": 800,

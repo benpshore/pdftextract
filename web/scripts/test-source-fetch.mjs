@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdtemp, writeFile, rm } from 'node:fs/promises';
-import { createRequire, stripTypeScriptTypes } from 'node:module';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
@@ -19,9 +19,26 @@ try {
   assert(built.compatibility_flags.includes('global_fetch_strictly_public'), 'production output must retain the flag');
   assert(!built.compatibility_flags.includes('global_fetch_private_origin'));
 
-  const source = stripTypeScriptTypes(await readFile(join(root, 'lib/source-fetch.ts'), 'utf8'));
-  await writeFile(join(temporary, 'source.mjs'), source);
-  const { fetchPublicSource } = await import(pathToFileURL(join(temporary, 'source.mjs')));
+  const require = createRequire(import.meta.url);
+  const { build } = require(require.resolve('esbuild', { paths: [require.resolve('vite')] }));
+  async function sourceModule(name, plugins = []) {
+    const outfile = join(temporary, name + '.mjs');
+    await build({ entryPoints: [join(root, 'lib/source-fetch.ts')], bundle: true, format: 'esm', platform: 'node', outfile, plugins });
+    return import(pathToFileURL(outfile));
+  }
+  const production = await sourceModule('production');
+  let disabledRequests = 0;
+  globalThis.fetch = async () => { disabledRequests++; throw Error('production gate allowed network work'); };
+  for (const operation of [() => production.allowed('https://example.com/'), () => production.fetchPublicSource('https://example.com/', 'text/html')]) {
+    await assert.rejects(operation, error => error instanceof Response && error.status === 503);
+  }
+  assert.equal(disabledRequests, 0, 'production must refuse before DNS or HTTP');
+  // Exercise retained transport independently, without an enabling production setting.
+  // This virtual module exists only in this fixture bundle; it cannot qualify re-enablement.
+  const { fetchPublicSource } = await sourceModule('transport-fixture', [{ name: 'explicit-test-only-capability', setup(build) {
+    build.onResolve({ filter: /network-capabilities$/ }, () => ({ path: 'fixture-capability', namespace: 'fixture' }));
+    build.onLoad({ filter: /.*/, namespace: 'fixture' }, () => ({ contents: 'export function requireRemoteExtraction() {}', loader: 'js' }));
+  } }]);
   let requests = [], dns = {}, replies = [];
   globalThis.fetch = async (value, options) => {
     const url = new URL(value);
@@ -90,7 +107,6 @@ const config :Workerd.Config = (
  sockets = [(name = "http", address = "127.0.0.1:0", http = (), service = "test")]
 );
 `);
-  const require = createRequire(import.meta.url);
   const wranglerRequire = createRequire(require.resolve('wrangler/package.json'));
   const miniflareRequire = createRequire(wranglerRequire.resolve('miniflare/package.json'));
   const executable = join(dirname(miniflareRequire.resolve('workerd/package.json')), 'bin/workerd');
@@ -113,7 +129,7 @@ const config :Workerd.Config = (
   const result = await originalFetch(`http://127.0.0.1:${port}/`);
   assert.equal(result.status, 403, await result.text());
   assert.equal(hits, 0, 'private sentinel must never receive the Worker connection');
-  console.log('Source capture, redirect checks, production flag, and real workerd public egress passed.');
+  console.log('Disabled production gate, retained transport fixtures, production flag, and isolated workerd connection boundary passed. No production re-enablement or formal audit qualification.');
 } finally {
   globalThis.fetch = originalFetch;
   if (child) { child.kill(); await new Promise(resolve => child.once('close', resolve)); }

@@ -34,6 +34,7 @@ jobs:
       - run: node scripts/copy-pdf-wasm.mjs
       - run: node scripts/copy-ocr-assets.mjs
       - run: pnpm exec tsc --noEmit
+      - run: node scripts/test-network-capabilities.mjs
       - run: node scripts/test-clip.mjs
       - run: node scripts/test-web-extraction-review.mjs
       - run: node scripts/test-import-flow.mjs

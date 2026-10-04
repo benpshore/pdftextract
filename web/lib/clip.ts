@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
 import type { Extracted, LinkEvidence } from './types';
+import {passiveHtmlDocument} from './passive-html';
 
 export function safeUrl(value: string, base?: string) {
   if (!value.trim()) return null;
@@ -149,19 +150,26 @@ function htmlText(document: Document): string {
 }
 
 export function clipHtml(source: string, url: string, title = 'Saved page', options: { fragment?: boolean } = {}): Extracted {
-  const document = new DOMParser().parseFromString(source, 'text/html');
+  // Read provenance from an inert template before the resource-removing parser.
+  // Canonical/feed URLs remain data; their link elements never enter the document.
+  const provenance = globalThis.document.createElement('template');
+  provenance.innerHTML = source;
+  const canonical = provenance.content.querySelector('link[rel="canonical"]')?.getAttribute('href') || '';
+  const feeds = Array.from(provenance.content.querySelectorAll('link[rel="alternate"]')).filter(element => /rss|atom/i.test(element.getAttribute('type') || '')).map(element => ({ type: element.getAttribute('type'), href: element.getAttribute('href') || '' }));
+  provenance.innerHTML = '';
+  const document = passiveHtmlDocument(source);
   const base = safeUrl(document.querySelector('base[href]')?.getAttribute('href') || '', url) || url;
   const structured = structuredMetadata(document, base);
-  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Fetched HTML snapshot; scripts were not executed' };
+  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Local HTML snapshot; external resources disabled',remoteResources:'disabled' };
   const metas: Record<string, string> = {};
   for (const element of Array.from(document.querySelectorAll('meta[name],meta[property]'))) {
     const key = element.getAttribute('name') || element.getAttribute('property') || '';
     metas[key] = cleanText(element.getAttribute('content') || '');
   }
   metadata.meta = metas;
-  metadata.canonical = safeUrl(document.querySelector('link[rel="canonical"]')?.getAttribute('href') || '', base);
+  metadata.canonical = safeUrl(canonical, base);
   metadata.structuredData = structured.articles;
-  metadata.feeds = Array.from(document.querySelectorAll('link[rel="alternate"]')).filter(element => /rss|atom/i.test(element.getAttribute('type') || '')).map(element => ({ type: element.getAttribute('type'), url: safeUrl(element.getAttribute('href') || '', base) })).filter(feed => feed.url);
+  metadata.feeds = feeds.map(feed => ({ type: feed.type, url: safeUrl(feed.href, base) })).filter(feed => feed.url);
   const pageTitle = textContent(document.querySelector('title'));
   cleanDocument(document, base, options.fragment);
   const warnings = ['Captured the available HTML without running scripts. Content requiring client-side rendering or authentication may be absent.'];

@@ -20,12 +20,18 @@ runtime hardening, **not evidence of an exploited production rebinding attack**.
 No IP-URL rewrite, forged Host header, raw socket, or `resolveOverride` is used.
 Workers does not support arbitrary IP pinning with those fetch mechanisms;
 `resolveOverride` is zone constrained and would be ignored for arbitrary public
-sources. Ordinary public hostname/TLS capture remains supported.
+sources. The retained transport supports ordinary public hostname/TLS capture.
+On `integration/security-hardening`, production capture and remote assets remain
+disabled before DNS/HTTP by the fixed local-only capability. There is no runtime
+flag, environment switch, or test override in the application that enables it.
 
 ## Regressions and limits
 
 After a production build, run `node scripts/test-source-fetch.mjs`.
-It checks the source and generated runtime flag, public capture, relative public
+It first checks that the unmodified production gate refuses before DNS/HTTP.
+A separately bundled, explicitly test-only capability stub then exercises the
+retained transport; it does not qualify production re-enablement. That fixture
+checks the source and generated runtime flag, public capture, relative public
 redirects, private-address and private-DNS redirects, and a same-host redirect
 whose mocked DoH answer changes from public to loopback. A separate real workerd
 test simulates a successful public preflight followed by a hostname connection

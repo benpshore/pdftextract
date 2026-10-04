@@ -1,0 +1,90 @@
+[
+  {
+    "name": "ruff-format",
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "ruff",
+      "format",
+      "--check",
+      "."
+    ],
+    "status": 0,
+    "error": null,
+    "elapsed_ms": 56
+  },
+  {
+    "name": "ruff-check",
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "ruff",
+      "check",
+      "."
+    ],
+    "status": 0,
+    "error": null,
+    "elapsed_ms": 46
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "uv",
+      "run",
+      "--no-sync",
+      "pytest",
+      "-q"
+    ],
+    "status": 0,
+    "error": null,
+    "elapsed_ms": 1276
+  },
+  {
+    "name": "audit",
+    "command": [
+      "uv",
+      "audit",
+      "--preview-features",
+      "audit-command"
+    ],
+    "status": 2,
+    "error": null,
+    "elapsed_ms": 5313
+  },
+  {
+    "name": "cargo",
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "status": null,
+    "error": "[Errno 2] No such file or directory: 'cargo'",
+    "elapsed_ms": 1
+  },
+  {
+    "name": "swift",
+    "command": [
+      "swift",
+      "build"
+    ],
+    "status": null,
+    "error": "[Errno 2] No such file or directory: 'swift'",
+    "elapsed_ms": 0
+  },
+  {
+    "name": "cmake",
+    "command": [
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "/tmp/pdftextract-integration-cmake"
+    ],
+    "status": null,
+    "error": "[Errno 2] No such file or directory: 'cmake'",
+    "elapsed_ms": 0
+  }
+]
