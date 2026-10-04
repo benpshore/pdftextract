@@ -39,11 +39,11 @@ function cleanDocument(document: Document, base: string, fragment = false) {
     for (const node of Array.from(document.querySelectorAll('nav,[role="navigation"],[role="banner"],[role="complementary"],aside,footer'))) {
       if (!node.matches('[role="doc-footnote"],[role="doc-endnote"]') && !node.querySelector('[role="doc-footnote"],[role="doc-endnote"]')) node.remove();
     }
-  for (const node of Array.from(document.querySelectorAll('header'))) {
-    if (!node.closest('article,main,[role="main"]')) node.remove();
-  }
-  // Explicit chrome markers only: broad substring rules can delete real article sections.
-  for (const node of Array.from(document.querySelectorAll('[role="dialog"],[aria-modal="true"],[data-ad-slot],[data-ad-unit],.advertisement,.ad-container,.cookie-banner,.cookie-consent,.newsletter-signup,.social-share,.related-articles,.related-posts'))) node.remove();
+    for (const node of Array.from(document.querySelectorAll('header'))) {
+      if (!node.closest('article,main,[role="main"]')) node.remove();
+    }
+    // Explicit chrome markers only: broad substring rules can delete real article sections.
+    for (const node of Array.from(document.querySelectorAll('[role="dialog"],[aria-modal="true"],[data-ad-slot],[data-ad-unit],.advertisement,.ad-container,.cookie-banner,.cookie-consent,.newsletter-signup,.social-share,.related-articles,.related-posts'))) node.remove();
   }
   const textNodes = document.createTreeWalker(document.body, 4); // NodeFilter.SHOW_TEXT
   while (textNodes.nextNode()) textNodes.currentNode.nodeValue = cleanText(textNodes.currentNode.nodeValue || '');

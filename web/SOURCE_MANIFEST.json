@@ -607,10 +607,10 @@
       "sha256": "1692f6e3a838c919dd4b8019050692dd45b54b5138e105d10d112a56073470ef"
     },
     {
-      "bytes": 17884,
+      "bytes": 17894,
       "mode": "0644",
       "path": "lib/clip.ts",
-      "sha256": "c351e03b6943f4121a3fa846c8bd5cc55eb285a651733543dd917ee64afca4bc"
+      "sha256": "76978de5602469fe208f1ce8833a4ca5aa92297d1097ce90268511252dbb8b3b"
     },
     {
       "bytes": 612,
