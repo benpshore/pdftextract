@@ -19,7 +19,7 @@ export type PassiveHtmlSnapshot = {
  * to the result except lang. This does not validate a language tag's semantics.
  */
 function rootLanguage(source: string): string | null {
-  const opening = source.match(/^(?:\s|<!--[\s\S]*?-->|<!doctype\b(?:"[^"]*"|'[^']*'|[^'">])*?>)*(<html\b(?:"[^"]*"|'[^']*'|[^'">])*?>)/i)?.[1];
+  const opening = source.match(/^(?:\s|<!--[\s\S]*?-->|<!doctype\b(?:"[^"]*"|'[^']*'|[^'">])*?>)*(<html(?=[\t\n\f\r />])(?:"[^"]*"|'[^']*'|[^'">])*?>)/i)?.[1];
   if (!opening) return null;
   const carrier = document.createElement('template');
   carrier.innerHTML = `<span${opening.slice(5)}</span>`;

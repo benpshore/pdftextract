@@ -97,3 +97,7 @@ syntax/ownership/FFI and doubts on changed code; no unrelated comment rewrite.
 Root coordinates the independent reviewers; Bob remains sole integrating owner.
 Poppler Partial exit semantics and selected cohort/export authority require
 assessment before any workflow repair; do not retrieve or publish held-out data.
+
+### WIP fixture correction
+
+Checkpoint d6ea11d79dc79b0390ab7531ce60a9c8074fc98e's message prematurely says affected web checks passed. Its run actually stopped on an extra tiny article-only `lang=es` expectation; the complete-root, absent-root, encoded/quoted prologue and spoofed-language cases had passed before that assertion. That assertion describes no established Readability behavior and is removed from this focused root-language repair. New affected checks and browser evidence must be recorded separately. This corrects the claim without rewriting the commit or old test records.
