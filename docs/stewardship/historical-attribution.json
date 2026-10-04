@@ -367,5 +367,23 @@
       "url": "https://github.com/benpshore/pdftextract/issues/44",
       "body_sha256": "7a9848607eba578c88e62cca7df676e36e339858686d25daacdc3dc6d0784aab"
     }
+  ],
+  "later_parent_reported_research": [
+    {
+      "display_name": "Clipper Clive (parent-reported)",
+      "task_id": null,
+      "fingerprint": null,
+      "configuration": null,
+      "usage": null,
+      "source": "parent live-call delegation; preliminary Bear source links only; unfinished research queued in #231"
+    },
+    {
+      "role": "two interrupted native researchers (parent-reported)",
+      "task_ids": null,
+      "names": null,
+      "fingerprints": null,
+      "usage": null,
+      "source": "parent live-call instruction; no completed research or verified identities supplied"
+    }
   ]
 }

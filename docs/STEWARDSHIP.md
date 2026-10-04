@@ -5,6 +5,57 @@ Next review: **2026-10-05 UTC**, or immediately after main/active-head changes. 
 Scope authority: Ben Shore's sequential delegation in source thread `01a0fe84-0716-7474-b2b7-709e4359b0fb`.
 Root owns queue/review/follow-through. No child agents, feature fanout, main merges, releases, deployment or Mac execution.
 
+## Current hold and queued work — live-call updates
+
+Ben briefly authorized #192/#228/#229 merges, then put **all pending merges on hold**
+at 2026-10-04 13:51:48 UTC. No merge was attempted or completed. All source heads and
+main remain unchanged. Preparation added and verified only
+`archive/steward-20261004/pr-192-b315c36a9d93` at
+`b315c36a9d93c03ef1acac9339f758431587ff51`; source branches/reviews remain.
+[Hold/version-mechanics receipt](https://github.com/benpshore/pdftextract/issues/225#issuecomment-5980730852).
+
+#222 is now **open/draft**, at unchanged `6fc3266e0860de85b0bf5bd39a364d783a1a2796`,
+after Ben explicitly requested not-ready status. [Draft receipt](https://github.com/benpshore/pdftextract/pull/222#issuecomment-5980737771).
+The [limited source/usability observations](https://github.com/benpshore/pdftextract/pull/222#issuecomment-5980868244)
+are not a completed security audit or validated patch-risk assessment. All seven changed
+files and direct capture/assets/error/UI callers were read; fetch/DNS/redirect application
+logic is byte-identical after the added contract comment. The changed runtime flag affects
+same-zone routing; deployed consequences remain unverified. Main-based #222 does not include
+held #229's network-off guards. Those guards/local-file segmentation must be preserved in
+any later explicitly scoped capture reimplementation. No source rewrite or defense removal.
+
+Exact-head CI/Web and its added test step are green; the 155-file source manifest was
+independently hash-checked. Hosted mocked/local connection tests do not qualify production
+own-zone routing, deployed provider policy, real devices or the held-stack combination.
+Formal security diff preflight reference/tools are missing. Patch-risk shared storage/schema
+references are missing; its validator source/risk rubric are readable. No substitute scan,
+scan goal, sealed report, risk rating or clearance was produced. [Resource refinement](https://github.com/benpshore/pdftextract/pull/222#issuecomment-5980887800).
+#215 remains untouched/open. Ben now defers further hardening while prioritizing usable
+Bear-like ingestion including images; this does not authorize silent protection/config changes.
+
+The [machine-readable queue](stewardship/work-queue.json) and agent-labeled issues below
+are durable work records, **queued, not started**. Owner: Bob. Review date: 2026-10-05 UTC
+or explicit parent resume, not an automation. No separate research agents are launched.
+
+| Queue | Acceptance / provenance |
+|---|---|
+| [#233 Alpha v2 current design priority](https://github.com/benpshore/pdftextract/issues/233) | Remove large hero; upload **symbol** with tooltip, accessible name/focus and sensible iPhone touch; two-line saved-article menu preserves content/state. Earlier permanent Upload-word interpretation is superseded. |
+| [#230 deferred research 1](https://github.com/benpshore/pdftextract/issues/230) | Zotero PDF metadata/configuration and actual GROBID browser/native/service execution; distinguish fixtures/replay from execution. |
+| [#231 deferred research 2](https://github.com/benpshore/pdftextract/issues/231) | Verify Bear sources/strategy and smallest practical capture path **including images**; PWA cannot be assumed to read another tab's DOM. Initial Clipper Clive sources are preliminary/incomplete, not completed research. |
+| [#232 deferred research 3](https://github.com/benpshore/pdftextract/issues/232) | Verify PDFium/Docling.rs binding/routing/build/packaging and scholarly bibliography end to end, separately from generic web hyperlinks. Selectable Crossref-validated title-linked entries, Select all, Zotero RDF default/alternatives and real import/round-trip proof; preserve raw citation/status/provenance. |
+
+Bibliography checkbox selection is independent of following the verified paper-title link.
+A landing-page link does not promise open full text. Crossref uses only an explicitly
+permitted network path. Parent suggestions for an Export selected button/selection count
+are recorded as unconfirmed advice, not Ben's accepted implementation. All detailed done
+criteria and original live-call timestamps remain in the linked issues; user issues are untouched.
+
+No version bump has occurred. Private web `0.1.0` → `0.2.0` is a suitable minor proposal
+for integrated behavior, queued with #233. Published project `v0.55.0` is unchanged;
+Git tags derive public CLI/Python versions, and main/tag operations automatically publish.
+Separate release authority and reconciled merge hold are needed before those operations.
+No third-party dependency or unrelated toolchain pin is changed.
+
 ## Read this first
 
 Live main was independently fetched at `72890e6f9d23b1c10ee2cd9d368c7c0817319c10`.
