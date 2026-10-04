@@ -1,7 +1,8 @@
 # Explicit GROBID scholarly structure module
 
 `tpe grobid FILE` is a separately selected server client, available with the
-`grobid` Cargo feature. It is not an automatic fallback or an extraction backend.
+`grobid,network` Cargo features. Both must be explicitly enabled. It is not an
+automatic fallback or an extraction backend.
 It sends the selected PDF only to the endpoint you configure. Ordinary `extract`,
 `bibliography`, and `backends` commands never invoke it.
 
@@ -21,7 +22,7 @@ response is retained in its result; the client does not claim a server runs
 ## Configuration and use
 
 ```sh
-cargo build --locked --release --features grobid
+cargo build --locked --release --features grobid,network
 export TPE_GROBID_URL=http://127.0.0.1:8070
 ./target/release/tpe grobid paper.pdf > paper.grobid.json
 ```
@@ -104,7 +105,7 @@ cancellation guarantees. The server version response is separately capped at
 4 KiB, endpoint URLs at 4 KiB, and bearer tokens at 8 KiB; these are protocol
 identity/credential checks and do not constrain PDF or TEI size.
 
-`cargo test --features grobid --test grobid_contract` covers the real HTTP client
+`cargo test --features grobid,network --test grobid_contract` covers the real HTTP client
 against loopback fixtures: transmitted PDF/parameters, disabled consolidation,
 TEI/citation/URI evidence, version checks, no redirects/retries, byte/time limits,
 XXE refusal, malformed coordinates, supervised CLI success/failure without

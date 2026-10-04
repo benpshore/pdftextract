@@ -6,6 +6,7 @@ use std::sync::{Mutex, PoisonError};
 use std::time::{Duration, Instant};
 
 use crate::error::BiblioError;
+#[cfg(feature = "network")]
 use crate::util::host_of;
 
 /// Key name for the `OpenAlex` API key (sent as the `api_key` query parameter).
@@ -65,6 +66,7 @@ impl RateLimiter {
 
 /// HTTP client shared by all bibliographic sources.
 pub struct Client {
+    #[cfg(feature = "network")]
     agent: ureq::Agent,
     user_agent: String,
     mailto: Option<String>,
@@ -83,7 +85,7 @@ impl fmt::Debug for Client {
             .field("user_agent", &self.user_agent)
             .field("mailto", &self.mailto)
             .field("keys", &key_names)
-            .field("offline", &self.offline)
+            .field("offline", &self.is_offline())
             .field("link_resolver", &self.link_resolver)
             .finish_non_exhaustive()
     }
@@ -93,16 +95,19 @@ impl Client {
     /// A client with the given `User-Agent` (include a contact address, as
     /// Crossref and `OpenAlex` ask), 30 s timeout, and default host spacing.
     pub fn new(user_agent: &str) -> Self {
+        #[cfg(feature = "network")]
         let config = ureq::Agent::config_builder()
             .user_agent(user_agent)
             .timeout_global(Some(Duration::from_secs(30)))
             .build();
+        #[cfg(feature = "network")]
         let agent: ureq::Agent = config.into();
         let mut limiter = RateLimiter::new(DEFAULT_MIN_INTERVAL);
         // Semantic Scholar allows about 1 request/s; E-utilities 3/s without a key.
         limiter.set_host_interval("api.semanticscholar.org", Duration::from_millis(1100));
         limiter.set_host_interval("eutils.ncbi.nlm.nih.gov", Duration::from_millis(350));
         Self {
+            #[cfg(feature = "network")]
             agent,
             user_agent: user_agent.to_string(),
             mailto: None,
@@ -129,6 +134,7 @@ impl Client {
     }
 
     /// Enable or disable offline mode (every request fails with `BiblioError::Offline`).
+    /// Disabling it cannot enable transport excluded by the build's `network` feature.
     #[must_use]
     pub fn with_offline(mut self, offline: bool) -> Self {
         self.offline = offline;
@@ -169,9 +175,9 @@ impl Client {
         self.keys.get(name).map(String::as_str)
     }
 
-    /// Whether offline mode is on.
+    /// Whether requests are disabled by offline mode or the build capability.
     pub fn is_offline(&self) -> bool {
-        self.offline
+        self.offline || !cfg!(feature = "network")
     }
 
     /// The configured link-resolver base URL.
@@ -189,11 +195,24 @@ impl Client {
     }
 
     /// GET `url` with extra `headers` and return the body as text. Respects
-    /// offline mode and the per-host rate limit. Errors never contain the URL.
+    /// offline mode and the per-host rate limit. Without the `network` build
+    /// feature, returns `BiblioError::NetworkDisabled` before inspecting the URL.
+    /// Errors never contain the URL.
     pub fn get_text(&self, url: &str, headers: &[(&str, &str)]) -> Result<String, BiblioError> {
         if self.offline {
             return Err(BiblioError::Offline);
         }
+        #[cfg(not(feature = "network"))]
+        {
+            let _ = (url, headers);
+            Err(BiblioError::NetworkDisabled)
+        }
+        #[cfg(feature = "network")]
+        self.request_text(url, headers)
+    }
+
+    #[cfg(feature = "network")]
+    fn request_text(&self, url: &str, headers: &[(&str, &str)]) -> Result<String, BiblioError> {
         let wait = self.reserve_slot(&host_of(url));
         if !wait.is_zero() {
             std::thread::sleep(wait);
@@ -266,6 +285,23 @@ mod tests {
         let client = Client::new("tpe-biblio-test").with_offline(true);
         let result = client.get_text("https://api.openalex.org/works", &[]);
         assert!(matches!(result, Err(BiblioError::Offline)));
+    }
+
+    #[test]
+    #[cfg(not(feature = "network"))]
+    fn runtime_setting_cannot_enable_transport_excluded_from_build() {
+        let client = Client::new("tpe-biblio-test").with_offline(false);
+        assert!(client.is_offline());
+        assert!(matches!(
+            client.get_text("https://source.invalid/paper", &[]),
+            Err(BiblioError::NetworkDisabled)
+        ));
+        // Refusal happens before URL parsing or rate-slot reservation.
+        assert!(matches!(
+            client.get_text("not a URL", &[]),
+            Err(BiblioError::NetworkDisabled)
+        ));
+        assert!(client.limiter.lock().unwrap().next_free.is_empty());
     }
 
     #[test]

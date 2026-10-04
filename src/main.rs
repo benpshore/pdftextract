@@ -27,7 +27,7 @@ use tpe::pipeline::{self, PipelineError, Progress};
 use tpe::schema::{ExtractionResult, Job, Metadata};
 
 mod cli_worker;
-#[cfg(feature = "grobid")]
+#[cfg(all(feature = "grobid", feature = "network"))]
 mod grobid_cli;
 mod worker_allocator;
 mod worker_limits;
@@ -49,7 +49,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Cmd {
     /// Send one PDF to the explicitly configured GROBID server; return TEI evidence.
-    #[cfg(feature = "grobid")]
+    #[cfg(all(feature = "grobid", feature = "network"))]
     Grobid(grobid_cli::Args),
     /// Extract text, metadata and citations from PDF files into a ledger.
     Extract(ExtractArgs),
@@ -280,7 +280,7 @@ struct EvalArgs {
 fn main() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
     match cli.command {
-        #[cfg(feature = "grobid")]
+        #[cfg(all(feature = "grobid", feature = "network"))]
         Cmd::Grobid(args) => grobid_cli::run(&args),
         Cmd::Extract(args) => cli_worker::run(&args),
         Cmd::NativeWorker {
@@ -428,11 +428,21 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> String {
     }
 }
 
+fn check_registry_capability(requested: bool) -> anyhow::Result<()> {
+    if requested && !cfg!(feature = "network") {
+        return Err(anyhow!(
+            "registry resolution is disabled in this build; it requires the explicit `network` feature"
+        ));
+    }
+    Ok(())
+}
+
 /// A bibliography-only result does not enter the full-document ledger: it
 /// neither covers the whole PDF nor contains the metadata or in-text markers
 /// promised by an `ExtractionResult`. Each output line carries its own PDF
 /// hash and page range so it can be imported into a separate store later.
 fn run_bibliography(args: &BibliographyArgs) -> anyhow::Result<ExitCode> {
+    check_registry_capability(args.resolve)?;
     check_backend(&args.backend)?;
     if let Some(csv) = &args.csv {
         reject_csv_input_aliases(csv, &args.paths)?;
