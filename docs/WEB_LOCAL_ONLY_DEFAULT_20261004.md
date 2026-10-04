@@ -1,6 +1,8 @@
 # Local-file default continuation
 
-This draft is stacked on PR213 without changing frozen PR192/207/211/213. It
+This draft starts from PR213's preserved source tree, now squash-merged into
+PR211 at `d8e902be6e409b15f476ea126cb29e861a23b095`, and is stacked on that
+existing PR211 branch. Earlier PRs are unchanged by this draft. It
 disables URL and webpage fetching, remote image retention and automatic metadata
 resolution. Local upload, folder/drop/paste, progress, cache, stored originals,
 owner-scoped embedded Office images, and text reading remain available.
@@ -37,8 +39,9 @@ The 187-file portable source manifest verifies. Ruff and 92 Python tests pass,
 alongside 28 source-export tests. Local OSV audit is blocked by the existing
 network proxy; Cargo, Swift and CMake are absent here. Hosted CI must supply those
 remaining checks before acceptance.
-The draft remains local under the publication hold; hosted CI is not yet run for
-this branch. No new PR, public issue evidence, or security details were published.
+The parent authorized publishing this benign feature hold as a draft PR. Hosted
+CI must complete on the published exact head. Only functional implementation and
+its limits are published; potential exploit details remain private.
 Parent visual QA remains a separate acceptance gate. No deployment or production
 migration occurred. This change does not verify SSRF/rebinding claims, parser RCE,
 injection, or future MCP confidentiality/prompt-injection/symlink risks. Security
