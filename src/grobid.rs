@@ -558,6 +558,17 @@ pub fn parse_tei(raw_tei: String, limit: Option<usize>) -> Result<GrobidDocument
     if pages.is_empty() {
         warnings.push("server returned no page surfaces; no page geometry was inferred".into());
     }
+    if elements.iter().any(|element| {
+        element
+            .attributes
+            .get("coords")
+            .is_some_and(|value| value.trim().is_empty())
+    }) {
+        warnings.push(
+            "server returned empty coordinate attributes; geometry is unavailable and no boxes were inferred"
+                .into(),
+        );
+    }
     if elements
         .iter()
         .flat_map(|e| &e.coordinates)
@@ -631,6 +642,12 @@ fn coords(value: Option<&str>) -> Result<Vec<Coordinate>, GrobidError> {
     let Some(value) = value else {
         return Ok(Vec::new());
     };
+    // GROBID 0.9.1 emits coords="" for citation authors without geometry.
+    // Preserve the attribute/raw TEI and warn in parse_tei; only a wholly empty
+    // value means unavailable geometry. Empty groups in a nonempty list fail.
+    if value.trim().is_empty() {
+        return Ok(Vec::new());
+    }
     let mut output = Vec::new();
     for group in value.split(';') {
         let values: Vec<_> = group.split(',').collect();

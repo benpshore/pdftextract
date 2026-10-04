@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "scope": "Linux x86_64 upstream CLI CPU qualification; does not replace Cargo dependencies",
+  "docling_version": "1.69.2",
+  "crate_source_commit": "908f080d5def736bbc094beeaf5b4a04fe504dd3",
+  "platform": "linux-x64",
+  "pin_sources": [
+    "https://github.com/docling-project/docling.rs/releases/expanded_assets/v1.69.2",
+    "native/manifest.json"
+  ],
+  "native_manifest_sha256": "194f06dd0a127a2faea3e2c815c9278e61d8cada1b7477f3bafddddee27fb156",
+  "fixture": {
+    "path": "web/scripts/fixtures/ocr-still.png",
+    "sha256": "4154a9e6fd7faa98df6359a479e61d516608663ee13bb5af27d233b75775538f",
+    "expected_phrases": [
+      "AUTONOMOUS OCR TEST",
+      "Reference 10.1000/example",
+      "Local pixels stay on this device."
+    ]
+  },
+  "artifacts": [
+    {
+      "kind": "executable",
+      "path": "docling-rs",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-rs-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "archive_sha256": "2fc8c150ea31291eb7758c923953cff46537966006b3c5950169332f669eb70b",
+      "member": "docling-rs",
+      "sha256": "cd19f4ad2e8493a051f04a87f8a85eabe186ef00b72b541ffc0a6b94e49e1ca0"
+    },
+    {
+      "kind": "pdfium",
+      "path": "pdfium/lib/libpdfium.so",
+      "url": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8066/pdfium-linux-x64.tgz",
+      "archive_sha256": "0b43f405477cf2cfc4dbff06905093c3309756c6bca1fb9da99234a2ca97fed2",
+      "member": "lib/libpdfium.so",
+      "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9"
+    },
+    {
+      "kind": "model",
+      "path": "models/layout_heron_int8.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5"
+    },
+    {
+      "kind": "model",
+      "path": "models/ocr_det.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/ocr_det.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f"
+    },
+    {
+      "kind": "model",
+      "path": "models/ocr_rec_en.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/ocr_rec_en.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea"
+    },
+    {
+      "kind": "model",
+      "path": "models/en_dict.txt",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/en_dict.txt",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3"
+    }
+  ]
+}

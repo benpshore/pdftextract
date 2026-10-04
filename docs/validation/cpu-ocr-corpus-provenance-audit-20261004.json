@@ -1,0 +1,445 @@
+{
+  "audit_version": 1,
+  "captured_at": "2026-10-04T02:54:46.666290+00:00",
+  "read_mode": "SQLite mode=ro&immutable=1; no database/previous-evidence mutation",
+  "scope": "Retained source identity/provenance/bytes, independent SQL and SHA-256 verification against retained acquisition manifest. Repository archive checksum metadata is retained and agrees with manifest; full repository archive is not in SQLite and is not recomputed by this audit.",
+  "reports": [
+    {
+      "summary_path": "/workspace/pdftextract/docs/validation/cpu-ocr-eval-20261004.json",
+      "summary_sha256": "063e1e0d039d43647d9b2b41e2f118fab7519477928f4c7c7e62520cf93695de",
+      "database_path": "/workspace/scratch/cpu-ocr-evaluation.sqlite",
+      "database_sha256": "5cac89b7fbaaeb1d945e70cf46ff3cf2529946b7c903ad0f0698016ba587ba17",
+      "database_hash_matches_immutable_summary": true,
+      "sqlite_integrity": "ok",
+      "foreign_key_violations": [],
+      "all_artifact_hashes_and_lengths_valid": true,
+      "published_sources": [
+        {
+          "metadata": {
+            "id": 7,
+            "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+            "license": "Apache-2.0",
+            "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+            "description": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_name": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_version": null,
+            "repository_url": "https://github.com/tesseract-ocr/test",
+            "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+            "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+            "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_commit_at": "2024-06-09T19:56:00Z",
+            "fixture_identifier": "testing/phototest.tif",
+            "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+            "fixture_added_at": "2018-06-04T16:28:30Z",
+            "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+            "published_at": null,
+            "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+            "doi": null,
+            "original_artifact_id": 9,
+            "fixture_id": 7,
+            "name": "tesseract_phototest",
+            "original_sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+            "byte_count": 38668
+          },
+          "retained_manifest_sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+          "retained_assets": [
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+              "artifact_id": 9,
+              "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+              "byte_count": 38668
+            },
+            {
+              "role": "corpus_manifest",
+              "uri": "/workspace/scratch/ocr-public-corpus/manifest.json",
+              "artifact_id": 10,
+              "sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+              "byte_count": 6605
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+              "artifact_id": 11,
+              "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+              "byte_count": 11357
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/README.md",
+              "artifact_id": 12,
+              "sha256": "d6211770541d298be544b913936332179500770c1f57ef7936650ea1f8cd00cc",
+              "byte_count": 175
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md",
+              "artifact_id": 13,
+              "sha256": "9a99897fd15bd99644b3e323bc97abf7c6c5a94a32ae5b0a8c5537f48cfc896d",
+              "byte_count": 2116
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.gold.txt",
+              "artifact_id": 14,
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+              "artifact_id": 15,
+              "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+              "byte_count": 6793
+            }
+          ],
+          "ground_truth": [
+            {
+              "page_number": 1,
+              "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+              "ground_truth_added_at": "2018-10-11T17:35:26Z",
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            }
+          ],
+          "checks": {
+            "repository_identity_matches_retained_manifest": true,
+            "pinned_commit_matches_retained_manifest": true,
+            "repository_tree_matches_retained_manifest": true,
+            "repository_checksum_and_method_retained": true,
+            "fixture_checksum_matches_upstream_manifest": true,
+            "fixture_id_revision_and_added_date_match": true,
+            "nullable_doi_publication_and_version_preserved": true,
+            "prepublished_before_this_evaluation": true,
+            "license_and_scope_readme_bytes_retained": true,
+            "upstream_truth_sha_revision_date_retained": true,
+            "raw_truth_equals_retained_upstream_text": true
+          }
+        },
+        {
+          "metadata": {
+            "id": 8,
+            "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+            "license": "Apache-2.0",
+            "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+            "description": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_name": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_version": null,
+            "repository_url": "https://github.com/tesseract-ocr/test",
+            "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+            "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+            "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_commit_at": "2024-06-09T19:56:00Z",
+            "fixture_identifier": "testing/phototest-rotated-L.png",
+            "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+            "fixture_added_at": "2018-06-04T16:28:30Z",
+            "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+            "published_at": null,
+            "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+            "doi": null,
+            "original_artifact_id": 15,
+            "fixture_id": 8,
+            "name": "tesseract_phototest_rotated_left",
+            "original_sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+            "byte_count": 6793
+          },
+          "retained_manifest_sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+          "retained_assets": [
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+              "artifact_id": 9,
+              "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+              "byte_count": 38668
+            },
+            {
+              "role": "corpus_manifest",
+              "uri": "/workspace/scratch/ocr-public-corpus/manifest.json",
+              "artifact_id": 10,
+              "sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+              "byte_count": 6605
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+              "artifact_id": 11,
+              "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+              "byte_count": 11357
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/README.md",
+              "artifact_id": 12,
+              "sha256": "d6211770541d298be544b913936332179500770c1f57ef7936650ea1f8cd00cc",
+              "byte_count": 175
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md",
+              "artifact_id": 13,
+              "sha256": "9a99897fd15bd99644b3e323bc97abf7c6c5a94a32ae5b0a8c5537f48cfc896d",
+              "byte_count": 2116
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.gold.txt",
+              "artifact_id": 14,
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+              "artifact_id": 15,
+              "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+              "byte_count": 6793
+            }
+          ],
+          "ground_truth": [
+            {
+              "page_number": 1,
+              "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+              "ground_truth_added_at": "2018-10-11T17:35:26Z",
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            }
+          ],
+          "checks": {
+            "repository_identity_matches_retained_manifest": true,
+            "pinned_commit_matches_retained_manifest": true,
+            "repository_tree_matches_retained_manifest": true,
+            "repository_checksum_and_method_retained": true,
+            "fixture_checksum_matches_upstream_manifest": true,
+            "fixture_id_revision_and_added_date_match": true,
+            "nullable_doi_publication_and_version_preserved": true,
+            "prepublished_before_this_evaluation": true,
+            "license_and_scope_readme_bytes_retained": true,
+            "upstream_truth_sha_revision_date_retained": true,
+            "raw_truth_equals_retained_upstream_text": true
+          }
+        }
+      ]
+    },
+    {
+      "summary_path": "/workspace/pdftextract/docs/validation/cpu-ocr-eval-font-qualified-20261004.json",
+      "summary_sha256": "8814fab6eb1e20f5b7c8d48124fb8ab23df210146bc253a2811d7da298fb85ed",
+      "database_path": "/workspace/scratch/cpu-ocr-evaluation-font-qualified.sqlite",
+      "database_sha256": "ec01327b4714832a840e39e883c4a99dd9a2c253d4bdeafbde400b457b3fdd5c",
+      "database_hash_matches_immutable_summary": true,
+      "sqlite_integrity": "ok",
+      "foreign_key_violations": [],
+      "all_artifact_hashes_and_lengths_valid": true,
+      "published_sources": [
+        {
+          "metadata": {
+            "id": 7,
+            "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+            "license": "Apache-2.0",
+            "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+            "description": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_name": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_version": null,
+            "repository_url": "https://github.com/tesseract-ocr/test",
+            "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+            "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+            "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_commit_at": "2024-06-09T19:56:00Z",
+            "fixture_identifier": "testing/phototest.tif",
+            "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+            "fixture_added_at": "2018-06-04T16:28:30Z",
+            "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+            "published_at": null,
+            "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+            "doi": null,
+            "original_artifact_id": 9,
+            "fixture_id": 7,
+            "name": "tesseract_phototest",
+            "original_sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+            "byte_count": 38668
+          },
+          "retained_manifest_sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+          "retained_assets": [
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+              "artifact_id": 9,
+              "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+              "byte_count": 38668
+            },
+            {
+              "role": "corpus_manifest",
+              "uri": "/workspace/scratch/ocr-public-corpus/manifest.json",
+              "artifact_id": 10,
+              "sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+              "byte_count": 6605
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+              "artifact_id": 11,
+              "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+              "byte_count": 11357
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/README.md",
+              "artifact_id": 12,
+              "sha256": "d6211770541d298be544b913936332179500770c1f57ef7936650ea1f8cd00cc",
+              "byte_count": 175
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md",
+              "artifact_id": 13,
+              "sha256": "9a99897fd15bd99644b3e323bc97abf7c6c5a94a32ae5b0a8c5537f48cfc896d",
+              "byte_count": 2116
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.gold.txt",
+              "artifact_id": 14,
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+              "artifact_id": 15,
+              "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+              "byte_count": 6793
+            }
+          ],
+          "ground_truth": [
+            {
+              "page_number": 1,
+              "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+              "ground_truth_added_at": "2018-10-11T17:35:26Z",
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            }
+          ],
+          "checks": {
+            "repository_identity_matches_retained_manifest": true,
+            "pinned_commit_matches_retained_manifest": true,
+            "repository_tree_matches_retained_manifest": true,
+            "repository_checksum_and_method_retained": true,
+            "fixture_checksum_matches_upstream_manifest": true,
+            "fixture_id_revision_and_added_date_match": true,
+            "nullable_doi_publication_and_version_preserved": true,
+            "prepublished_before_this_evaluation": true,
+            "license_and_scope_readme_bytes_retained": true,
+            "upstream_truth_sha_revision_date_retained": true,
+            "raw_truth_equals_retained_upstream_text": true
+          }
+        },
+        {
+          "metadata": {
+            "id": 8,
+            "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+            "license": "Apache-2.0",
+            "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+            "description": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_name": "Tesseract official test corpus \u2014 bounded phototest subset",
+            "dataset_version": null,
+            "repository_url": "https://github.com/tesseract-ocr/test",
+            "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+            "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+            "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+            "repository_commit_at": "2024-06-09T19:56:00Z",
+            "fixture_identifier": "testing/phototest-rotated-L.png",
+            "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+            "fixture_added_at": "2018-06-04T16:28:30Z",
+            "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+            "published_at": null,
+            "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+            "doi": null,
+            "original_artifact_id": 15,
+            "fixture_id": 8,
+            "name": "tesseract_phototest_rotated_left",
+            "original_sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+            "byte_count": 6793
+          },
+          "retained_manifest_sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+          "retained_assets": [
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+              "artifact_id": 9,
+              "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+              "byte_count": 38668
+            },
+            {
+              "role": "corpus_manifest",
+              "uri": "/workspace/scratch/ocr-public-corpus/manifest.json",
+              "artifact_id": 10,
+              "sha256": "f102d61cfcb079d8fdf6bdd78ade3dfcfe51a189dd41ea1694807d65724be322",
+              "byte_count": 6605
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+              "artifact_id": 11,
+              "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+              "byte_count": 11357
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/README.md",
+              "artifact_id": 12,
+              "sha256": "d6211770541d298be544b913936332179500770c1f57ef7936650ea1f8cd00cc",
+              "byte_count": 175
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md",
+              "artifact_id": 13,
+              "sha256": "9a99897fd15bd99644b3e323bc97abf7c6c5a94a32ae5b0a8c5537f48cfc896d",
+              "byte_count": 2116
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.gold.txt",
+              "artifact_id": 14,
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            },
+            {
+              "role": "corpus_file",
+              "uri": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+              "artifact_id": 15,
+              "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+              "byte_count": 6793
+            }
+          ],
+          "ground_truth": [
+            {
+              "page_number": 1,
+              "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+              "ground_truth_added_at": "2018-10-11T17:35:26Z",
+              "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+              "byte_count": 286
+            }
+          ],
+          "checks": {
+            "repository_identity_matches_retained_manifest": true,
+            "pinned_commit_matches_retained_manifest": true,
+            "repository_tree_matches_retained_manifest": true,
+            "repository_checksum_and_method_retained": true,
+            "fixture_checksum_matches_upstream_manifest": true,
+            "fixture_id_revision_and_added_date_match": true,
+            "nullable_doi_publication_and_version_preserved": true,
+            "prepublished_before_this_evaluation": true,
+            "license_and_scope_readme_bytes_retained": true,
+            "upstream_truth_sha_revision_date_retained": true,
+            "raw_truth_equals_retained_upstream_text": true
+          }
+        }
+      ]
+    }
+  ],
+  "all_checks_pass": true
+}

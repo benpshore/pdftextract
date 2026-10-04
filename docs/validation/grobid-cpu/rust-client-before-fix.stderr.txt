@@ -1,0 +1,2 @@
+Error: grobid worker exited exit status: 1: Error: invalid GROBID TEI: coordinate must have page,x,y,width,height
+

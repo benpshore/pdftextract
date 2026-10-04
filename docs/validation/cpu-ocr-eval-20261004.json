@@ -1,0 +1,784 @@
+{
+  "schema_version": 1,
+  "phase_definition": "cold = first invocation for each fixture; warm = repeat invocation in the same executor. Every invocation starts fresh Python/Tesseract processes. OS caches are NOT flushed; these are first/repeated process timings, not machine-cold or resident-model timings.",
+  "accuracy_definition": "NFKC + casefold + whitespace collapse; word tokens are Unicode word sequences",
+  "omission_definition": "Multiset reference token deficit, including substitutions; not alignment deletions.",
+  "sources": [
+    {
+      "id": 1,
+      "uri": "synthetic://cpu-ocr-eval/v1/clean_image",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "clean_image",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.401032+00:00",
+      "doi": null,
+      "original_artifact_id": 1,
+      "original_sha256": "28d66813fc0741362d75e276deb7461d48d07b2a69eee5dc8ec35d369b816a04",
+      "byte_count": 41794
+    },
+    {
+      "id": 2,
+      "uri": "synthetic://cpu-ocr-eval/v1/clean_scan",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "clean_scan",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.401416+00:00",
+      "doi": null,
+      "original_artifact_id": 4,
+      "original_sha256": "d77cb3295ee891b2e046c2dc7c9d3fde2ff123d780e688e951c88330492ceb38",
+      "byte_count": 38707
+    },
+    {
+      "id": 3,
+      "uri": "synthetic://cpu-ocr-eval/v1/rotated_image",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "rotated_image",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.401564+00:00",
+      "doi": null,
+      "original_artifact_id": 5,
+      "original_sha256": "0f6dad7987ffd74c0bdfc417578ab566391aee0816330d3eec9754a3c600dc13",
+      "byte_count": 45684
+    },
+    {
+      "id": 4,
+      "uri": "synthetic://cpu-ocr-eval/v1/degraded_scan",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "degraded_scan",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.401696+00:00",
+      "doi": null,
+      "original_artifact_id": 6,
+      "original_sha256": "af8ac6f393ff0c4c79c2cd5ccfe83a4d1b2c22221c21fd3dc8ffc1e132ca7ccb",
+      "byte_count": 1605890
+    },
+    {
+      "id": 5,
+      "uri": "synthetic://cpu-ocr-eval/v1/mixed_document",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "mixed_document",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.404466+00:00",
+      "doi": null,
+      "original_artifact_id": 7,
+      "original_sha256": "c81efe0548ddd0600bf4fc019aace7abd61b938c66b266b59ea9fb89573e65bd",
+      "byte_count": 39549
+    },
+    {
+      "id": 6,
+      "uri": "synthetic://cpu-ocr-eval/v1/invalid_pdf",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "invalid_pdf",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:31:47.404657+00:00",
+      "doi": null,
+      "original_artifact_id": 8,
+      "original_sha256": "1e7313ace78f0fb481a486939b4885902663102818090805515553d84e0bbfd3",
+      "byte_count": 15
+    },
+    {
+      "id": 7,
+      "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+      "license": "Apache-2.0",
+      "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+      "description": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_name": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_version": null,
+      "repository_url": "https://github.com/tesseract-ocr/test",
+      "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+      "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+      "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_commit_at": "2024-06-09T19:56:00Z",
+      "fixture_identifier": "testing/phototest.tif",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+      "doi": null,
+      "original_artifact_id": 9,
+      "original_sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+      "byte_count": 38668
+    },
+    {
+      "id": 8,
+      "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+      "license": "Apache-2.0",
+      "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+      "description": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_name": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_version": null,
+      "repository_url": "https://github.com/tesseract-ocr/test",
+      "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+      "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+      "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_commit_at": "2024-06-09T19:56:00Z",
+      "fixture_identifier": "testing/phototest-rotated-L.png",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+      "doi": null,
+      "original_artifact_id": 15,
+      "original_sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+      "byte_count": 6793
+    }
+  ],
+  "environments": [
+    {
+      "affinity_cpu_count": 5,
+      "affinity_cpu_ids": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "captured_at": "2026-10-04T02:31:46.081202+00:00",
+      "cgroup_cpu_max": "400000 100000",
+      "cgroup_cpu_stat": "usage_usec 631129219\nuser_usec 552749468\nsystem_usec 78379751\nnice_usec 0\nnr_periods 5245\nnr_throttled 96\nthrottled_usec 4005378\nnr_bursts 0\nburst_usec 0",
+      "cgroup_cpuset": "0-4",
+      "cgroup_memory_current_bytes": "16991264768",
+      "cgroup_memory_note": "Cgroup values include other work in the executor, not OCR alone.",
+      "cgroup_memory_peak_bytes": "17179869184",
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "cpu_quota_cores": 4.0,
+      "git": {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0,
+        "output": "baafb472873750e7e84d32c3c8e6fa7a680e37db"
+      },
+      "git_status": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "exit_code": 0,
+        "output": "?? docs/CPU_OCR.md\n?? docs/CPU_OCR_EVAL.md\n?? docs/CPU_RUNTIME_HANDOFF.md\n?? docs/GROBID_CPU_RUNTIME.md\n?? docs/OCR_RUNTIME_FEASIBILITY.md\n?? docs/validation/cpu-ocr-eval-20261004.json\n?? docs/validation/cpu-ocr-focused-tests.json\n?? docs/validation/cpu-ocr-public-corpus.json\n?? docs/validation/docling-ocr-synthetic.json\n?? docs/validation/docling-runtime-audit.json\n?? docs/validation/docling-runtime-pins.json\n?? docs/validation/grobid-cpu/\n?? scripts/cpu_ocr.py\n?? scripts/cpu_ocr_eval.py\n?? scripts/cpu_ocr_eval_schema.sql\n?? scripts/docling_cpu_probe.mjs\n?? scripts/fetch_ocr_corpus.py\n?? scripts/grobid_cpu_runtime.py\n?? tests/test_cpu_ocr.py\n?? tests/test_cpu_ocr_eval.py\n?? tests/test_grobid_cpu_runtime.py"
+      },
+      "machine": "x86_64",
+      "memory_limit_bytes": 17179869184,
+      "os_cpu_count": 5,
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "proc_meminfo": "MemTotal:       18440136 kB\nMemFree:         1423276 kB\nMemAvailable:   13582232 kB\nBuffers:          117696 kB\nCached:         12185224 kB\nSwapCached:            0 kB\nActive:          3304768 kB\nInactive:       12675152 kB\nActive(anon):     257392 kB\nInactive(anon):  3799052 kB\nActive(file):    3047376 kB\nInactive(file):  8876100 kB\nUnevictable:       29920 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:               872 kB\nWriteback:             0 kB\nAnonPages:       3707056 kB\nMapped:           131808 kB\nShmem:            349536 kB\nKReclaimable:     587492 kB\nSlab:             682644 kB\nSReclaimable:     587492 kB\nSUnreclaim:        95152 kB\nKernelStack:        3264 kB\nPageTables:        10584 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     9220068 kB\nCommitted_AS:    4622928 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:        5552 kB\nVmallocChunk:          0 kB\nPercpu:             1440 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    688128 kB\nFilePmdMapped:         0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      317440 kB\nDirectMap2M:     7319552 kB\nDirectMap1G:    28311552 kB",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "runtime_environment": {
+        "FONTCONFIG_FILE": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/etc/fonts/fonts.conf",
+        "OMP_NUM_THREADS": null,
+        "OMP_THREAD_LIMIT": null,
+        "POPPLER_DATADIR": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/share/poppler",
+        "UV_CACHE_DIR": "/workspace/scratch/uv-cache"
+      },
+      "toolchain": {
+        "cargo": {
+          "command": [
+            "cargo",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "clippy 0.1.98 (48a229ceae 2026-09-01)"
+        },
+        "rustc": {
+          "command": [
+            "rustc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "rustc 1.98.1 (48a229cea 2026-09-01)"
+        },
+        "rustup": {
+          "command": [
+            "rustup",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)\ninfo: This is the version for the rustup toolchain manager, not the rustc compiler.\ninfo: The currently active `rustc` version is `rustc 1.98.1 (48a229cea 2026-09-01)`"
+        },
+        "uv": {
+          "command": [
+            "uv",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "role": "toolchain",
+      "name": "python",
+      "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "path": "/tmp/pdftextract-uv-python/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "5a91882290532b2719eaca77c0f3a7448bd73b9214e56df57bc59004560a80c6"
+    },
+    {
+      "role": "harness",
+      "name": "cpu_ocr_eval.py",
+      "version": "1",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr_eval.py",
+      "sha256": "7509737b15f4b579597f423b96c98a28e543d7484b4aaf7864eea025a829b829"
+    },
+    {
+      "role": "schema",
+      "name": "cpu_ocr_eval_schema.sql",
+      "version": "1",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr_eval_schema.sql",
+      "sha256": "fbbc664021808447c404f67ddcd8e1769cee45baa07f3e1e0c796949daaa1986"
+    },
+    {
+      "role": "runtime",
+      "name": "cpu_ocr.py",
+      "version": "source SHA-256",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr.py",
+      "sha256": "149e16ae85ca9560268632163f127bddf979715446958eb943bf2574628a5ace"
+    },
+    {
+      "role": "toolchain",
+      "name": "uv",
+      "version": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "sha256": "242e462a63f5a3c0421d68557006193ecbfb61321cba0fe8542213ac62d92563"
+    },
+    {
+      "role": "configuration",
+      "name": "rust-toolchain.toml",
+      "version": "source SHA-256",
+      "path": "/workspace/pdftextract/rust-toolchain.toml",
+      "sha256": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+    },
+    {
+      "role": "fixture_generator",
+      "name": "pdftoppm",
+      "version": "pdftoppm version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/bin/pdftoppm",
+      "sha256": "f3c252eb01c02e3085e88a698e70d23be640a47ee19077a49146807b8b2d8a77"
+    },
+    {
+      "role": "runtime",
+      "name": "tesseract",
+      "version": "tesseract 5.5.0",
+      "path": "/usr/bin/tesseract",
+      "sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b"
+    },
+    {
+      "role": "model",
+      "name": "eng",
+      "version": "unversioned; pinned by SHA-256",
+      "path": "/usr/share/tesseract-ocr/5/tessdata/eng.traineddata",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    {
+      "role": "runtime",
+      "name": "pdfinfo",
+      "version": "pdfinfo version 26.05.0",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/bin/pdfinfo",
+      "sha256": "c3b2723299fe021ea98e2a53c4f383c9207dec616858907330c93048a62cced3"
+    },
+    {
+      "role": "runtime",
+      "name": "pdftoppm",
+      "version": "pdftoppm version 26.05.0",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/bin/pdftoppm",
+      "sha256": "f3c252eb01c02e3085e88a698e70d23be640a47ee19077a49146807b8b2d8a77"
+    }
+  ],
+  "runs": [
+    {
+      "id": 1,
+      "phase": "cold",
+      "repetition": 0,
+      "status": "completed",
+      "started_at": "2026-10-04T02:31:47.405186+00:00",
+      "finished_at": "2026-10-04T02:31:52.288569+00:00"
+    },
+    {
+      "id": 2,
+      "phase": "warm",
+      "repetition": 1,
+      "status": "completed",
+      "started_at": "2026-10-04T02:31:52.289654+00:00",
+      "finished_at": "2026-10-04T02:31:56.961502+00:00"
+    }
+  ],
+  "attempts": [
+    {
+      "phase": "cold",
+      "fixture": "clean_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.42250187000001915,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "clean_scan",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.6235656919999428,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "rotated_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.5832962509999788,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "degraded_scan",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.6433372730000428,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "mixed_document",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.845090482000046,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "invalid_pdf",
+      "outcome": "failed",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.28190934399992784,
+      "exit_code": 1,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "tesseract_phototest",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.38270162599997093,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "tesseract_phototest_rotated_left",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.48301821499990183,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "clean_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.4430582569999615,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "clean_scan",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.6637987089999342,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "rotated_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.5834831970000778,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "degraded_scan",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.6844260070000701,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "mixed_document",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.6457020369999782,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "invalid_pdf",
+      "outcome": "failed",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.3020664200000738,
+      "exit_code": 1,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "tesseract_phototest",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.38236696900003153,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "tesseract_phototest_rotated_left",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.4830480360000138,
+      "exit_code": 0,
+      "process_max_rss_kib": 131824.0
+    }
+  ],
+  "page_scores": [
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "clean_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.12297734627831715,
+      "wer": 0.5961538461538461,
+      "omitted_words": 26,
+      "extra_words": 27,
+      "timing_json": "{\"ocr\": 0.24568188400007784, \"parse\": 0.0007635380000010628, \"rasterize\": 0.0, \"total\": 0.24656485200000589}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "clean_scan",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.11003236245954692,
+      "wer": 0.46153846153846156,
+      "omitted_words": 21,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.25402552100001685, \"parse\": 0.0006859819999363026, \"rasterize\": 0.043168783000055555, \"total\": 0.2995033260000355}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "rotated_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.948220064724919,
+      "wer": 2.2884615384615383,
+      "omitted_words": 46,
+      "extra_words": 118,
+      "timing_json": "{\"ocr\": 0.40124405299991395, \"parse\": 0.0012194139999337494, \"rasterize\": 0.0, \"total\": 0.402598600000033}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "degraded_scan",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.10032362459546926,
+      "wer": 0.5,
+      "omitted_words": 22,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.2660067500000878, \"parse\": 0.0007507589999704578, \"rasterize\": 0.05029612199996336, \"total\": 0.3185927050000146}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "mixed_document",
+      "page_number": 2,
+      "status": "partial",
+      "cer": 0.11003236245954692,
+      "wer": 0.46153846153846156,
+      "omitted_words": 21,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.25364811700001155, \"parse\": 0.000799902000039765, \"rasterize\": 0.04206896000005145, \"total\": 0.2980562139999847}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "mixed_document",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.12297734627831715,
+      "wer": 0.5961538461538461,
+      "omitted_words": 26,
+      "extra_words": 27,
+      "timing_json": "{\"ocr\": 0.25310022700000445, \"parse\": 0.000725440999985949, \"rasterize\": 0.26086774299994886, \"total\": 0.5162470779999921}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "tesseract_phototest",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.2012623219999341, \"parse\": 0.0008071540000855748, \"rasterize\": 0.0, \"total\": 0.20219738900004813}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "tesseract_phototest_rotated_left",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.7816901408450704,
+      "wer": 1.0,
+      "omitted_words": 59,
+      "extra_words": 57,
+      "timing_json": "{\"ocr\": 0.3016050109999924, \"parse\": 0.0010041100000535153, \"rasterize\": 0.0, \"total\": 0.30272368300006747}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "clean_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.12297734627831715,
+      "wer": 0.5961538461538461,
+      "omitted_words": 26,
+      "extra_words": 27,
+      "timing_json": "{\"ocr\": 0.24614327099993716, \"parse\": 0.0008407039999838162, \"rasterize\": 0.0, \"total\": 0.24711667599990506}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "clean_scan",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.11003236245954692,
+      "wer": 0.46153846153846156,
+      "omitted_words": 21,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.2691123910000215, \"parse\": 0.0008429880000448975, \"rasterize\": 0.04468289099997946, \"total\": 0.3162203079999699}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "rotated_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.948220064724919,
+      "wer": 2.2884615384615383,
+      "omitted_words": 46,
+      "extra_words": 118,
+      "timing_json": "{\"ocr\": 0.390564462000043, \"parse\": 0.0012712420000298152, \"rasterize\": 0.0, \"total\": 0.3919639250000273}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "degraded_scan",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.10032362459546926,
+      "wer": 0.5,
+      "omitted_words": 22,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.2646261450000793, \"parse\": 0.0008204140000316329, \"rasterize\": 0.05115406200002326, \"total\": 0.3181245310000804}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "mixed_document",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.12297734627831715,
+      "wer": 0.5961538461538461,
+      "omitted_words": 26,
+      "extra_words": 27,
+      "timing_json": "{\"ocr\": 0.26231581100000767, \"parse\": 0.000917780000008861, \"rasterize\": 0.012362820000021202, \"total\": 0.27706587000000127}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "mixed_document",
+      "page_number": 2,
+      "status": "partial",
+      "cer": 0.11003236245954692,
+      "wer": 0.46153846153846156,
+      "omitted_words": 21,
+      "extra_words": 21,
+      "timing_json": "{\"ocr\": 0.2701633760000277, \"parse\": 0.0008264030000191269, \"rasterize\": 0.04546139099988977, \"total\": 0.31799675399997795}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "tesseract_phototest",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.18949814200004766, \"parse\": 0.001069638999979361, \"rasterize\": 0.0, \"total\": 0.19070112099996095}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "tesseract_phototest_rotated_left",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.7816901408450704,
+      "wer": 1.0,
+      "omitted_words": 59,
+      "extra_words": 57,
+      "timing_json": "{\"ocr\": 0.30601742599992576, \"parse\": 0.0009470749999991313, \"rasterize\": 0.0, \"total\": 0.3070690670000431}"
+    }
+  ],
+  "errors": [
+    {
+      "attempt_id": 6,
+      "page_number": null,
+      "category": "no_summary",
+      "message": "CPU OCR failed: worker_exit_1\n"
+    },
+    {
+      "attempt_id": 6,
+      "page_number": null,
+      "category": "error",
+      "message": "worker_exit_1"
+    },
+    {
+      "attempt_id": 14,
+      "page_number": null,
+      "category": "no_summary",
+      "message": "CPU OCR failed: worker_exit_1\n"
+    },
+    {
+      "attempt_id": 14,
+      "page_number": null,
+      "category": "error",
+      "message": "worker_exit_1"
+    }
+  ],
+  "counts": {
+    "fixtures": 8,
+    "fixture_pages": 8,
+    "truth_regions": 60,
+    "attempts": 16,
+    "page_outputs": 16,
+    "ocr_regions": 1012,
+    "artifacts": 47,
+    "warnings": 82,
+    "errors": 4
+  },
+  "integrity_check": "ok",
+  "foreign_key_violations": [],
+  "database": {
+    "path": "/workspace/scratch/cpu-ocr-evaluation.sqlite",
+    "sha256": "5cac89b7fbaaeb1d945e70cf46ff3cf2529946b7c903ad0f0698016ba587ba17",
+    "bytes": 39378944
+  }
+}

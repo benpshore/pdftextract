@@ -1,0 +1,68 @@
+{
+  "recorded_at": "2026-10-04T02:28:34.162223+00:00",
+  "scope": "Linux qualification CLI; real local native CPU OCR, no browser/hosting claim",
+  "files": {
+    "scripts/cpu_ocr.py": "149e16ae85ca9560268632163f127bddf979715446958eb943bf2574628a5ace",
+    "tests/test_cpu_ocr.py": "bd788ae86e5c7683f1e63581784757430e9ac6c12aeb99ffa8e08c55832ef08b",
+    "docs/CPU_OCR.md": "f54182113bc00bca78967c525cc01faa5f5885712b18941728953cf1e01679d0"
+  },
+  "verification": [
+    {
+      "command": "uv run pytest -q tests/test_cpu_ocr.py",
+      "passed": 17,
+      "skipped": 0,
+      "elapsed_seconds": 4.76,
+      "scope": "implementation run before final RLIMIT_CORE=0 hardening"
+    },
+    {
+      "command": "uv run pytest -q tests/test_cpu_ocr.py",
+      "passed": 17,
+      "skipped": 0,
+      "elapsed_seconds": 4.85,
+      "scope": "independent reviewer run before final RLIMIT_CORE=0 hardening"
+    },
+    {
+      "command": "uv run pytest -q tests/test_cpu_ocr.py -k 'supervisor or native_address_space or backpressure or nonregular or nonfinite'",
+      "passed": 6,
+      "deselected": 11,
+      "elapsed_seconds": 1.43,
+      "scope": "current source after RLIMIT_CORE=0 hardening; held actual OCR reruns during other workstream timing"
+    },
+    {
+      "command": "uv run ruff format --check scripts/cpu_ocr.py tests/test_cpu_ocr.py",
+      "outcome": "passed"
+    },
+    {
+      "command": "uv run ruff check scripts/cpu_ocr.py tests/test_cpu_ocr.py",
+      "outcome": "passed"
+    }
+  ],
+  "independent_review": {
+    "blocking_findings_remaining": 0,
+    "fixed_findings": [
+      "bounded pdfinfo metadata reads",
+      "Linux descendant adoption and reaping",
+      "nonblocking output without changing caller descriptor flags",
+      "native executable identity rather than shell launcher identity",
+      "procfs PID observation in cancellation test"
+    ],
+    "limitations": [
+      "per-process address space is not aggregate RSS",
+      "native shared-library/font/configuration closure not fingerprinted",
+      "unknown PDF transform kept null",
+      "all OCR output partial",
+      "setup/output failures can end without complete summary"
+    ]
+  },
+  "runtime": {
+    "tesseract_version": "5.5.0",
+    "tesseract_sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b",
+    "eng_model_sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2",
+    "test_poppler_version": "26.05.0"
+  },
+  "notes": [
+    "No broad Oxide benchmark rerun",
+    "No database committed",
+    "No merge, deployment or release performed"
+  ]
+}

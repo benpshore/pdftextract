@@ -1,0 +1,11 @@
+{
+  "baseline_git_commit": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+  "uncommitted_working_tree_overlay": true,
+  "source_sha256": {
+    "scripts/grobid_cpu_runtime.py": "c0bb177e2ed5a93345a9e46529919a4271b4801ff1a5bd1a3f5a49b319af8faf",
+    "tests/test_grobid_cpu_runtime.py": "c89670a71c177efd8d9b454ec6967f087c7531b5869c17a73a85900d1328909d",
+    "src/grobid.rs": "78d24fa75cefecfd81a59551f279c2ecad99563c1ad368fe6f16e84cacdd45f7",
+    "src/grobid_cli.rs": "105b390ff43289825ea6491c6abe513c57010c32bc455d8bf6680e838afc10d8"
+  },
+  "rust_debug_binary_sha256": "cfa03a52ffd234cd234d996ba6a94b48fb3f786c0340a3e212fa33e472f1a35e"
+}

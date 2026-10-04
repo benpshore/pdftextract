@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "dataset": {
+    "name": "Tesseract official test corpus \u2014 bounded phototest subset",
+    "repository_url": "https://github.com/tesseract-ocr/test",
+    "commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+    "version": null,
+    "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+    "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+    "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+    "license": "Apache-2.0",
+    "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+    "license_scope_evidence": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md",
+    "published_at": null,
+    "repository_commit_at": "2024-06-09T19:56:00Z",
+    "retrieved_at": null,
+    "doi": null,
+    "selection": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results."
+  },
+  "files": [
+    {
+      "repository_path": "LICENSE",
+      "bytes": 11357,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE"
+    },
+    {
+      "repository_path": "README.md",
+      "bytes": 175,
+      "sha256": "d6211770541d298be544b913936332179500770c1f57ef7936650ea1f8cd00cc",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/README.md"
+    },
+    {
+      "repository_path": "testing/README.md",
+      "bytes": 2116,
+      "sha256": "9a99897fd15bd99644b3e323bc97abf7c6c5a94a32ae5b0a8c5537f48cfc896d",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/README.md"
+    },
+    {
+      "repository_path": "testing/phototest.tif",
+      "bytes": 38668,
+      "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif"
+    },
+    {
+      "repository_path": "testing/phototest.gold.txt",
+      "bytes": 286,
+      "sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.gold.txt"
+    },
+    {
+      "repository_path": "testing/phototest-rotated-L.png",
+      "bytes": 6793,
+      "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+      "url": "https://raw.githubusercontent.com/tesseract-ocr/test/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png"
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "tesseract_phototest",
+      "path": "testing/phototest.tif",
+      "sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+      "source_uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+      "fixture_identifier": "testing/phototest.tif",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "published_at": null,
+      "doi": null,
+      "ground_truth_path": "testing/phototest.gold.txt",
+      "ground_truth_sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+      "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+      "ground_truth_added_at": "2018-10-11T17:35:26Z",
+      "ground_truth": [
+        {
+          "text": "This is a lot of 12 point text to test the\nocr code and see if it works on all types\nof file format.\n\nThe quick brown dog jumped over the\nlazy fox. The quick brown dog jumped\nover the lazy fox. The quick brown dog\njumped over the lazy fox. The quick\nbrown dog jumped over the lazy fox.\n",
+          "width_pixels": 640,
+          "height_pixels": 480,
+          "dpi": 200
+        }
+      ],
+      "ground_truth_note": "Exact upstream gold text; no region ground truth supplied. DPI200 verified from TIFF tags282/283 (2000000/10000), ResolutionUnit2."
+    },
+    {
+      "name": "tesseract_phototest_rotated_left",
+      "path": "testing/phototest-rotated-L.png",
+      "sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+      "source_uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+      "fixture_identifier": "testing/phototest-rotated-L.png",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "published_at": null,
+      "doi": null,
+      "ground_truth_path": "testing/phototest.gold.txt",
+      "ground_truth_sha256": "76ef157baeb6ab275b7d90f310477a8060d5822aea2b2e05d480f459b016a6ed",
+      "ground_truth_commit": "e4f856b93026693ae90841d20ddc0da410148e39",
+      "ground_truth_added_at": "2018-10-11T17:35:26Z",
+      "ground_truth": [
+        {
+          "text": "This is a lot of 12 point text to test the\nocr code and see if it works on all types\nof file format.\n\nThe quick brown dog jumped over the\nlazy fox. The quick brown dog jumped\nover the lazy fox. The quick brown dog\njumped over the lazy fox. The quick\nbrown dog jumped over the lazy fox.\n",
+          "width_pixels": 480,
+          "height_pixels": 640,
+          "dpi": 200
+        }
+      ],
+      "ground_truth_note": "Exact upstream gold text retained for published rotation; no region ground truth. DPI200 corresponds to original phototest TIFF; PNG pHYs inspected separately and no orientation correction performed."
+    }
+  ]
+}

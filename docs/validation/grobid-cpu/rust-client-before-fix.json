@@ -1,0 +1,136 @@
+{
+  "started_utc": "2026-10-04T02:28:56.590503+00:00",
+  "image": "grobid/grobid@sha256:223957791ac2bbe48609dcc58a689b16b60baeae13a8734ef440ae6bfb38f4cd",
+  "container": "tpe-grobid-cpu-94f4d0c33d24",
+  "runner_sha256": "4707d62f6da3a0155332fd66cf73155dd82668b13689c8b0c3a6de87cf3cf353",
+  "image_id": "sha256:582dcab95710c29c0d2fd18af3f420f848649fb7566341d2eec1a32d4306da97",
+  "platform": "linux/amd64",
+  "configuration_sha256": "eef1922a22c5329555075dcc9b692fd10e72704f4e06240a1e84e39b6ad710f5",
+  "limits": {
+    "cpus": 2,
+    "memory_bytes": 4294967296,
+    "jvm_heap": "2g",
+    "pids": 128,
+    "concurrency": 1,
+    "pdfalto_timeout_seconds": 30,
+    "pdfalto_memory_mib": 1024,
+    "model_preload": false,
+    "consolidation": 0
+  },
+  "endpoint": "http://127.0.0.1:32771",
+  "startup_seconds": 2.743993921000083,
+  "reported_version": "{\"version\":\"0.9.1\",\"revision\":\"0.9.1\"}",
+  "runtime_identity": "openjdk version \"21.0.11\" 2026-04-21 LTS\nOpenJDK Runtime Environment Temurin-21.0.11+10 (build 21.0.11+10-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.11+10 (build 21.0.11+10-LTS, mixed mode, sharing)\nd05153c9d1e7ae34d557ec464ce3c55932d89353765021d6fa8a60986b277c93  grobid-home/models/affiliation-address/model.wapiti\n5f17697840c78fa9595119aa7f579f5e9576fbc879477c47507a5f9a6bc264f5  grobid-home/models/citation/model.wapiti\n2bf0c901dd8cf8e2201467c3fa22d480b03e789420fce8056ee97efc8e637f98  grobid-home/models/date/model.wapiti\naba1886c7201551bb3a8151b96aab039196af1259855c6fa7b92c7b4229b7230  grobid-home/models/figure/model.wapiti\ncfeecab26bab01eb05389662f2cdd38d25d58040a0b70299750c01f8099db1f7  grobid-home/models/fulltext/model.wapiti\n4df8eefd1ca160710ccf352a4931c3497c78e7fec405dfdb0ede1cab3faf480d  grobid-home/models/funding-acknowledgement/model.wapiti\n9966a973faa662e0c966774c64586aff07e64d96bde520bb7252a656219e491a  grobid-home/models/header/model.wapiti\ncf51216fc62acbfd0dacff568c5f9bc99a9689e3c6e01af0307b939bf4d1fe8c  grobid-home/models/reference-segmenter/model.wapiti\na0c078d734d74bd1a95582ceedb304cbb9a307dd4ab37f30bc8a38f782134590  grobid-home/models/segmentation/model.wapiti\nabadbf119e3142ae252567f35c98594df289a3c2dd45b342854bcde136566e91  grobid-home/models/table/model.wapiti\n67611eac7ce7aa1f945d28282ff0d36aabd71be9dc751323d8f18e9165845d94  grobid-home/models/name/citation/model.wapiti\n42c66b16b6a1950c69000be890c132b09e5114b858dccd2c7de1f34928a4f472  grobid-home/models/name/header/model.wapiti\n39aafb1fb3d7f06cf40b17c6ae5e292e4a125fac7bbd58eed21f520a87df010b  grobid-home/models/patent/citation/model.wapiti\ndf787fadea564c01859274ed5190debcaab05b0abbb0700442f7577c78604b6c  grobid-home/pdfalto/lin-64/pdfalto\n9e4c34cbe876bc8659695aec73b8d022a0061ad94938f1af2790272d1642537b  grobid-home/lib/lin-64/libwapiti.so\n",
+  "input_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+  "requests": [
+    {
+      "label": "cold",
+      "seconds": 25.537501582999994,
+      "sha256": "a5f10e346a44b48f0ff598363177737f79ac1c2b1b756ff0b207da3d0df9159d",
+      "bytes": 6835,
+      "surfaces": [
+        {
+          "n": "1",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        },
+        {
+          "n": "2",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        }
+      ],
+      "coordinate_regions": 23,
+      "coordinate_pages": [
+        1,
+        2
+      ],
+      "references": 2,
+      "title_retained": true,
+      "first_doi_retained": true,
+      "second_doi_retained": true,
+      "second_abstract_sentence_retained": false,
+      "introduction_classified_as_heading": false,
+      "warning": "Semantic model projection; not OCR or exhaustive PDF text coverage."
+    },
+    {
+      "label": "warm-1",
+      "seconds": 1.0785868680000021,
+      "sha256": "a5f10e346a44b48f0ff598363177737f79ac1c2b1b756ff0b207da3d0df9159d",
+      "bytes": 6835,
+      "surfaces": [
+        {
+          "n": "1",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        },
+        {
+          "n": "2",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        }
+      ],
+      "coordinate_regions": 23,
+      "coordinate_pages": [
+        1,
+        2
+      ],
+      "references": 2,
+      "title_retained": true,
+      "first_doi_retained": true,
+      "second_doi_retained": true,
+      "second_abstract_sentence_retained": false,
+      "introduction_classified_as_heading": false,
+      "warning": "Semantic model projection; not OCR or exhaustive PDF text coverage."
+    },
+    {
+      "label": "warm-2",
+      "seconds": 1.076099486999965,
+      "sha256": "a5f10e346a44b48f0ff598363177737f79ac1c2b1b756ff0b207da3d0df9159d",
+      "bytes": 6835,
+      "surfaces": [
+        {
+          "n": "1",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        },
+        {
+          "n": "2",
+          "ulx": "0.0",
+          "uly": "0.0",
+          "lrx": "612.0",
+          "lry": "792.0"
+        }
+      ],
+      "coordinate_regions": 23,
+      "coordinate_pages": [
+        1,
+        2
+      ],
+      "references": 2,
+      "title_retained": true,
+      "first_doi_retained": true,
+      "second_doi_retained": true,
+      "second_abstract_sentence_retained": false,
+      "introduction_classified_as_heading": false,
+      "warning": "Semantic model projection; not OCR or exhaustive PDF text coverage."
+    }
+  ],
+  "rust_cli": [],
+  "rust_cli_error": "Error: grobid worker exited exit status: 1: Error: invalid GROBID TEI: coordinate must have page,x,y,width,height\n\n",
+  "status": "failed",
+  "error": "RuntimeError: Rust GROBID client exited 1; see stderr log",
+  "original_unchanged": true,
+  "container_removed": true,
+  "finished_utc": "2026-10-04T02:29:32.790709+00:00"
+}
