@@ -34,6 +34,13 @@ export function configuration(env = process.env) {
   const capturedPath = absoluteFile(env.SCHOLARLY_CAPTURED_JSON, 'SCHOLARLY_CAPTURED_JSON');
   const binary = absoluteFile(env.TPE_NATIVE_BIN, 'TPE_NATIVE_BIN');
   if (capturedPath && binary) throw new Error('Choose live native or captured replay explicitly, not both');
+  const resolveIdentifiers=env.TPE_SCHOLARLY_RESOLVE==='1'&&!capturedPath;
+  const resolverEnvironment={};
+  // Preserve existing network/certificate settings only for explicit resolution.
+  // Do not inherit unrelated credentials or arbitrary command settings.
+  if(resolveIdentifiers)for(const key of ['HTTP_PROXY','HTTPS_PROXY','ALL_PROXY','NO_PROXY','http_proxy','https_proxy','all_proxy','no_proxy','SSL_CERT_FILE','SSL_CERT_DIR','CURL_CA_BUNDLE']){
+    if(typeof env[key]==='string')resolverEnvironment[key]=env[key];
+  }
   return {
     port: boundedInteger(env.SCHOLARLY_LOCAL_PORT, 8072, 0, 65535, 'SCHOLARLY_LOCAL_PORT'),
     maxInputBytes: boundedInteger(env.SCHOLARLY_MAX_INPUT_BYTES, 32 * 1024 * 1024, 5, 128 * 1024 * 1024, 'SCHOLARLY_MAX_INPUT_BYTES'),
@@ -41,9 +48,8 @@ export function configuration(env = process.env) {
     timeoutMs: boundedInteger(env.SCHOLARLY_TIMEOUT_MS, 60000, 100, 300000, 'SCHOLARLY_TIMEOUT_MS'),
     binary, endpoint, capturedPath,
     mode: capturedPath ? 'captured-native' : 'live-native',
-    resolveIdentifiers: env.TPE_SCHOLARLY_RESOLVE === '1' && !capturedPath,
-    // No inherited bearer, proxy, registry contact, or arbitrary command settings.
-    childEnv: { PATH: env.PATH || '', ...(endpoint ? { TPE_GROBID_URL: endpoint } : {}) },
+    resolveIdentifiers,
+    childEnv: { PATH: env.PATH || '', ...(endpoint ? { TPE_GROBID_URL: endpoint } : {}),...resolverEnvironment },
   };
 }
 async function boundedFile(path, limit) {

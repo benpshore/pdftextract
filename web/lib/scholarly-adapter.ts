@@ -1,3 +1,4 @@
+import {scholarlyDisplayName} from './scholarly-naming';
 import { validateCitations } from './citations';
 import type { BibliographicReference, CitationBundle, CitationMention } from './citations';
 import type { DocumentRow } from './types';
@@ -22,7 +23,7 @@ export type ScholarlyEvidenceEnvelope = {
   grobid: { raw_json: string; raw_json_sha256: string; raw_tei: string; tei_sha256: string };
   native_resolution?: { raw_json: string; raw_json_sha256: string };
 };
-export type ScholarlyAdapterResult = { bibliography: CitationBundle; warnings: string[]; evidence: ScholarlyEvidenceEnvelope };
+export type ScholarlyAdapterResult = { bibliography: CitationBundle; naming: ReturnType<typeof scholarlyDisplayName>; warnings: string[]; evidence: ScholarlyEvidenceEnvelope };
 const encoder = new TextEncoder(), decoder = new TextDecoder('utf-8', { fatal: true });
 const HASH = /^[a-f\d]{64}$/i, XML_ID = '{http://www.w3.org/XML/1998/namespace}id';
 const TEI_NS = 'http://www.tei-c.org/ns/1.0', XML_NS = 'http://www.w3.org/XML/1998/namespace';
@@ -105,7 +106,15 @@ function xmlText(value: string): string {
 /** Non-resolving XML index: no DTD, custom entities, DOM, HTML or network access. */
 function indexTei(source: string): Map<string, XmlNode> {
   const byteOffsets = new Map<number, number>(); let byteOffset = 0, offset = 0;
-  for (const character of source) { byteOffsets.set(offset, byteOffset); offset += character.length; byteOffset += encoder.encode(character).length; }
+  // Ranges use tag boundaries only. A per-character Map multiplies a large
+  // text/comment payload into hundreds of MB in a memory-limited Worker.
+  for (const character of source) {
+    if(character==='<')byteOffsets.set(offset,byteOffset);
+    const point=character.codePointAt(0)!;
+    byteOffset+=point<=0x7f?1:point<=0x7ff?2:point<=0xffff?3:4;
+    offset+=character.length;
+    if(character==='>')byteOffsets.set(offset,byteOffset);
+  }
   byteOffsets.set(source.length, byteOffset);
   const nodes = new Map<string, XmlNode>(), stack: XmlNode[] = []; let cursor = 0, roots = 0;
   function append(value: string) { if (stack.length) stack[stack.length - 1].text += value; else if (value.trim()) fail('text outside the TEI root.'); }
@@ -115,9 +124,9 @@ function indexTei(source: string): Map<string, XmlNode> {
     if (stack.length) { stack[stack.length - 1].children.push(node); stack[stack.length - 1].text += node.text; }
   }
   while (cursor < source.length) {
-    if (source[cursor] !== '<') { const end = source.indexOf('<', cursor), next = end < 0 ? source.length : end; append(xmlText(source.slice(cursor, next))); cursor = next; continue; }
+    if (source[cursor] !== '<') { const end = source.indexOf('<', cursor), next = end < 0 ? source.length : end; append(xmlText(source.slice(cursor, next).replace(/\r\n?/g,'\n'))); cursor = next; continue; }
     if (source.startsWith('<!--', cursor)) { const end = source.indexOf('-->', cursor + 4); if (end < 0 || source.slice(cursor + 4, end).includes('--')) fail('invalid XML comment.'); cursor = end + 3; continue; }
-    if (source.startsWith('<![CDATA[', cursor)) { const end = source.indexOf(']]>', cursor + 9); if (end < 0 || !stack.length) fail('invalid CDATA.'); append(source.slice(cursor + 9, end)); cursor = end + 3; continue; }
+    if (source.startsWith('<![CDATA[', cursor)) { const end = source.indexOf(']]>', cursor + 9); if (end < 0 || !stack.length) fail('invalid CDATA.'); append(source.slice(cursor + 9, end).replace(/\r\n?/g,'\n')); cursor = end + 3; continue; }
     if (source.startsWith('<?', cursor)) { const end = source.indexOf('?>', cursor + 2); if (end < 0 || stack.length) fail('unsupported XML processing instruction.'); cursor = end + 2; continue; }
     if (source.startsWith('<!', cursor)) fail('XML declarations other than comments/CDATA are unsupported.');
     const start = cursor, closing = source.startsWith('</', cursor);
@@ -354,17 +363,18 @@ export async function adaptGrobidResult(input: { grobidJson: unknown; record: Sc
     });
   }
   const title = uniqueValue(document.header.titles);
+  const naming=scholarlyDisplayName(document.header.titles,document.header.authors,record.original_name);
   const bibliography: CitationBundle = {
     schema: 'tpe.web-citations', version: 1,
     source: { document_id: record.id, sha256: document.source_sha256, original_name: record.original_name, ...(record.source_url ? { source_url: record.source_url } : {}) },
     provenance: { producer: 'grobid', grobid_version: document.server_version, generated_at: input.generatedAt },
-    document: { ...(title ? { title } : {}), authors: document.header.authors.filter(author => author.trim()) },
+    document: { ...(title ? { title } : {}), display_name:naming.value, authors: document.header.authors.filter(author => author.trim()) },
     references: { state: 'partial', items: references, reason: 'GROBID supplied a semantic projection; complete bibliography coverage has not been established.' },
     mentions: mentions.length ? { state: 'partial', items: mentions, reason: 'Only explicitly supplied body bibliography references are represented; occurrence coverage has not been established.' } : { state: 'unavailable', reason: 'No usable body bibliography-reference elements were supplied. In-text extraction has not been established.' },
   };
   const checked = validateCitations(bibliography, record);
   if (checked.state !== 'available') fail(checked.message);
-  return { bibliography, warnings, evidence: { schema: 'tpe.scholarly-evidence', version: 1,
+  return { bibliography, naming, warnings, evidence: { schema: 'tpe.scholarly-evidence', version: 1,
     source: { document_id: record.id, sha256: document.source_sha256 }, generated_at: input.generatedAt,
     grobid: { raw_json: rawJson, raw_json_sha256: jsonHash, raw_tei: document.raw_tei, tei_sha256: teiHash },
     ...(native ? { native_resolution: { raw_json: native.rawJson, raw_json_sha256: await sha256(native.bytes) } } : {}),

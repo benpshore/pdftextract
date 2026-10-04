@@ -71,7 +71,7 @@ export async function attachScholarly(record:Record<string,unknown>,user:string,
   const adapted=await adaptGrobidResult({grobidJson,record:record as unknown as DocumentRow,generatedAt,...(nativeResolutionJson?{nativeResolutionJson}:{} )});
   const evidenceId=crypto.randomUUID(), evidenceKey=`${id}/scholarly/${evidenceId}.json`,resultKey=`${id}/results/${crypto.randomUUID()}`;
   adapted.bibliography.source.result_key=resultKey;
-  const result:Extracted={...prior,bibliography:adapted.bibliography,warnings:[...new Set([...prior.warnings,...adapted.warnings,...(resolverWarning?[resolverWarning]:[])])],metadata:{...prior.metadata,scholarly:{schema:'tpe.scholarly-attachment',version:1,evidence_id:evidenceId,mode:health.mode,generated_at:generatedAt,has_resolution:!!nativeResolutionJson}}};
+  const result:Extracted={...prior,bibliography:adapted.bibliography,warnings:[...new Set([...prior.warnings,...adapted.warnings,...(resolverWarning?[resolverWarning]:[])])],metadata:{...prior.metadata,scholarly_display_name:adapted.naming,scholarly:{schema:'tpe.scholarly-attachment',version:1,evidence_id:evidenceId,mode:health.mode,generated_at:generatedAt,has_resolution:!!nativeResolutionJson}}};
   let committed=false;
   try{
     signal.throwIfAborted();await assertDocumentNotDeleted(id);await ownedRecord(id,user);

@@ -42,6 +42,11 @@ jobs:
       - run: node scripts/test-workspace-storage.mjs
       - run: node scripts/test-text-import.mjs
       - run: node scripts/test-citations.mjs
+      - run: node scripts/test-scholarly-adapter.mjs
+      - run: node scripts/test-scholarly-controls.mjs
+      - run: node scripts/test-scholarly-client.mjs
+      - run: node ../scripts/test-site-scholarly-workers.mjs
+      - run: node --test ../scripts/scholarly-local-runtime.test.mjs
       - run: node scripts/test-office.mjs
       - run: node scripts/test-node-imports.mjs
       - run: node ../scripts/test-web-workspace.cjs

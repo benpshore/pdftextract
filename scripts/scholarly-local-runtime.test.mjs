@@ -69,6 +69,12 @@ test('configuration restricts endpoint, command path and explicit mode', () => {
   assert.throws(() => configuration({ TPE_NATIVE_BIN: '/tmp/tpe', SCHOLARLY_CAPTURED_JSON: '/tmp/result.json' }));
   assert.throws(() => configuration({ SCHOLARLY_MAX_INPUT_BYTES: 'Infinity' }));
 });
+test('explicit resolver preserves existing proxy/certificate settings without unrelated credentials',()=>{
+  const env={TPE_SCHOLARLY_RESOLVE:'1',HTTPS_PROXY:'http://proxy.fixture.invalid:8080',NO_PROXY:'127.0.0.1',SSL_CERT_FILE:'/tmp/synthetic-existing-ca.pem',API_KEY:'synthetic-do-not-forward',NODE_OPTIONS:'--synthetic'};
+  const config=configuration(env);assert.equal(config.childEnv.HTTPS_PROXY,env.HTTPS_PROXY);assert.equal(config.childEnv.SSL_CERT_FILE,env.SSL_CERT_FILE);assert.equal(config.childEnv.NO_PROXY,env.NO_PROXY);
+  assert.equal(config.childEnv.API_KEY,undefined);assert.equal(config.childEnv.NODE_OPTIONS,undefined);
+  assert.equal(configuration({...env,TPE_SCHOLARLY_RESOLVE:'0'}).childEnv.HTTPS_PROXY,undefined);
+});
 test('missing runtime is blocked and never silently replays fixtures', async t => {
   const runtime = createLocalRuntime(configuration({ SCHOLARLY_LOCAL_PORT: '0' })), url = await runtime.listen(); t.after(() => runtime.close());
   const state = await (await fetch(url + '/health')).json();

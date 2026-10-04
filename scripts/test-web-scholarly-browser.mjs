@@ -49,6 +49,8 @@ for(const [name,value] of Object.entries({
   MINIFLARE_REGISTRY_PATH:path.join(temporary,'registry'),
 }))process.env[name]=value;
 process.chdir(web);
+await import(pathToFileURL(path.join(web,'scripts/copy-pdf-wasm.mjs')).href);
+await import(pathToFileURL(path.join(web,'scripts/copy-ocr-assets.mjs')).href);
 
 const bindingConfig={
   name:'tpe-scholarly-browser-fixture',main:path.join(web,'build/sites-worker.ts'),
@@ -128,7 +130,7 @@ try{
     const deniedWrite=await context.request.post(baseUrl+`/api/documents/${foreignId}/scholarly`,{data:{baseResultKey:null}});assert.equal(deniedWrite.status(),404,await deniedWrite.text());
     pass('actual document/scholarly/evidence routes reject the separately seeded foreign owner');
     await page.getByLabel('Choose source files',{exact:true}).setInputFiles(path.join(fixtureDirectory,'synthetic-scholarly.pdf'));
-    await page.locator('.queue-item').filter({hasText:'synthetic-scholarly.pdf'}).locator('.phase-saved').waitFor({timeout:120000});
+    await page.locator('.queue-item .phase-saved').first().waitFor({timeout:120000});
     const library=await (await context.request.get(baseUrl+'/api/documents')).json();
     assert.equal(library.documents.length,1);const record=library.documents[0];
     assert.equal(record.sha256,sha(sourcePdf));assert.equal(record.original_name,'synthetic-scholarly.pdf');
@@ -138,14 +140,47 @@ try{
     pass('real browser PDF Worker and multipart API save a readable result with exact original bytes in local D1/R2');
     const health=await context.request.get(baseUrl+`/api/documents/${record.id}/scholarly`);assert.equal(health.status(),200);const availability=await health.json();assert.equal(availability.available,true,JSON.stringify(availability));assert.equal(availability.mode,runtimeMode);
     pass(`real scholarly route reaches explicit ${runtimeMode} loopback bridge through its service binding`);
-    if(!probeUpload)throw Error('Scholarly reader controls are still being prepared. Use --probe-upload for the qualified actual upload/runtime probe.');
+    if(!probeUpload){
+      await page.locator('.reader-secondary > details').filter({has:page.locator('summary', {hasText:/^Citations$/})}).locator('summary').first().click();
+      await page.getByRole('button',{name:'Extract references',exact:true}).click();
+      await page.getByText('Reference result saved.',{exact:false}).waitFor({timeout:120000});
+      const after=await (await context.request.get(baseUrl+`/api/documents/${record.id}`)).json();
+      assert.notEqual(after.record.result_key,before.record.result_key);
+      for(const field of ['text','markdown','html','title','engine'])assert.deepEqual(after.result[field],before.result[field]);
+      assert.equal(after.result.bibliography.references.items.length,2);
+      assert.equal(after.result.bibliography.mentions.state,'unavailable');
+      assert.equal(after.result.bibliography.source.original_name,'synthetic-scholarly.pdf');
+      assert.equal(after.result.metadata.scholarly.mode,runtimeMode);
+      assert(after.result.warnings.some(warning=>/coordinate/i.test(warning)));
+      await page.getByRole('article',{name:'Supplied reference'}).first().waitFor();
+      assert.equal(await page.getByRole('article',{name:'Supplied reference'}).count(),2);
+      pass('mounted controls save two reported references while preserving reading, filename and missing-coordinate/in-text evidence');
+      for(const [format,expected] of [['native-json',runtimeMode==='captured-native'?nativeJson:null],['tei',runtimeMode==='captured-native'?JSON.parse(nativeJson).raw_tei:null]]){
+        const evidence=await context.request.get(baseUrl+`/api/documents/${record.id}/scholarly/evidence?format=${format}`);
+        assert.equal(evidence.status(),200);assert.equal(evidence.headers()['content-type'],'application/octet-stream');
+        const body=await evidence.text();if(expected!==null)assert.equal(body,expected);
+        if(format==='native-json'){const actual=JSON.parse(body);assert.equal(actual.source_sha256,sha(sourcePdf));assert.equal(sha(actual.raw_tei),actual.tei_sha256);}
+      }
+      pass('authenticated passive evidence downloads retain exact native JSON/raw TEI with source and TEI hashes');
+      const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Download CSV',exact:true}).click();
+      const csvDownload=await downloadPromise;await csvDownload.saveAs(path.join(output,'references.csv'));
+      const csv=await fs.readFile(path.join(output,'references.csv'),'utf8');assert.match(csv,/"type","id"/);assert.equal(csv.trim().split('\n').length,3);
+      await page.getByLabel('Citation view',{exact:true}).selectOption('mentions');await page.getByText('In-text mentions unavailable.',{exact:true}).waitFor();
+      await page.getByLabel('Citation view',{exact:true}).selectOption('csv');assert.equal(await page.getByRole('article',{name:/CSV row reference/}).count(),2);
+      await page.screenshot({path:path.join(output,'scholarly-desktop.png'),fullPage:true});
+      await page.reload({waitUntil:'networkidle'});await page.getByRole('heading',{name:before.result.title,exact:true}).waitFor();
+      const reloaded=await (await context.request.get(baseUrl+`/api/documents/${record.id}`)).json();assert.equal(reloaded.record.result_key,after.record.result_key);
+      assert.equal(reloaded.result.bibliography.references.items.length,2);
+      pass('reference CSV, explicit unavailable mentions, CSV row view and reload retain the saved scholarly attachment');
+    }
   }
   assert.deepEqual(browserErrors,[]);pass('no browser runtime errors');
   const report={checks,chromiumVersion,baseUrl,browserErrors,responses,mode:probeOnly?'local-stack-probe':probeUpload?runtimeMode+'-upload-probe':runtimeMode,fixtures:{pdf:sha(sourcePdf),capturedNativeJson:sha(nativeJson)},scope:'Actual local app routes, development sign-in, browser PDF WASM Worker and workerd D1/R2. '+(runtimeMode==='captured-native'?'Scholarly extraction explicitly replays captured PR206 native output for its exact independently authored PDF; no live native/GROBID execution. ':'Scholarly requests use an explicitly configured loopback live native/GROBID runtime. ')+'No production access or deployment; one synthetic PDF does not establish general scholarly extraction accuracy.',sources:{}};
-  for(const file of ['web/app/workspace.tsx','web/app/globals.css','web/build/sites-vite-plugin.ts','web/build/sites-worker.ts'])report.sources[file]=sha(await fs.readFile(path.join(root,file)));
+  for(const file of ['web/app/workspace.tsx','web/app/globals.css','web/build/sites-vite-plugin.ts','web/build/sites-worker.ts','web/components/scholarly-controls.tsx','web/lib/scholarly-adapter.ts','web/lib/scholarly-service.ts','web/lib/scholarly-client.ts','web/lib/scholarly-naming.ts','scripts/test-web-scholarly-browser.mjs'])report.sources[file]=sha(await fs.readFile(path.join(root,file)));
   await fs.writeFile(path.join(output,'report.json'),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({passed:checks.length,report:path.join(output,'report.json')}));
 }catch(error){
+  if(browser){const pages=browser.contexts().flatMap(context=>context.pages());for(const page of pages){await page.screenshot({path:path.join(output,'failure.png'),fullPage:true}).catch(()=>{});await fs.writeFile(path.join(output,'failure-body.txt'),await page.locator('body').innerText().catch(()=>''));}}
   await fs.writeFile(path.join(output,'failure.json'),JSON.stringify({error:String(error),stack:error.stack,checks,browserErrors,responses},null,2)+'\n');
   throw error;
 }finally{

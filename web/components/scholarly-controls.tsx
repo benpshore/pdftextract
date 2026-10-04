@@ -23,6 +23,8 @@ export function ScholarlyControls({record,result,disabled,operation,onExtract,on
   const eligible=!!record&&(record.kind==='pdf'||record.mime==='application/pdf')&&!!result;
   const endpoint=record?'/api/documents/'+encodeURIComponent(record.id)+'/scholarly':'';
   const busy=scholarlyBusy(operation),attachment=evidence(result?.metadata?.scholarly);
+  const extractionPending=useRef(false),current=useRef({endpoint,allowed:false,onExtract});
+  current.current={endpoint,allowed:eligible&&!disabled&&!busy&&operation?.phase!=='uncertain',onExtract};
   const check=useCallback(async()=>{
     request.current?.abort();const controller=new AbortController();request.current=controller;
     setChecking(true);setError('');
@@ -37,7 +39,12 @@ export function ScholarlyControls({record,result,disabled,operation,onExtract,on
     finally{if(!controller.signal.aborted)setChecking(false);}
   },[endpoint]);
   useEffect(()=>{setCapability(null);setError('');if(eligible)void check();return()=>{request.current?.abort();};},[eligible,record?.result_key,check]);
-  async function extract(){const current=await check();if(current?.available)onExtract(current.baseResultKey);}
+  async function extract(){
+    if(extractionPending.current||!current.current.allowed)return;
+    extractionPending.current=true;const startedEndpoint=endpoint;
+    try{const capability=await check();if(capability?.available&&current.current.allowed&&current.current.endpoint===startedEndpoint)current.current.onExtract(capability.baseResultKey);}
+    finally{extractionPending.current=false;}
+  }
   return <section className="scholarly-controls" aria-label="Reference extraction">
     {!eligible?<p className="help">Reference extraction needs a saved, readable PDF.</p>:<>
       {capability?.available&&<p className="help">{modeLabel(capability.mode!)}{capability.resolver?' · Metadata resolution available':''}</p>}
@@ -53,6 +60,6 @@ export function ScholarlyControls({record,result,disabled,operation,onExtract,on
       </div>
       {disabled&&!busy&&<p className="help">Wait for imports or storage changes to finish.</p>}
     </>}
-    {record&&attachment&&<details className="scholarly-evidence"><summary>Scholarly evidence</summary><p className="help">{modeLabel(attachment.mode as string)}</p><div className="export-actions"><a download href={endpoint+'/evidence?format=native-json'}>Download native JSON</a><a download href={endpoint+'/evidence?format=tei'}>Download raw TEI</a>{attachment.has_resolution&&<a download href={endpoint+'/evidence?format=resolution'}>Download resolver JSON</a>}</div><details><summary>Details</summary><dl className="citation-fields"><div><dt>Evidence ID</dt><dd>{attachment.evidence_id as string}</dd></div><div><dt>Generated</dt><dd>{attachment.generated_at as string}</dd></div></dl></details></details>}
+    {record&&attachment&&<details className="scholarly-evidence"><summary>Scholarly evidence</summary><p className="help">{modeLabel(attachment.mode as string)}</p><div className="export-actions"><a download href={endpoint+'/evidence?format=native-json'}>Download native JSON</a><a download href={endpoint+'/evidence?format=tei'}>Download raw TEI</a>{attachment.has_resolution===true&&<a download href={endpoint+'/evidence?format=resolution'}>Download resolver JSON</a>}</div><details><summary>Details</summary><dl className="citation-fields"><div><dt>Evidence ID</dt><dd>{attachment.evidence_id as string}</dd></div><div><dt>Generated</dt><dd>{attachment.generated_at as string}</dd></div></dl></details></details>}
   </section>;
 }
