@@ -117,9 +117,9 @@ Responsible integration fingerprint:
 configuration: `sha256:4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3`.
 The stable [identity registry](https://github.com/benpshore/pdftextract/blob/aa51e4343853a4c41f723b6706889ea2fca820d5/docs/stewardship/agents.json)
 and validator in #226 were used for the new commit trailers and
-[8-record integration action segment](stewardship/security-integration-20261004/actions.jsonl).
+[13-record integration action segment](stewardship/security-integration-20261004/actions.jsonl).
 [Independent checkpoint](stewardship/security-integration-20261004/checkpoint.json):
-`65de5e4a22d33bc3c3e0cdaf6e0389243a9b63b8b9d52075f2f0df96c68b50be`.
+`4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e`.
 This segment does not rewrite #226's earlier journal. SHA256 establishes registry
 lookup/content/order integrity, not authenticated signing, authorship or
 correctness. Ben's human commits are exempt; a GitHub account is transport, not
@@ -140,3 +140,31 @@ and truncated-copy limitation are recorded in provenance. It is not yet a
 validated canonical registry identity or implemented/compiled architecture fix.
 Observations, historical measurements and proposals remain distinct; the later
 queue does not expand this integration's scope.
+
+## Follow-up qualification checkpoint
+
+Initial draft #234 head `684d5588d9c6471d8f4996dc405ceea66456b316` passed Web;
+its live registry lane failed because the new default capability made the build
+offline. Fourth commit explicitly selects `network` in five already
+network-dependent qualification lanes (Registry, Native, native bibliography,
+Eval and Poppler), preserving their intended checks and the default offline
+binary build. The unchanged main PDFium workflow also failed YAML parsing at
+`backend::` followed by a space; a block scalar preserves the exact command.
+[Six-file mechanical verification](stewardship/security-integration-20261004/workflow-corrections.json)
+and [all 16 YAML parse results](stewardship/security-integration-20261004/workflow-yaml.json)
+pass. Events, action pins, job permissions, protections and security/PR policy
+are unchanged. No assertion was skipped or softened. Corrected-head hosted
+qualification remains a separate gate; prior green runs are not relabeled.
+[Initial-head CI evidence](stewardship/security-integration-20261004/initial-head-ci.json)
+preserves the failed checks and their causes. Application/test/config hashes in
+the existing 245-file snapshot remain unchanged; the six workflow deltas have
+separate recorded hashes. No repeat of unaffected application tests is needed.
+
+Ben requests thorough Busybody Bob review plus bounded independent Arch and
+Synthesis passes. Bob's sequential self-review is explicitly distinct. No named
+Arch/Synthesis reviewer tools are callable; the parent will coordinate those
+read-only passes after this checkpoint. Their identities/configurations, exact
+reviewed head, decision and artifact evidence must be recorded; labels alone do
+not establish independence or approval. Formal security resources remain blocked.
+The separately queued Rusty Rick `makeghrepo --no-ci` and `--no-pr` task does not
+authorize changing this repository's CI/PR policy, or personal Todoist updates.

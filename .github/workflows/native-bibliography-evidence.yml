@@ -55,7 +55,7 @@ jobs:
             .pdfium
           key: native-assets-ubuntu-24.04-arm-${{ hashFiles('native/manifest.json') }}
       - run: sh native/fetch.sh
-      - run: cargo build --locked --release --features docling,pdfium --bin tpe --example bibliography_evidence
+      - run: cargo build --locked --release --features docling,pdfium,network --bin tpe --example bibliography_evidence
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: .corpus-cache

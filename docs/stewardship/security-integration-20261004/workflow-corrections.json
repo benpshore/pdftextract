@@ -1,0 +1,32 @@
+[
+  {
+    "file": ".github/workflows/registry-accuracy.yml",
+    "change": "explicit network feature only; permissions/events/pins/default binary build unchanged",
+    "sha256": "6c10b565f4a87a7a75ee0b7691e1dbb96831dc423077c75a24f88736f43e8291"
+  },
+  {
+    "file": ".github/workflows/native.yml",
+    "change": "explicit network feature only; permissions/events/pins/default binary build unchanged",
+    "sha256": "7b48a9b77ebbe7f514317ad9fb56248acfa001064a89ec2477045dbd6dfa8007"
+  },
+  {
+    "file": ".github/workflows/native-bibliography-evidence.yml",
+    "change": "explicit network feature only; permissions/events/pins/default binary build unchanged",
+    "sha256": "6911943e3c20f3dfc204d560e2051b4bf3a00b1e0862f17e1de942a9939a22d4"
+  },
+  {
+    "file": ".github/workflows/eval.yml",
+    "change": "explicit network feature only; permissions/events/pins/default binary build unchanged",
+    "sha256": "d5776c163357dce165af1e2478cbef75a8722433b9027fe7bc803343415626d6"
+  },
+  {
+    "file": ".github/workflows/poppler-compare.yml",
+    "change": "explicit network feature only; permissions/events/pins/default binary build unchanged",
+    "sha256": "4228a065edfb464ffd7b9d39491f4c6ecdfec2df34adfd4b55eb922726c1c726"
+  },
+  {
+    "file": ".github/workflows/pdfium-probe.yml",
+    "change": "Block scalar syntax only; exact existing shell command and settings unchanged",
+    "sha256": "02a4b05fed9fb7c55fb362d2ff9e2cd0f3717239a56c379b683940f1bc503f65"
+  }
+]

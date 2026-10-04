@@ -44,10 +44,15 @@
     {
       "method": "adapt compatible web guards/parser/client/UI/tests; retain #222 contract comment, current-main asset route, omit old parent features; preserve canonical/feed metadata and explicitly fixture-only transport testing",
       "order": 3,
-      "sha": "this commit",
+      "sha": "684d5588d9c6471d8f4996dc405ceea66456b316",
       "source_base": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
       "source_head": "b752bae170ae628c07b12800a44a0a37b235db28",
       "source_pr": 229
+    },
+    {
+      "method": "Five existing network-dependent qualification workflows explicitly select network; fix pre-existing PDFium workflow YAML scalar without changing its command/settings. No production/default-binary enabling or check bypass.",
+      "order": 4,
+      "sha": "this commit"
     }
   ],
   "config_sha256": "4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3",
@@ -67,12 +72,30 @@
     "Source heads/PRs preserved without changes",
     "Hosted exact-head checks completed or honestly blocked; no main merge/release/deploy"
   ],
+  "draft_pr": "https://github.com/benpshore/pdftextract/pull/234",
   "historical_attribution": "Original responsible identities/configurations for #222/#223 and original #221 are uncertain; no retrospective fingerprints assigned. Bob owns integration/adaptation/tests/documentation only. GitHub commit account is transport identity.",
+  "independent_review": {
+    "requested": [
+      "Arch reviewer",
+      "Synthesis reviewer"
+    ],
+    "status": "Named callable tools absent from tool discovery; gap reported for parent-coordinated bounded read-only passes after checkpoint. Bob steward self-review is separate, not independent review."
+  },
+  "initial_published_head": "684d5588d9c6471d8f4996dc405ceea66456b316",
   "main_promotion": "held",
   "next_review": "2026-10-05 UTC or source/main head change",
   "owner": "Busybody Bob",
   "published_head": "external PR/#225 receipt avoids self-referential commit hash",
   "registry": "https://github.com/benpshore/pdftextract/blob/aa51e4343853a4c41f723b6706889ea2fca820d5/docs/stewardship/agents.json",
+  "separate_repository_queue": {
+    "flags": [
+      "--no-ci",
+      "--no-pr"
+    ],
+    "name": "makeghrepo",
+    "owner_requested": "Rusty Rick",
+    "status": "Queued separate repository job; actual repository/issue/task assignment to be coordinated by parent. No Todoist changes or pdftextract CI/PR policy changes."
+  },
   "source_patch_sha256": {
     "pr222": "7f80df6528b7adbc8ffbe6f8b6ac89183587037e8518fa1b529274fc83ee19af",
     "pr223": "5dd990cc55eaad2e3cfa40820c008826acdfb849e2a5b4499df72302902151d5",

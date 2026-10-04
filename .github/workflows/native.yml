@@ -92,11 +92,11 @@ jobs:
           key: native-assets-${{ matrix.os }}-${{ hashFiles('native/manifest.json') }}
       - name: Provision PDFium and the docling models (prints file, bytes, sha256)
         run: sh native/fetch.sh
-      - run: cargo build --locked --release --features docling,pdfium
+      - run: cargo build --locked --release --features docling,pdfium,network
       # --nocapture so the "skipped: ..." lines of the native smoke tests show
       # in the log: with the artifacts present, none of them should appear.
-      - run: cargo clippy --locked --all-targets --features docling,pdfium -- -D warnings
-      - run: cargo test --locked --features docling,pdfium -- --nocapture
+      - run: cargo clippy --locked --all-targets --features docling,pdfium,network -- -D warnings
+      - run: cargo test --locked --features docling,pdfium,network -- --nocapture
       # `tpe backends` (lists compiled-in backends and whether their native
       # dependencies load) is added in the same batch by another change;
       - name: List backends

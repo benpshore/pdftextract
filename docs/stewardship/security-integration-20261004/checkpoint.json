@@ -1,5 +1,6 @@
 {
-  "count": 8,
-  "head_sha256": "65de5e4a22d33bc3c3e0cdaf6e0389243a9b63b8b9d52075f2f0df96c68b50be",
-  "scope": "New integration segment, not a rewrite/continuation claim of #226's existing 100-record journal. Hash lookup/order/integrity only, not signing or authorship/correctness proof."
+  "count": 13,
+  "head_sha256": "4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e",
+  "previous_external_checkpoint": "65de5e4a22d33bc3c3e0cdaf6e0389243a9b63b8b9d52075f2f0df96c68b50be",
+  "scope": "Append-only integration segment; old 8-record prefix unchanged. Hash lookup/order/integrity only, not signing/authorship/correctness."
 }

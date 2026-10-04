@@ -61,7 +61,7 @@ jobs:
           PY
       - name: Build and fetch pinned corpus
         run: |
-          cargo build --locked --release
+          cargo build --locked --release --features network
           ./target/release/tpe corpus fetch --manifest comparison-manifest.json --cache .corpus-cache
       - name: Compare
         run: |
