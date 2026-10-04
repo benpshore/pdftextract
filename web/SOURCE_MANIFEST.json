@@ -109,10 +109,17 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
+<<<<<<< HEAD
       "bytes": 68102,
       "mode": "0644",
       "path": "app/workspace.tsx",
       "sha256": "1bc59c5d90c79a32f89d8705d51b30d4ebea5d94b5511ec1e8cd5fb866af6e73"
+=======
+      "bytes": 62516,
+      "mode": "0644",
+      "path": "app/workspace.tsx",
+      "sha256": "01f00b13555bb531511909ed7734dde7d13223ed372075b6f4f22707007edbab"
+>>>>>>> origin/fix/web-alpha-integration-20261004
     },
     {
       "bytes": 7211,
