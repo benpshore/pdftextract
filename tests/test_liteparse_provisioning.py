@@ -75,8 +75,18 @@ def test_reviewed_archive_and_library_remain_required(tmp_path, checksum, damage
         assert executable, "shasum required for preferred-interface qualification"
         (tools / "shasum").symlink_to(executable)
     if checksum == "gnu":
-        executable = shutil.which("sha256sum")
-        assert executable
+        # macOS has a non-GNU alias with this same name. Its mere presence must
+        # not pass mismatch cases through option refusal or pretend to exercise
+        # the GNU fallback. Linux jobs run these cases; macOS still runs all real
+        # shasum/pin/mismatch cases and native provisioning on its actual runner.
+        executable = shutil.which("gsha256sum") or shutil.which("sha256sum")
+        if not executable:
+            pytest.skip("GNU checksum fixture requires GNU sha256sum")
+        version = subprocess.run(  # noqa: S603 - trusted host utility, fixed argument
+            [executable, "--version"], capture_output=True, text=True, check=False, timeout=5
+        )
+        if version.returncode != 0 or "GNU coreutils" not in version.stdout:
+            pytest.skip("GNU checksum fixture unavailable; shasum cases remain required")
         (tools / "sha256sum").symlink_to(executable)
     elif checksum == "mac-wrapper":
         # Hosted evidence disproved the earlier accepting-short-option model.
@@ -97,6 +107,8 @@ def test_reviewed_archive_and_library_remain_required(tmp_path, checksum, damage
     )
     if damage:
         assert result.returncode != 0
+        assert "FAILED" in result.stdout, "a pin mismatch must reach real checksum verification"
+        assert "usage:" not in result.stdout + result.stderr
         assert not (root / ".pdfium").exists(), "mismatched bytes must never publish"
     else:
         assert result.returncode == 0, result.stderr

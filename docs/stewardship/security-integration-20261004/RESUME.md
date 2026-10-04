@@ -109,3 +109,7 @@ Candidate code c308680f9d5b1aaabf0fdc202513e44a0f91a852 is recoverable on Bob WI
 ### New-head qualification correction
 
 Hosted721dec3 exposed Rustfmt's requested multiline test assertion and macOS sha256sum's continued rejection of -c. The accepting-short-option synthetic model was insufficient; use known-working same-job shasum first and keep GNU fallback. Archive/library pins and failure behavior remain mandatory. Poppler run37216213021 did finish all three development diagnostics, then intentionally remained failed for Partial quality. No quality or checksum bypass, corpus artifact download or formal clearance. New implementation requires a new exact-head native qualification/delta review.
+
+### Clippy and test-platform correction
+
+Required CI62a9ffe passed all6jobs, but optional provider-test Clippy requests `*b"a"` for the one-byte fixture. Native repair passed Linux x64/ARM; macOS production provisioning now passed and its Python fixture incorrectly treated the host's non-GNU sha256sum alias as GNU. GNU-only cases now verify the utility vendor before qualification and are unavailable/explicitly skipped when no GNU tool exists; real shasum success and archive/library mismatch cases remain mandatory on macOS. Mismatch fixtures additionally require actual checksum FAILED evidence, rejecting false positives from option errors. No production check/assertion/pin/quality gate is bypassed. New exact-head native qualification remains needed.

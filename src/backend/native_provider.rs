@@ -666,7 +666,7 @@ mod tests {
     fn provider_identity_keeps_null_and_termination_bounds() {
         // SAFETY: null is rejected before any dereference.
         assert!(unsafe { bounded_string(std::ptr::null()) }.is_err());
-        let mut chars = [c_char::from_ne_bytes([b'a']); 256];
+        let mut chars = [c_char::from_ne_bytes(*b"a"); 256];
         // SAFETY: all 256 initialized bytes are readable. Without a NUL the
         // bounded copy must fail, rather than reading a 257th byte.
         assert!(unsafe { bounded_string(chars.as_ptr()) }.is_err());
