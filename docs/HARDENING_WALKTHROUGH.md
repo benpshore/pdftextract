@@ -3,8 +3,10 @@
 Owner: Busybody Bob. Next review: 2026-10-05 UTC or a relevant head change.
 This explains the focused current-main adaptation in draft #234, not the older
 scholarly/UI stack or an accepted security/release result. The original independent
-reviews cover exactly `82f95ad99185b6641023169f8dd99d6f92438ac1`; the follow-up
-code snapshot is `3d122ac7e12a1b2b951a1f9ea48ffb4667157fbf` and needs delta review.
+reviews cover exactly `82f95ad99185b6641023169f8dd99d6f92438ac1`; the initial web repair
+snapshot was `3d122ac7e12a1b2b951a1f9ea48ffb4667157fbf`. Later hosted corrections
+are in held application head `1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe`, which
+needs independent delta review; documentation recovery heads do not replace it.
 
 The first decision is whether an input requires acquisition. Local files and pasted
 bytes are already available to process; a remote URL asks the system to obtain new

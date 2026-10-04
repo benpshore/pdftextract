@@ -1,0 +1,133 @@
+{
+  "observed_at": "2026-10-04 16:52:24 UTC",
+  "held_application_head": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+  "held_application_tree": "0cf67910a864fd532eca6ef09731d0e2668c0ece",
+  "base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "runs": [
+    {
+      "id": 37217228934,
+      "name": "Poppler comparison",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228934"
+    },
+    {
+      "id": 37217228869,
+      "name": "Native",
+      "status": "in_progress",
+      "conclusion": null,
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228869"
+    },
+    {
+      "id": 37217228842,
+      "name": "Web alpha source",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228842"
+    },
+    {
+      "id": 37217228892,
+      "name": "Registry accuracy smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228892"
+    },
+    {
+      "id": 37217228856,
+      "name": "Native bibliography evidence",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228856"
+    },
+    {
+      "id": 37217228837,
+      "name": "Native repair checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228837"
+    },
+    {
+      "id": 37217228840,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228840"
+    },
+    {
+      "id": 37217228894,
+      "name": "PDFium Unicode checks",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228894"
+    },
+    {
+      "id": 37217228834,
+      "name": "Build binaries",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37217228834"
+    }
+  ],
+  "provider_byte_runtime": [
+    "test backend::native_provider::tests::provider_c_char_preserves_high_bytes_and_utf8_on_each_target ... ok",
+    "test backend::native_provider::tests::provider_identity_keeps_null_and_termination_bounds ... ok"
+  ],
+  "mac_fixture_execution": [
+    "SKIPPED [3] tests/test_liteparse_provisioning.py:89: GNU checksum fixture unavailable; shasum cases remain required",
+    "======================== 231 passed, 3 skipped in 2.12s ========================"
+  ],
+  "poppler": {
+    "run": 37217228934,
+    "job": 111480097749,
+    "conclusion": "failure",
+    "summary": [
+      "Exported 3 development diagnostics; 2 Partial results remain unqualified."
+    ]
+  },
+  "local": {
+    "python": 234,
+    "checksum_export_cases": 24,
+    "source_tests": 28,
+    "web_commands": 14,
+    "browser_checks": 5,
+    "source_manifest_files": 159,
+    "ruff": "pass",
+    "rust_swift_cmake": "absent locally; native evidence is hosted"
+  },
+  "policy": {
+    "head": "5d70fb315b33f8789d9c282109ebe65fd3f4ffae",
+    "required_ci_run": 37216837635,
+    "conclusion": "success",
+    "records": 103,
+    "checkpoint": "63f7140fb99ef5a728bffa51d507bc391a5cb37daee1da9be5a86040f1999f9e",
+    "archie_canonical_digest": "verified",
+    "sylvie_canonical_bytes": "pending requested bytes",
+    "original_companion_report_files": "not recovered in selected environment"
+  },
+  "formal": {
+    "assessment": "not created/completed",
+    "shared_resources": "Fresh exact resource reads failed for config-preflight.md, artifact-storage.md and patch-risk-assessment.schema.json; required prerequisite retained",
+    "engineering_tests_substitute": false
+  },
+  "holds": [
+    "Original Native209Partial/zero exceptions remains historical terminal evidence; current Native outcome pending at this observation",
+    "Poppler current1f exported3dev diagnostics then failed for2Partial; no quality waiver",
+    "Original independent reviews cover82f95ad; later delta rereview required",
+    "Main/release/deploy and user security/release requirements remain held; no user issue touched",
+    "No corpus/heldout artifacts downloaded; all five existing Poppler inputs independently verified dev split"
+  ],
+  "limits": [
+    "First page/pull_request-filtered workflow listing; not exhaustive manual/deploy history",
+    "No fresh local/browser-native-GROBID end-to-end or broad accuracy/security qualification",
+    "Checkpoint target is about2min while editing, not guaranteed; read-only waiting has no empty commits"
+  ]
+}
