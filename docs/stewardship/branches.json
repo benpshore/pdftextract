@@ -393,5 +393,31 @@
       "name": "publish/pdfium-native-hyphen",
       "sha": "23880f84e8964d1876461ad94a2ed5b470bb7e5d"
     }
-  ]
+  ],
+  "archive_additions": [
+    {
+      "name": "archive/steward-20261004/pr-172-5c6225c7e1dc",
+      "sha": "5c6225c7e1dc76cea97fca6d3019cc31094fa8ac",
+      "receipt": "https://github.com/benpshore/pdftextract/pull/172#issuecomment-5979663305"
+    },
+    {
+      "name": "archive/steward-20261004/pr-194-0ece13395f83",
+      "sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe",
+      "receipt": "https://github.com/benpshore/pdftextract/pull/194#issuecomment-5979665508"
+    },
+    {
+      "name": "archive/steward-20261004/pr-203-5cd375e6b2c4",
+      "sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0",
+      "receipt": "https://github.com/benpshore/pdftextract/pull/203#issuecomment-5979667406"
+    },
+    {
+      "name": "archive/steward-20261004/pr-204-490e39f9320c",
+      "sha": "490e39f9320c1b9e2766f136c27f0dccf9ca78e0",
+      "receipt": "https://github.com/benpshore/pdftextract/pull/204#issuecomment-5979669416"
+    }
+  ],
+  "policy_branch": {
+    "name": "maintenance/stewardship-20261004",
+    "initial_sha": "6d1633485352c93c54c5072ee0070d18f61e48aa"
+  }
 }

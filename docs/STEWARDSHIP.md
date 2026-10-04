@@ -31,6 +31,7 @@ Rust is pinned to **1.98.1** (`rust-toolchain.toml`), with lockfiles and existin
 Actions/native/container artifacts. Dependabot currently uses weekly grouped updates and a 7-day
 cooldown. PR114's old claim that Rust floats is stale; PR83's scheduled write-token update mechanism
 is a candidate, not accepted policy. Reconcile their residuals rather than land either full old tree.
+PR78/#83 are blocked by failed exact-head required ci (cancelled macOS jobs retained).
 PR214 is a Dependabot web candidate, separately qualified against Workers/browser/runtime tests.
 No pins, toolchain or automatic-update permissions are changed by this stewardship draft.
 
@@ -44,14 +45,14 @@ No pins, toolchain or automatic-update permissions are changed by this stewardsh
   and retained as duplicate source/history, not independently promoted.
   **#211's head does not contain #192's latest head**; inspect its merge base and newer
   changes before integration. Do not retarget or combine stacks casually.
-- OCR/GROBID #206 remains based on #175. #202 remains an isolated region contract;
+- OCR/GROBID #206 remains based on #175. #202 retains the isolated region contract plus merged #208 reviewed whole-span pilot;
   #207/#208/#209/#210/#213/#218 are verified merged into their feature-stack bases,
   rather than main. Their exact heads/bases are retained in
   [merged-stack-prs.json](stewardship/merged-stack-prs.json). Do not reopen or reland them separately.
 - Native #223 `7385a3bcd4592a2071cd5eb93d566fe4ec472723` and web #221
   `3809145fc07c0a33be5a85514a50bc3dfcff4938` retain network-off boundaries.
-  Prior green required CI is reported in those exact-head descriptions, not rerun or
-  counted as current-main integration/security qualification by this steward.
+  Their exact-head required ci was independently read back as terminal success;
+  this is not current-main integration, full quality or security qualification.
 - Frozen native `eb5f711b` evidence (parent-reported) includes containment18/startup2/PDFium
   smokes2, but **209 genuine Partials remain a gate**. No source quality waiver is granted.
 - Separate #222 stays open at `6fc3266e0860de85b0bf5bd39a364d783a1a2796`.
@@ -72,7 +73,9 @@ User-authored issues remain entirely untouched, including #220/#215/#216/#217 an
 uncertain historical issue. A shared GitHub username never decides agent authorship.
 #224 is explicitly identified by the parent as a Luna-created issue; its original body
 is preserved, with an additive agent-created label and provenance comment. #225 is newly
-agent-created and labeled. Other historical issue authorship is unresolved, so their
+agent-created and labeled. New explicitly requested [#227](https://github.com/benpshore/pdftextract/issues/227) is agent-created
+and attributed to Bob; it covers region plus within-page chunk schemas, alignment and bounded streaming.
+Other historical issue authorship is unresolved, so their
 labels/bodies/state/comments are preserved; [historical attribution](stewardship/historical-attribution.json)
 records unknowns and body hashes. Existing epic scopes #176–#183/#199 do not exactly cover
 maintenance, so #225 fills that gap without editing those issues.
@@ -81,6 +84,26 @@ All newly created agent issues need `agent-created` plus explicit agent/task att
 Known historical review/research agents require evidence before retrospective linkage:
 their missing names/configurations/fingerprints are not fabricated. ChatGPTWork is registered
 for the current observed parent delegation, not falsely attributed to all earlier work.
+
+## Verified cleanup and rationale receipts
+
+Four superseded PRs are closed **without merging**. Their individually named archive refs
+were independently read back at the exact heads before closure; original branches remain.
+Full method/receipt/reopening instructions: [cleanup-decisions.json](stewardship/cleanup-decisions.json).
+
+| PR | Preserved archive ref | Exact head | Decision receipt |
+|---|---|---|---|
+| #172 | `archive/steward-20261004/pr-172-5c6225c7e1dc` | `5c6225c7e1dc76cea97fca6d3019cc31094fa8ac` | [receipt](https://github.com/benpshore/pdftextract/pull/172#issuecomment-5979663305) |
+| #194 | `archive/steward-20261004/pr-194-0ece13395f83` | `0ece13395f8372a6e9b32aa93f16b612a850b0fe` | [receipt](https://github.com/benpshore/pdftextract/pull/194#issuecomment-5979665508) |
+| #203 | `archive/steward-20261004/pr-203-5cd375e6b2c4` | `5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0` | [receipt](https://github.com/benpshore/pdftextract/pull/203#issuecomment-5979667406) |
+| #204 | `archive/steward-20261004/pr-204-490e39f9320c` | `490e39f9320c1b9e2766f136c27f0dccf9ca78e0` | [receipt](https://github.com/benpshore/pdftextract/pull/204#issuecomment-5979669416) |
+
+
+Active rationale reconciled for **#78/#83/#114/#175/#191/#192/#202/#205/#206/#211/#221/#223**;
+original evidence remains underneath a dated current-state note. [Body hashes/heads](stewardship/pr-rationale-updates.json)
+and [exact-head checks](stewardship/active-checks.json) record the revision. #222 and human/unknown
+#100/#101 remain untouched. #211 has no exact-head checks returned and does not contain its latest
+base; #78/#83 required ci fails. Green ci does not waive Native/registry/quality/security failures.
 
 ## Full bounded PR classification
 
@@ -94,13 +117,13 @@ review history and stacked dependencies. Human/unknown #100/#101 are untouched.
 | [#222](https://github.com/benpshore/pdftextract/pull/222) | active-separately-owned-security | `main` / `6fc3266e0860` | Read-only; separate author/owner |
 | [#221](https://github.com/benpshore/pdftextract/pull/221) | active-draft-gated | `feat/web-scholarly-adapter-local-20261004` / `3809145fc07c` | Qualify focused residual against current main |
 | [#214](https://github.com/benpshore/pdftextract/pull/214) | active-dependency-candidate | `main` / `9aca9bf58b2a` | Read-only; separate author/owner |
-| [#211](https://github.com/benpshore/pdftextract/pull/211) | active-draft-gated | `fix/web-alpha-integration-20261004` / `d8e902be6e40` | Base head not contained; inspect graph |
+| [#211](https://github.com/benpshore/pdftextract/pull/211) | blocked-active-base-and-ci | `fix/web-alpha-integration-20261004` / `d8e902be6e40` | Base head not contained; inspect graph |
 | [#206](https://github.com/benpshore/pdftextract/pull/206) | active-draft-gated | `feat/native-toolkit-private-alpha-20261004` / `f7b41b93ba87` | Qualify focused residual against current main |
 | [#205](https://github.com/benpshore/pdftextract/pull/205) | active-draft-gated | `fix/docling-bibliography-order-20261004` / `3b73e37101e0` | Qualify focused residual against current main |
-| [#204](https://github.com/benpshore/pdftextract/pull/204) | superseded-exact-files | `fix/native-bibliography-boundaries-20261004` / `490e39f9320c` | Exact contribution files equal main; archive before closure |
-| [#203](https://github.com/benpshore/pdftextract/pull/203) | superseded-exact-files | `diagnostics/native-bibliography-20261004` / `5cd375e6b2c4` | Exact contribution files equal main; archive before closure |
+| [#204](https://github.com/benpshore/pdftextract/pull/204) | superseded-exact-files / CLOSED | `fix/native-bibliography-boundaries-20261004` / `490e39f9320c` | Archived and closed; exact contribution files equal main |
+| [#203](https://github.com/benpshore/pdftextract/pull/203) | superseded-exact-files / CLOSED | `diagnostics/native-bibliography-20261004` / `5cd375e6b2c4` | Archived and closed; exact contribution files equal main |
 | [#202](https://github.com/benpshore/pdftextract/pull/202) | active-draft-gated | `main` / `d964e9a7d939` | Qualify focused residual against current main |
-| [#194](https://github.com/benpshore/pdftextract/pull/194) | superseded-exact-files | `integrate/native-bibliography-base-20261004` / `0ece13395f83` | Exact contribution files equal main; archive before closure |
+| [#194](https://github.com/benpshore/pdftextract/pull/194) | superseded-exact-files / CLOSED | `integrate/native-bibliography-base-20261004` / `0ece13395f83` | Archived and closed; exact contribution files equal main |
 | [#192](https://github.com/benpshore/pdftextract/pull/192) | active-draft-gated | `feat/native-toolkit-private-alpha-20261004` / `b315c36a9d93` | Qualify focused residual against current main |
 | [#191](https://github.com/benpshore/pdftextract/pull/191) | active-draft-gated | `feat/native-toolkit-private-alpha-20261004` / `e9e41ceb3083` | Qualify focused residual against current main |
 | [#189](https://github.com/benpshore/pdftextract/pull/189) | duplicate-preserved-in-active-stack | `feat/native-toolkit-private-alpha-20261004` / `8194834e7797` | Head retained inside an active stack |
@@ -108,7 +131,7 @@ review history and stacked dependencies. Human/unknown #100/#101 are untouched.
 | [#187](https://github.com/benpshore/pdftextract/pull/187) | duplicate-preserved-in-active-stack | `feat/native-toolkit-private-alpha-20261004` / `5c0a3aa6d33a` | Head retained inside an active stack |
 | [#175](https://github.com/benpshore/pdftextract/pull/175) | active-draft-gated | `main` / `baafb4728737` | Qualify focused residual against current main |
 | [#174](https://github.com/benpshore/pdftextract/pull/174) | duplicate-preserved-in-active-stack | `publish/paragraph-region` / `c484b73a6882` | Head retained inside an active stack |
-| [#172](https://github.com/benpshore/pdftextract/pull/172) | superseded-exact-files | `publish/pdfium-native-hyphen` / `5c6225c7e1dc` | Exact contribution files equal main; archive before closure |
+| [#172](https://github.com/benpshore/pdftextract/pull/172) | superseded-exact-files / CLOSED | `publish/pdfium-native-hyphen` / `5c6225c7e1dc` | Archived and closed; exact contribution files equal main |
 | [#171](https://github.com/benpshore/pdftextract/pull/171) | duplicate-preserved-in-active-stack | `main` / `23880f84e896` | Head retained inside an active stack |
 | [#170](https://github.com/benpshore/pdftextract/pull/170) | blocked-residual-review | `main` / `627325b08bfa` | Qualify focused residual against current main |
 | [#163](https://github.com/benpshore/pdftextract/pull/163) | blocked-residual-review | `codex/resolver-independent-cohort` / `7a1f7417d527` | Qualify focused residual against current main |
@@ -164,12 +187,12 @@ review history and stacked dependencies. Human/unknown #100/#101 are untouched.
 | [#86](https://github.com/benpshore/pdftextract/pull/86) | blocked-residual-review | `main` / `861a4758230c` | Qualify focused residual against current main |
 | [#85](https://github.com/benpshore/pdftextract/pull/85) | blocked-residual-review | `main` / `5b81323bd788` | Qualify focused residual against current main |
 | [#84](https://github.com/benpshore/pdftextract/pull/84) | blocked-residual-review | `main` / `bf25f48307e9` | Qualify focused residual against current main |
-| [#83](https://github.com/benpshore/pdftextract/pull/83) | active-draft-gated | `maintenance/docling-1.74.1` / `dda67a8981fb` | Qualify focused residual against current main |
+| [#83](https://github.com/benpshore/pdftextract/pull/83) | blocked-dependency-ci | `maintenance/docling-1.74.1` / `dda67a8981fb` | Qualify focused residual against current main |
 | [#82](https://github.com/benpshore/pdftextract/pull/82) | blocked-residual-review | `main` / `edb33dfc08ef` | Qualify focused residual against current main |
 | [#81](https://github.com/benpshore/pdftextract/pull/81) | blocked-residual-review | `main` / `6170f3059259` | Qualify focused residual against current main |
 | [#80](https://github.com/benpshore/pdftextract/pull/80) | blocked-residual-review | `main` / `d0a5d30b3af2` | Base head not contained; inspect graph |
 | [#79](https://github.com/benpshore/pdftextract/pull/79) | blocked-residual-review | `main` / `2f4f026affc4` | Qualify focused residual against current main |
-| [#78](https://github.com/benpshore/pdftextract/pull/78) | active-draft-gated | `feat/isolated-ingest-batch` / `f23f392efec7` | Qualify focused residual against current main |
+| [#78](https://github.com/benpshore/pdftextract/pull/78) | blocked-dependency-ci | `feat/isolated-ingest-batch` / `f23f392efec7` | Qualify focused residual against current main |
 | [#77](https://github.com/benpshore/pdftextract/pull/77) | blocked-residual-review | `main` / `e7cf5ad9a83e` | Qualify focused residual against current main |
 | [#76](https://github.com/benpshore/pdftextract/pull/76) | blocked-residual-review | `main` / `4176bb4d729f` | Qualify focused residual against current main |
 | [#75](https://github.com/benpshore/pdftextract/pull/75) | blocked-residual-review | `main` / `d7e208bc6540` | Qualify focused residual against current main |
@@ -182,7 +205,8 @@ review history and stacked dependencies. Human/unknown #100/#101 are untouched.
 
 ## Validation and next review
 
-Policy fixtures currently pass (15); Ruff passes. Full local Python suite passes **225 tests**. OSV audit was attempted and is proxy-blocked;
+Policy fixtures pass (15); Ruff passes. Initial draft #226 at `6d163348` has
+[green required CI](https://github.com/benpshore/pdftextract/actions/runs/37200247331); final-head CI is recorded separately. Full local Python suite passes **225 tests**. OSV audit was attempted and is proxy-blocked;
 no successful local audit is claimed. Required Cargo/Swift/CMake commands were attempted but those
 executables are absent in this environment; hosted required CI is the remaining integration gate.
 No runnable extraction tool was run on Ben's Mac. No version, release tag, credential, Git object
@@ -193,3 +217,19 @@ the four archive/closure receipts, finish active-head checks, and qualify any ge
 residual as a focused draft. User merging a runnable change remains a separate decision.
 
 Stable steward fingerprint: `sha256:2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f`.
+
+## Explicit follow-up requirements from the live call
+
+[Agent data engineering #227](https://github.com/benpshore/pdftextract/issues/227) owns the missing
+**region AND chunk within each page** schema/alignment/coordinate-frame/boundary/reading-order/
+provenance/correction contract. It preserves candidates and distinguishes confidence from truth.
+Design must use adaptive native/browser host budgets with conservative unavailable-probe fallback:
+**no blanket 8 MB input cap**, and legitimate **50 GB gunzipped tar** browser streaming feasibility
+must be investigated, not categorically excluded or claimed supported. Separate file/object/
+reference/metadata/nesting/queue/index budgets; spill, throttle, checkpoint and resume before
+killing legitimate work while preserving firm hostile-input ceilings. Test background worker,
+cache and buffer lifecycle/growth. These are recorded directions, not new builds or benchmark authority.
+
+Ben refuses real-device testing. Desired option: isolated Tart macOS VM plus Xcode iOS Simulator,
+only with an authorized Apple host; no Mac installation permission is implied and simulator results
+do not prove actual iPhone capacity. No actual-device test, Mac run or new runtime was attempted.

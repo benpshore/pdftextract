@@ -39,7 +39,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 16
+      "contribution_path_count": 16,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 222,
@@ -69,7 +70,8 @@
       "classification": "active-separately-owned-security",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 221,
@@ -102,7 +104,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 25
+      "contribution_path_count": 25,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 214,
@@ -169,7 +172,8 @@
       "classification": "active-dependency-candidate",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 211,
@@ -204,10 +208,11 @@
       "containing_pr_heads": [
         221
       ],
-      "classification": "active-draft-gated",
+      "classification": "blocked-active-base-and-ci",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 70
+      "contribution_path_count": 70,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 206,
@@ -247,7 +252,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 48
+      "contribution_path_count": 48,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 205,
@@ -287,7 +293,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 204,
@@ -324,7 +331,8 @@
       "classification": "superseded-exact-files",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": "archive/steward-20261004/pr-204-490e39f9320c",
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "closed"
     },
     {
       "number": 203,
@@ -362,7 +370,8 @@
       "classification": "superseded-exact-files",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": "archive/steward-20261004/pr-203-5cd375e6b2c4",
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "closed"
     },
     {
       "number": 202,
@@ -404,7 +413,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 82
+      "contribution_path_count": 82,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 194,
@@ -443,7 +453,8 @@
       "classification": "superseded-exact-files",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": "archive/steward-20261004/pr-194-0ece13395f83",
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "closed"
     },
     {
       "number": 192,
@@ -488,7 +499,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 64
+      "contribution_path_count": 64,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 191,
@@ -532,7 +544,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 10
+      "contribution_path_count": 10,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 189,
@@ -572,7 +585,8 @@
       "classification": "duplicate-preserved-in-active-stack",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 188,
@@ -616,7 +630,8 @@
       "classification": "duplicate-preserved-in-active-stack",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 12
+      "contribution_path_count": 12,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 187,
@@ -658,7 +673,8 @@
       "classification": "duplicate-preserved-in-active-stack",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 26
+      "contribution_path_count": 26,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 175,
@@ -708,7 +724,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 234
+      "contribution_path_count": 234,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 174,
@@ -748,7 +765,8 @@
       "classification": "duplicate-preserved-in-active-stack",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 172,
@@ -786,7 +804,8 @@
       "classification": "superseded-exact-files",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": "archive/steward-20261004/pr-172-5c6225c7e1dc",
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "closed"
     },
     {
       "number": 171,
@@ -826,7 +845,8 @@
       "classification": "duplicate-preserved-in-active-stack",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 170,
@@ -858,7 +878,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 163,
@@ -922,7 +943,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 61
+      "contribution_path_count": 61,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 161,
@@ -948,7 +970,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 160,
@@ -980,7 +1003,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 159,
@@ -1012,7 +1036,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 158,
@@ -1047,7 +1072,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 157,
@@ -1081,7 +1107,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 156,
@@ -1108,7 +1135,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 155,
@@ -1136,7 +1164,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 143,
@@ -1160,7 +1189,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 142,
@@ -1192,7 +1222,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 141,
@@ -1223,7 +1254,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 4
+      "contribution_path_count": 4,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 140,
@@ -1260,7 +1292,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 22
+      "contribution_path_count": 22,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 139,
@@ -1295,7 +1328,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 13
+      "contribution_path_count": 13,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 138,
@@ -1330,7 +1364,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 137,
@@ -1373,7 +1408,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 10
+      "contribution_path_count": 10,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 136,
@@ -1408,7 +1444,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 135,
@@ -1441,7 +1478,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 134,
@@ -1498,7 +1536,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 53
+      "contribution_path_count": 53,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 133,
@@ -1528,7 +1567,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 132,
@@ -1579,7 +1619,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "current delegated agent-work context; individual historical identity unresolved",
       "archive_ref": null,
-      "contribution_path_count": 21
+      "contribution_path_count": 21,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 126,
@@ -1609,7 +1650,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 119,
@@ -1654,7 +1696,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 118,
@@ -1686,7 +1729,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 117,
@@ -1709,7 +1753,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 116,
@@ -1741,7 +1786,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 115,
@@ -1776,7 +1822,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 21
+      "contribution_path_count": 21,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 114,
@@ -1808,7 +1855,8 @@
       "classification": "active-draft-gated",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 113,
@@ -1830,7 +1878,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 112,
@@ -1860,7 +1909,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 111,
@@ -1891,7 +1941,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 110,
@@ -1917,7 +1968,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 109,
@@ -1948,7 +2000,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 108,
@@ -1982,7 +2035,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 107,
@@ -2016,7 +2070,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 4
+      "contribution_path_count": 4,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 106,
@@ -2050,7 +2105,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 101,
@@ -2072,7 +2128,8 @@
       "classification": "human-or-unknown-preserve",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 100,
@@ -2094,7 +2151,8 @@
       "classification": "human-or-unknown-preserve",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 99,
@@ -2118,7 +2176,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 98,
@@ -2141,7 +2200,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 97,
@@ -2171,7 +2231,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 96,
@@ -2193,7 +2254,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 95,
@@ -2215,7 +2277,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 94,
@@ -2238,7 +2301,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 93,
@@ -2264,7 +2328,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 92,
@@ -2288,7 +2353,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 91,
@@ -2313,7 +2379,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 4
+      "contribution_path_count": 4,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 90,
@@ -2341,7 +2408,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 89,
@@ -2366,7 +2434,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 4
+      "contribution_path_count": 4,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 88,
@@ -2394,7 +2463,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 87,
@@ -2421,7 +2491,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 86,
@@ -2445,7 +2516,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 3
+      "contribution_path_count": 3,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 85,
@@ -2472,7 +2544,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 84,
@@ -2498,7 +2571,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 5
+      "contribution_path_count": 5,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 83,
@@ -2527,10 +2601,11 @@
       ],
       "all_contribution_files_equal_main": false,
       "containing_pr_heads": [],
-      "classification": "active-draft-gated",
+      "classification": "blocked-dependency-ci",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 82,
@@ -2563,7 +2638,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 21
+      "contribution_path_count": 21,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 81,
@@ -2593,7 +2669,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 9
+      "contribution_path_count": 9,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 80,
@@ -2618,7 +2695,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 4
+      "contribution_path_count": 4,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 79,
@@ -2645,7 +2723,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 78,
@@ -2674,10 +2753,11 @@
       "containing_pr_heads": [
         83
       ],
-      "classification": "active-draft-gated",
+      "classification": "blocked-dependency-ci",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 7
+      "contribution_path_count": 7,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 77,
@@ -2709,7 +2789,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 11
+      "contribution_path_count": 11,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 76,
@@ -2736,7 +2817,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 6
+      "contribution_path_count": 6,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 75,
@@ -2769,7 +2851,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 17
+      "contribution_path_count": 17,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 74,
@@ -2801,7 +2884,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 11
+      "contribution_path_count": 11,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 68,
@@ -2823,7 +2907,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 64,
@@ -2845,7 +2930,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "explicit Codex Task/Claude session link in PR body",
       "archive_ref": null,
-      "contribution_path_count": 1
+      "contribution_path_count": 1,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 57,
@@ -2870,7 +2956,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 2
+      "contribution_path_count": 2,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 55,
@@ -2904,7 +2991,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 8
+      "contribution_path_count": 8,
+      "current_stewardship_state": "preserved-open"
     },
     {
       "number": 54,
@@ -2940,7 +3028,8 @@
       "classification": "blocked-residual-review",
       "agent_provenance": "unknown; do not infer from account name",
       "archive_ref": null,
-      "contribution_path_count": 11
+      "contribution_path_count": 11,
+      "current_stewardship_state": "preserved-open"
     }
   ],
   "defaults": {
@@ -2949,5 +3038,9 @@
     "next_action": "Qualify focused residual against live main; preserve head",
     "done_criteria": "Focused delta/rationale, exact-head checks, acceptance assessed and separate human promotion",
     "historical_identity": "Unknown unless explicit source links; never infer from shared account"
-  }
+  },
+  "cleanup_observed_at": "2026-10-04T12:04:55Z",
+  "original_open_snapshot_count": 89,
+  "snapshot_prs_remaining_open_after_cleanup": 85,
+  "new_policy_pr": 226
 }

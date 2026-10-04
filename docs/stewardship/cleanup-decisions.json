@@ -1,0 +1,50 @@
+[
+  {
+    "number": 172,
+    "head_sha": "5c6225c7e1dc76cea97fca6d3019cc31094fa8ac",
+    "base": "publish/pdfium-native-hyphen",
+    "base_sha": "23880f84e8964d1876461ad94a2ed5b470bb7e5d",
+    "archive_ref": "archive/steward-20261004/pr-172-5c6225c7e1dc",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/172#issuecomment-5979663305",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 194,
+    "head_sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe",
+    "base": "integrate/native-bibliography-base-20261004",
+    "base_sha": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9",
+    "archive_ref": "archive/steward-20261004/pr-194-0ece13395f83",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/194#issuecomment-5979665508",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 203,
+    "head_sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0",
+    "base": "diagnostics/native-bibliography-20261004",
+    "base_sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe",
+    "archive_ref": "archive/steward-20261004/pr-203-5cd375e6b2c4",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/203#issuecomment-5979667406",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 204,
+    "head_sha": "490e39f9320c1b9e2766f136c27f0dccf9ca78e0",
+    "base": "fix/native-bibliography-boundaries-20261004",
+    "base_sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0",
+    "archive_ref": "archive/steward-20261004/pr-204-490e39f9320c",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/204#issuecomment-5979669416",
+    "reason": "all contributed files exactly equal observed main"
+  }
+]
