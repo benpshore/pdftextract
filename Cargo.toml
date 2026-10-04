@@ -4,7 +4,7 @@ resolver = "3"
 
 [workspace.package]
 # Mirrors the root package version; tag-derived Rust versions are tracked separately.
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 license-file = "LICENSE"
 
@@ -20,7 +20,7 @@ codegen-units = 1
 
 [package]
 name = "text-processing-engine"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 description = "Native PDF text, metadata and citation extraction engine for academic corpora"
 license-file = "LICENSE"
