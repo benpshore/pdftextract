@@ -68,9 +68,10 @@ The new unit fixtures check high bytes, Unicode, NUL termination and the 255-byt
 boundary; actual native execution remains a hosted qualification gate locally.
 
 Provisioning happens before that provider can be used. The existing reviewed archive
-and library hashes remain mandatory. The shell now uses portable short `sha256sum -c`
-because the observed macOS wrapper rejects GNU's long option. Synthetic fixtures
-exercise GNU, a modeled short-option wrapper and shasum fallback, including bad
+and library hashes remain mandatory. The first repair tried short `sha256sum -c`, but hosted macOS rejected that too.
+The shell now prefers the same `shasum -a 256 --check` interface already successful
+in that job, with GNU sha256sum fallback when shasum is absent. Synthetic fixtures
+exercise real GNU/shasum and a refusing macOS alias, including bad
 archive/library pins and cleanup. They neither load a library nor run on Ben's Mac;
 the actual macOS/ARM lane must verify the repair independently.
 

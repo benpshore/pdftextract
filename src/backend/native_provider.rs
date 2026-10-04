@@ -672,7 +672,10 @@ mod tests {
         assert!(unsafe { bounded_string(chars.as_ptr()) }.is_err());
         chars[255] = c_char::from_ne_bytes([0]);
         // SAFETY: the final initialized element is the required NUL terminator.
-        assert_eq!(unsafe { bounded_string(chars.as_ptr()) }.unwrap().len(), 255);
+        assert_eq!(
+            unsafe { bounded_string(chars.as_ptr()) }.unwrap().len(),
+            255
+        );
     }
     fn fixture() -> serde_json::Value {
         serde_json::json!({"abi":1,"page":2,"bounds":[10,20,210,320],"rotation":0,"page_size":[200,300],"to_pdf":[1,0,0,-1,-10,320],"characters":3,"unmapped":0,"warnings":0,"structured":{"blocks":[{"type":"text","bbox":{"x":20,"y":30,"w":40,"h":15},"lines":[{"bbox":{"x":20,"y":30,"w":40,"h":15},"font":{"name":"Times","size":12},"text":"abc"}]}]},"links":[{"uri":"https://doi.org/10.1234/a?x=\"b\"","bounds":[20,30,60,45]}]})

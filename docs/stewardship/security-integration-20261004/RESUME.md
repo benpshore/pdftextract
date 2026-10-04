@@ -105,3 +105,7 @@ Checkpoint d6ea11d79dc79b0390ab7531ce60a9c8074fc98e's message prematurely says a
 ### Focused continuation checkpoint
 
 Candidate code c308680f9d5b1aaabf0fdc202513e44a0f91a852 is recoverable on Bob WIP, with 14 web commands/five Chromium/234 Python/28 source checks passing and a159-file manifest. Native ABI fixtures require hosted execution. 40-record segment 989de19c9a3ddec2528fb60833a5d8888f78efcfc3513485acd3eebf1083cfea preserves the earlier17 records. Original reviewed82f95ad must remain explicitly identifiable; later candidate requires delta rereview. Main/release/deploy held. Archie canonical entry is in policy head82904e9; Sylvie exact bytes/original companion reports requested; Rick full-report gap remains. Separate makeghrepo focused review is queued next, with automatic-release semantics unresolved before any merge. No empty checkpoints, timer guarantee, CI skipping, held-out artifact retrieval or quality waiver.
+
+### New-head qualification correction
+
+Hosted721dec3 exposed Rustfmt's requested multiline test assertion and macOS sha256sum's continued rejection of -c. The accepting-short-option synthetic model was insufficient; use known-working same-job shasum first and keep GNU fallback. Archive/library pins and failure behavior remain mandatory. Poppler run37216213021 did finish all three development diagnostics, then intentionally remained failed for Partial quality. No quality or checksum bypass, corpus artifact download or formal clearance. New implementation requires a new exact-head native qualification/delta review.

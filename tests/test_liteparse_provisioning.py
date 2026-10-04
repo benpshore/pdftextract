@@ -1,6 +1,6 @@
 """Execute provisioning with synthetic pinned bytes, never real native libraries.
 
-The macOS fixture models the observed short-option sha256sum wrapper on Linux.
+The macOS fixture models a refusing sha256sum alias beside working shasum on Linux.
 It proves option compatibility and fail-closed checks, not execution on a Mac.
 """
 
@@ -8,7 +8,6 @@ import hashlib
 import io
 import json
 import os
-import shlex
 import shutil
 import subprocess
 import tarfile
@@ -71,23 +70,21 @@ def test_reviewed_archive_and_library_remain_required(tmp_path, checksum, damage
         + "*) exit 2 ;;\nesac\n"
     )
     uname.chmod(0o755)
-    if checksum == "shasum":
+    if checksum in {"shasum", "mac-wrapper"}:
         executable = shutil.which("shasum")
-        assert executable, "shasum required for fallback qualification"
+        assert executable, "shasum required for preferred-interface qualification"
         (tools / "shasum").symlink_to(executable)
-    else:
+    if checksum == "gnu":
         executable = shutil.which("sha256sum")
         assert executable
-        if checksum == "gnu":
-            (tools / "sha256sum").symlink_to(executable)
-        else:
-            # Reproduce the observed wrapper refusal of GNU's long --check.
-            # Short -c must still delegate real SHA-256 mismatch detection.
-            wrapper = tools / "sha256sum"
-            wrapper.write_text(
-                '#!/bin/sh\n[ "$1" = -c ] || exit 64\nexec ' + shlex.quote(executable) + ' "$@"\n'
-            )
-            wrapper.chmod(0o755)
+        (tools / "sha256sum").symlink_to(executable)
+    elif checksum == "mac-wrapper":
+        # Hosted evidence disproved the earlier accepting-short-option model.
+        # Both --check and -c failed there. A refusing alias must not preempt the
+        # known-working shasum interface, whose real hash gate is exercised here.
+        wrapper = tools / "sha256sum"
+        wrapper.write_text("#!/bin/sh\necho 'usage: sha256sum [-bctwz] [files ...]' >&2\nexit 64\n")
+        wrapper.chmod(0o755)
     environment = {**os.environ, "PATH": str(tools), "TMPDIR": str(tmp_path)}
     result = subprocess.run(  # noqa: S603 - repository script, synthetic trusted fixture paths
         ["/bin/sh", str(script), "--archive", str(archive)],
