@@ -100,6 +100,14 @@ substantive code or evidence-integrity findings. The source record distinguishes
 the full workspace check before the narrow Rust fix from its focused validation
 and the final default checks afterward.
 
+The first hosted Python run exposed the existing `test_measure_eval.py` peak-RSS
+regression's dependence on pytest's resident footprint before child `exec`.
+The test now executes both consecutive real measurements in one fresh isolated
+interpreter, retaining the original 80 MiB allocation and strict 40 MiB
+separation assertion. A padded-parent reproduction fails before the change and
+passes afterward; independent review accepted the repair. The native measurement
+implementation and all recorded runtime measurements are unchanged.
+
 Both dedicated databases remain outside git, with source/schema/reproduction
 and JSON summaries in this PR. The initial database and its renderer defect are
 retained unchanged; the second uses a separately verified font configuration.

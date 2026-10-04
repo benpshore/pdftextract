@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import platform
+import subprocess
 import sys
 from pathlib import Path
 
@@ -28,8 +29,23 @@ def test_measure_real_child_memory_and_failure():
 
 @pytest.mark.skipif(platform.system() not in {"Linux", "Darwin"}, reason="Unix wait4")
 def test_measure_does_not_reuse_previous_child_peak():
-    large = MODULE.measure([sys.executable, "-c", "data = bytearray(80 * 1024 * 1024)"])
-    small = MODULE.measure([sys.executable, "-c", "pass"])
+    # A child's peak can include pytest's resident footprint before exec.
+    # Measure both children from one fresh interpreter so this regression tests
+    # per-child accounting, independently of the preceding suite's allocations.
+    code = """
+import json
+import runpy
+import sys
+measure = runpy.run_path(sys.argv[1])["measure"]
+large = measure([sys.executable, "-I", "-S", "-c", "data = bytearray(80 * 1024 * 1024)"])
+small = measure([sys.executable, "-I", "-S", "-c", "pass"])
+print(json.dumps([large, small]))
+"""
+    large, small = json.loads(
+        subprocess.check_output(  # noqa: S603 -- fixed interpreter/script and argv; no shell
+            [sys.executable, "-I", "-S", "-c", code, str(SPEC.origin)], text=True, timeout=20
+        )
+    )
     assert large["exit_code"] == small["exit_code"] == 0
     assert large["peak_rss_bytes"] > small["peak_rss_bytes"] + 40 * 1024 * 1024
 

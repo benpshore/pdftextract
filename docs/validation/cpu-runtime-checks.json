@@ -17,7 +17,8 @@
     "docs/validation/cpu-ocr-public-corpus.json": "05167f3c60421426c3036ec0b8c7a5e0a16385f2d42de5aa9fbe1bc169045a6f",
     "docs/validation/docling-runtime-pins.json": "885e76d44e947cebfe005ce5f3ede7862410536b06db053c36c44b790d823b54",
     "Cargo.lock": "00ff969d6bc010d669a77e8c2341a81219e7d30dadbfee892ef5825a2aadd57c",
-    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "tests/test_measure_eval.py": "c251e2fb12c3a3b0fbc697c19fb29dfc86f94300cf804bf98284394dda79fcda"
   },
   "checks": [
     {
@@ -142,5 +143,30 @@
     "Full supervised TPE Docling ML integration remains gated; upstream binary success is separate.",
     "No GitHub heavy OCR workflow requested; benchmarks ran on Codex Cloud.",
     "No merge, deployment or release performed."
-  ]
+  ],
+  "test_isolation_followup": {
+    "recorded_at": "2026-10-04T02:45:35.488900+00:00",
+    "original_commit": "9c71a67b993b14c85e289abc282d53c1221c775f",
+    "failed_hosted_job": "https://github.com/benpshore/pdftextract/actions/runs/37171870097/job/111346282265",
+    "hosted_failure": {
+      "python": "3.14.8",
+      "test": "test_measure_does_not_reuse_previous_child_peak",
+      "large_peak_rss_bytes": 95977472,
+      "small_peak_rss_bytes": 56090624,
+      "assertion": "large > small + 40 * 1024 * 1024",
+      "suite_result": "1 failed, 114 passed, 11 expected native OCR skips"
+    },
+    "diagnosis": "wait4 child peak includes parent resident footprint before exec; loaded pytest invalidates fixed gap. Real measurement code is unchanged.",
+    "local_before": "Holding an 80 MiB parent bytearray reproduces failure: both children report 119705600 bytes.",
+    "repair": "Measure both real children consecutively in one fresh sys.executable -I -S interpreter; child interpreters also use -I -S. Same 80 MiB allocation and strict >40 MiB assertion retained.",
+    "validation": [
+      "Ruff format/check passed; 112 files unchanged",
+      "126 Python tests passed after final test-only repair",
+      "Padded-parent targeted reproduction passed after isolation",
+      "Independent reviewer accepted unchanged per-child accounting assertion"
+    ],
+    "log_path": "/workspace/scratch/cpu-runtime-pytest-followup.log",
+    "log_sha256": "9ad8997868915136adea14c744260aa51d4b237dc9fabe8b1210892017e89812",
+    "scope": "Tests, handoff and check record only; no native runtime, OCR/GROBID source, dependency pins or measurement artifacts changed."
+  }
 }
