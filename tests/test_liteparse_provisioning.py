@@ -1,0 +1,108 @@
+"""Execute provisioning with synthetic pinned bytes, never real native libraries.
+
+The macOS fixture models the observed short-option sha256sum wrapper on Linux.
+It proves option compatibility and fail-closed checks, not execution on a Mac.
+"""
+
+import hashlib
+import io
+import json
+import os
+import shlex
+import shutil
+import subprocess
+import tarfile
+from pathlib import Path
+
+import pytest
+
+
+@pytest.mark.parametrize("checksum", ["gnu", "mac-wrapper", "shasum"])
+@pytest.mark.parametrize("damage", [None, "archive", "library"])
+def test_reviewed_archive_and_library_remain_required(tmp_path, checksum, damage):
+    root = tmp_path / "fixture"
+    native = root / "native"
+    native.mkdir(parents=True)
+    script = native / "fetch-liteparse.sh"
+    shutil.copyfile(Path(__file__).parents[1] / "native/fetch-liteparse.sh", script)
+
+    # These bytes are intentionally not executable. Nothing loads the fixture
+    # library: the real shell script verifies, extracts and copies its bytes.
+    library = b"synthetic reviewed library\n"
+    member = "lib/libpdfium.dylib" if checksum == "mac-wrapper" else "lib/libpdfium.so"
+    archive = root / "fixture.tgz"
+    with tarfile.open(archive, "w:gz") as bundle:
+        for name, content in [(member, library), ("include/fpdfview.h", b"fixture header\n")]:
+            info = tarfile.TarInfo(name)
+            info.size = len(content)
+            bundle.addfile(info, io.BytesIO(content))
+    row = {
+        "kind": "pdfium",
+        "platform": "mac-arm64" if checksum == "mac-wrapper" else "linux-x64",
+        "url": "https://fixture.invalid/never-downloaded.tgz",
+        "member": member,
+        "archive_sha256": hashlib.sha256(archive.read_bytes()).hexdigest(),
+        "sha256": hashlib.sha256(library).hexdigest(),
+    }
+    if damage == "library":
+        row["sha256"] = "0" * 64
+    # The production manifest's portable parser intentionally uses one JSON row
+    # per line. Preserve that contract without modifying production pins.
+    (native / "manifest.json").write_text(json.dumps(row) + "\n")
+    if damage == "archive":
+        archive.write_bytes(archive.read_bytes() + b"unreviewed mutation")
+
+    # A curated PATH makes the checksum fallback deterministic. Required tools
+    # are resolved from the trusted test environment, never from source input.
+    tools = tmp_path / "tools"
+    tools.mkdir()
+    for command in ["dirname", "sed", "mktemp", "cp", "rm", "mkdir", "tar", "gzip"]:
+        executable = shutil.which(command)
+        assert executable, f"required fixture utility missing: {command}"
+        (tools / command).symlink_to(executable)
+    uname = tools / "uname"
+    uname.write_text(
+        '#!/bin/sh\ncase "$1" in\n'
+        + (
+            "-s) echo Darwin ;;\n-m) echo arm64 ;;\n"
+            if checksum == "mac-wrapper"
+            else "-s) echo Linux ;;\n-m) echo x86_64 ;;\n"
+        )
+        + "*) exit 2 ;;\nesac\n"
+    )
+    uname.chmod(0o755)
+    if checksum == "shasum":
+        executable = shutil.which("shasum")
+        assert executable, "shasum required for fallback qualification"
+        (tools / "shasum").symlink_to(executable)
+    else:
+        executable = shutil.which("sha256sum")
+        assert executable
+        if checksum == "gnu":
+            (tools / "sha256sum").symlink_to(executable)
+        else:
+            # Reproduce the observed wrapper refusal of GNU's long --check.
+            # Short -c must still delegate real SHA-256 mismatch detection.
+            wrapper = tools / "sha256sum"
+            wrapper.write_text(
+                '#!/bin/sh\n[ "$1" = -c ] || exit 64\nexec ' + shlex.quote(executable) + ' "$@"\n'
+            )
+            wrapper.chmod(0o755)
+    environment = {**os.environ, "PATH": str(tools), "TMPDIR": str(tmp_path)}
+    result = subprocess.run(  # noqa: S603 - repository script, synthetic trusted fixture paths
+        ["/bin/sh", str(script), "--archive", str(archive)],
+        cwd=root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+        timeout=10,
+    )
+    if damage:
+        assert result.returncode != 0
+        assert not (root / ".pdfium").exists(), "mismatched bytes must never publish"
+    else:
+        assert result.returncode == 0, result.stderr
+        assert (root / ".pdfium" / member).read_bytes() == library
+        assert (root / ".pdfium/include/fpdfview.h").read_bytes() == b"fixture header\n"
+    assert not list(tmp_path.glob("tpe-liteparse.*")), "trap must remove temporary extraction"

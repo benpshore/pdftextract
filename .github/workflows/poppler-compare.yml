@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - scripts/compare_poppler.py
+      - scripts/export_visual_audit.py
+      - tests/test_visual_audit_export.py
       - .github/workflows/poppler-compare.yml
 
 permissions:
@@ -68,17 +70,11 @@ jobs:
           ./target/release/tpe eval --manifest comparison-manifest.json --cache .corpus-cache --out comparison-eval --dump-dir comparison-eval/dumps --split all --offline
           python3 scripts/compare_poppler.py comparison-manifest.json .corpus-cache comparison-eval comparison-out ./target/release/tpe
           cat comparison-out/comparison.md >> "$GITHUB_STEP_SUMMARY"
-      - name: Export three PDFs and complete extracted page text for visual audit
+      - name: Export three development diagnostics (Partial remains a failure)
         run: |
-          mkdir -p audit-out audit-extract
-          for id in 2309.10334 2401.15719 2509.12458; do
-            pdf=".corpus-cache/arxiv_${id}/paper.pdf"
-            ./target/release/tpe extract "$pdf" --db audit.sqlite --out audit-extract
-            cp "$pdf" "audit-out/arxiv_${id}.pdf"
-            hash="$(sha256sum "$pdf" | cut -d' ' -f1)"
-            cp "audit-extract/${hash}.txt" "audit-out/arxiv_${id}.tpe.txt"
-          done
-          du -h audit-out/*
+          # The CLI commits Partial output then returns 1. Export validated
+          # diagnostics before propagating that quality failure; never waive it.
+          python3 scripts/export_visual_audit.py corpus/manifest.json .corpus-cache ./target/release/tpe audit-extract audit-out
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
