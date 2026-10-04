@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
 import type { Extracted, LinkEvidence } from './types';
+import {passiveHtmlDocument} from './passive-html';
 
 export function safeUrl(value: string, base?: string) {
   if (!value.trim()) return null;
@@ -149,10 +150,10 @@ function htmlText(document: Document): string {
 }
 
 export function clipHtml(source: string, url: string, title = 'Saved page', options: { fragment?: boolean } = {}): Extracted {
-  const document = new DOMParser().parseFromString(source, 'text/html');
+  const document = passiveHtmlDocument(source);
   const base = safeUrl(document.querySelector('base[href]')?.getAttribute('href') || '', url) || url;
   const structured = structuredMetadata(document, base);
-  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Fetched HTML snapshot; scripts were not executed' };
+  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Local HTML snapshot; external resources disabled',remoteResources:'disabled' };
   const metas: Record<string, string> = {};
   for (const element of Array.from(document.querySelectorAll('meta[name],meta[property]'))) {
     const key = element.getAttribute('name') || element.getAttribute('property') || '';
