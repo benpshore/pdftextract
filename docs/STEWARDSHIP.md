@@ -1,3 +1,5 @@
+Current reviewer-registration checkpoint: 2026-10-04T16:10:45Z; 102 records / `72de7bf12c68903f9a483f33cd2b6db14232d5f5f438b13be5c07c65738d367e`. Prior 100-record checkpoint `9d9cc6c364c9be91174ece3b694e2df67d635aa4a0d74d465428961288ee88e0` remains an unchanged prefix. Independent reports cover frozen #234 head82f95ad; focused repairs on Bob WIP require delta review. Archie supplied canonical identity/configuration registered after receipt; Sylvie bytes and original companion artifacts still requested. See [registration receipt](stewardship/independent-review-registration-20261004.json). Older final checkpoints below are historical. Main/release/deploy remain held.
+
 # Repository stewardship ledger — 2026-10-04
 
 Owner: **Busybody Bob** (alias **Mara Keel**). [Agent maintenance epic #225](https://github.com/benpshore/pdftextract/issues/225).

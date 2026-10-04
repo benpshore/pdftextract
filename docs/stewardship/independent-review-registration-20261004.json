@@ -1,0 +1,35 @@
+{
+  "registered_at": "2026-10-04T16:10:45Z",
+  "reviewed_base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "reviewed_head": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+  "reviewed_tree": "cb2052eab4bca61231b9302f44feed061d81e7ad",
+  "forwarding_source": "source-thread:01a0fe84-0716-7474-b2b7-709e4359b0fb",
+  "archie": {
+    "identity_sha256": "deef29712113504ee895295d78a14ffe8833a686fd98ba4519c1b947a59293e2",
+    "configuration_sha256": "59b2695e7ab0d5d6cf3cf10f1723a260c1ea9e7285eebce53f31740345a22a45",
+    "canonical_bytes_verified": true,
+    "registration": "After receipt; no claim that registry was published before review",
+    "finding": "A1: complete HTML root lang lost in passive template conversion; confirmed independent A/B",
+    "decision": "Main/release/deploy hold; focused delta rereview needed"
+  },
+  "sylvie": {
+    "reported_identity_sha256": "4d2bd361e965eda8e9b4aaf42d3178c8a900610025c19604b5666295ab3dc4ac",
+    "reported_configuration_sha256": "cf13795df122f505ab15268e91f74349a44472d6dff7e6c779dc70c125dd1fd1",
+    "canonical_bytes_verified": false,
+    "registration": "Pending exact supplied manifest/configuration bytes; asked parent; digests cannot reconstruct them",
+    "findings": [
+      "S1 Native terminal209Partial/binaries success",
+      "S2 local vs hosted evidence wording",
+      "S3 release identity and formal security remain open",
+      "S4 reviewer manifests/original artifact recovery",
+      "S5 current navigation and code readability"
+    ],
+    "decision": "Preservation coherent; main promotion blocked"
+  },
+  "limits": [
+    "These are independent parent-assigned engineering roles, not built-in Arch/Synthesis services, approvals or formal security assessments.",
+    "Forwarded report contents retained in source-thread transcript; this JSON is a steward receipt, not original reviewer-authored companion artifacts. Exact artifacts requested for durable byte preservation.",
+    "Rusty Rick complete architecture report still not recovered; external digest cannot recover missing bytes.",
+    "No runtime model/tier/usage or signing asserted."
+  ]
+}
