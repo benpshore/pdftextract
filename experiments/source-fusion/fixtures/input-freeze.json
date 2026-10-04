@@ -1,0 +1,78 @@
+{
+  "before_native_capture": true,
+  "cases": [
+    {
+      "id": "case-01",
+      "path": "case-01.pdf",
+      "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+      "size": 11345
+    },
+    {
+      "id": "case-02",
+      "path": "case-02.pdf",
+      "sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33",
+      "size": 11345
+    },
+    {
+      "id": "case-03",
+      "path": "case-03.pdf",
+      "sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+      "size": 11351
+    },
+    {
+      "id": "case-04",
+      "path": "case-04.pdf",
+      "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+      "size": 11333
+    },
+    {
+      "id": "case-05",
+      "path": "case-05.pdf",
+      "sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96",
+      "size": 11367
+    },
+    {
+      "id": "case-06",
+      "path": "case-06.pdf",
+      "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+      "size": 11345
+    }
+  ],
+  "font_subset": {
+    "sha256": "2c1d4fa969bb74374279ae0e64a1955fe8f943b60a944e92aeada7ffcb15c460",
+    "size": 21400
+  },
+  "frozen_at_utc": "2026-10-04T03:00:22.068193+00:00",
+  "private_plan_commitment": {
+    "sha256": "1abec624f0551c6785256be948c3d6cac009919f165f55c20d13ed50bb01df50",
+    "size": 1620
+  },
+  "private_truth_commitments": {
+    "case-01.truth": {
+      "sha256": "8ddb4762a4cec914fbae2f9bb541cdb6cf493936fef3e1378062d9307e43a4f7",
+      "size": 1154
+    },
+    "case-02.truth": {
+      "sha256": "a617d7708c3af32f6145e8a00dbc40bf0ceb6a78c5f57c8f4dfc8f612f111442",
+      "size": 1154
+    },
+    "case-03.truth": {
+      "sha256": "1e79586b14a20ee2483d1e6165d54c6bcee19ba1086457fc1efb60b2d75de870",
+      "size": 1107
+    },
+    "case-04.truth": {
+      "sha256": "9bd2333a588421a01e786d1182d2b25da2434dde7735716bae84136cf83a0b43",
+      "size": 1097
+    },
+    "case-05.truth": {
+      "sha256": "18fd7586e1d89f72f8bff3e3513a5eba05cb946cbaf75d09ab72f6dee8acaf26",
+      "size": 1195
+    },
+    "case-06.truth": {
+      "sha256": "cc7476ee6bd8bf54501c0e332604bb5edbb82b7c9975987a602c3f984f9a5d80",
+      "size": 1210
+    }
+  },
+  "profile": "Single zero-origin unrotated page; one uncompressed content stream; BT/Tf/Tm/Tj/ET; both neighbor and target Type0; named Identity-H or stream identity CMap; explicit CID widths, descriptor and embedded TrueType subset; complete or deliberately adverse Unicode maps. Expected texts/classes are private.",
+  "schema": "source-fusion-input-freeze-v1"
+}

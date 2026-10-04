@@ -1,0 +1,135 @@
+{
+  "cases": [
+    {
+      "execution_error": null,
+      "id": "case-01",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-01.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-01",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "source_sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc"
+    },
+    {
+      "execution_error": null,
+      "id": "case-02",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-02.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-02",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "source_sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33"
+    },
+    {
+      "execution_error": null,
+      "id": "case-03",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-03.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-03",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 0,
+      "source_sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0"
+    },
+    {
+      "execution_error": null,
+      "id": "case-04",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-04.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-04",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "source_sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575"
+    },
+    {
+      "execution_error": null,
+      "id": "case-05",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-05.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-05",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "source_sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96"
+    },
+    {
+      "execution_error": null,
+      "id": "case-06",
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-06.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-06",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "source_sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099"
+    }
+  ],
+  "phases": {
+    "all_attempts_finished_before_truth_read": "2026-10-04T03:27:48.810658+00:00",
+    "execution_started": "2026-10-04T03:27:40.791375+00:00",
+    "truth_access_during_execution": false
+  }
+}

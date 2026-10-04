@@ -1,0 +1,127 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+    "size": 11351,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/source-fusion-evaluation-20261004/case-03/source.pdf",
+        "inode": 1713614,
+        "device": 27,
+        "mtime_unix": 1791084463,
+        "size": 11351
+      }
+    ]
+  },
+  "backend": {
+    "name": "lopdf",
+    "version": "0.45.0",
+    "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+  },
+  "status": "complete",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 137.90332,
+            "y1": 733.2
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "PEARL 2020",
+          "bbox": {
+            "x0": 60.0,
+            "y0": 595.6,
+            "x1": 192.74117,
+            "y1": 617.6
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 22.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 137.90332,
+            "y1": 733.2
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "PEARL 2020",
+          "bbox": {
+            "x0": 60.0,
+            "y0": 595.6,
+            "x1": 192.74117,
+            "y1": 617.6
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "CLEAR AREA\n\nPEARL 2020",
+      "warnings": []
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "complete",
+      "text_sha256": "75a1a487d48bd3ada839995be6d02a1f7f83e6523a75f83b5f5346b9779c5a35",
+      "ms": 25.264717
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": 2020,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {
+      "year": "first_page:year"
+    }
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [],
+  "timings": {
+    "acquire_ms": 0.040837000000000005,
+    "parse_ms": 3.813088,
+    "order_ms": 21.451629,
+    "metadata_ms": 17.38079,
+    "citations_ms": 60.635233,
+    "write_ms": 5.278929,
+    "hash_ms": 0.240378
+  }
+}

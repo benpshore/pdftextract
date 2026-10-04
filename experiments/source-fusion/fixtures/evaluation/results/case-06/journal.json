@@ -1,0 +1,157 @@
+{
+  "artifacts": {
+    "baseline": {
+      "bytes": 2925,
+      "extraction_status": "partial",
+      "path": "baseline.json",
+      "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee"
+    },
+    "candidate": {
+      "bytes": 2765,
+      "extraction_status": "complete",
+      "path": "candidate.json",
+      "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc"
+    },
+    "source": {
+      "bytes": 11345,
+      "path": "source.pdf",
+      "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099"
+    }
+  },
+  "attempts": [
+    {
+      "argv": [
+        "/workspace/targets/root/debug/tpe",
+        "extract",
+        "--backend",
+        "lopdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-06/baseline-pass",
+        "--db",
+        "/workspace/source-fusion-evaluation-20261004/case-06/baseline-pass/ledger.sqlite",
+        "--jobs",
+        "1",
+        "--max-files",
+        "1",
+        "--max-bytes",
+        "11345",
+        "--timeout-ms",
+        "59839",
+        "--max-memory-growth-mib",
+        "1024",
+        "--max-output-bytes",
+        "67108864",
+        "/workspace/source-fusion-evaluation-20261004/case-06/source.pdf"
+      ],
+      "captured_bytes": 112,
+      "name": "baseline",
+      "pid": 7787,
+      "returncode": 1,
+      "state": "completed"
+    },
+    {
+      "argv": [
+        "/workspace/targets/root/debug/tpe",
+        "extract",
+        "--backend",
+        "pdfium",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-06/candidate-pass",
+        "--db",
+        "/workspace/source-fusion-evaluation-20261004/case-06/candidate-pass/ledger.sqlite",
+        "--jobs",
+        "1",
+        "--max-files",
+        "1",
+        "--max-bytes",
+        "11345",
+        "--timeout-ms",
+        "59472",
+        "--max-memory-growth-mib",
+        "1024",
+        "--max-output-bytes",
+        "67108864",
+        "/workspace/source-fusion-evaluation-20261004/case-06/source.pdf"
+      ],
+      "captured_bytes": 113,
+      "name": "candidate",
+      "pid": 7797,
+      "returncode": 0,
+      "state": "completed"
+    },
+    {
+      "argv": [
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/source-fusion-evaluation-20261004/case-06/source.pdf",
+        "--max-source-bytes",
+        "11345",
+        "--baseline",
+        "/workspace/source-fusion-evaluation-20261004/case-06/baseline.json",
+        "--candidate",
+        "/workspace/source-fusion-evaluation-20261004/case-06/candidate.json",
+        "--output",
+        "/workspace/source-fusion-evaluation-20261004/case-06/fusion-output.json"
+      ],
+      "captured_bytes": 116,
+      "detail": "source fusion outcome is 'unsupported_source'",
+      "name": "fusion",
+      "pid": 7806,
+      "returncode": 0,
+      "state": "fusion_incomplete"
+    }
+  ],
+  "baseline_status": "partial",
+  "candidate_status": "complete",
+  "detail": "source fusion outcome is 'unsupported_source'",
+  "elapsed_ms": 1260,
+  "events": [
+    {
+      "event": "source_snapshotted"
+    },
+    {
+      "event": "baseline_persisted",
+      "extraction_status": "partial",
+      "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee"
+    },
+    {
+      "event": "candidate_persisted",
+      "extraction_status": "complete",
+      "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc"
+    }
+  ],
+  "exit_code": 1,
+  "limits": {
+    "controller_address_space_cap_mib": 1280,
+    "max_memory_growth_mib": 1024,
+    "max_output_bytes": 67108864,
+    "max_source_bytes": null,
+    "shared_wall_timeout_ms": 60000
+  },
+  "pdfium_library_configuration": {
+    "bytes": 7833208,
+    "claim": "configured_path_only_not_proof_of_loaded_runtime",
+    "path": "/workspace/runtimes/pdfium-8066/lib/libpdfium.so",
+    "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9"
+  },
+  "runner_dependency": {
+    "path": "/workspace/pdftextract-source-fusion/experiments/region-fusion/run_extraction.py",
+    "sha256": "f1886bcd6e17d67104a7ecc1e80ba4c281d96039944138ee046f63c30f8bd3ef"
+  },
+  "selection_lane": "automatic_source_concordance",
+  "semantic_verification": "source_verifier_scope_only",
+  "state": "fusion_incomplete",
+  "tools": {
+    "fusion": {
+      "bytes": 49592312,
+      "path": "/workspace/targets/source-fusion/debug/fuse_source",
+      "sha256": "dabde9bb5eda05b7e56885cbe6950f16edfc01b864b8eced382e4e27aa60366d"
+    },
+    "tpe": {
+      "bytes": 165021880,
+      "path": "/workspace/targets/root/debug/tpe",
+      "sha256": "d01ff248ddae6175754be3a23ed95b8df141b1d31920c8399961238623052089"
+    }
+  },
+  "version": 1
+}

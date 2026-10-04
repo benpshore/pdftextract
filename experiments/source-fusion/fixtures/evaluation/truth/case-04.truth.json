@@ -1,0 +1,51 @@
+{
+  "evaluation_class": "missing-map",
+  "frame": {
+    "axes": "x-right-y-up",
+    "crop_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "height": 792,
+    "media_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "origin": "bottom-left",
+    "page": 1,
+    "page_index": 0,
+    "rotation": 0,
+    "units": "pt",
+    "width": 612
+  },
+  "mapped_semantic_truth": null,
+  "neighbor": {
+    "size": 14,
+    "text": "CLEAR AREA",
+    "x": 50,
+    "y": 722
+  },
+  "schema": "source-fusion-private-truth-v1",
+  "selection_expectation": "No answer supplied to selector. Evaluate visible and semantic axes separately.",
+  "source": {
+    "case_id": "case-04",
+    "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+    "size": 11333
+  },
+  "target": {
+    "encoding": "stream",
+    "evaluation_class": "missing-map",
+    "id": "case-04",
+    "map": "missing",
+    "size": 20,
+    "text": "HAVE A PEAR",
+    "x": 80,
+    "y": 590
+  },
+  "truth_basis": "Frozen generator text and embedded glyph IDs before extraction.",
+  "visible_target_truth": "HAVE A PEAR"
+}

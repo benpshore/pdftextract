@@ -1,0 +1,53 @@
+{
+  "evaluation_class": "semantic-visible-disagreement",
+  "frame": {
+    "axes": "x-right-y-up",
+    "crop_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "height": 792,
+    "media_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "origin": "bottom-left",
+    "page": 1,
+    "page_index": 0,
+    "rotation": 0,
+    "units": "pt",
+    "width": 612
+  },
+  "mapped_semantic_truth": "ELPHE 2026",
+  "neighbor": {
+    "size": 14,
+    "text": "CLEAR AREA",
+    "x": 50,
+    "y": 722
+  },
+  "schema": "source-fusion-private-truth-v1",
+  "selection_expectation": "No answer supplied to selector. Evaluate visible and semantic axes separately.",
+  "source": {
+    "case_id": "case-06",
+    "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+    "size": 11345
+  },
+  "target": {
+    "encoding": "stream",
+    "evaluation_class": "semantic-visible-disagreement",
+    "id": "case-06",
+    "map": "misleading",
+    "misleading_character": "A",
+    "misleading_replacement": "E",
+    "size": 24,
+    "text": "ALPHA 2026",
+    "x": 85,
+    "y": 585
+  },
+  "truth_basis": "Frozen generator text and embedded glyph IDs before extraction.",
+  "visible_target_truth": "ALPHA 2026"
+}

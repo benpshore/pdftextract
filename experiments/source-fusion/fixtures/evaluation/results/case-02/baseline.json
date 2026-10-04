@@ -1,0 +1,129 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33",
+    "size": 11345,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/source-fusion-evaluation-20261004/case-02/source.pdf",
+        "inode": 1713591,
+        "device": 27,
+        "mtime_unix": 1791084462,
+        "size": 11345
+      }
+    ]
+  },
+  "backend": {
+    "name": "lopdf",
+    "version": "0.45.0",
+    "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+  },
+  "status": "partial",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 137.90332,
+            "y1": 733.2
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "����������",
+          "bbox": {
+            "x0": 95.0,
+            "y0": 570.2,
+            "x1": 242.09369,
+            "y1": 594.2
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 24.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 137.90332,
+            "y1": 733.2
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "����������",
+          "bbox": {
+            "x0": 95.0,
+            "y0": 570.2,
+            "x1": 242.09369,
+            "y1": 594.2
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "CLEAR AREA\n\n����������",
+      "warnings": [
+        "unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "partial",
+      "text_sha256": "7d58e7e49b082ad8d321bfb9c6db2bfac387b4d7d3bf509a33797dc7efed88a1",
+      "ms": 23.425053
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": null,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {}
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [
+    "page 1: unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+  ],
+  "timings": {
+    "acquire_ms": 0.039681,
+    "parse_ms": 3.14218,
+    "order_ms": 20.282873,
+    "metadata_ms": 21.249622,
+    "citations_ms": 59.698772999999996,
+    "write_ms": 6.68573,
+    "hash_ms": 0.24080400000000002
+  }
+}

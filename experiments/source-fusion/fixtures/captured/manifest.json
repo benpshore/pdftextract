@@ -1,0 +1,280 @@
+{
+  "binary": {
+    "path": "/workspace/targets/root/debug/tpe",
+    "sha256": "2674dbc4712d65b7f41ddee341086fb3ee1be8a5497fd4c5b18c07272b5ec498",
+    "size": 165246176,
+    "version_output": "tpe git-e27e1fb"
+  },
+  "cases": [
+    {
+      "id": "case-01",
+      "private_render": {
+        "filename": "case-01.png",
+        "sha256": "f15290975282509e37f83ee0be3c6db1c4cce9fa308195046fc343ffbe1f59b0",
+        "size": 15264
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-01/lopdf/775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc.json",
+            "sha256": "c45788dcaed76e24642f5de2417726c73f7e813947eaa54917911533d1273a3c",
+            "size": 2945
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-01/pdfium/775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc.json",
+            "sha256": "4f5b1d2350663c464b16b135799c23a0cc891991eb928c05d3316042bb495801",
+            "size": 2723
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        }
+      },
+      "source": {
+        "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+        "size": 11345
+      }
+    },
+    {
+      "id": "case-02",
+      "private_render": {
+        "filename": "case-02.png",
+        "sha256": "3070bfd2cc1b6ff3318fdc244b36d804b5e2d5ace028f3954edf77b1337dc250",
+        "size": 16257
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-02/lopdf/4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33.json",
+            "sha256": "de9a241776b6f95624e8ec9e6630ea9286274419b242381f7d147f2d59f2c22b",
+            "size": 2925
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-02/pdfium/4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33.json",
+            "sha256": "56b24bab5483394c8406b571b4c1c0bb0d3aff35dc0ae7fd8e108f261a2dafda",
+            "size": 2749
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        }
+      },
+      "source": {
+        "sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33",
+        "size": 11345
+      }
+    },
+    {
+      "id": "case-03",
+      "private_render": {
+        "filename": "case-03.png",
+        "sha256": "eb848ecbafcc648eff33a13e12f610f07595b127dd1eabf47c5e8f1fe0f57370",
+        "size": 14772
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-03/lopdf/ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0.json",
+            "sha256": "9ec889b7b42def3dd1e2b71ed54f913a7aca13159f49bb8f07711b9e6e3365fd",
+            "size": 2733
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-03/pdfium/ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0.json",
+            "sha256": "3d11d9eca5df3cde2eaf01571601a8a4373c85698523b45034324ee1d8d3442f",
+            "size": 2752
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        }
+      },
+      "source": {
+        "sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+        "size": 11351
+      }
+    },
+    {
+      "id": "case-04",
+      "private_render": {
+        "filename": "case-04.png",
+        "sha256": "55985349cedf7381ea84487d8c5e8e4f40dd87260619ef8b359f9c5956c78cfa",
+        "size": 14741
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-04/lopdf/4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575.json",
+            "sha256": "4da1a976540b16683266720d3f4c931388d6e54d83e933098fd1417d62e07667",
+            "size": 2954
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-04/pdfium/4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575.json",
+            "sha256": "d6de4f3822421d4151caa807ee5baad64fb6fe7e83ef0afd068702d8e323e9ec",
+            "size": 3200
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        }
+      },
+      "source": {
+        "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+        "size": 11333
+      }
+    },
+    {
+      "id": "case-05",
+      "private_render": {
+        "filename": "case-05.png",
+        "sha256": "2f6354e11cde112c0f118339192329cf2a4971abda3e063320d5878dc7d24fdb",
+        "size": 17173
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-05/lopdf/c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96.json",
+            "sha256": "43dc88caf7f8a3091c254aea6ef784e56d20c889ba99cc40151f4b9f16705076",
+            "size": 2942
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-05/pdfium/c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96.json",
+            "sha256": "b179217898426a0091ef7c8b48959213452801f63246fc0439996818f72afed9",
+            "size": 2764
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        }
+      },
+      "source": {
+        "sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96",
+        "size": 11367
+      }
+    },
+    {
+      "id": "case-06",
+      "private_render": {
+        "filename": "case-06.png",
+        "sha256": "9233697af0a466c74f5e99a1b0ea7f4fbe9a6fbcf787771271e68c2a55f60c91",
+        "size": 15487
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/case-06/lopdf/0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099.json",
+            "sha256": "06692b47cf34b7e3a8e0c0aeaeb0f5c52b5ce3159785fed163db89bd912fe071",
+            "size": 2923
+          },
+          "backend": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "exit_code": 1,
+          "status": "partial"
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/case-06/pdfium/0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099.json",
+            "sha256": "2f376e950a661dfa3b301d01c694ef650e3e79b6018b50a0543e99a0c30a04c5",
+            "size": 2767
+          },
+          "backend": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "exit_code": 0,
+          "status": "complete"
+        }
+      },
+      "source": {
+        "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+        "size": 11345
+      }
+    }
+  ],
+  "pdfium": {
+    "release": "chromium/8066",
+    "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+    "size": 7833208
+  },
+  "renderer": {
+    "height_pixels": 1584,
+    "mupdf": "1.26.11",
+    "pymupdf": "1.26.6",
+    "scale": 2,
+    "width_pixels": 1224
+  },
+  "schema": "source-fusion-native-capture-v1",
+  "source_freeze": {
+    "sha256": "169bf0c9dc1bdabe36d779e87004afc39ac3d63e434e1a6e5bbfe88ae1d411b4",
+    "size": 2580
+  },
+  "truth_access": "This capture script does not read private plan/truth files."
+}

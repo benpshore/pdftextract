@@ -1,0 +1,125 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+    "size": 11345,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/source-fusion-evaluation-20261004/case-01/source.pdf",
+        "inode": 1713567,
+        "device": 27,
+        "mtime_unix": 1791084460,
+        "size": 11345
+      }
+    ]
+  },
+  "backend": {
+    "name": "pdfium",
+    "version": "dynamic-binding-0.8.37",
+    "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+  },
+  "status": "complete",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "ALPHA 6202",
+          "bbox": {
+            "x0": 70.0,
+            "y0": 609.74,
+            "x1": 190.8,
+            "y1": 625.06
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 20.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "ALPHA 6202",
+          "bbox": {
+            "x0": 70.0,
+            "y0": 609.74,
+            "x1": 190.8,
+            "y1": 625.06
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "CLEAR AREA\n\nALPHA 6202",
+      "warnings": []
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "complete",
+      "text_sha256": "d6f2d5704cc474f28f49c26059553b7c24b3656394b5c01ecf03b4a97d287b0a",
+      "ms": 25.539652
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": null,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {}
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [],
+  "timings": {
+    "acquire_ms": 0.052292,
+    "parse_ms": 3.168853,
+    "order_ms": 22.370799,
+    "metadata_ms": 17.916481,
+    "citations_ms": 64.138841,
+    "write_ms": 5.362545,
+    "hash_ms": 0.288017
+  }
+}

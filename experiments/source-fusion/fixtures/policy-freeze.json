@@ -1,0 +1,89 @@
+{
+  "base_commit": "cd95a8b7243c690b24f59b1994ecb7670c95c1c0",
+  "development_checks": {
+    "cli_tests_passed": 7,
+    "evaluator_tests_passed": 15,
+    "format_and_strict_clippy_passed": true,
+    "new_runner_tests_passed": 8,
+    "retained_lifecycle_tests_passed": 22,
+    "selector_parser_tests_passed": 16
+  },
+  "files": {
+    "Cargo.lock": {
+      "sha256": "ae0367f2f9391ec98fd0a125bc516e0179419b311e4f1c7693ad3052b3b7f8c0",
+      "size": 239159
+    },
+    "experiments/region-evidence/Cargo.lock": {
+      "sha256": "8470c8784ab02080406b967b79dacb6a32220f8aed2eafc2464aed95b24fd978",
+      "size": 4873
+    },
+    "experiments/region-evidence/Cargo.toml": {
+      "sha256": "4687e9a62ff8c6162614c46cf7a867a489cbdd1dd40645d00ec55251f0e29ee5",
+      "size": 383
+    },
+    "experiments/region-evidence/src/lib.rs": {
+      "sha256": "f56a6c49e84e5027cf91e87b196d4200e7c453f3a47b64a27dc428519394418b",
+      "size": 27468
+    },
+    "experiments/region-fusion/run_extraction.py": {
+      "sha256": "f1886bcd6e17d67104a7ecc1e80ba4c281d96039944138ee046f63c30f8bd3ef",
+      "size": 27596
+    },
+    "experiments/source-fusion/Cargo.lock": {
+      "sha256": "2b3687f1360f7da3bc57fa4003fdb8e0d9f07174348b1901c7b6bb8e4c4f7140",
+      "size": 23402
+    },
+    "experiments/source-fusion/Cargo.toml": {
+      "sha256": "fa3bdb687864f613542a6e310b09b872efac1aa8ca7b6c3037470d55211827d5",
+      "size": 481
+    },
+    "experiments/source-fusion/evaluate.py": {
+      "sha256": "f4550366ac0920015de6f1ff62ea89cca15bf3272ae77d6abcdf68c14794ca74",
+      "size": 15288
+    },
+    "experiments/source-fusion/fixtures/input-freeze.json": {
+      "sha256": "169bf0c9dc1bdabe36d779e87004afc39ac3d63e434e1a6e5bbfe88ae1d411b4",
+      "size": 2580
+    },
+    "experiments/source-fusion/run_extraction.py": {
+      "sha256": "5eaf797cdee4951f71174bf1fd448c710a6b8c5341fb109183d73496050d1228",
+      "size": 9284
+    },
+    "experiments/source-fusion/src/bin/fuse_source.rs": {
+      "sha256": "93c45edbda2cf71179b989d8c4668faf535c8742c620c03d8000a16c8fa68fc2",
+      "size": 17738
+    },
+    "experiments/source-fusion/src/lib.rs": {
+      "sha256": "2188c1a84ee7f636dfc8a20149a4b2bae2ad697a84322b181667efafc8b8502f",
+      "size": 19475
+    },
+    "experiments/source-fusion/src/source.rs": {
+      "sha256": "009efa571b9c84410632fea57b98968fd3a84f5403bc6095d1e6149308a47938",
+      "size": 39234
+    },
+    "native/manifest.json": {
+      "sha256": "194f06dd0a127a2faea3e2c815c9278e61d8cada1b7477f3bafddddee27fb156",
+      "size": 2886
+    },
+    "rust-toolchain.toml": {
+      "sha256": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+      "size": 86
+    }
+  },
+  "frozen_utc": "2026-10-04T03:27:12.284164+00:00",
+  "local_executable_observations": {
+    "fuse_source": {
+      "sha256": "dabde9bb5eda05b7e56885cbe6950f16edfc01b864b8eced382e4e27aa60366d",
+      "size": 49592312
+    },
+    "tpe": {
+      "sha256": "d01ff248ddae6175754be3a23ed95b8df141b1d31920c8399961238623052089",
+      "size": 165021880
+    }
+  },
+  "policy": "source_declared_unicode_v1",
+  "qualified_claim": "source concordance only; ToUnicode and font cmap share PDF-author control",
+  "runtime_sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+  "schema": "source-fusion-policy-freeze-v1",
+  "truth_unsealed": false
+}

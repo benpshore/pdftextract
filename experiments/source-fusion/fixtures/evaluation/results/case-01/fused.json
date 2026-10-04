@@ -1,0 +1,535 @@
+{
+  "contract_version": 1,
+  "policy": "source_declared_unicode_v1",
+  "evidence": {
+    "contract_version": 1,
+    "source": {
+      "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+      "size": 11345
+    },
+    "document_pages": 1,
+    "pages": [
+      1
+    ],
+    "baseline": {
+      "id": "baseline",
+      "source": {
+        "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+        "size": 11345
+      },
+      "pages": [
+        1
+      ],
+      "backend": {
+        "name": "lopdf",
+        "version": "0.45.0",
+        "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+      },
+      "runtime": {
+        "identity": "unknown",
+        "reason": "this offline CLI did not inspect the extraction runtime binary"
+      },
+      "outcome": {
+        "state": "partial",
+        "reason": "artifact declares partial extraction"
+      },
+      "artifact": {
+        "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+        "size": 2899
+      },
+      "frame": "producer_declared_pdf_user_space_unrotated"
+    },
+    "alternatives": [
+      {
+        "id": "candidate",
+        "source": {
+          "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+          "size": 11345
+        },
+        "pages": [
+          1
+        ],
+        "backend": {
+          "name": "pdfium",
+          "version": "dynamic-binding-0.8.37",
+          "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+        },
+        "runtime": {
+          "identity": "unknown",
+          "reason": "this offline CLI did not inspect the extraction runtime binary"
+        },
+        "outcome": {
+          "state": "complete"
+        },
+        "artifact": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "frame": "producer_declared_pdf_user_space_unrotated"
+      }
+    ],
+    "regions": [
+      {
+        "id": "baseline/0/spans/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+          "size": 2899
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/spans/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+          "size": 2899
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "baseline/0/lines/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+          "size": 2899
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/lines/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+          "size": 2899
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/spans/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/spans/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/lines/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/lines/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      }
+    ],
+    "decision": "retain_baseline_and_abstain"
+  },
+  "source_evidence": {
+    "source": {
+      "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+      "size": 11345
+    },
+    "outcome": "supported",
+    "pages": [
+      {
+        "page": 1,
+        "width": 612.0,
+        "height": 792.0,
+        "rotation": 0,
+        "witnesses": [
+          {
+            "id": "p1/object4-0/op3",
+            "region": {
+              "x0": 50.109375,
+              "y0": 721.8017571983337,
+              "x1": 138.55956134033204,
+              "y1": 732.3906318359375
+            },
+            "unicode": "CLEAR AREA",
+            "origin": {
+              "page_object": [
+                3,
+                0
+              ],
+              "content_object": [
+                4,
+                0
+              ],
+              "content_sha256": "f69d113687b1689ab1a7c574b599cfbb4fb0f77cdf6a15e362b2dc2b26260022",
+              "operator_ordinal": 3,
+              "raw_codes_hex": "0026002f00280024003500030024003500280024",
+              "font_resource": "Good",
+              "font_object": [
+                5,
+                0
+              ],
+              "descendant_font_object": [
+                7,
+                0
+              ],
+              "encoding_object": null,
+              "encoding_sha256": "1c917ebe49a50c3b47d59f4f0bed63309efba0dd7a8d50380340e3b051e22bb6",
+              "to_unicode_object": [
+                12,
+                0
+              ],
+              "to_unicode_sha256": "e9a15c394035224a0e77f8b26d47a7efbf4fbdaa33b2b27b8f8c9d81fac76d7a",
+              "descriptor_object": [
+                10,
+                0
+              ],
+              "font_program_object": [
+                11,
+                0
+              ],
+              "font_program_sha256": "2c1d4fa969bb74374279ae0e64a1955fe8f943b60a944e92aeada7ffcb15c460",
+              "text_matrix": [
+                1.0,
+                0.0,
+                0.0,
+                1.0,
+                50.0,
+                722.0
+              ],
+              "font_size": 14.0,
+              "explicit_widths": [
+                698.2420043945312,
+                557.1290283203125,
+                631.8359985351562,
+                684.0819702148438,
+                694.823974609375,
+                317.8710021972656,
+                684.0819702148438,
+                694.823974609375,
+                631.8359985351562,
+                684.0819702148438
+              ],
+              "declared_font_bbox": {
+                "x0": 7.8125,
+                "y0": -14.160200119018555,
+                "x1": 730.9569702148438,
+                "y1": 742.18798828125
+              },
+              "embedded_font_global_bbox": {
+                "x0": 7.8125,
+                "y0": -14.16015625,
+                "x1": 730.95703125,
+                "y1": 742.1875
+              },
+              "geometry_font_bbox": {
+                "x0": 7.8125,
+                "y0": -14.160200119018555,
+                "x1": 730.95703125,
+                "y1": 742.18798828125
+              },
+              "character_codes": [
+                38,
+                47,
+                40,
+                36,
+                53,
+                3,
+                36,
+                53,
+                40,
+                36
+              ],
+              "glyph_ids": [
+                38,
+                47,
+                40,
+                36,
+                53,
+                3,
+                36,
+                53,
+                40,
+                36
+              ],
+              "unicode_scalars": [
+                67,
+                76,
+                69,
+                65,
+                82,
+                32,
+                65,
+                82,
+                69,
+                65
+              ]
+            }
+          },
+          {
+            "id": "p1/object4-0/op8",
+            "region": {
+              "x0": 70.15625,
+              "y0": 609.7167959976197,
+              "x1": 194.75581848144532,
+              "y1": 624.843759765625
+            },
+            "unicode": "ALPHA 6202",
+            "origin": {
+              "page_object": [
+                3,
+                0
+              ],
+              "content_object": [
+                4,
+                0
+              ],
+              "content_sha256": "f69d113687b1689ab1a7c574b599cfbb4fb0f77cdf6a15e362b2dc2b26260022",
+              "operator_ordinal": 8,
+              "raw_codes_hex": "0024002f0033002b002400030019001500130015",
+              "font_resource": "Recovery",
+              "font_object": [
+                6,
+                0
+              ],
+              "descendant_font_object": [
+                7,
+                0
+              ],
+              "encoding_object": [
+                8,
+                0
+              ],
+              "encoding_sha256": "2b50f91e76e10932e39687bf67a626dd093bd7d90c0ddd64309f3a6309dc28cc",
+              "to_unicode_object": [
+                9,
+                0
+              ],
+              "to_unicode_sha256": "74b074252cb8acba9cdac45dde95653440aab07fb5dab32bd13810cd8e80502f",
+              "descriptor_object": [
+                10,
+                0
+              ],
+              "font_program_object": [
+                11,
+                0
+              ],
+              "font_program_sha256": "2c1d4fa969bb74374279ae0e64a1955fe8f943b60a944e92aeada7ffcb15c460",
+              "text_matrix": [
+                1.0,
+                0.0,
+                0.0,
+                1.0,
+                70.0,
+                610.0
+              ],
+              "font_size": 20.0,
+              "explicit_widths": [
+                684.0819702148438,
+                557.1290283203125,
+                603.0269775390625,
+                751.9530029296875,
+                684.0819702148438,
+                317.8710021972656,
+                636.22998046875,
+                636.22998046875,
+                636.22998046875,
+                636.22998046875
+              ],
+              "declared_font_bbox": {
+                "x0": 7.8125,
+                "y0": -14.160200119018555,
+                "x1": 730.9569702148438,
+                "y1": 742.18798828125
+              },
+              "embedded_font_global_bbox": {
+                "x0": 7.8125,
+                "y0": -14.16015625,
+                "x1": 730.95703125,
+                "y1": 742.1875
+              },
+              "geometry_font_bbox": {
+                "x0": 7.8125,
+                "y0": -14.160200119018555,
+                "x1": 730.95703125,
+                "y1": 742.18798828125
+              },
+              "character_codes": [
+                36,
+                47,
+                51,
+                43,
+                36,
+                3,
+                25,
+                21,
+                19,
+                21
+              ],
+              "glyph_ids": [
+                36,
+                47,
+                51,
+                43,
+                36,
+                3,
+                25,
+                21,
+                19,
+                21
+              ],
+              "unicode_scalars": [
+                65,
+                76,
+                80,
+                72,
+                65,
+                32,
+                54,
+                50,
+                48,
+                50
+              ]
+            }
+          }
+        ]
+      }
+    ],
+    "issues": []
+  },
+  "outcome": {
+    "status": "evaluated"
+  },
+  "comparisons": 7,
+  "pages": [
+    {
+      "page": 1,
+      "spans": [
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+              "size": 2899
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+              "size": 2899
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "text": "CLEAR AREA",
+          "source_witness": null
+        },
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+              "size": 2899
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+              "size": 2899
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "text": "����������",
+          "source_witness": null
+        }
+      ]
+    }
+  ],
+  "regions": [
+    {
+      "decision": "abstained",
+      "witness": {
+        "source_page_index": 0,
+        "page": 1,
+        "witness_index": 0,
+        "witness_id": "p1/object4-0/op3"
+      },
+      "reason": "crossing_span"
+    },
+    {
+      "decision": "abstained",
+      "witness": {
+        "source_page_index": 0,
+        "page": 1,
+        "witness_index": 1,
+        "witness_id": "p1/object4-0/op8"
+      },
+      "reason": "crossing_span"
+    }
+  ]
+}

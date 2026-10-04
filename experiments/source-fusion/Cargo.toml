@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+
+[package]
+name = "tpe-source-fusion"
+edition = "2024"
+rust-version = "1.98.1"
+publish = false
+description = "Restricted PDF-source-mapping-assisted span selection experiment"
+license-file = "../../LICENSE"
+
+[dependencies]
+tpe-region-evidence = { path = "../region-evidence" }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+lopdf = "=0.45.0"
+ttf-parser = "=0.25.1"
+flate2 = "=1.1.10"
+
+[lints.rust]
+unsafe_code = "forbid"

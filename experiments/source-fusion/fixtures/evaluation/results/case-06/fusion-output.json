@@ -1,0 +1,263 @@
+{
+  "contract_version": 1,
+  "policy": "source_declared_unicode_v1",
+  "evidence": {
+    "contract_version": 1,
+    "source": {
+      "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+      "size": 11345
+    },
+    "document_pages": 1,
+    "pages": [
+      1
+    ],
+    "baseline": {
+      "id": "baseline",
+      "source": {
+        "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+        "size": 11345
+      },
+      "pages": [
+        1
+      ],
+      "backend": {
+        "name": "lopdf",
+        "version": "0.45.0",
+        "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+      },
+      "runtime": {
+        "identity": "unknown",
+        "reason": "this offline CLI did not inspect the extraction runtime binary"
+      },
+      "outcome": {
+        "state": "partial",
+        "reason": "artifact declares partial extraction"
+      },
+      "artifact": {
+        "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+        "size": 2925
+      },
+      "frame": "producer_declared_pdf_user_space_unrotated"
+    },
+    "alternatives": [
+      {
+        "id": "candidate",
+        "source": {
+          "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+          "size": 11345
+        },
+        "pages": [
+          1
+        ],
+        "backend": {
+          "name": "pdfium",
+          "version": "dynamic-binding-0.8.37",
+          "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+        },
+        "runtime": {
+          "identity": "unknown",
+          "reason": "this offline CLI did not inspect the extraction runtime binary"
+        },
+        "outcome": {
+          "state": "complete"
+        },
+        "artifact": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "frame": "producer_declared_pdf_user_space_unrotated"
+      }
+    ],
+    "regions": [
+      {
+        "id": "baseline/0/spans/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+          "size": 2925
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/spans/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+          "size": 2925
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "baseline/0/lines/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+          "size": 2925
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/lines/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+          "size": 2925
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/spans/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/spans/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/lines/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/lines/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      }
+    ],
+    "decision": "retain_baseline_and_abstain"
+  },
+  "source_evidence": {
+    "source": {
+      "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+      "size": 11345
+    },
+    "outcome": "unsupported",
+    "pages": [],
+    "issues": [
+      {
+        "operator_ordinal": 8,
+        "raw_codes_hex": "0024002f0033002b002400030015001300150019",
+        "font_resource": "Recovery",
+        "reason": "ToUnicode conflicts with embedded Unicode-to-GID map"
+      }
+    ]
+  },
+  "outcome": {
+    "status": "unsupported_source"
+  },
+  "comparisons": 0,
+  "pages": [
+    {
+      "page": 1,
+      "spans": [
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+              "size": 2925
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+              "size": 2925
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "text": "CLEAR AREA",
+          "source_witness": null
+        },
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+              "size": 2925
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+              "size": 2925
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "text": "����������",
+          "source_witness": null
+        }
+      ]
+    }
+  ],
+  "regions": []
+}

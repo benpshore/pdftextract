@@ -1,0 +1,130 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+    "size": 11333,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/source-fusion-evaluation-20261004/case-04/source.pdf",
+        "inode": 1713637,
+        "device": 27,
+        "mtime_unix": 1791084464,
+        "size": 11333
+      }
+    ]
+  },
+  "backend": {
+    "name": "pdfium",
+    "version": "dynamic-binding-0.8.37",
+    "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+  },
+  "status": "partial",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "+$9(\u0003$\u00033($5",
+          "bbox": {
+            "x0": 80.0,
+            "y0": 590.0,
+            "x1": 213.04001,
+            "y1": 604.8
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 20.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "+$9(\u0003$\u00033($5",
+          "bbox": {
+            "x0": 80.0,
+            "y0": 590.0,
+            "x1": 213.04001,
+            "y1": 604.8
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "math"
+        }
+      ],
+      "text": "CLEAR AREA\n\n+$9(\u0003$\u00033($5",
+      "warnings": [
+        "unicode_mapping: pdfium map_errors=11, zero_unicode=0, unavailable_flags=0; first affected character indices=[12, 13, 14, 15, 16, 17, 18, 19] (zero-based, generated separators excluded)",
+        "regions: math text 1 lines"
+      ]
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "partial",
+      "text_sha256": "48c6d5a925c1a059e28cee3c86bed8b9e03393a95c256cf5e05c386550bb24f7",
+      "ms": 38.520683
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": null,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {}
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [
+    "page 1: unicode_mapping: pdfium map_errors=11, zero_unicode=0, unavailable_flags=0; first affected character indices=[12, 13, 14, 15, 16, 17, 18, 19] (zero-based, generated separators excluded)"
+  ],
+  "timings": {
+    "acquire_ms": 0.061319,
+    "parse_ms": 8.322332999999999,
+    "order_ms": 30.198349999999998,
+    "metadata_ms": 21.246099,
+    "citations_ms": 81.521621,
+    "write_ms": 8.590398,
+    "hash_ms": 0.28382999999999997
+  }
+}

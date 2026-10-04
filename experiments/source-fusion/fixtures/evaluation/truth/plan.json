@@ -1,0 +1,75 @@
+{
+  "cases": [
+    {
+      "encoding": "stream",
+      "evaluation_class": "positive-new-transcript-and-position",
+      "id": "case-01",
+      "map": "complete",
+      "size": 20,
+      "text": "ALPHA 6202",
+      "x": 70,
+      "y": 610
+    },
+    {
+      "encoding": "stream",
+      "evaluation_class": "positive-new-transcript-and-position",
+      "id": "case-02",
+      "map": "complete",
+      "size": 24,
+      "text": "CLEAR 2026",
+      "x": 95,
+      "y": 575
+    },
+    {
+      "encoding": "named",
+      "evaluation_class": "equal-control",
+      "id": "case-03",
+      "map": "complete",
+      "size": 22,
+      "text": "PEARL 2020",
+      "x": 60,
+      "y": 600
+    },
+    {
+      "encoding": "stream",
+      "evaluation_class": "missing-map",
+      "id": "case-04",
+      "map": "missing",
+      "size": 20,
+      "text": "HAVE A PEAR",
+      "x": 80,
+      "y": 590
+    },
+    {
+      "ambiguous_character": "R",
+      "ambiguous_replacement": "E",
+      "encoding": "stream",
+      "evaluation_class": "duplicate-conflicting-map",
+      "id": "case-05",
+      "map": "ambiguous",
+      "size": 22,
+      "text": "RECOVER 2026",
+      "x": 75,
+      "y": 615
+    },
+    {
+      "encoding": "stream",
+      "evaluation_class": "semantic-visible-disagreement",
+      "id": "case-06",
+      "map": "misleading",
+      "misleading_character": "A",
+      "misleading_replacement": "E",
+      "size": 24,
+      "text": "ALPHA 2026",
+      "x": 85,
+      "y": 585
+    }
+  ],
+  "neighbor": {
+    "size": 14,
+    "text": "CLEAR AREA",
+    "x": 50,
+    "y": 722
+  },
+  "schema": "source-fusion-holdout-plan-v1"
+}

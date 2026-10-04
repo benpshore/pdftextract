@@ -1,0 +1,51 @@
+{
+  "evaluation_class": "equal-control",
+  "frame": {
+    "axes": "x-right-y-up",
+    "crop_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "height": 792,
+    "media_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "origin": "bottom-left",
+    "page": 1,
+    "page_index": 0,
+    "rotation": 0,
+    "units": "pt",
+    "width": 612
+  },
+  "mapped_semantic_truth": "PEARL 2020",
+  "neighbor": {
+    "size": 14,
+    "text": "CLEAR AREA",
+    "x": 50,
+    "y": 722
+  },
+  "schema": "source-fusion-private-truth-v1",
+  "selection_expectation": "No answer supplied to selector. Evaluate visible and semantic axes separately.",
+  "source": {
+    "case_id": "case-03",
+    "sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+    "size": 11351
+  },
+  "target": {
+    "encoding": "named",
+    "evaluation_class": "equal-control",
+    "id": "case-03",
+    "map": "complete",
+    "size": 22,
+    "text": "PEARL 2020",
+    "x": 60,
+    "y": 600
+  },
+  "truth_basis": "Frozen generator text and embedded glyph IDs before extraction.",
+  "visible_target_truth": "PEARL 2020"
+}

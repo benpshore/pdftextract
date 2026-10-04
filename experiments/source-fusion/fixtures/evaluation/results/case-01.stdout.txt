@@ -1,0 +1,1 @@
+{"state": "completed", "journal": "/workspace/source-fusion-evaluation-20261004/case-01/journal.json"}

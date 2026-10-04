@@ -1,0 +1,496 @@
+{
+  "cases": [
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "c5ae3de5d86f6d01d10c195b1dfff7a7dc0e563ba4e775d58b03c4f73592022e",
+          "size": 2899
+        },
+        "candidate.json": {
+          "sha256": "cef6f61f27d4593d8a3b0a7a314af1c63818555a86020d2b15c2b08edd8e636c",
+          "size": 2683
+        },
+        "fused.json": {
+          "sha256": "c6e9b44d7c34c05f366a40a656b2eaf525260922dc5dbfa5ba94d8ddb0b50cb6",
+          "size": 14464
+        },
+        "fusion-output.json": {
+          "sha256": "c6e9b44d7c34c05f366a40a656b2eaf525260922dc5dbfa5ba94d8ddb0b50cb6",
+          "size": 14464
+        },
+        "journal.json": {
+          "sha256": "4321d61657d3894886edc9ff317326aa129e494e8d440185d24e32143fcc6328",
+          "size": 4892
+        },
+        "source.pdf": {
+          "sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+          "size": 11345
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": false,
+      "baseline_target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "evaluation_class": "positive-new-transcript-and-position",
+      "execution_error": null,
+      "expected_action": "select",
+      "id": "case-01",
+      "journal_state": "completed",
+      "mapped_semantic_truth": "ALPHA 6202",
+      "projection_available": true,
+      "regions": [
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op3",
+            "witness_index": 0
+          }
+        },
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op8",
+            "witness_index": 1
+          }
+        }
+      ],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-01.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-01",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": false,
+      "source_outcome": "evaluated",
+      "source_sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc",
+      "target_selected": false,
+      "target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "visible_target_correct": false,
+      "visible_target_truth": "ALPHA 6202"
+    },
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "92572d0901f75cce8a6a27c52c60bc4d6965aa732cf35986e3545b760bf42e0a",
+          "size": 2904
+        },
+        "candidate.json": {
+          "sha256": "6760b143461dbd0580f39f03f8571f002387ffa16195c02a997c1ba4b1881839",
+          "size": 2750
+        },
+        "fused.json": {
+          "sha256": "f7e8eb5c89bb866b211f4610cfd58edd9e59a43979643e91b21e04a2a24121b0",
+          "size": 14460
+        },
+        "fusion-output.json": {
+          "sha256": "f7e8eb5c89bb866b211f4610cfd58edd9e59a43979643e91b21e04a2a24121b0",
+          "size": 14460
+        },
+        "journal.json": {
+          "sha256": "baed63588213f31326733145bb30b22633ac7b0dd75f36538661db079d1f2326",
+          "size": 4892
+        },
+        "source.pdf": {
+          "sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33",
+          "size": 11345
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": false,
+      "baseline_target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "evaluation_class": "positive-new-transcript-and-position",
+      "execution_error": null,
+      "expected_action": "select",
+      "id": "case-02",
+      "journal_state": "completed",
+      "mapped_semantic_truth": "CLEAR 2026",
+      "projection_available": true,
+      "regions": [
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op3",
+            "witness_index": 0
+          }
+        },
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op8",
+            "witness_index": 1
+          }
+        }
+      ],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-02.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-02",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": false,
+      "source_outcome": "evaluated",
+      "source_sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33",
+      "target_selected": false,
+      "target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "visible_target_correct": false,
+      "visible_target_truth": "CLEAR 2026"
+    },
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "87172e83681dd76a9db3968fafbe5a7425ed28252335ff5de7aff9765c42e950",
+          "size": 2714
+        },
+        "candidate.json": {
+          "sha256": "0397cca892ddd7786dc37e603923ff0eb9c82213574cbc6fb93c311a7e5f80fa",
+          "size": 2744
+        },
+        "fused.json": {
+          "sha256": "ca3dc98990c8c71fc7607b6459558413490fd7d3532d96da9eb7cb183985f84b",
+          "size": 14338
+        },
+        "fusion-output.json": {
+          "sha256": "ca3dc98990c8c71fc7607b6459558413490fd7d3532d96da9eb7cb183985f84b",
+          "size": 14338
+        },
+        "journal.json": {
+          "sha256": "953f8497ff328421056e5ea74a9de28493700aa8561f5f6ce75520915d62fb45",
+          "size": 4895
+        },
+        "source.pdf": {
+          "sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+          "size": 11351
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": true,
+      "baseline_target_text": "PEARL 2020",
+      "evaluation_class": "equal-control",
+      "execution_error": null,
+      "expected_action": "retain",
+      "id": "case-03",
+      "journal_state": "completed",
+      "mapped_semantic_truth": "PEARL 2020",
+      "projection_available": true,
+      "regions": [
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op3",
+            "witness_index": 0
+          }
+        },
+        {
+          "decision": "abstained",
+          "reason": "crossing_span",
+          "witness": {
+            "page": 1,
+            "source_page_index": 0,
+            "witness_id": "p1/object4-0/op8",
+            "witness_index": 1
+          }
+        }
+      ],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-03.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-03",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 0,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": true,
+      "source_outcome": "evaluated",
+      "source_sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0",
+      "target_selected": false,
+      "target_text": "PEARL 2020",
+      "visible_target_correct": true,
+      "visible_target_truth": "PEARL 2020"
+    },
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+          "size": 2915
+        },
+        "candidate.json": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "fusion-output.json": {
+          "sha256": "e45a75e3f70410af13fab42e4187199df7e18bf70569a514f5966a420a1cbd70",
+          "size": 7097
+        },
+        "journal.json": {
+          "sha256": "a840b11065c16cd1a335a584e9517b472cbc6d408f80c59c4f1c923537ef2d16",
+          "size": 4732
+        },
+        "source.pdf": {
+          "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+          "size": 11333
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": false,
+      "baseline_target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "evaluation_class": "missing-map",
+      "execution_error": null,
+      "expected_action": "abstain_unsupported_source",
+      "id": "case-04",
+      "journal_state": "fusion_incomplete",
+      "mapped_semantic_truth": null,
+      "projection_available": false,
+      "regions": [],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-04.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-04",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": null,
+      "source_outcome": "unsupported_source",
+      "source_sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+      "target_selected": false,
+      "target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "visible_target_correct": false,
+      "visible_target_truth": "HAVE A PEAR"
+    },
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "e1df076a34f2c6bffff43a92cf7cb257ab74855f2ea6c7af4ecf892f10239033",
+          "size": 2931
+        },
+        "candidate.json": {
+          "sha256": "e62f862a43ac6dea3aa8825f051976041d5fcf16b1a5dc67a20d304b58370bb5",
+          "size": 2743
+        },
+        "fusion-output.json": {
+          "sha256": "cd3d64176084ec428633a68c8270bffef534a8564c437c2df7031e69de4a046d",
+          "size": 7036
+        },
+        "journal.json": {
+          "sha256": "ba30b214891fec58fa44a5dff8b9977147f3819f1b821f3519a75991c25e168e",
+          "size": 4735
+        },
+        "source.pdf": {
+          "sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96",
+          "size": 11367
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": false,
+      "baseline_target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "evaluation_class": "duplicate-conflicting-map",
+      "execution_error": null,
+      "expected_action": "abstain_unsupported_source",
+      "id": "case-05",
+      "journal_state": "fusion_incomplete",
+      "mapped_semantic_truth": null,
+      "projection_available": false,
+      "regions": [],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-05.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-05",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": null,
+      "source_outcome": "unsupported_source",
+      "source_sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96",
+      "target_selected": false,
+      "target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "visible_target_correct": false,
+      "visible_target_truth": "RECOVER 2026"
+    },
+    {
+      "artifacts": {
+        "baseline.json": {
+          "sha256": "d026c832aec900585f66f4d7e0c1ac47a9f7963baf1a5b004c0a48e15d2c14ee",
+          "size": 2925
+        },
+        "candidate.json": {
+          "sha256": "861a91b31b91b8996c21a9ff7235862028d9bcece48c25e6d118d77b294f3fbc",
+          "size": 2765
+        },
+        "fusion-output.json": {
+          "sha256": "89169af1ec84ad3a7cb7f65945e97e069ada22495fc4a33b436daa9d5ac4c31e",
+          "size": 7043
+        },
+        "journal.json": {
+          "sha256": "78d9c56af68abc6590299e03616de530fad9fbe2cd80f72d9511ccbf1e33bafb",
+          "size": 4735
+        },
+        "source.pdf": {
+          "sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+          "size": 11345
+        }
+      },
+      "baseline_neighbor_preserved": true,
+      "baseline_target_correct": false,
+      "baseline_target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "evaluation_class": "semantic-visible-disagreement",
+      "execution_error": null,
+      "expected_action": "abstain_unsupported_source",
+      "id": "case-06",
+      "journal_state": "fusion_incomplete",
+      "mapped_semantic_truth": "ELPHE 2026",
+      "projection_available": false,
+      "regions": [],
+      "runner_argv": [
+        "/workspace/pdftextract-partials/.venv/bin/python",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/run_extraction.py",
+        "--tpe",
+        "/workspace/targets/root/debug/tpe",
+        "--fusion",
+        "/workspace/targets/source-fusion/debug/fuse_source",
+        "--source",
+        "/workspace/pdftextract-source-fusion/experiments/source-fusion/fixtures/case-06.pdf",
+        "--out",
+        "/workspace/source-fusion-evaluation-20261004/case-06",
+        "--pdfium",
+        "--timeout-ms",
+        "60000"
+      ],
+      "runner_exit": 1,
+      "scoring_error": null,
+      "selected_count": 0,
+      "selected_locator_integrity": true,
+      "selected_source_consistent": null,
+      "selected_visible_correct": null,
+      "semantic_target_correct": false,
+      "source_outcome": "unsupported_source",
+      "source_sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+      "target_selected": false,
+      "target_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "visible_target_correct": false,
+      "visible_target_truth": "ALPHA 2026"
+    }
+  ],
+  "executables": {
+    "fusion": {
+      "sha256": "dabde9bb5eda05b7e56885cbe6950f16edfc01b864b8eced382e4e27aa60366d",
+      "size": 49592312
+    },
+    "tpe": {
+      "sha256": "d01ff248ddae6175754be3a23ed95b8df141b1d31920c8399961238623052089",
+      "size": 165021880
+    }
+  },
+  "phases": {
+    "all_attempts_finished_before_truth_read": "2026-10-04T03:27:48.810658+00:00",
+    "execution_started": "2026-10-04T03:27:40.791375+00:00",
+    "scoring_started": "2026-10-04T03:27:48.811958+00:00",
+    "truth_access_during_execution": false
+  },
+  "policy_freeze": {
+    "sha256": "c895a4657dfa416f5c99985ce39e48f6ccda1934989bda55e98d70cee1ff055f",
+    "size": 3329
+  },
+  "schema": "source-fusion-evaluation-v1",
+  "scope": "Six synthetic source-profile cases, not a population accuracy estimate.",
+  "source_freeze": {
+    "sha256": "169bf0c9dc1bdabe36d779e87004afc39ac3d63e434e1a6e5bbfe88ae1d411b4",
+    "size": 2580
+  },
+  "totals": {
+    "attempted": 6,
+    "baseline_targets_correct": 1,
+    "execution_errors": 0,
+    "neighbors_preserved": 6,
+    "projections_available": 3,
+    "scoring_errors": 0,
+    "selected_cases_source_wrong": 0,
+    "selected_cases_visible_wrong": 0,
+    "selected_regions": 0,
+    "unavailable_projections": 3,
+    "visible_targets_correct": 1
+  }
+}

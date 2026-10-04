@@ -1,0 +1,127 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099",
+    "size": 11345,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/source-fusion-evaluation-20261004/case-06/source.pdf",
+        "inode": 1713682,
+        "device": 27,
+        "mtime_unix": 1791084467,
+        "size": 11345
+      }
+    ]
+  },
+  "backend": {
+    "name": "pdfium",
+    "version": "dynamic-binding-0.8.37",
+    "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+  },
+  "status": "complete",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "ELPHE 2026",
+          "bbox": {
+            "x0": 85.0,
+            "y0": 584.688,
+            "x1": 230.848,
+            "y1": 603.072
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 24.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "CLEAR AREA",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 721.818,
+            "x1": 137.724,
+            "y1": 732.542
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "ELPHE 2026",
+          "bbox": {
+            "x0": 85.0,
+            "y0": 584.688,
+            "x1": 230.848,
+            "y1": 603.072
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "CLEAR AREA\n\nELPHE 2026",
+      "warnings": []
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "complete",
+      "text_sha256": "f0ae8a228caa36acaef61d36c7fbb278e97dc798b98cad71f6b65461fd1f6808",
+      "ms": 24.753694
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": 2026,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {
+      "year": "first_page:year"
+    }
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [],
+  "timings": {
+    "acquire_ms": 0.059055,
+    "parse_ms": 3.628333,
+    "order_ms": 21.125360999999998,
+    "metadata_ms": 16.456682999999998,
+    "citations_ms": 60.656327000000005,
+    "write_ms": 5.4411950000000004,
+    "hash_ms": 0.240001
+  }
+}

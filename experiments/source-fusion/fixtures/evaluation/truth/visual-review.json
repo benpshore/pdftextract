@@ -1,0 +1,87 @@
+{
+  "cases": [
+    {
+      "id": "case-01",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "ALPHA 6202",
+      "render": {
+        "filename": "case-01.png",
+        "sha256": "f15290975282509e37f83ee0be3c6db1c4cce9fa308195046fc343ffbe1f59b0",
+        "size": 15264
+      },
+      "source_sha256": "775f67617f65c9d2e8a4412a62122de931ff0cdf987868ec23bb4bb9cb88b0dc"
+    },
+    {
+      "id": "case-02",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "CLEAR 2026",
+      "render": {
+        "filename": "case-02.png",
+        "sha256": "3070bfd2cc1b6ff3318fdc244b36d804b5e2d5ace028f3954edf77b1337dc250",
+        "size": 16257
+      },
+      "source_sha256": "4b207fe5debfde0d915f6a69d0ac584cc49348a55e08aa977cc8c64490e76f33"
+    },
+    {
+      "id": "case-03",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "PEARL 2020",
+      "render": {
+        "filename": "case-03.png",
+        "sha256": "eb848ecbafcc648eff33a13e12f610f07595b127dd1eabf47c5e8f1fe0f57370",
+        "size": 14772
+      },
+      "source_sha256": "ec36dd50d7a2e648bb2bd65b16a74df222ad209d9c304a6ceffd748dea5468f0"
+    },
+    {
+      "id": "case-04",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "HAVE A PEAR",
+      "render": {
+        "filename": "case-04.png",
+        "sha256": "55985349cedf7381ea84487d8c5e8e4f40dd87260619ef8b359f9c5956c78cfa",
+        "size": 14741
+      },
+      "source_sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575"
+    },
+    {
+      "id": "case-05",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "RECOVER 2026",
+      "render": {
+        "filename": "case-05.png",
+        "sha256": "2f6354e11cde112c0f118339192329cf2a4971abda3e063320d5878dc7d24fdb",
+        "size": 17173
+      },
+      "source_sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96"
+    },
+    {
+      "id": "case-06",
+      "matches_frozen_source_truth": true,
+      "observed_neighbor": "CLEAR AREA",
+      "observed_target": "ALPHA 2026",
+      "render": {
+        "filename": "case-06.png",
+        "sha256": "9233697af0a466c74f5e99a1b0ea7f4fbe9a6fbcf787771271e68c2a55f60c91",
+        "size": 15487
+      },
+      "source_sha256": "0663a48f49eab8f3421e6403a77f00d8fc5caa83dc9a654cd1de8b668e5d9099"
+    }
+  ],
+  "method": "Inspected all six MuPDF raster pages with view_image. Source-aware review; not blind and not human ground truth. No extractor text consulted.",
+  "renderer": {
+    "height_pixels": 1584,
+    "mupdf": "1.26.11",
+    "pymupdf": "1.26.6",
+    "scale": 2,
+    "width_pixels": 1224
+  },
+  "reviewed_at_utc": "2026-10-04T03:05:16.888108+00:00",
+  "reviewer": "/root/pdfium_audit (AI)",
+  "schema": "source-fusion-visual-review-v1"
+}

@@ -1,0 +1,53 @@
+{
+  "evaluation_class": "duplicate-conflicting-map",
+  "frame": {
+    "axes": "x-right-y-up",
+    "crop_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "height": 792,
+    "media_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "origin": "bottom-left",
+    "page": 1,
+    "page_index": 0,
+    "rotation": 0,
+    "units": "pt",
+    "width": 612
+  },
+  "mapped_semantic_truth": null,
+  "neighbor": {
+    "size": 14,
+    "text": "CLEAR AREA",
+    "x": 50,
+    "y": 722
+  },
+  "schema": "source-fusion-private-truth-v1",
+  "selection_expectation": "No answer supplied to selector. Evaluate visible and semantic axes separately.",
+  "source": {
+    "case_id": "case-05",
+    "sha256": "c7c118f70a1f940b0050abb244e4807dbd1b19909e7c46de6c9cf29606065e96",
+    "size": 11367
+  },
+  "target": {
+    "ambiguous_character": "R",
+    "ambiguous_replacement": "E",
+    "encoding": "stream",
+    "evaluation_class": "duplicate-conflicting-map",
+    "id": "case-05",
+    "map": "ambiguous",
+    "size": 22,
+    "text": "RECOVER 2026",
+    "x": 75,
+    "y": 615
+  },
+  "truth_basis": "Frozen generator text and embedded glyph IDs before extraction.",
+  "visible_target_truth": "RECOVER 2026"
+}

@@ -1,0 +1,264 @@
+{
+  "contract_version": 1,
+  "policy": "source_declared_unicode_v1",
+  "evidence": {
+    "contract_version": 1,
+    "source": {
+      "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+      "size": 11333
+    },
+    "document_pages": 1,
+    "pages": [
+      1
+    ],
+    "baseline": {
+      "id": "baseline",
+      "source": {
+        "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+        "size": 11333
+      },
+      "pages": [
+        1
+      ],
+      "backend": {
+        "name": "lopdf",
+        "version": "0.45.0",
+        "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+      },
+      "runtime": {
+        "identity": "unknown",
+        "reason": "this offline CLI did not inspect the extraction runtime binary"
+      },
+      "outcome": {
+        "state": "partial",
+        "reason": "artifact declares partial extraction"
+      },
+      "artifact": {
+        "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+        "size": 2915
+      },
+      "frame": "producer_declared_pdf_user_space_unrotated"
+    },
+    "alternatives": [
+      {
+        "id": "candidate",
+        "source": {
+          "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+          "size": 11333
+        },
+        "pages": [
+          1
+        ],
+        "backend": {
+          "name": "pdfium",
+          "version": "dynamic-binding-0.8.37",
+          "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540"
+        },
+        "runtime": {
+          "identity": "unknown",
+          "reason": "this offline CLI did not inspect the extraction runtime binary"
+        },
+        "outcome": {
+          "state": "partial",
+          "reason": "artifact declares partial extraction"
+        },
+        "artifact": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "frame": "producer_declared_pdf_user_space_unrotated"
+      }
+    ],
+    "regions": [
+      {
+        "id": "baseline/0/spans/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+          "size": 2915
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/spans/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+          "size": 2915
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "baseline/0/lines/0",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+          "size": 2915
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "baseline/0/lines/1",
+        "attempt_id": "baseline",
+        "artifact": {
+          "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+          "size": 2915
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/spans/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/spans/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "text",
+          "span_index": 1
+        }
+      },
+      {
+        "id": "candidate/0/lines/0",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 0
+        }
+      },
+      {
+        "id": "candidate/0/lines/1",
+        "attempt_id": "candidate",
+        "artifact": {
+          "sha256": "ef739d8010a2d4d717a5959faa2658b1a418ae746d0952b0e7832572fd552b9b",
+          "size": 3191
+        },
+        "page_index": 0,
+        "page": 1,
+        "evidence": {
+          "kind": "layout",
+          "line_index": 1
+        }
+      }
+    ],
+    "decision": "retain_baseline_and_abstain"
+  },
+  "source_evidence": {
+    "source": {
+      "sha256": "4841533cf2b8d9a4677ea7768c7a198a819c70f86e6283ae23e47c1437b51575",
+      "size": 11333
+    },
+    "outcome": "unsupported",
+    "pages": [],
+    "issues": [
+      {
+        "operator_ordinal": 8,
+        "raw_codes_hex": "002b0024003900280003002400030033002800240035",
+        "font_resource": "Recovery",
+        "reason": "required source dictionary field missing"
+      }
+    ]
+  },
+  "outcome": {
+    "status": "unsupported_source"
+  },
+  "comparisons": 0,
+  "pages": [
+    {
+      "page": 1,
+      "spans": [
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+              "size": 2915
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+              "size": 2915
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 0
+          },
+          "text": "CLEAR AREA",
+          "source_witness": null
+        },
+        {
+          "baseline": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+              "size": 2915
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "selected": {
+            "attempt_id": "baseline",
+            "artifact": {
+              "sha256": "e26a35c6758a678d86e86a8519849d7813f1b1f62e4db8ade51f7a6ddb0cc62f",
+              "size": 2915
+            },
+            "page_index": 0,
+            "page": 1,
+            "span_index": 1
+          },
+          "text": "�����������",
+          "source_witness": null
+        }
+      ]
+    }
+  ],
+  "regions": []
+}
