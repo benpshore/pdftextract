@@ -1,0 +1,99 @@
+{
+  "baseline_artifact": {
+    "path": "captured/positive-stream-cmap/lopdf/97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f.json",
+    "sha256": "6260a666972c4c8f5a9c09ecc8680b2c3ddcf908220c1a762934a55c52d2ecc4",
+    "size": 3065
+  },
+  "candidate_artifact": {
+    "path": "captured/positive-stream-cmap/pdfium/97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f.json",
+    "sha256": "8d7ae135cfeaca12c151502ff485b41fc50b6c4ab48e5da87c6b768dd9d62698",
+    "size": 2866
+  },
+  "case_kind": "Synthetic mutations of captured evidence; these are not parser outputs or measured engine failures.",
+  "cases": [
+    {
+      "expected": "abstain; expected/adjudicated target mismatch; retain baseline",
+      "id": "equal-length-wrong",
+      "operation": "replace text",
+      "target": "candidate span in recovery-target",
+      "value": "RECOVER ALPHA 2025"
+    },
+    {
+      "expected": "abstain despite larger character count; retain baseline",
+      "id": "longer-wrong",
+      "operation": "replace text",
+      "target": "candidate span in recovery-target",
+      "value": "RECOVER ALPHA 2026 INVENTED EXTRA TEXT"
+    },
+    {
+      "expected": "abstain; incomplete target",
+      "id": "partial-candidate",
+      "operation": "replace text",
+      "target": "candidate span in recovery-target",
+      "value": "RECOVER ALPHA"
+    },
+    {
+      "expected": "abstain; multiple geometric correspondences even when texts equal",
+      "id": "duplicate-identical-overlap",
+      "operation": "append exact duplicate of recovery span at same box",
+      "target": "candidate page spans"
+    },
+    {
+      "expected": "abstain; ambiguity before text preference",
+      "id": "duplicate-wrong-overlap",
+      "operation": "append overlapping recovery span with wrong text",
+      "target": "candidate page spans",
+      "value": "RECOVER ALPHA 2025"
+    },
+    {
+      "expected": "abstain; crossing authored region and good neighbor",
+      "id": "crosses-neighbor",
+      "operation": "replace bbox",
+      "target": "candidate recovery span bbox",
+      "value": {
+        "x0": 40,
+        "x1": 330,
+        "y0": 608,
+        "y1": 742
+      }
+    },
+    {
+      "expected": "reject source binding",
+      "id": "wrong-source",
+      "operation": "use control-named-cmap.pdf with positive approved review",
+      "target": "selection source"
+    },
+    {
+      "expected": "reject correspondence",
+      "id": "wrong-page",
+      "operation": "replace page number 1 with 2",
+      "target": "candidate page"
+    },
+    {
+      "expected": "abstain; no coordinate-frame assumption",
+      "id": "unknown-frame",
+      "operation": "mark unknown",
+      "target": "candidate attempt frame"
+    },
+    {
+      "expected": "stable justified decision or conservative ambiguity abstention; never choose by length or order",
+      "id": "reordered-candidates",
+      "operation": "permute original/equal-wrong/longer-wrong attempts",
+      "target": "candidate attempts"
+    },
+    {
+      "expected": "reject witness hash mismatch",
+      "id": "bad-render-bytes",
+      "operation": "change one byte without updating trusted review",
+      "target": "witness raster"
+    },
+    {
+      "expected": "reject before selection",
+      "id": "untrusted-review-digest",
+      "operation": "supply digest different from independently approved review",
+      "target": "caller trust input"
+    }
+  ],
+  "schema": "region-fusion-adversarial-mutation-plan-v1",
+  "source_sha256": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f"
+}
