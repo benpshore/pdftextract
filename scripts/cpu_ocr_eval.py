@@ -41,7 +41,7 @@ LINES = (
 )
 TRUTH = "\n".join(LINES)
 DPI = 150
-HARNESS_VERSION = "2"
+HARNESS_VERSION = "3"
 NORMALIZATION = "NFKC + casefold + whitespace collapse; word tokens are Unicode word sequences"
 PHASE_DEFINITION = (
     "cold = first invocation for each fixture; warm = repeat invocation in the same executor. "
@@ -449,6 +449,94 @@ def prepare_fixture_font(workdir, source):
     return target
 
 
+def load_retained_fixture(database, name, directory):
+    """Copy a prior fixture's exact BLOB/truth without changing its database or rerendering."""
+    directory.mkdir(parents=True, exist_ok=True)
+    with sqlite3.connect(f"file:{database.resolve()}?mode=ro&immutable=1", uri=True) as retained:
+        retained.row_factory = sqlite3.Row
+        row = retained.execute(
+            "SELECT f.*,s.uri,s.license,s.description,s.fixture_identifier,s.retrieved_at,"
+            "a.content,a.sha256 FROM fixtures f JOIN sources s ON s.id=f.source_id "
+            "JOIN artifacts a ON a.id=s.original_artifact_id WHERE f.name=?",
+            (name,),
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"Retained fixture not found: {name}")
+        if digest(row["content"]) != row["sha256"]:
+            raise ValueError("Retained source BLOB hash mismatch")
+        source = dict(
+            retained.execute("SELECT * FROM sources WHERE id=?", (row["source_id"],)).fetchone()
+        )
+        # This path derives from the content identity, never an unchecked fixture name.
+        path = directory / f"{row['sha256']}.{row['kind']}"
+        with path.open("xb") as output:
+            output.write(row["content"])
+        pages = retained.execute(
+            "SELECT p.*,a.content AS truth_bytes,a.sha256 AS truth_sha FROM fixture_pages p "
+            "JOIN artifacts a ON a.id=p.ground_truth_artifact_id "
+            "WHERE p.fixture_id=? ORDER BY p.page_number",
+            (row["id"],),
+        ).fetchall()
+        for page in pages:
+            if digest(page["truth_bytes"]) != page["truth_sha"] or (
+                page["truth_bytes"].decode() != page["ground_truth"]
+            ):
+                raise ValueError("Retained truth BLOB hash/text mismatch")
+        regions = [
+            dict(region)
+            for region in retained.execute(
+                "SELECT t.*,p.page_number FROM truth_regions t "
+                "JOIN fixture_pages p ON p.id=t.fixture_page_id "
+                "WHERE p.fixture_id=? ORDER BY p.page_number,t.ordinal",
+                (row["id"],),
+            )
+        ]
+        assets = []
+        for asset in retained.execute(
+            "SELECT s.role,s.uri,a.sha256,a.content FROM source_assets s "
+            "JOIN artifacts a ON a.id=s.artifact_id WHERE s.source_id=?",
+            (row["source_id"],),
+        ):
+            if digest(asset["content"]) != asset["sha256"]:
+                raise ValueError("Retained provenance asset BLOB hash mismatch")
+            asset_path = directory / asset["sha256"]
+            if not asset_path.exists():
+                with asset_path.open("xb") as output:
+                    output.write(asset["content"])
+            assets.append({"path": str(asset_path), "role": asset["role"], "uri": asset["uri"]})
+        return {
+            "name": name,
+            "path": path,
+            "kind": row["kind"],
+            "content": row["content"],
+            "sizes": [(page["width_pixels"], page["height_pixels"]) for page in pages],
+            "truth": [page["ground_truth"] for page in pages],
+            "truth_metadata": [
+                {"commit": page["ground_truth_commit"], "added_at": page["ground_truth_added_at"]}
+                for page in pages
+            ],
+            "dpis": [page["dpi"] for page in pages],
+            "truth_regions": regions,
+            "expected_outcome": row["expected_outcome"],
+            "source_assets": assets,
+            "source_metadata": dict(
+                source,
+                source_uri=source["uri"],
+                name=source["dataset_name"],
+                version=source["dataset_version"],
+                commit=source["repository_commit"],
+                selection=source["selection_note"],
+            ),
+            "generation": {
+                "retained_database": str(database.resolve()),
+                "retained_database_sha256": digest(database.read_bytes()),
+                "retained_fixture_id": row["id"],
+                "original_generation": json.loads(row["generator_json"]),
+                "transform": "byte-identical copy from immutable baseline; no rerender",
+            },
+        }
+
+
 def register_fixture(db, fixture):
     metadata = fixture.get("source_metadata", {})
     source_id = insert(
@@ -509,6 +597,16 @@ def register_fixture(db, fixture):
     )
     for page, (width, height) in enumerate(fixture["sizes"], start=1):
         truth = fixture.get("truth", [TRUTH] * len(fixture["sizes"]))[page - 1]
+        truth_metadata = fixture.get(
+            "truth_metadata",
+            [
+                {
+                    "commit": fixture.get("ground_truth_commit"),
+                    "added_at": fixture.get("ground_truth_added_at"),
+                }
+            ]
+            * len(fixture["sizes"]),
+        )[page - 1]
         page_id = insert(
             db,
             "fixture_pages",
@@ -516,8 +614,8 @@ def register_fixture(db, fixture):
             page_number=page,
             ground_truth=truth,
             ground_truth_artifact_id=artifact(db, truth.encode(), "text/plain"),
-            ground_truth_commit=fixture.get("ground_truth_commit"),
-            ground_truth_added_at=fixture.get("ground_truth_added_at"),
+            ground_truth_commit=truth_metadata["commit"],
+            ground_truth_added_at=truth_metadata["added_at"],
             width_pixels=width,
             height_pixels=height,
             dpi=fixture.get("dpis", [DPI] * len(fixture["sizes"]))[page - 1],
@@ -549,6 +647,26 @@ def register_fixture(db, fixture):
                 coordinate_space="raster_pixels_top_left",
                 precision_note="Nominal fixture line region; not a glyph-tight annotation.",
             )
+        for region in fixture.get("truth_regions", []):
+            if region["page_number"] == page:
+                insert(
+                    db,
+                    "truth_regions",
+                    fixture_page_id=page_id,
+                    **{
+                        key: region[key]
+                        for key in (
+                            "ordinal",
+                            "text",
+                            "x",
+                            "y",
+                            "width",
+                            "height",
+                            "coordinate_space",
+                            "precision_note",
+                        )
+                    },
+                )
     return fixture_id
 
 
@@ -733,6 +851,22 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
         )
         db.execute("UPDATE attempts SET expected_outcome_met=0 WHERE id=?", (attempt_id,))
 
+    def record_diagnostics(page_id, page_number, diagnostics):
+        for diagnostic in diagnostics:
+            try:
+                content = Path(diagnostic["path"]).read_bytes()
+                insert(
+                    db,
+                    "page_artifacts",
+                    page_output_id=page_id,
+                    role=diagnostic["name"],
+                    artifact_id=artifact(db, content, "text/plain"),
+                )
+                if digest(content) != diagnostic["sha256"]:
+                    raise ValueError("Runtime diagnostic hash mismatch; actual bytes retained")
+            except (KeyError, OSError, TypeError, ValueError, sqlite3.IntegrityError) as exc:
+                record_error("diagnostic_artifact_error", str(exc), diagnostic, page_number)
+
     for message in parse_errors:
         insert(
             db,
@@ -771,6 +905,7 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
         for row in db.execute("SELECT * FROM fixture_pages WHERE fixture_id=?", (fixture_id,))
     }
     seen_pages = set()
+    failed_page_diagnostics = {}
     for ordinal, event in enumerate(events):
         insert(db, "events", attempt_id=attempt_id, ordinal=ordinal, payload_json=json_text(event))
         kind, page_number = event.get("event"), event.get("page")
@@ -803,6 +938,10 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
                 message=str(event.get("error", event)),
                 payload_json=json_text(event),
             )
+            if kind == "page_error" and isinstance(page_number, int):
+                failed_page_diagnostics.setdefault(page_number, []).extend(
+                    event.get("artifacts", {}).get("diagnostics", [])
+                )
         if kind != "page":
             continue
         if not isinstance(page_number, int) or page_number < 1 or page_number in seen_pages:
@@ -849,20 +988,7 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
             raster_json=json_text(event.get("raster", {})),
             timing_json=json_text(event.get("timing_seconds", {})),
         )
-        for diagnostic in event.get("artifacts", {}).get("diagnostics", []):
-            try:
-                content = Path(diagnostic["path"]).read_bytes()
-                if digest(content) != diagnostic["sha256"]:
-                    raise ValueError("Runtime diagnostic hash mismatch")
-                insert(
-                    db,
-                    "page_artifacts",
-                    page_output_id=page_id,
-                    role=diagnostic["name"],
-                    artifact_id=artifact(db, content, "text/plain"),
-                )
-            except (KeyError, OSError, TypeError, ValueError, sqlite3.IntegrityError) as exc:
-                record_error("diagnostic_artifact_error", str(exc), diagnostic, page_number)
+        record_diagnostics(page_id, page_number, event.get("artifacts", {}).get("diagnostics", []))
         for region_ordinal, region in enumerate(event.get("words", [])):
             try:
                 x, y, width, height = map(float, region["bbox"])
@@ -882,7 +1008,9 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
                 y=y,
                 width=width,
                 height=height,
-                coordinate_space="raster_pixels_top_left",
+                coordinate_space=event.get("raster", {}).get(
+                    "coordinate_space", "raster_pixels_top_left"
+                ),
                 provenance_json=json_text(
                     {
                         key: value
@@ -925,6 +1053,7 @@ def record_attempt(db, run_id, fixture_id, fixture, result):
             timing_json="{}",
         )
         insert(db, "accuracy", page_output_id=page_id, **score(expected["ground_truth"], ""))
+        record_diagnostics(page_id, number, failed_page_diagnostics.get(number, []))
         insert(
             db,
             "errors",
@@ -1022,15 +1151,22 @@ def evaluate(args, summary_output):
     if not pdftoppm:
         raise RuntimeError("Evaluation requires a native pdftoppm executable")
     generation_start = time.perf_counter()
-    fixtures = generate_fixtures(workdir / "fixtures", pdftoppm)
+    fixtures = [] if args.public_only else generate_fixtures(workdir / "fixtures", pdftoppm)
     if args.public_manifest:
         fixtures.extend(load_public_fixtures(args.public_manifest.resolve()))
+    for name in args.retained_fixture:
+        fixtures.append(load_retained_fixture(args.retained_database, name, workdir / "retained"))
     fixture_ids = {fixture["name"]: register_fixture(db, fixture) for fixture in fixtures}
-    artifact(db, (workdir / "fixtures" / "generation-source.pdf").read_bytes(), "application/pdf")
+    if not args.public_only:
+        artifact(
+            db, (workdir / "fixtures" / "generation-source.pdf").read_bytes(), "application/pdf"
+        )
     config = {
         "workers": args.workers,
         "dpi": DPI,
-        "psm": 6,
+        "psm": args.psm,
+        "public_only": args.public_only,
+        "retained_fixture_names": args.retained_fixture,
         "language": "eng",
         "timeout_seconds": 30,
         "memory_mib": 1024,
@@ -1162,7 +1298,7 @@ def evaluate(args, summary_output):
                 "--dpi",
                 str(DPI),
                 "--psm",
-                "6",
+                str(args.psm),
                 "--timeout-seconds",
                 "30",
                 "--memory-mib",
@@ -1242,6 +1378,19 @@ def main():
         "--pdfinfo", required=True, help="Path to native executable, not a launcher"
     )
     parser.add_argument("--public-manifest", type=Path)
+    parser.add_argument("--retained-database", type=Path)
+    parser.add_argument(
+        "--retained-fixture",
+        action="append",
+        default=[],
+        help="Import exact original bytes/truth from an immutable prior database",
+    )
+    parser.add_argument(
+        "--public-only",
+        action="store_true",
+        help="Skip synthetic generation; use public manifest and optional retained fixtures",
+    )
+    parser.add_argument("--psm", type=int, choices=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13], default=6)
     parser.add_argument(
         "--fixture-font-file",
         type=Path,
@@ -1258,6 +1407,10 @@ def main():
     args = parser.parse_args()
     if args.workers < 1 or args.repetitions < 2:
         parser.error("workers must be positive; at least two repetitions are needed for cold/warm")
+    if args.public_only and not args.public_manifest:
+        parser.error("--public-only requires --public-manifest")
+    if bool(args.retained_fixture) != bool(args.retained_database):
+        parser.error("--retained-fixture and --retained-database must be supplied together")
     args.database = args.database.resolve()
     args.summary = args.summary.resolve()
     args.tessdata_dir = args.tessdata_dir.resolve()

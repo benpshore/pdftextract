@@ -1,12 +1,14 @@
 """Lightweight evidence-store regressions; no OCR corpus or model is run in CI."""
 
 import importlib.util
+import io
 import json
 import os
 import sqlite3
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -329,3 +331,154 @@ def test_sigterm_cancels_supervised_process_and_returns_evidence(tmp_path):
         check=True,
     )
     assert completed.stdout.strip() == "cancelled"
+
+
+def test_public_only_runs_exact_manifest_and_selected_psm_without_synthetic_generation(
+    tmp_path,
+    monkeypatch,
+):
+    fixtures = [
+        {
+            "name": name,
+            "path": tmp_path / f"{name}.png",
+            "kind": "png",
+            "content": b"test image",
+            "sizes": [(100, 100)],
+            "truth": ["one two"],
+            "generation": {"unit_test": True},
+            "expected_outcome": "success",
+        }
+        for name in ("published_clean", "published_rotated")
+    ]
+    calls = []
+
+    def simulate_process(command, _workdir, timeout):
+        calls.append((command, timeout))
+        return result([page_event(tmp_path), {"event": "summary", "outcome": "success"}])
+
+    monkeypatch.setattr(
+        evaluation,
+        "environment_snapshot",
+        lambda: {"captured_at": evaluation.now(), "toolchain": {"uv": {}}},
+    )
+    monkeypatch.setattr(evaluation, "load_public_fixtures", lambda _path: fixtures)
+
+    def refuse_generation(*_args):
+        pytest.fail("public-only mode must not generate synthetic fixtures")
+
+    monkeypatch.setattr(evaluation, "generate_fixtures", refuse_generation)
+    monkeypatch.setattr(evaluation, "register_component", lambda *_args: None)
+    monkeypatch.setattr(evaluation, "command_output", lambda _args: {"exit_code": 1})
+    monkeypatch.setattr(evaluation, "run_process", simulate_process)
+    args = SimpleNamespace(
+        database=tmp_path / "new-rotation.sqlite",
+        summary=tmp_path / "new.json",
+        fixture_font_file=None,
+        fixture_font_probe=None,
+        pdftoppm=sys.executable,
+        pdfinfo=sys.executable,
+        public_manifest=tmp_path / "manifest.json",
+        public_only=True,
+        retained_database=None,
+        retained_fixture=[],
+        psm=1,
+        workers=1,
+        repetitions=2,
+        tessdata_dir=tmp_path,
+        execution_note="isolated unit test, no actual OCR",
+    )
+    output = io.StringIO()
+    assert evaluation.evaluate(args, output) == 0
+    assert len(calls) == 4
+    assert all(command[command.index("--psm") + 1] == "1" for command, _ in calls)
+    assert all(timeout == 120 for _, timeout in calls)
+    summary = json.loads(output.getvalue())
+    assert summary["counts"]["fixtures"] == 2
+    assert summary["counts"]["page_outputs"] == 4
+    assert all(row["wer"] == 0 for row in summary["page_scores"])
+    assert not (tmp_path / "new-rotation-artifacts" / "fixtures").exists()
+
+
+def test_orientation_diagnostics_and_source_coordinate_facts_are_retained(tmp_path):
+    db, run_id, fixture_id, fixture = prepared_db(tmp_path)
+    event = page_event(tmp_path)
+    diagnostic = tmp_path / "osd-stdout.txt"
+    diagnostic.write_bytes(b"Orientation in degrees: 270\nRotate: 90\n")
+    event["artifacts"]["diagnostics"] = [
+        {
+            "name": "orientation_stdout",
+            "path": str(diagnostic),
+            "sha256": evaluation.digest(diagnostic.read_bytes()),
+        }
+    ]
+    event["orientation"] = {"mode": "osd_diagnostic_then_native_psm1", "ground_truth_used": False}
+    event["raster"]["coordinate_space"] = "source_raster_pixels_top_left"
+    evaluation.record_attempt(
+        db, run_id, fixture_id, fixture, result([event, {"event": "summary", "outcome": "success"}])
+    )
+    row = db.execute(
+        "SELECT p.role,a.content FROM page_artifacts p JOIN artifacts a ON a.id=p.artifact_id"
+    ).fetchone()
+    assert row["role"] == "orientation_stdout"
+    assert row["content"] == diagnostic.read_bytes()
+    raw_event = json.loads(
+        db.execute("SELECT payload_json FROM events WHERE ordinal=0").fetchone()[0]
+    )
+    assert raw_event["orientation"] == event["orientation"]
+    raster = json.loads(db.execute("SELECT raster_json FROM page_outputs").fetchone()[0])
+    assert raster["coordinate_space"] == "source_raster_pixels_top_left"
+    assert db.execute("SELECT coordinate_space FROM ocr_regions").fetchone()[0] == (
+        "source_raster_pixels_top_left"
+    )
+
+
+def test_failed_page_orientation_diagnostics_survive_with_full_omission_score(tmp_path):
+    db, run_id, fixture_id, fixture = prepared_db(tmp_path)
+    diagnostic = tmp_path / "osd-error.txt"
+    diagnostic.write_bytes(b"unit-test model failure diagnostic")
+    event = {
+        "event": "page_error",
+        "page": 1,
+        "error": "osd_model_failed",
+        "artifacts": {
+            "diagnostics": [
+                {
+                    "name": "osd.stderr",
+                    "path": str(diagnostic),
+                    "sha256": evaluation.digest(diagnostic.read_bytes()),
+                }
+            ],
+        },
+    }
+    evaluation.record_attempt(
+        db,
+        run_id,
+        fixture_id,
+        fixture,
+        result([event, {"event": "summary", "outcome": "failed"}], exit_code=1),
+    )
+    assert db.execute("SELECT wer FROM accuracy").fetchone()[0] == 1
+    assert (
+        db.execute(
+            "SELECT a.content FROM page_artifacts p JOIN artifacts a ON a.id=p.artifact_id"
+        ).fetchone()[0]
+        == diagnostic.read_bytes()
+    )
+
+
+def test_retained_fixture_import_preserves_source_truth_and_database_hash(tmp_path):
+    db, _run_id, _fixture_id, fixture = prepared_db(tmp_path)
+    db.commit()
+    db.close()
+    path = tmp_path / "evidence.sqlite"
+    before = evaluation.digest(path.read_bytes())
+    imported = evaluation.load_retained_fixture(path, fixture["name"], tmp_path / "copied")
+    assert imported["content"] == fixture["content"]
+    assert imported["path"].read_bytes() == fixture["content"]
+    assert imported["truth"] == fixture["truth"]
+    assert imported["generation"]["retained_database_sha256"] == before
+    assert evaluation.digest(path.read_bytes()) == before
+    new = evaluation.create_database(tmp_path / "new.sqlite")
+    evaluation.register_fixture(new, imported)
+    assert new.execute("SELECT ground_truth FROM fixture_pages").fetchone()[0] == "one two three"
+    assert not new.execute("PRAGMA foreign_key_check").fetchall()

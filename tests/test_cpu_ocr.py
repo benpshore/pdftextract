@@ -371,3 +371,193 @@ def test_nonfinite_confidence_is_not_valid_geometry(tmp_path):
     )
     with pytest.raises(ocr.OcrError, match="invalid_word_confidence"):
         ocr.read_tsv(tsv)
+
+
+@pytest.fixture(scope="module")
+def orientation_page(scanned, runtime, tmp_path_factory):
+    if not (Path(runtime["models"]) / "osd.traineddata").is_file():
+        pytest.skip("real Tesseract orientation model is not provisioned")
+    directory = tmp_path_factory.mktemp("cpu-ocr-orientation")
+    with scanned[0].open("rb") as handle:
+        assert handle.readline() == b"P5\n"
+        width, height = map(int, handle.readline().split())
+        assert handle.readline() == b"255\n"
+        pixels = handle.read() * 4
+    height *= 4  # Enough independently rendered characters for meaningful OSD evidence.
+    source = directory / "upright.pgm"
+    source.write_bytes(f"P5\n{width} {height}\n255\n".encode() + pixels)
+    result, events = cli(source, runtime, "--psm", "1", "--artifacts-dir", str(directory / "raw"))
+    assert result.returncode == 0, result.stderr
+    return width, height, pixels, events
+
+
+@pytest.mark.parametrize("clockwise", [90, 180, 270])
+def test_osd_right_angle_recognition_reports_original_raster_boxes(
+    orientation_page, runtime, tmp_path, clockwise
+):
+    width, height, pixels, upright_events = orientation_page
+    if clockwise == 90:
+        rotated = bytes(
+            pixels[(height - 1 - x) * width + y] for y in range(width) for x in range(height)
+        )
+    elif clockwise == 180:
+        rotated = pixels[::-1]
+    else:
+        rotated = bytes(
+            pixels[x * width + width - 1 - y] for y in range(width) for x in range(height)
+        )
+    rotated_width, rotated_height = (width, height) if clockwise == 180 else (height, width)
+    source = tmp_path / "rotated.pgm"
+    source.write_bytes(f"P5\n{rotated_width} {rotated_height}\n255\n".encode() + rotated)
+    before = source.read_bytes()
+    result, events = cli(source, runtime, "--psm", "1", "--artifacts-dir", str(tmp_path / "raw"))
+    assert result.returncode == 0, result.stderr
+    upright, actual = upright_events[1], events[1]
+    assert [word["text"] for word in actual["words"]] == [word["text"] for word in upright["words"]]
+    assert actual["raster"]["width"] == rotated_width
+    assert actual["raster"]["height"] == rotated_height
+    for original, word in zip(upright["words"], actual["words"], strict=True):
+        x, y, w, h = original["bbox"]
+        expected = {
+            90: [height - y - h, x, h, w],
+            180: [width - x - w, height - y - h, w, h],
+            270: [y, width - x - w, h, w],
+        }[clockwise]
+        assert word["bbox"] == expected
+    assert actual["orientation"]["orientation_degrees"] == clockwise
+    assert actual["orientation"]["suggested_rotation_clockwise_degrees"] == (360 - clockwise) % 360
+    assert actual["orientation"]["internal_applied_rotation_degrees"] is None
+    assert actual["orientation"]["confidence_kind"] == "tesseract_score_not_probability"
+    assert actual["raster"]["tsv_to_input_affine"] == [1, 0, 0, 1, 0, 0]
+    assert actual["raster"]["pdf_transform"] is None
+    assert actual["raster"]["sha256"] == hashlib.sha256(before).hexdigest()
+    assert source.read_bytes() == before
+    assert actual["status"] == "partial"
+    assert "automatic_orientation_not_performed" not in actual["warnings"]
+    models = {model["language"]: model for model in events[0]["runtime"]["models"]}
+    assert models["osd"]["role"] == "orientation_legacy_classifier"
+    assert (
+        models["osd"]["sha256"]
+        == hashlib.sha256((Path(runtime["models"]) / "osd.traineddata").read_bytes()).hexdigest()
+    )
+    artifacts = {item["name"]: item for item in actual["artifacts"]["diagnostics"]}
+    for name in ("orientation.osd", "orientation.stdout", "orientation.stderr", "ocr.stderr"):
+        raw = Path(artifacts[name]["path"]).read_bytes()
+        assert hashlib.sha256(raw).hexdigest() == artifacts[name]["sha256"]
+
+
+def test_osd_blank_retains_unavailable_diagnostic(runtime, tmp_path):
+    source = tmp_path / "blank.pgm"
+    source.write_bytes(b"P5\n100 100\n255\n" + b"\xff" * 10000)
+    result, events = cli(source, runtime, "--psm", "1", "--artifacts-dir", str(tmp_path / "raw"))
+    assert result.returncode == 0, result.stderr
+    page = events[1]
+    assert page["text"] == "" and page["status"] == "partial"
+    assert page["orientation"]["status"] == "unavailable"
+    assert page["orientation"]["diagnostic_exit_code"] != 0
+    assert "orientation_estimate_unavailable" in page["warnings"]
+    stderr = next(
+        item for item in page["artifacts"]["diagnostics"] if item["name"] == "orientation.stderr"
+    )
+    assert b"Too few characters" in Path(stderr["path"]).read_bytes()
+
+
+@pytest.mark.parametrize("missing", [True, False])
+def test_osd_missing_or_corrupt_model_fails_explicitly(scanned, runtime, tmp_path, missing):
+    models = tmp_path / "models"
+    models.mkdir()
+    (models / "eng.traineddata").symlink_to(Path(runtime["models"]) / "eng.traineddata")
+    if not missing:
+        (models / "osd.traineddata").write_bytes(b"not a Tesseract model")
+    result, events = cli(
+        scanned[0],
+        dict(runtime, models=str(models)),
+        "--psm",
+        "1",
+        "--artifacts-dir",
+        str(tmp_path / "raw"),
+    )
+    assert result.returncode == 1
+    assert not any(event["event"] == "page" for event in events)
+    if missing:
+        assert events[-1]["error"] == "FileNotFoundError"
+    else:
+        assert events[1]["error"].startswith("orientation_exit_")
+        assert any(
+            item["name"] == "orientation.stderr" for item in events[1]["artifacts"]["diagnostics"]
+        )
+
+
+@pytest.mark.parametrize("confidence", ["NaN", "inf", "-1"])
+def test_osd_nonfinite_or_negative_confidence_refused(tmp_path, confidence):
+    source = tmp_path / "orientation.osd"
+    source.write_text(
+        "Page number: 0\nOrientation in degrees: 270\nRotate: 90\n"
+        f"Orientation confidence: {confidence}\nScript: Latin\nScript confidence: 3.03\n"
+    )
+    with pytest.raises(ocr.OcrError, match="invalid_orientation_values"):
+        ocr.parse_osd(source)
+
+
+@pytest.mark.parametrize("interruption", ["signal", "timeout"])
+def test_osd_active_native_stage_is_cancelled_and_reaped(
+    orientation_page, runtime, tmp_path, interruption
+):
+    width, height, pixels, _events = orientation_page
+    source = tmp_path / "long-page.pgm"
+    source.write_bytes(f"P5\n{width} {height * 8}\n255\n".encode() + pixels * 8)
+    output = tmp_path / "cancel.jsonl"
+    command = [
+        sys.executable,
+        str(SCRIPT),
+        str(source),
+        "--tessdata-dir",
+        runtime["models"],
+        "--psm",
+        "1",
+        "--output",
+        str(output),
+        "--timeout-seconds",
+        "0.5" if interruption == "timeout" else "10",
+    ]
+    process = subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)  # noqa: S603
+    descendants = []
+    saw_osd = False
+    try:
+        until = time.monotonic() + 5
+        while process.poll() is None and time.monotonic() < until:
+            parents = {}
+            for status in Path("/proc").glob("[0-9]*/stat"):
+                try:
+                    parents[status.parent.name] = status.read_text().rpartition(")")[2].split()[1]
+                except OSError:
+                    continue
+            workers = [pid for pid, parent in parents.items() if parent == str(process.pid)]
+            native = [pid for pid, parent in parents.items() if parent in workers]
+            for pid in native:
+                try:
+                    argv = Path(f"/proc/{pid}/cmdline").read_bytes().split(b"\0")
+                except OSError:
+                    continue
+                if b"--psm" in argv and argv[argv.index(b"--psm") + 1] == b"0":
+                    saw_osd = True
+                    descendants = workers + native
+                    break
+            if saw_osd:
+                if interruption == "signal":
+                    process.send_signal(signal.SIGTERM)
+                break
+            time.sleep(0.005)
+        _, stderr = process.communicate(timeout=5)
+        assert saw_osd, "expected an observed native orientation-detection process"
+        expected_exit, expected_outcome = (
+            (143, "cancelled") if interruption == "signal" else (124, "timeout")
+        )
+        assert process.returncode == expected_exit, stderr
+        events = [json.loads(line) for line in output.read_bytes().splitlines()]
+        assert events[-1]["outcome"] == expected_outcome
+        assert all(not Path(f"/proc/{pid}").exists() for pid in descendants)
+    finally:
+        if process.poll() is None:
+            process.send_signal(signal.SIGTERM)
+            process.communicate(timeout=5)

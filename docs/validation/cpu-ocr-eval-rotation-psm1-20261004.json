@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "harness_version": "3",
+  "phase_definition": "cold = first invocation for each fixture; warm = repeat invocation in the same executor. Every invocation starts fresh Python/Tesseract processes. OS caches are NOT flushed; these are first/repeated process timings, not machine-cold or resident-model timings.",
+  "accuracy_definition": "NFKC + casefold + whitespace collapse; word tokens are Unicode word sequences",
+  "omission_definition": "Multiset reference token deficit, including substitutions; not alignment deletions.",
+  "sources": [
+    {
+      "id": 1,
+      "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest.tif",
+      "license": "Apache-2.0",
+      "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+      "description": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_name": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_version": null,
+      "repository_url": "https://github.com/tesseract-ocr/test",
+      "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+      "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+      "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_commit_at": "2024-06-09T19:56:00Z",
+      "fixture_identifier": "testing/phototest.tif",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+      "doi": null,
+      "original_artifact_id": 1,
+      "original_sha256": "d2241a1eb6d6cd2eb6544b8e228c2862c852b7467d16ed636caa32179b780692",
+      "byte_count": 38668
+    },
+    {
+      "id": 2,
+      "uri": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/testing/phototest-rotated-L.png",
+      "license": "Apache-2.0",
+      "license_url": "https://github.com/tesseract-ocr/test/blob/232ff181c66516116ec0e84c4963f70de15050fd/LICENSE",
+      "description": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_name": "Tesseract official test corpus — bounded phototest subset",
+      "dataset_version": null,
+      "repository_url": "https://github.com/tesseract-ocr/test",
+      "repository_commit": "232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_tree": "aed26a0f5e096675db5e35751913107b06b84c5f",
+      "repository_checksum": "3e944b19628d9b805da5ebd1a2fdd75436ec2de8c23f0b546a66950bce0e4d1f",
+      "repository_checksum_method": "SHA-256 of git archive --format=tar 232ff181c66516116ec0e84c4963f70de15050fd",
+      "repository_commit_at": "2024-06-09T19:56:00Z",
+      "fixture_identifier": "testing/phototest-rotated-L.png",
+      "fixture_commit": "ae22ca0dadfb9aa41aed87da04bf197c4341aca0",
+      "fixture_added_at": "2018-06-04T16:28:30Z",
+      "selection_note": "Predetermined clean English phototest plus published left-rotated variant; not a holdout accuracy corpus. No other samples excluded by results.",
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:26:34.037116+00:00",
+      "doi": null,
+      "original_artifact_id": 7,
+      "original_sha256": "f9c80afb481abc07fdc6ff013df3048ef31141e7b1b90ec90ccbee8c3eddbea7",
+      "byte_count": 6793
+    },
+    {
+      "id": 3,
+      "uri": "synthetic://cpu-ocr-eval/v1/rotated_image",
+      "license": "CC0-1.0",
+      "license_url": null,
+      "description": "New synthetic text; no user or medical data.",
+      "dataset_name": null,
+      "dataset_version": null,
+      "repository_url": null,
+      "repository_commit": null,
+      "repository_tree": null,
+      "repository_checksum": null,
+      "repository_checksum_method": null,
+      "repository_commit_at": null,
+      "fixture_identifier": "rotated_image",
+      "fixture_commit": null,
+      "fixture_added_at": null,
+      "selection_note": null,
+      "published_at": null,
+      "retrieved_at": "2026-10-04T02:36:10.839367+00:00",
+      "doi": null,
+      "original_artifact_id": 8,
+      "original_sha256": "ce567f6a5975aae6d8e26a0f9695f3c45734b0174daa29cee3781abe24e31162",
+      "byte_count": 51300
+    }
+  ],
+  "environments": [
+    {
+      "affinity_cpu_count": 5,
+      "affinity_cpu_ids": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "captured_at": "2026-10-04T03:00:00.640074+00:00",
+      "cgroup_cpu_max": "400000 100000",
+      "cgroup_cpu_stat": "usage_usec 964039194\nuser_usec 846337328\nsystem_usec 117701865\nnice_usec 0\nnr_periods 10439\nnr_throttled 111\nthrottled_usec 4061046\nnr_bursts 0\nburst_usec 0",
+      "cgroup_cpuset": "0-4",
+      "cgroup_memory_current_bytes": "13178601472",
+      "cgroup_memory_note": "Cgroup values include other work in the executor, not OCR alone.",
+      "cgroup_memory_peak_bytes": "17179869184",
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "cpu_quota_cores": 4.0,
+      "git": {
+        "command": [
+          "git",
+          "rev-parse",
+          "HEAD"
+        ],
+        "exit_code": 0,
+        "output": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+        "stderr": "",
+        "stdout": "df395cc4be6792d0c26e2226a72ad7aa83d9500b"
+      },
+      "git_status": {
+        "command": [
+          "git",
+          "status",
+          "--porcelain"
+        ],
+        "exit_code": 0,
+        "output": "M docs/CPU_OCR.md\n M scripts/cpu_ocr.py\n M scripts/cpu_ocr_eval.py\n M tests/test_cpu_ocr.py\n M tests/test_cpu_ocr_eval.py\n?? docs/CPU_OCR_ROTATION_EVAL.md\n?? docs/CPU_OCR_ROTATION_FOLLOWUP.md\n?? docs/validation/cpu-ocr-corpus-provenance-audit-20261004.json\n?? docs/validation/cpu-ocr-eval-rotation-psm1-20261004.json",
+        "stderr": "",
+        "stdout": "M docs/CPU_OCR.md\n M scripts/cpu_ocr.py\n M scripts/cpu_ocr_eval.py\n M tests/test_cpu_ocr.py\n M tests/test_cpu_ocr_eval.py\n?? docs/CPU_OCR_ROTATION_EVAL.md\n?? docs/CPU_OCR_ROTATION_FOLLOWUP.md\n?? docs/validation/cpu-ocr-corpus-provenance-audit-20261004.json\n?? docs/validation/cpu-ocr-eval-rotation-psm1-20261004.json"
+      },
+      "machine": "x86_64",
+      "memory_limit_bytes": 17179869184,
+      "os_cpu_count": 5,
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "proc_meminfo": "MemTotal:       18440136 kB\nMemFree:         5165716 kB\nMemAvailable:   17210540 kB\nBuffers:          118656 kB\nCached:         12112488 kB\nSwapCached:            0 kB\nActive:          4686624 kB\nInactive:        7599048 kB\nActive(anon):     295304 kB\nInactive(anon):   161172 kB\nActive(file):    4391320 kB\nInactive(file):  7437876 kB\nUnevictable:       29920 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:                16 kB\nWriteback:             0 kB\nAnonPages:         84840 kB\nMapped:            97980 kB\nShmem:            372040 kB\nKReclaimable:     567640 kB\nSlab:             661472 kB\nSReclaimable:     567640 kB\nSUnreclaim:        93832 kB\nKernelStack:        2208 kB\nPageTables:         2900 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     9220068 kB\nCommitted_AS:     771104 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:        4528 kB\nVmallocChunk:          0 kB\nPercpu:             1440 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:    784384 kB\nFilePmdMapped:         0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:      350208 kB\nDirectMap2M:     7286784 kB\nDirectMap1G:    28311552 kB",
+      "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "runtime_environment": {
+        "FONTCONFIG_FILE": null,
+        "OMP_NUM_THREADS": null,
+        "OMP_THREAD_LIMIT": null,
+        "POPPLER_DATADIR": null,
+        "UV_CACHE_DIR": "/workspace/scratch/uv-cache",
+        "XDG_CACHE_HOME": null
+      },
+      "toolchain": {
+        "cargo": {
+          "command": [
+            "cargo",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+          "stderr": "",
+          "stdout": "cargo 1.98.1 (797e8a9bc 2026-08-05)"
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "clippy 0.1.98 (48a229ceae 2026-09-01)",
+          "stderr": "",
+          "stdout": "clippy 0.1.98 (48a229ceae 2026-09-01)"
+        },
+        "rustc": {
+          "command": [
+            "rustc",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "rustc 1.98.1 (48a229cea 2026-09-01)",
+          "stderr": "",
+          "stdout": "rustc 1.98.1 (48a229cea 2026-09-01)"
+        },
+        "rustup": {
+          "command": [
+            "rustup",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)\ninfo: This is the version for the rustup toolchain manager, not the rustc compiler.\ninfo: The currently active `rustc` version is `rustc 1.98.1 (48a229cea 2026-09-01)`",
+          "stderr": "info: This is the version for the rustup toolchain manager, not the rustc compiler.\ninfo: The currently active `rustc` version is `rustc 1.98.1 (48a229cea 2026-09-01)`",
+          "stdout": "rustup 1.28.2 (e4f3ad6f8 2025-04-28)"
+        },
+        "uv": {
+          "command": [
+            "uv",
+            "--version"
+          ],
+          "exit_code": 0,
+          "output": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+          "stderr": "",
+          "stdout": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "role": "toolchain",
+      "name": "python",
+      "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+      "path": "/tmp/pdftextract-uv-python/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14",
+      "sha256": "5a91882290532b2719eaca77c0f3a7448bd73b9214e56df57bc59004560a80c6"
+    },
+    {
+      "role": "harness",
+      "name": "cpu_ocr_eval.py",
+      "version": "3",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr_eval.py",
+      "sha256": "16c25cacc5dc7fe5aa5e6a4fceffa37cfd3c9feb02a1b56cafa0a6b27d9a8299"
+    },
+    {
+      "role": "schema",
+      "name": "cpu_ocr_eval_schema.sql",
+      "version": "1",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr_eval_schema.sql",
+      "sha256": "fbbc664021808447c404f67ddcd8e1769cee45baa07f3e1e0c796949daaa1986"
+    },
+    {
+      "role": "runtime",
+      "name": "cpu_ocr.py",
+      "version": "source SHA-256",
+      "path": "/workspace/pdftextract/scripts/cpu_ocr.py",
+      "sha256": "50758c6d0f628d8cb62c334518caf00d849ba7aa2041e67fd864e3d6f67316f7"
+    },
+    {
+      "role": "toolchain",
+      "name": "uv",
+      "version": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "sha256": "242e462a63f5a3c0421d68557006193ecbfb61321cba0fe8542213ac62d92563"
+    },
+    {
+      "role": "configuration",
+      "name": "rust-toolchain.toml",
+      "version": "source SHA-256",
+      "path": "/workspace/pdftextract/rust-toolchain.toml",
+      "sha256": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+    },
+    {
+      "role": "fixture_generator",
+      "name": "pdftoppm",
+      "version": "pdftoppm version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/native/poppler/poppler/bin/pdftoppm",
+      "sha256": "f3c252eb01c02e3085e88a698e70d23be640a47ee19077a49146807b8b2d8a77"
+    },
+    {
+      "role": "fixture_generator",
+      "name": "Helvetica substitution font",
+      "version": "unversioned; pinned by SHA-256",
+      "path": "/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf",
+      "sha256": "7c25be4d78155523080ab85b10277150657ff7dabbcad7037bdd536c9b6d0d08"
+    },
+    {
+      "role": "runtime",
+      "name": "tesseract",
+      "version": "tesseract 5.5.0",
+      "path": "/usr/bin/tesseract",
+      "sha256": "74b76a5b994adcc18be362bf64ed5118082b2401d5d9a35242e92fc4c62e2b4b"
+    },
+    {
+      "role": "model",
+      "name": "eng",
+      "version": "unversioned; pinned by SHA-256",
+      "path": "/usr/share/tesseract-ocr/5/tessdata/eng.traineddata",
+      "sha256": "7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2"
+    },
+    {
+      "role": "model",
+      "name": "osd",
+      "version": "unversioned; pinned by SHA-256",
+      "path": "/usr/share/tesseract-ocr/5/tessdata/osd.traineddata",
+      "sha256": "9cf5d576fcc47564f11265841e5ca839001e7e6f38ff7f7aacf46d15a96b00ff"
+    }
+  ],
+  "runs": [
+    {
+      "id": 1,
+      "phase": "cold",
+      "repetition": 0,
+      "status": "completed",
+      "started_at": "2026-10-04T03:00:00.983752+00:00",
+      "finished_at": "2026-10-04T03:00:04.513799+00:00"
+    },
+    {
+      "id": 2,
+      "phase": "warm",
+      "repetition": 1,
+      "status": "completed",
+      "started_at": "2026-10-04T03:00:04.514894+00:00",
+      "finished_at": "2026-10-04T03:00:07.734495+00:00"
+    }
+  ],
+  "attempts": [
+    {
+      "phase": "cold",
+      "fixture": "tesseract_phototest",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.8908445410002059,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "tesseract_phototest_rotated_left",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.9271805670000504,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    },
+    {
+      "phase": "cold",
+      "fixture": "rotated_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 1.1311620669998774,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "tesseract_phototest",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.9252768790001937,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "tesseract_phototest_rotated_left",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.8891645809999318,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    },
+    {
+      "phase": "warm",
+      "fixture": "rotated_image",
+      "outcome": "success",
+      "expected_outcome_met": 1,
+      "elapsed_seconds": 0.9856561540000257,
+      "exit_code": 0,
+      "process_max_rss_kib": 122168.0
+    }
+  ],
+  "page_scores": [
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "tesseract_phototest",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.3920681380000133, \"orientation\": 0.3006570989996362, \"parse\": 0.0009973900000659341, \"rasterize\": 0.0, \"total\": 0.6940700899999683}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "tesseract_phototest_rotated_left",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.41005580699993516, \"orientation\": 0.30713221199994223, \"parse\": 0.000964179999755288, \"rasterize\": 0.0, \"total\": 0.7184095449997585}"
+    },
+    {
+      "phase": "cold",
+      "repetition": 0,
+      "fixture": "rotated_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.5192266210001435, \"orientation\": 0.3737022000000252, \"parse\": 0.0010130929999832006, \"rasterize\": 0.0, \"total\": 0.894213002000015}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "tesseract_phototest",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.41559020899967436, \"orientation\": 0.29939222800021525, \"parse\": 0.0009440990002076433, \"rasterize\": 0.0, \"total\": 0.7161815800000113}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "tesseract_phototest_rotated_left",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.38472221100028037, \"orientation\": 0.2921575089999351, \"parse\": 0.0009840800003075856, \"rasterize\": 0.0, \"total\": 0.678089258}"
+    },
+    {
+      "phase": "warm",
+      "repetition": 1,
+      "fixture": "rotated_image",
+      "page_number": 1,
+      "status": "partial",
+      "cer": 0.0,
+      "wer": 0.0,
+      "omitted_words": 0,
+      "extra_words": 0,
+      "timing_json": "{\"ocr\": 0.4317634399999406, \"orientation\": 0.3530051369998546, \"parse\": 0.001130409999859694, \"rasterize\": 0.0, \"total\": 0.7861561029999393}"
+    }
+  ],
+  "errors": [],
+  "counts": {
+    "fixtures": 3,
+    "fixture_pages": 3,
+    "truth_regions": 10,
+    "attempts": 6,
+    "page_outputs": 6,
+    "ocr_regions": 342,
+    "artifacts": 35,
+    "warnings": 26,
+    "errors": 0
+  },
+  "integrity_check": "ok",
+  "foreign_key_violations": [],
+  "database": {
+    "path": "/workspace/scratch/cpu-ocr-evaluation-rotation-psm1.sqlite",
+    "sha256": "c4e24c6ad6cab9d3e51941ab6aaaa09f8b040c2d54e36876da861520533e03ca",
+    "bytes": 47939584
+  }
+}
