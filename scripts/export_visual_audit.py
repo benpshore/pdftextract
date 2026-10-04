@@ -54,7 +54,10 @@ def export_paper(pdf: Path, tpe: Path, extracted: Path, output: Path, stem: str)
         raise ValueError("published source identity differs from the selected PDF")
     if not pages or [p["page"] for p in pages] != list(range(1, document["pages"] + 1)):
         raise ValueError("publication has missing, duplicate or unordered page outcomes")
-    paths = [Path(p).resolve() for p in result["output_paths"]]
+    original_paths = [Path(p) for p in result["output_paths"]]
+    if any(p.is_symlink() for p in original_paths):
+        raise ValueError("committed output must not be a symlink")
+    paths = [p.resolve() for p in original_paths]
     if len(paths) != 2 or any(
         p.parent != extracted.resolve() or not p.is_file() or p.is_symlink() for p in paths
     ):
@@ -98,7 +101,8 @@ def main(argv: list[str]) -> int:
         (output / "status.json").write_text(json.dumps(records, indent=2) + "\n")
     partial = sum(record["status"] == "partial" for record in records)
     print(
-        f"Exported {len(records)} development diagnostics; {partial} Partial results remain unqualified."
+        f"Exported {len(records)} development diagnostics; "
+        f"{partial} Partial results remain unqualified."
     )
     # Finish diagnostic export, then keep the original nonzero quality signal.
     # The workflow's always() artifact upload can preserve failure evidence.

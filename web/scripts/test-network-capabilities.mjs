@@ -9,6 +9,9 @@ import { JSDOM } from 'jsdom';
 const require = createRequire(import.meta.url);
 const { build } = require(require.resolve('esbuild', { paths: [require.resolve('vite')] }));
 const temporary = await mkdtemp(join(tmpdir(), 'tpe-network-hold-'));
+// jsdom supplies inert parsing APIs; it does not load browser subresources.
+// The fetch sentinel covers application fetch, and the Chromium harness covers
+// actual browser requests. Neither observation establishes process-wide isolation.
 const dom = new JSDOM('', { url: 'https://app.fixture.invalid' });
 globalThis.window = dom.window;
 globalThis.document = dom.window.document;
@@ -16,6 +19,8 @@ globalThis.DOMParser = dom.window.DOMParser;
 let requests = 0;
 globalThis.fetch = async () => { requests++; throw Error('Unexpected network work'); };
 try {
+    // Test the unmodified production hold before any transport-only fixture.
+    // No virtual capability stub or environment enable switch exists here.
     const outfile = join(temporary, 'hold.mjs');
     await build({ stdin: { contents: "export * from './lib/network-capabilities';export * from './lib/source-fetch';export * from './lib/upload-client';export * from './lib/clip';export * from './lib/article-assets';", resolveDir: process.cwd() }, bundle: true, format: 'esm', platform: 'browser', outfile });
     const api = await import(pathToFileURL(outfile));
@@ -42,14 +47,18 @@ try {
     assert.equal(clip(` \n<!-- prologue --><!DOCTYPE html><HTML title="a > b" LANG='fr&#45;CA'>${article}</HTML>`).metadata.language, 'fr-CA');
     assert.equal(clip(`<!-- <html lang="de"> -->${article}`).metadata.language, null);
     assert.equal(clip(`<script>"<html lang='de'>"</script>${article}`).metadata.language, null);
+    // Retention is a separate owner-local boundary: remote sources are removed
+    // without requests; already-owned asset paths survive. This does not prove
+    // cross-user storage authorization or every historical image migration.
     const retained = await api.retainArticleImages({ id: 'local' }, { ...local, html: '<p>Reading remains</p><img src="https://resource.fixture.invalid/figure.png"><img src="/api/documents/local/assets/owned">' });
     assert.match(retained.html, /Reading remains/);
     assert(!retained.html.includes('resource.fixture.invalid'));
     assert(retained.html.includes('/api/documents/local/assets/owned'));
     assert.equal(requests, 0);
-    console.log(JSON.stringify({ passed: 5, checks: ['Fixed remote and resolver capability hold', 'Destination helpers reject before DNS/fetch', 'Capture client rejects before API request', 'Local HTML retains text, links and scholarly metadata without external images', 'Existing owner-local images remain and retention issues zero requests'], scope: 'Functional synthetic fixtures only; no SSRF, rebinding, parser RCE or MCP security verification.' }, null, 2));
+    console.log(JSON.stringify({ passed: 5, checks: ['Fixed remote and resolver capability hold', 'Destination helpers reject before DNS/fetch', 'Capture client rejects before API request', 'Local HTML retains root lang/canonical/feed/meta/JSON-LD evidence; absent/spoofed root language stays absent; resources omitted', 'Existing owner-local images remain and retention issues zero requests'], scope: 'Functional synthetic fixtures only; no SSRF, rebinding, parser RCE or MCP security verification.' }, null, 2));
 }
 finally {
+    // Release acquired resources on both assertion failure and success.
     dom.window.close();
     await rm(temporary, { recursive: true, force: true });
 }
