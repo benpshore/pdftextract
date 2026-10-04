@@ -1,0 +1,51 @@
+{
+  "base": "32d93cab432623b6818aee2104e9c9f4094557f2",
+  "checkpoint": "c9e762c502a12c5345281f182935d0eb08b21500",
+  "checks": {
+    "runtime_tests": 15,
+    "adapter_checks": 18,
+    "controls_checks": 6,
+    "streamed_get_checks": 5,
+    "workers_groups": 6,
+    "browser_checks": 9,
+    "python_tests": 92,
+    "portable_source_tests": 28,
+    "typescript": "passed",
+    "production_build": "passed",
+    "production_scholarly_binding": "absent",
+    "ruff": "passed",
+    "diff_whitespace": "passed"
+  },
+  "review": {
+    "independent_agent": "scholarly_review",
+    "resolved_findings": [
+      "per-character TEI offset memory amplification",
+      "XML newline normalization",
+      "stale GET after JSON parse before selection state write"
+    ],
+    "2MiB_probe_heap_mb_before": 193,
+    "2MiB_probe_heap_mb_after": 15,
+    "qualification": "review of local adapter/runtime/UI scope, not formal security scan or full issue195 acceptance"
+  },
+  "blockers": [
+    "No retained native executable or GROBID container in fresh execution environment; latest browser execution explicitly captured-native.",
+    "Actual registry resolver execution not qualified; existing proxy/certificate values now preserved only for explicit resolution without logging or creating credentials.",
+    "Native bibliography resolver lacks the GROBID memory supervisor; native owner coordination required before broader qualification.",
+    "General scholarly HTML/PDF identity classification and in-text navigation remain incomplete under issue195.",
+    "Maximum 32 MiB Worker capacity, broader accuracy, mobile/Safari, deployed/authenticated runtime and parent visual QA remain unqualified.",
+    "OSV audit blocked by existing proxy; Cargo/Swift/CMake absent locally. Hosted checks must be assessed on final head."
+  ],
+  "scope": "No deployment, production migration, persistent credentials/access expansion, public native endpoint, merge or release. Frozen PR192/207 unchanged. Formal security scan deferred. Existing live Site is old/private and untouched.",
+  "sources": {
+    "web/app/workspace.tsx": "1bc59c5d90c79a32f89d8705d51b30d4ebea5d94b5511ec1e8cd5fb866af6e73",
+    "web/components/scholarly-controls.tsx": "1821e7592657c7b4bc5536a7ef45a883d1cb9d818863e57dec57d8828cab0f28",
+    "web/lib/scholarly-adapter.ts": "6b94da6399dc6908e80db4e33c7a6ea2e526b62be8d32a9699fa4a9d06219f7a",
+    "web/lib/scholarly-service.ts": "d86eed54e46872f8be85cd80a12da06541eb63260f0927ee2daea40f89f74c0f",
+    "web/lib/scholarly-client.ts": "ad94b399f8f7e2ddc7834fdb3823d1a0726a7c31f3bf6b365fda103c2e9c6ae8",
+    "web/lib/scholarly-naming.ts": "54e44e96706b646bc7f19119cfb145e8c7e9e72d61e74b9af196a53b815de5f0",
+    "scripts/scholarly-local-runtime.mjs": "521f1a4d9aa9ae323ceb827da1d97bded3dcff7b576441d5be0fbbe9e95a91cd",
+    "scripts/scholarly-local-runtime.test.mjs": "5f09653210c85f8981f4d57dbdead1819cce17bf1b2a8761bf1130dbf23cd06b",
+    "scripts/test-web-scholarly-browser.mjs": "39cc47ec6c7006f61e9383173a19e0bae640d238cf129f3f8c993a4f74ca7cc2",
+    "web/SOURCE_MANIFEST.json": "a5e610441edefe8221b50dfc2c93dde02ca0946b50ed8269acc7602768815a1c"
+  }
+}

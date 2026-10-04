@@ -7,6 +7,9 @@ import DOMPurify from 'dompurify';
 import {marked} from 'marked';
 import {Button} from '@/components/ui/button';
 import {CitationBrowser} from '@/components/citation-browser';
+import {currentDocumentResult,fetchCurrentDocument} from '@/lib/scholarly-client';
+import {ScholarlyControls, scholarlyBusy} from '@/components/scholarly-controls';
+import type {ScholarlyOperation} from '@/components/scholarly-controls';
 import {ClearCachedFilesButton, DeleteStoredDocumentButton, ImportBatchProgress, ImportItemControls} from '@/components/import-controls';
 import {clipHtml, parseFeed, safeUrl, textDois, doiFrom} from '@/lib/clip';
 import {expandUploads} from '@/lib/imports';
@@ -27,6 +30,7 @@ type QueueItem = {id:string;name:string;source:Source;phase:Phase;progress:numbe
 type Selection = {queueId:string}|{record:DocumentRow;result:Extracted|null};
 type ReadingMode = 'reading'|'plain';
 type PendingDeletion = {record:DocumentRow;cleanupComplete:boolean};
+type ScholarlyResult = {record:DocumentRow;result:Extracted};
 type Snapshot = {version:1;items:QueueItem[];draft:{url:string;kind:string;paste:string;query:string};selection:{queueId?:string;documentId?:string}|null;view:string;readingMode?:ReadingMode;scroll:number;pendingDeletion?:PendingDeletion};
 const activePhases = new Set<Phase>(['waiting','fetching','uploading','extracting','saving']);
 const messageOf = (error:unknown) => error instanceof Error ? error.message : String(error);
@@ -93,6 +97,7 @@ export default function Workspace({userId}:{userId:string}) {
   const [url,setUrl]=useState(''),[kind,setKind]=useState('file'),[paste,setPaste]=useState(''),[query,setQuery]=useState(''),[view,setView]=useState('text');
   const [readingMode,setReadingMode]=useState<ReadingMode>('reading'),[copied,setCopied]=useState<Extracted|null>(null),[folderSupported,setFolderSupported]=useState(false);
   const [settling,setSettling]=useState<string[]>([]),[storageBusy,setStorageBusy]=useState(false);
+  const [scholarly,setScholarly]=useState<Record<string,ScholarlyOperation>>({});
   const [deleteTarget,setDeleteTarget]=useState<DocumentRow|null>(null),[cleanupPending,setCleanupPending]=useState(false);
   const [error,setError]=useState(''),[recoveryWarning,setRecoveryWarning]=useState(''),[announcement,setAnnouncement]=useState(''),[queueOpen,setQueueOpen]=useState(true),[dragging,setDragging]=useState(false),[loading,setLoading]=useState(false),[restored,setRestored]=useState(false);
   const queueRef=useRef<QueueItem[]>([]),selectionRef=useRef<Selection|null>(null),running=useRef(false),mounted=useRef(true),generation=useRef(0),listGeneration=useRef(0),dirtyDraft=useRef(false),recoveryReady=useRef(false);
@@ -101,6 +106,7 @@ export default function Workspace({userId}:{userId:string}) {
   const cleanedDocuments=useRef(new Set<string>());
   const pendingDeletion=useRef<PendingDeletion|null>(null);
   const storageOperation=useRef(false);
+  const scholarlyJobs=useRef(new Map<string,AbortController>()),scholarlyResults=useRef(new Map<string,ScholarlyResult>()),scholarlyVersions=useRef(new Map<string,number>());
   const completions=useRef(new Map<string,{resolve:(value:unknown)=>void;reject:(reason:unknown)=>void}>());
   const checkpointTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const pumpRef=useRef<()=>Promise<void>>(async()=>{}),checkpointRef=useRef<(strict?:boolean)=>Promise<void>>(async()=>{}),openSavedRef=useRef<(id:string,tab?:string,scroll?:number)=>Promise<void>>(async()=>{});
@@ -112,9 +118,9 @@ export default function Workspace({userId}:{userId:string}) {
   const selected=selectedItem?.record || (selection && 'record' in selection?selection.record:null);
   const result=selectedItem?.result || (selection && 'record' in selection?selection.result:null);
   const pending=queue.filter(item=>activePhases.has(item.phase)).length;
-  const selectedHasWriters=!!selected&&queue.some(item=>item.record?.id===selected.id&&(activePhases.has(item.phase)||settling.includes(item.id)));
+  const selectedHasWriters=!!selected&&(scholarlyBusy(scholarly[selected.id])||queue.some(item=>item.record?.id===selected.id&&(activePhases.has(item.phase)||settling.includes(item.id))));
   const storageDocument=deleteTarget||selected;
-  const storageDocumentHasWriters=!!storageDocument&&queue.some(item=>item.record?.id===storageDocument.id&&(activePhases.has(item.phase)||settling.includes(item.id)));
+  const storageDocumentHasWriters=!!storageDocument&&(scholarlyBusy(scholarly[storageDocument.id])||queue.some(item=>item.record?.id===storageDocument.id&&(activePhases.has(item.phase)||settling.includes(item.id))));
   const processing=[...queue].reverse().find(item=>activePhases.has(item.phase)&&item.phase!=='waiting');
   const newlyReady=[...queue].reverse().find(item=>item.result&&item.result.status!=='failed'&&item.result.metadata?.extractionAvailable!==false&&item.id!==selectedItem?.id&&(!item.record||item.record.id!==selected?.id));
 
@@ -149,14 +155,54 @@ export default function Workspace({userId}:{userId:string}) {
   }
   function focusReader(){requestAnimationFrame(()=>requestAnimationFrame(()=>{const reader=document.getElementById('reader');reader?.scrollIntoView?.({block:'start'});reader?.focus({preventScroll:true});}));}
   function readQueue(id:string){selectQueue(id);focusReader();}
-  function fetchRecord(id:string):Promise<Response> {return fetch('/api/documents/'+encodeURIComponent(id));}
+  async function fetchRecord(id:string):Promise<Response> {
+    return fetchCurrentDocument(id,scholarlyVersions.current,scholarlyResults.current);
+  }
+  function scholarlyState(id:string,value:ScholarlyOperation){if(mounted.current)setScholarly(current=>({...current,[id]:value}));}
+  function applyScholarly(id:string,value:ScholarlyResult){
+    if(!mounted.current||deletedDocuments.current.has(id))return;
+    if(value.record?.id!==id||!value.result||typeof value.result.text!=='string')throw new Error('The saved reference result could not be matched to this document.');
+    scholarlyResults.current.set(id,value);scholarlyVersions.current.set(id,(scholarlyVersions.current.get(id)||0)+1);listGeneration.current++;
+    queueRef.current=queueRef.current.map(item=>item.record?.id===id&&!item.savePending?{...item,...value}:item);setQueue(queueRef.current);
+    setDocuments(current=>current.map(record=>record.id===id?value.record:record));
+    const current=selectionRef.current;if(current&&'record'in current&&current.record.id===id)choose(value);
+  }
+  async function reconcileScholarly(id:string){
+    if(scholarlyJobs.current.has(id)||deletedDocuments.current.has(id))return;
+    const controller=new AbortController();scholarlyJobs.current.set(id,controller);
+    scholarlyState(id,{phase:'reconciling',message:'Cancellation requested. Checking the latest saved result…'});
+    try{
+      const value=await json<ScholarlyResult>(await fetch('/api/documents/'+encodeURIComponent(id),{signal:controller.signal,cache:'no-store'}));
+      if(scholarlyJobs.current.get(id)!==controller)return;
+      applyScholarly(id,value);
+      scholarlyState(id,{phase:'cancelled',message:'Cancellation requested. The latest saved result is shown; server processing may still finish. Check the saved result again if needed.'});
+    }catch(reason){if(mounted.current)scholarlyState(id,{phase:'uncertain',message:'Cancellation was requested, but the saved result could not be checked. '+messageOf(reason)});}
+    finally{if(scholarlyJobs.current.get(id)===controller)scholarlyJobs.current.delete(id);}
+  }
+  async function extractScholarly(record:DocumentRow,baseResultKey:string|null){
+    const id=record.id;
+    if(storageOperation.current||!recoveryReady.current||recordHasWriters(id)||queueRef.current.some(item=>activePhases.has(item.phase))||deletedDocuments.current.has(id))return;
+    const controller=new AbortController();scholarlyJobs.current.set(id,controller);
+    scholarlyState(id,{phase:'processing',message:'Extracting references… Your reading remains available.'});
+    try{
+      const value=await json<ScholarlyResult>(await fetch('/api/documents/'+encodeURIComponent(id)+'/scholarly',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({baseResultKey}),signal:controller.signal}));
+      if(scholarlyJobs.current.get(id)!==controller)return;
+      applyScholarly(id,value);
+      scholarlyState(id,{phase:'done',message:controller.signal.aborted?'The saved reference result was received after cancellation was requested.':'Reference result saved. Review the reported references and any availability notes below.'});
+    }catch(reason){
+      if(controller.signal.aborted&&mounted.current){if(scholarlyJobs.current.get(id)===controller)scholarlyJobs.current.delete(id);await reconcileScholarly(id);}
+      else scholarlyState(id,{phase:'failed',message:'Reference extraction needs a retry. '+messageOf(reason)});
+    }finally{if(scholarlyJobs.current.get(id)===controller)scholarlyJobs.current.delete(id);}
+  }
+  function cancelScholarly(id:string){const controller=scholarlyJobs.current.get(id);if(controller){scholarlyState(id,{phase:'cancelling',message:'Cancellation requested. Waiting to check what was saved…'});controller.abort();}}
   async function openSaved(id:string,tab='text',scroll=0) {
+    const scholarlyVersion=scholarlyVersions.current.get(id);
     const request=++generation.current;setLoading(true);setError('');
     if(deletedDocuments.current.has(id)){choose(null);setLoading(false);setError('This saved document was deleted.');return;}
     const mode:ReadingMode=new URL(window.location.href).searchParams.get('mode')==='plain'?'plain':'reading';
     const existing=queueRef.current.find(item=>item.record?.id===id&&item.result);
     if(existing){choose({queueId:existing.id});setView(tab);setReadingMode(mode);setLoading(false);requestAnimationFrame(()=>window.scrollTo({top:scroll}));return;}
-    try {const data=await json<{record:DocumentRow;result:Extracted|null}>(await fetchRecord(id));if(request!==generation.current||!mounted.current||deletedDocuments.current.has(id))return;choose(data);setView(tab);setReadingMode(mode);requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:scroll})));}
+    try {const data=await json<{record:DocumentRow;result:Extracted|null}>(await fetchRecord(id));if(request!==generation.current||!mounted.current||deletedDocuments.current.has(id))return;choose(currentDocumentResult(id,data,scholarlyVersion,scholarlyVersions.current,scholarlyResults.current));setView(tab);setReadingMode(mode);requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:scroll})));}
     catch(reason){if(request===generation.current)setError(messageOf(reason));}
     finally{if(request===generation.current)setLoading(false);}
   }
@@ -173,7 +219,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
   function addFiles(files:Iterable<File>) {try{add(selectedImportFiles(files).map(({file,path})=>({source:{type:'file' as const,file},name:path})));}catch(reason){setError(messageOf(reason));}}
   function rereadOriginal() {
-    if(!selected||pending||deletingDocuments.current.has(selected.id)||deletedDocuments.current.has(selected.id))return;
+    if(!selected||pending||recordHasWriters(selected.id)||deletingDocuments.current.has(selected.id)||deletedDocuments.current.has(selected.id))return;
     const id=add([{source:{type:'stored',name:selected.original_name,url:selected.source_url||undefined},name:selected.title}],false)[0];
     update(id,{record:selected,...(result?{result}:{}),message:'Waiting to re-read the saved original.'});
     selectQueue(id);queueMicrotask(()=>void pumpRef.current());
@@ -185,7 +231,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
   async function retry(id:string,saveOnly=false) {
     const item=queueRef.current.find(value=>value.id===id);
-    if(!item||attempts.current.has(id))return;
+    if(!item||attempts.current.has(id)||(item.record&&scholarlyJobs.current.has(item.record.id)))return;
     if(item.record&&(deletingDocuments.current.has(item.record.id)||deletedDocuments.current.has(item.record.id))){setError('This saved document is being deleted.');return;}
     if(item?.source.type==='file'&&item.source.member&&!item.record){
       try {const stored=await readWorkspace<Snapshot>(userId),copy=stored?.items.find(value=>value.id===id);if(copy?.source.type!=='file')throw new Error('Retry the original archive to recover this member.');update(id,{source:copy.source});}
@@ -195,10 +241,10 @@ export default function Workspace({userId}:{userId:string}) {
   }
   function beginStorageOperation(){if(!recoveryReady.current)throw new Error('Wait for local recovery to finish loading.');if(storageOperation.current)throw new Error('Another storage change is still finishing.');storageOperation.current=true;setStorageBusy(true);}
   function endStorageOperation(){storageOperation.current=false;if(mounted.current)setStorageBusy(false);}
-  function recordHasWriters(id:string){return queueRef.current.some(item=>item.record?.id===id&&(activePhases.has(item.phase)||attempts.current.has(item.id)));}
+  function recordHasWriters(id:string){return scholarlyJobs.current.has(id)||queueRef.current.some(item=>item.record?.id===id&&(activePhases.has(item.phase)||attempts.current.has(item.id)));}
   async function removeQueueItem(id:string){
     const index=queueRef.current.findIndex(item=>item.id===id),item=queueRef.current[index];if(!item)return;
-    if(activePhases.has(item.phase)||attempts.current.has(id))throw new Error('Cancel this import and wait for it to settle before removing it.');
+    if(activePhases.has(item.phase)||attempts.current.has(id)||(item.record&&scholarlyJobs.current.has(item.record.id)))throw new Error('Cancel this work and wait for it to settle before removing it.');
     beginStorageOperation();
     const before=selectionRef.current,address=window.location.href;
     let replacement:Selection|null=before;
@@ -215,6 +261,7 @@ export default function Workspace({userId}:{userId:string}) {
     }finally{endStorageOperation();}
   }
   async function clearSavedCopies(){
+    if(scholarlyJobs.current.size)throw new Error('Wait for reference extraction to settle before clearing saved copies.');
     beginStorageOperation();
     try{
       await checkpointRef.current(true);
@@ -232,6 +279,7 @@ export default function Workspace({userId}:{userId:string}) {
     }finally{endStorageOperation();}
   }
   function purgeDeletedRecord(record:DocumentRow,invalidateList=true){
+    scholarlyResults.current.delete(record.id);scholarlyVersions.current.delete(record.id);
     deletedDocuments.current.add(record.id);generation.current++;if(invalidateList)listGeneration.current++;setLoading(false);
     const removedIds=new Set(queueRef.current.filter(item=>item.record?.id===record.id).map(item=>item.id));
     for(const id of removedIds){registry.current.remove(id);completions.current.delete(id);}
@@ -431,7 +479,7 @@ export default function Workspace({userId}:{userId:string}) {
     let scrollTimer:ReturnType<typeof setTimeout>|undefined;
     const scroll=()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>history.replaceState({...history.state,tpe:{scroll:window.scrollY}},''),150);};
     window.addEventListener('popstate',pop);window.addEventListener('pagehide',checkpoint);window.addEventListener('scroll',scroll,{passive:true});document.addEventListener('visibilitychange',visibility);
-    return()=>{if(checkpointTimer.current)clearTimeout(checkpointTimer.current);checkpointTimer.current=null;checkpoint();mounted.current=false;registry.current.dispose();discoveries.current.forEach(controller=>controller.abort());discoveries.current.clear();window.removeEventListener('popstate',pop);window.removeEventListener('pagehide',checkpoint);window.removeEventListener('scroll',scroll);document.removeEventListener('visibilitychange',visibility);clearTimeout(scrollTimer);};
+    return()=>{if(checkpointTimer.current)clearTimeout(checkpointTimer.current);checkpointTimer.current=null;checkpoint();mounted.current=false;scholarlyJobs.current.forEach(controller=>controller.abort());scholarlyJobs.current.clear();registry.current.dispose();discoveries.current.forEach(controller=>controller.abort());discoveries.current.clear();window.removeEventListener('popstate',pop);window.removeEventListener('pagehide',checkpoint);window.removeEventListener('scroll',scroll);document.removeEventListener('visibilitychange',visibility);clearTimeout(scrollTimer);};
   // The owner-scoped workspace is restored once; callbacks read their current refs.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[userId,refresh]);
@@ -478,9 +526,9 @@ export default function Workspace({userId}:{userId:string}) {
       {newlyReady&&<div className="ready-action"><Button variant="outline" onClick={()=>readQueue(newlyReady.id)}>Open {newlyReady.result?.title||newlyReady.name}</Button></div>}
       {error&&<div className="notice error" role="alert"><AlertCircle/><p>{error}</p><button className="icon-button" onClick={()=>setError('')} aria-label="Dismiss message"><X/></button></div>}
       {recoveryWarning&&<div className="notice" role="status"><AlertCircle/><p>{recoveryWarning}</p><Button variant="outline" disabled={!restored||storageBusy} onClick={()=>void checkpointRef.current(true).catch(()=>{})}>Retry recovery save</Button></div>}
-      {!!queue.length&&<section className="queue-panel" aria-label="Imports"><button className="section-toggle" aria-expanded={queueOpen} onClick={()=>setQueueOpen(!queueOpen)}><span>{pending?'Imports · '+pending+' in progress':'Recent imports'}</span><ChevronDown aria-hidden="true"/></button><ImportBatchProgress items={queue}/>{queueOpen&&<ol className="queue-list">{queue.map(item=><li key={item.id} className={'queue-item '+(selectedItem?.id===item.id?'selected':'')}><div className="queue-row"><button className="queue-open" onClick={()=>readQueue(item.id)} aria-current={selectedItem?.id===item.id?true:undefined}><strong>{item.name}</strong><span className={'queue-phase phase-'+item.phase}>{phaseLabel(item.phase)}</span></button></div>{activePhases.has(item.phase)&&item.phase!=='waiting'&&<StageProgress item={item}/>}<div className="queue-actions"><ImportItemControls item={{...item,savePending:!!item.record&&item.savePending}} onCancel={()=>cancelItem(item.id)} onRetry={()=>void retry(item.id,!!item.savePending)} onRemove={()=>removeQueueItem(item.id)} canRetry={!settling.includes(item.id)&&(item.source.type!=='stored'||!!item.record)} removeDisabled={storageBusy||!restored||settling.includes(item.id)} hasLocalOnlyData={!!item.savePending||(item.source.type==='file'&&!item.record)}/></div>{item.error&&<p className="queue-error">{item.error}</p>}</li>)}</ol>}</section>}
+      {!!queue.length&&<section className="queue-panel" aria-label="Imports"><button className="section-toggle" aria-expanded={queueOpen} onClick={()=>setQueueOpen(!queueOpen)}><span>{pending?'Imports · '+pending+' in progress':'Recent imports'}</span><ChevronDown aria-hidden="true"/></button><ImportBatchProgress items={queue}/>{queueOpen&&<ol className="queue-list">{queue.map(item=><li key={item.id} className={'queue-item '+(selectedItem?.id===item.id?'selected':'')}><div className="queue-row"><button className="queue-open" onClick={()=>readQueue(item.id)} aria-current={selectedItem?.id===item.id?true:undefined}><strong>{item.name}</strong><span className={'queue-phase phase-'+item.phase}>{phaseLabel(item.phase)}</span></button></div>{activePhases.has(item.phase)&&item.phase!=='waiting'&&<StageProgress item={item}/>}<div className="queue-actions"><ImportItemControls item={{...item,savePending:!!item.record&&item.savePending}} onCancel={()=>cancelItem(item.id)} onRetry={()=>void retry(item.id,!!item.savePending)} onRemove={()=>removeQueueItem(item.id)} canRetry={!settling.includes(item.id)&&(!item.record||!scholarlyBusy(scholarly[item.record.id]))&&(item.source.type!=='stored'||!!item.record)} removeDisabled={storageBusy||!restored||settling.includes(item.id)||!!item.record&&scholarlyBusy(scholarly[item.record.id])} hasLocalOnlyData={!!item.savePending||(item.source.type==='file'&&!item.record)}/></div>{item.error&&<p className="queue-error">{item.error}</p>}</li>)}</ol>}</section>}
 
-      <details className="library" open={deleteTarget?true:undefined}><summary>Saved documents</summary><div className="library-actions">{deleteTarget&&cleanupPending&&<p className="help">Cleanup pending for “{deleteTarget.title}”. Use Delete saved document to retry; it has already been removed from your library.</p>}<ClearCachedFilesButton onClear={clearSavedCopies} disabled={!restored||storageBusy}/>{storageDocument&&<DeleteStoredDocumentButton documentName={storageDocument.title} onDelete={()=>deleteDocument(storageDocument)} disabled={!restored||storageBusy||storageDocumentHasWriters}/>}</div><form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved documents</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><div className="document-list">{documents.length?documents.map(record=><button key={record.id} aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openRecord(record)}><strong>{record.title}</strong><span className="help">{record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved'}</span></button>):<p className="help">Your saved sources appear here.</p>}</div></details>
+      <details className="library" open={deleteTarget?true:undefined}><summary>Saved documents</summary><div className="library-actions">{deleteTarget&&cleanupPending&&<p className="help">Cleanup pending for “{deleteTarget.title}”. Use Delete saved document to retry; it has already been removed from your library.</p>}<ClearCachedFilesButton onClear={clearSavedCopies} disabled={!restored||storageBusy||Object.values(scholarly).some(scholarlyBusy)}/>{storageDocument&&<DeleteStoredDocumentButton documentName={storageDocument.title} onDelete={()=>deleteDocument(storageDocument)} disabled={!restored||storageBusy||storageDocumentHasWriters}/>}</div><form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved documents</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><div className="document-list">{documents.length?documents.map(record=><button key={record.id} aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openRecord(record)}><strong>{record.title}</strong><span className="help">{record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved'}</span></button>):<p className="help">Your saved sources appear here.</p>}</div></details>
     </aside><section id="reader" className="result-pane" aria-label="Document reader" aria-busy={!restored||loading} tabIndex={-1}>
       {loading&&selection&&<p role="status">Opening document…</p>}
       {!selection?!restored||loading?<div className="empty-state" role="status"><h2>{loading?'Opening document…':'Restoring your workspace…'}</h2></div>:<div className="empty-state"><h2>Bring your reading here.</h2><p>Paste a link or use Upload to add files. Your reading appears here as soon as it is ready.</p></div>:<>
@@ -492,7 +540,7 @@ export default function Workspace({userId}:{userId:string}) {
           {result.status!=='failed'&&result.metadata?.extractionAvailable!==false&&<div className="reader-toolbar"><div className="reading-modes" role="group" aria-label="Reading mode"><button aria-pressed={readingMode==='reading'} onClick={()=>changeReadingMode('reading')}>Reading</button><button aria-pressed={readingMode==='plain'} onClick={()=>changeReadingMode('plain')}>Plain text</button></div><div className="markdown-actions"><Button variant="outline" onClick={()=>void copyMarkdown()}>{copied===result?<Check aria-hidden="true"/>:<Copy aria-hidden="true"/>}Copy Markdown</Button><Button variant="outline" onClick={()=>download('extraction.md',result.markdown||result.text,'text/markdown')}><Download aria-hidden="true"/>Download Markdown</Button></div></div>}
           {result.status==='failed'?<div className="notice error"><AlertCircle/><p>{result.warnings.join(' ')}</p></div>:result.metadata?.extractionAvailable===false?<p>The original is saved. Text extraction is not available for this file type.</p>:<ReaderContent html={result.html||''} markdown={result.markdown||''} text={result.text} documentId={selected?.id} markdownFile={/\.(md|markdown)$/i.test(selected?.original_name||selectedItem?.name||'')} mode={readingMode}/>}
           <div className="reader-secondary"><details><summary>Original and other downloads</summary><div className="export-actions">{selected&&<Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}><Download aria-hidden="true"/>Original</a></Button>}<Button variant="outline" onClick={()=>download('extraction.json',JSON.stringify({source:selected,...result},null,2))}>JSON</Button></div></details>
-            <details><summary>Citations</summary><CitationBrowser key={selectedItem?.id||selected?.id||'unsaved'} result={result} record={selected||undefined}/></details>
+            <details><summary>Citations</summary><ScholarlyControls record={selected||undefined} result={result} disabled={!restored||!!pending||storageBusy||!!selectedItem?.savePending||!!selectedItem&&settling.includes(selectedItem.id)} operation={selected?scholarly[selected.id]:undefined} onExtract={baseResultKey=>{if(selected)void extractScholarly(selected,baseResultKey);}} onCancel={()=>{if(selected)cancelScholarly(selected.id);}} onReconcile={()=>{if(selected)void reconcileScholarly(selected.id);}}/><CitationBrowser key={selectedItem?.id||selected?.id||'unsaved'} result={result} record={selected||undefined}/></details>
             {!!result.links.length&&<details open={view==='links'} onToggle={event=>{if(event.currentTarget.open&&view!=='links')changeView('links');else if(!event.currentTarget.open&&view==='links')changeView('text');}}><summary>Source links</summary><div className="link-list">{result.links.map((link,index)=><div key={index} className="link-card">{link.label&&<p>{link.label}</p>}{safeUrl(link.url)?<a href={link.url} target="_blank" rel="noreferrer noopener">{link.url}</a>:<code>{link.url}</code>}</div>)}</div></details>}
             <details open={view==='evidence'} onToggle={event=>{if(event.currentTarget.open&&view!=='evidence')changeView('evidence');else if(!event.currentTarget.open&&view==='evidence')changeView('text');}}><summary>Details and review notes</summary><dl className="evidence"><dt>Engine</dt><dd>{result.engine}</dd>{selected&&<><dt>Original SHA-256</dt><dd className="hash">{selected.sha256||'Available after storage verification'}</dd><dt>Saved</dt><dd>{new Date(selected.created_at).toLocaleString()}</dd>{selected.source_url&&<><dt>Source</dt><dd>{selected.source_url}</dd></>}</>}</dl>{result.warnings.length>0&&<ul className="review-notes">{result.warnings.map((warning,index)=><li key={index}>{warning}</li>)}</ul>}<details><summary>Structured data</summary><pre className="code-panel">{JSON.stringify({metadata:result.metadata,tables:result.tables},null,2)}</pre></details>{selected&&<div className="document-actions"><Button variant="outline" disabled={!!pending||storageBusy||selectedHasWriters} onClick={rereadOriginal}>Re-read original</Button></div>}</details>
           </div>

@@ -1,0 +1,24 @@
+{
+  "checks": [
+    "metadata-derived Unicode names, missing/conflicting fields, duplicate titles, correction and display collisions preserve original-name provenance",
+    "captured artifact maps actual references, preserves byte-exact evidence, warnings and filename, invents no geometry or relationships",
+    "retained live artifact maps actual references, preserves byte-exact evidence, warnings and filename, invents no geometry or relationships",
+    "rejects source-hash mismatch",
+    "rejects raw TEI hash mismatch",
+    "rejects altered citation title",
+    "rejects altered header metadata",
+    "rejects fabricated coordinates on empty attributes",
+    "rejects shifted TEI range",
+    "rejects duplicate native ranges",
+    "rejects external entities without resolving XML",
+    "rejects mismatched XML closing tags",
+    "rejects undeclared XML prefixes",
+    "rejects malformed entities",
+    "rejects duplicate attributes",
+    "rejects out-of-range character references",
+    "2 MiB inert XML text uses sparse boundary offsets within a 64 MiB additional heap budget",
+    "CRLF canonical byte ranges retain raw evidence while XML text normalizes like the native parser"
+  ],
+  "passed": 18,
+  "scope": "Actual adapter; captured and previously retained live artifacts. No native/resolver/network execution."
+}

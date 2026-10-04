@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main" xml:id="_b4UTa79" coords="1,50.00,49.71,397.48,16.20">Synthetic Study of Reproducible Document Processing</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2026-10">October 2026</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName coords="1,50.00,81.80,71.65,10.80"><forename type="first">Alice</forename><surname>Example</surname></persName>
+							<affiliation key="aff0" coords="1,50.00,103.49,241.35,9.90">
+								<note type="raw_affiliation">Department of Computer Science , Example University</note>
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution">Example University</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName coords="1,144.98,81.80,58.33,10.80"><forename type="first">Ben</forename><surname>Sample</surname></persName>
+							<affiliation key="aff0" coords="1,50.00,103.49,241.35,9.90">
+								<note type="raw_affiliation">Department of Computer Science , Example University</note>
+								<orgName type="department">Department of Computer Science</orgName>
+								<orgName type="institution">Example University</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main" xml:id="_gyDF9xD" coords="1,50.00,49.71,397.48,16.20">Synthetic Study of Reproducible Document Processing</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2026-10">October 2026</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">16A9BD23C9BC9981F5EE197E6D2D9F17</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-04T03:05+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=true, includeRawCitations=true, includeRawCopyrights=true, generateTeiIds=true, generateTeiCoordinates=[head, p, s, ref, biblStruct, figure, formula, title, persName, affiliation, note], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0" xml:id="_yuCtpCg"><p xml:id="_kjweMqv" coords="1,50.00,173.49,332.99,9.90">We describe a benign synthetic study of reproducible document processing.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0" xml:id="_MM9jDRS"><p xml:id="_nJFGdym" coords="1,50.00,213.44,79.72,12.60;1,50.00,243.49,331.14,9.90">1 Introduction Document processing requires explicit provenance and preserved originals.</p><p xml:id="_dpJCUGc" coords="1,50.00,264.49,316.18,9.90">Example and Sample (2024) describe a controlled validation procedure.</p><p xml:id="_x4j6kdJ" coords="1,50.00,285.49,326.28,9.90">The present study measures a local CPU service with no metadata lookup.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2" xml:id="_4e8KNNX" coords="1,50.00,304.44,59.50,12.60">Methods</head><p xml:id="_x2Aw9NX" coords="1,50.00,334.49,336.33,9.90">We generated two pages containing a title, abstract, methods and references.</p><p xml:id="_yWE22qr" coords="1,50.00,355.49,316.14,9.90">All paragraphs and reference records were written for this software test.</p><p xml:id="_GKARCsQ" coords="1,50.00,376.49,331.45,9.90">The original bytes remain unchanged during repeated structured extraction.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3" xml:id="_tHfUyjZ" coords="2,50.00,52.44,51.73,12.60">Results</head><p xml:id="_rvnBjmc" coords="2,50.00,82.49,315.87,9.90">The experiment reports cold and warm service request times separately.</p><p xml:id="_Kx9a5sq" coords="2,50.00,103.49,325.35,9.90">A successful request is not a claim of exhaustive text or citation accuracy.</p><p xml:id="_37Y5VZk" coords="2,50.00,124.49,329.92,9.90">The CPU runtime returns page surfaces and region coordinates in raw TEI.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4" xml:id="_AhEu9XJ" coords="2,50.00,143.44,71.95,12.60">Discussion</head><p xml:id="_byQgnNg" coords="2,50.00,173.49,303.37,9.90">Learned extraction can omit or misclassify synthetic scholarly fields.</p><p xml:id="_emfcAqx" coords="2,50.00,194.49,319.24,9.90">Raw evidence is retained so that downstream projections can be audited.</p></div>		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct coords="2,50.00,243.49,320.79,9.90;2,50.00,264.49,329.99,9.90" status="extracted" xml:id="b0">
+	<analytic>
+		<title level="a" type="main" coords="2,212.84,243.49,153.42,9.90" xml:id="_tA9Fyns">Reproducible document processing</title>
+		<author>
+			<persName coords=""><forename type="first">A</forename><surname>Example</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">B</forename><surname>Sample</surname></persName>
+		</author>
+		<idno type="DOI">10.5555/synthetic.2024</idno>
+	</analytic>
+	<monogr>
+		<title level="j" xml:id="_jkAKFWY" coords="2,50.00,264.49,127.45,9.90">Journal of Synthetic Methods</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="100" to="110" />
+			<date type="published" when="2024">2024</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Example, A. and Sample, B. (2024). Reproducible document processing. Journal of Synthetic Methods, 12(3), 100-110. doi:10.5555/synthetic.2024.</note>
+</biblStruct>
+
+<biblStruct coords="2,50.00,285.49,307.01,9.90;2,50.00,306.49,178.13,9.90" status="extracted" xml:id="b1">
+	<analytic>
+		<title level="a" type="main" coords="2,134.32,285.49,150.94,9.90" xml:id="_YtTKbEU">Provenance in scholarly extraction</title>
+		<author>
+			<persName coords=""><forename type="first">C</forename><surname>Reader</surname></persName>
+		</author>
+		<idno type="DOI">10.5555/synthetic.2025</idno>
+	</analytic>
+	<monogr>
+		<title level="j" xml:id="_zXEDgPK" coords="2,292.25,285.49,59.97,9.90">Test Research</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="22" to="30" />
+			<date type="published" when="2025">2025</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Reader, C. (2025). Provenance in scholarly extraction. Test Research, 7(2), 22-30. doi:10.5555/synthetic.2025.</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>

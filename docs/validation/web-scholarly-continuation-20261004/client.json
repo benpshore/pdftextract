@@ -1,0 +1,11 @@
+{
+  "checks": [
+    "scholarly save after GET headers but before body completion supersedes the stale response",
+    "synchronous state-write guard catches a save after buffered response return during JSON parsing",
+    "an unchanged version preserves the newly requested server result instead of pinning an old local cache",
+    "document identities and HTTP failure bodies remain isolated",
+    "transport failure stays visible to Workspace recovery"
+  ],
+  "passed": 5,
+  "scope": "Actual Workspace GET helper; synthetic streamed responses."
+}

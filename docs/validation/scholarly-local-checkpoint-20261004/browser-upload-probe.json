@@ -1,0 +1,67 @@
+{
+  "checks": [
+    "actual development auth rejects signed-out and spoofed identity requests",
+    "real local sign-in renders Workspace and reads the migrated isolated D1 library",
+    "actual document/scholarly/evidence routes reject the separately seeded foreign owner",
+    "real browser PDF Worker and multipart API save a readable result with exact original bytes in local D1/R2",
+    "real scholarly route reaches explicit captured-native loopback bridge through its service binding",
+    "no browser runtime errors"
+  ],
+  "chromiumVersion": "151.0.7922.173",
+  "baseUrl": "http://127.0.0.1:46141",
+  "browserErrors": [],
+  "responses": [
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/24f2a43a-497d-4b60-b50f-a0fc93e41716",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/24f2a43a-497d-4b60-b50f-a0fc93e41716",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/7bbc8ee3-3de2-43a7-aee4-28bc6162ce08",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/7bbc8ee3-3de2-43a7-aee4-28bc6162ce08",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    }
+  ],
+  "mode": "captured-native-upload-probe",
+  "fixtures": {
+    "pdf": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+    "nativeJson": "1aadf263bbfe76e06a65cb8043fb9c86928dd3ace22499a6daae510da74999f4"
+  },
+  "scope": "Actual local app routes, development sign-in, browser PDF WASM Worker and workerd D1/R2. Scholarly extraction explicitly replays captured PR206 native output for its exact independently authored PDF; no live native/GROBID execution, production access or deployment.",
+  "sources": {
+    "web/app/workspace.tsx": "01f00b13555bb531511909ed7734dde7d13223ed372075b6f4f22707007edbab",
+    "web/app/globals.css": "99d415b709e77d8294b02ef0b41b373b571afc1c6a636d73d1a8d54fb4d6c62b",
+    "web/build/sites-vite-plugin.ts": "07af20e7097d9ed1d76f7c446d02997550b8fc5ca89668b249e25eabd62c6834",
+    "web/build/sites-worker.ts": "28a75f74adfc226a773d1c00d5779c26412eea40a104da5c77f7d0f0fc30f0e8"
+  }
+}

@@ -49,6 +49,18 @@
       "sha256": "0098ff82759e982e818ceb09545381ec845f0c7598abe89deb18ca564e5b9ade"
     },
     {
+      "bytes": 440,
+      "mode": "0644",
+      "path": "app/api/documents/[id]/scholarly/evidence/route.ts",
+      "sha256": "bd251cb1c7d903890841174eeb1fde839fe8ae721f7f2fbe6f2604b08252eba1"
+    },
+    {
+      "bytes": 1201,
+      "mode": "0644",
+      "path": "app/api/documents/[id]/scholarly/route.ts",
+      "sha256": "be3a3ffedf9c09ea4daadfec4cb567f39511c93bc5c2292579ae9fb568b6de67"
+    },
+    {
       "bytes": 2553,
       "mode": "0644",
       "path": "app/api/documents/route.ts",
@@ -97,10 +109,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 62516,
+      "bytes": 68102,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "01f00b13555bb531511909ed7734dde7d13223ed372075b6f4f22707007edbab"
+      "sha256": "1bc59c5d90c79a32f89d8705d51b30d4ebea5d94b5511ec1e8cd5fb866af6e73"
     },
     {
       "bytes": 7211,
@@ -113,6 +125,12 @@
       "mode": "0644",
       "path": "build/connector-preview-worker.mjs",
       "sha256": "c1b6b2c420cb67d9e28f8f4ae440f578c0dfd4cb840a12cfe4b58076629a17ba"
+    },
+    {
+      "bytes": 1031,
+      "mode": "0644",
+      "path": "build/scholarly-local-worker.mjs",
+      "sha256": "45d7af4c5324c852044bd57b56d486215aaa9420265b2174f5916c9e4d4f7cfc"
     },
     {
       "bytes": 1063,
@@ -133,10 +151,10 @@
       "sha256": "28a75f74adfc226a773d1c00d5779c26412eea40a104da5c77f7d0f0fc30f0e8"
     },
     {
-      "bytes": 99,
+      "bytes": 217,
       "mode": "0644",
       "path": "cloudflare-env.d.ts",
-      "sha256": "8b0eca84aa3364cc7ccc43cc3af6beb88dd34ebd410de08690bf094ce39fbcb0"
+      "sha256": "1a8140b39c5b7a4dcef6a15b40e7689b3990ef6135a1ef0be7cf8f7820972cbe"
     },
     {
       "bytes": 420,
@@ -161,6 +179,12 @@
       "mode": "0644",
       "path": "components/import-controls.tsx",
       "sha256": "2a12d3a31d591385fa836b9ab6d2681e3709364978a06203a7bda1fd38848cf9"
+    },
+    {
+      "bytes": 6297,
+      "mode": "0644",
+      "path": "components/scholarly-controls.tsx",
+      "sha256": "1821e7592657c7b4bc5536a7ef45a883d1cb9d818863e57dec57d8828cab0f28"
     },
     {
       "bytes": 2048,
@@ -559,6 +583,12 @@
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
     },
     {
+      "bytes": 6014,
+      "mode": "0644",
+      "path": "docs/SCHOLARLY_ADAPTER.md",
+      "sha256": "f268a93d773eff072001bec02d752706395b7f418319f936f66ef2704ab32a41"
+    },
+    {
       "bytes": 6367,
       "mode": "0644",
       "path": "docs/STORAGE_LIFECYCLE.md",
@@ -719,6 +749,30 @@
       "mode": "0644",
       "path": "lib/office.ts",
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
+    },
+    {
+      "bytes": 35036,
+      "mode": "0644",
+      "path": "lib/scholarly-adapter.ts",
+      "sha256": "8d7802410db89ea4dc2e5dc8cd26cd391bc3cacb887daed2542150a78f739679"
+    },
+    {
+      "bytes": 1049,
+      "mode": "0644",
+      "path": "lib/scholarly-client.ts",
+      "sha256": "ad94b399f8f7e2ddc7834fdb3823d1a0726a7c31f3bf6b365fda103c2e9c6ae8"
+    },
+    {
+      "bytes": 931,
+      "mode": "0644",
+      "path": "lib/scholarly-naming.ts",
+      "sha256": "54e44e96706b646bc7f19119cfb145e8c7e9e72d61e74b9af196a53b815de5f0"
+    },
+    {
+      "bytes": 10706,
+      "mode": "0644",
+      "path": "lib/scholarly-service.ts",
+      "sha256": "4fd1240984b274bd16f68eb041210c4a9a4d286f92979ff9c366bc4184add076"
     },
     {
       "bytes": 2920,
@@ -985,6 +1039,30 @@
       "sha256": "0c35e57e6a1c7159a57dfe7ab624c51b58c3d5b3bb3324afa5e9f43c34fb967b"
     },
     {
+      "bytes": 6875,
+      "mode": "0644",
+      "path": "scripts/test-scholarly-adapter.mjs",
+      "sha256": "e1637065bf8392b5cd9a90936926af7026ae82dcd0549b7ddc9e62e87bd545a5"
+    },
+    {
+      "bytes": 3035,
+      "mode": "0644",
+      "path": "scripts/test-scholarly-client.mjs",
+      "sha256": "0a6cceb6750ba5509a9113a9391de9df887b6414bf15bef73c2555bce64a3284"
+    },
+    {
+      "bytes": 5274,
+      "mode": "0644",
+      "path": "scripts/test-scholarly-controls.mjs",
+      "sha256": "2e61eac4a9d89f8c7a043473282293b159174aa399cfd2d4b3ce7165c0375b2d"
+    },
+    {
+      "bytes": 5402,
+      "mode": "0644",
+      "path": "scripts/test-scholarly-resolution.mjs",
+      "sha256": "edb4795434c4dd14de6b83c4a308235408d4a0ac14116da1b96a2e9fcdc1ccb2"
+    },
+    {
       "bytes": 12810,
       "mode": "0644",
       "path": "scripts/test-text-import.mjs",
@@ -1021,10 +1099,10 @@
       "sha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a"
     },
     {
-      "bytes": 3115,
+      "bytes": 4149,
       "mode": "0644",
       "path": "vite.config.ts",
-      "sha256": "6f6d890794fbe23f3e35cceb327f49d5977432a5aaf715e040a6408932da395b"
+      "sha256": "7e854df810bf6d023ee2728c92c29d8db85954b3240ac83a344b8805cd1a8e15"
     }
   ],
   "format": "tpe-site-source-v1"
