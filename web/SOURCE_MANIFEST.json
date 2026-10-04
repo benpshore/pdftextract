@@ -583,10 +583,10 @@
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
     },
     {
-      "bytes": 5368,
+      "bytes": 6014,
       "mode": "0644",
       "path": "docs/SCHOLARLY_ADAPTER.md",
-      "sha256": "9036cf36bdfb26c01b0c08b359f6b20f16ed200f3aed8bb5f441d7dde90398b4"
+      "sha256": "f268a93d773eff072001bec02d752706395b7f418319f936f66ef2704ab32a41"
     },
     {
       "bytes": 6367,
@@ -751,10 +751,10 @@
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
     },
     {
-      "bytes": 34712,
+      "bytes": 35036,
       "mode": "0644",
       "path": "lib/scholarly-adapter.ts",
-      "sha256": "6b94da6399dc6908e80db4e33c7a6ea2e526b62be8d32a9699fa4a9d06219f7a"
+      "sha256": "8d7802410db89ea4dc2e5dc8cd26cd391bc3cacb887daed2542150a78f739679"
     },
     {
       "bytes": 1049,
@@ -769,10 +769,10 @@
       "sha256": "54e44e96706b646bc7f19119cfb145e8c7e9e72d61e74b9af196a53b815de5f0"
     },
     {
-      "bytes": 10409,
+      "bytes": 10706,
       "mode": "0644",
       "path": "lib/scholarly-service.ts",
-      "sha256": "d86eed54e46872f8be85cd80a12da06541eb63260f0927ee2daea40f89f74c0f"
+      "sha256": "4fd1240984b274bd16f68eb041210c4a9a4d286f92979ff9c366bc4184add076"
     },
     {
       "bytes": 2920,
@@ -1055,6 +1055,12 @@
       "mode": "0644",
       "path": "scripts/test-scholarly-controls.mjs",
       "sha256": "2e61eac4a9d89f8c7a043473282293b159174aa399cfd2d4b3ce7165c0375b2d"
+    },
+    {
+      "bytes": 5402,
+      "mode": "0644",
+      "path": "scripts/test-scholarly-resolution.mjs",
+      "sha256": "edb4795434c4dd14de6b83c4a308235408d4a0ac14116da1b96a2e9fcdc1ccb2"
     },
     {
       "bytes": 12810,

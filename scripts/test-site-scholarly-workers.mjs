@@ -28,7 +28,7 @@ import {env as rawEnv} from 'fixture:raw-workers';
 import {GET as statusGET,POST as attachPOST} from './app/api/documents/[id]/scholarly/route.ts';
 import {GET as evidenceGET} from './app/api/documents/[id]/scholarly/evidence/route.ts';
 import {deleteDocument} from './lib/document-lifecycle.ts';
-let holdPoint=null,holdReady=null,releaseHold=null,counts={},nativeJson='',nativeVariant=null;
+let holdPoint=null,holdReady=null,releaseHold=null,counts={},nativeJson='',nativeVariant=null,resolverFailure=false;
 function count(key){counts[key]=(counts[key]||0)+1;}
 async function barrier(point){
   if(holdPoint!==point)return;
@@ -62,7 +62,8 @@ function bindings(){return {
   }}),
   SCHOLARLY:{async fetch(request){
     const path=new URL(request.url).pathname;
-    if(path==='/health'){count('health');return Response.json({status:'ready',mode:'captured-native',resolver:false,max_input_bytes:33554432,max_output_bytes:33554432});}
+    if(path==='/health'){count('health');return Response.json({status:'ready',mode:'captured-native',resolver:resolverFailure,max_input_bytes:33554432,max_output_bytes:33554432});}
+    if(path==='/bibliography'&&resolverFailure){count('resolver');return new Response('Synthetic resolver request failure',{status:502});}
     count('native');if(path!=='/grobid')throw Error('Unexpected native invocation');
     const input=await request.arrayBuffer();if(input.byteLength===0)throw Error('Missing original bytes');
     await barrier('runtime');request.signal.throwIfAborted();
@@ -81,7 +82,7 @@ async function invoke(action,controller){
   return {status:response.status,body,value,headers:Object.fromEntries(response.headers)};
 }
 export default {async fetch(request){
-  const input=await request.json();counts={};nativeJson=input.nativeJson;nativeVariant=input.nativeVariant??null;
+  const input=await request.json();counts={};nativeJson=input.nativeJson;nativeVariant=input.nativeVariant??null;resolverFailure=input.resolverFailure===true;
   globalThis.__scholarlyFixtureBindings=bindings();
   if(input.race){
     const controller=new AbortController();const ready=new Promise(resolve=>{holdReady=resolve;});holdPoint=input.race.point;
@@ -160,6 +161,17 @@ try {
   const teiBad = { ...nativeDocument, tei_sha256: '0'.repeat(64) };
   assert.equal((await run(outputMismatch, { nativeVariant: JSON.stringify(teiBad) })).response.status, 400); await assertPreserved(outputMismatch);
   pass('Source bytes and captured-native source/TEI hash failures leave the prior readable result intact');
+
+  const failedResolver=await seed();const failedResolution=(await run(failedResolver,{resolverFailure:true}));
+  assert.equal(failedResolution.response.status,200,failedResolution.response.body);assert.equal(failedResolution.counts.resolver,1);
+  const retained=failedResolution.response.value.result;
+  assert.equal(retained.text,originalResult.text);assert.equal(retained.metadata.scholarly.has_resolution,false);
+  assert(retained.warnings.some(warning=>warning.includes('resolution did not complete')));
+  assert(retained.bibliography.references.items.every(reference=>reference.resolution.status==='unavailable'&&reference.resolution.providers.length===0));
+  for(let i=0;i<nativeDocument.citations.length;i++)assert.equal(retained.bibliography.references.items[i].doi,nativeDocument.citations[i].identifiers.DOI?.[0]??nativeDocument.citations[i].identifiers.doi?.[0]);
+  const failedEvidence=await (await bucket.get(failedResolver.id+'/scholarly/'+retained.metadata.scholarly.evidence_id+'.json')).json();assert.equal(failedEvidence.grobid.raw_json,nativeJson);assert.equal(failedEvidence.native_resolution,undefined);
+  assert.equal((await run({...failedResolver,operation:'evidence',format:'resolution'})).response.status,404);
+  pass('A failed resolver bridge call saves real supplied bibliography with unavailable resolution, unverified identifiers, prior reading and canonical GROBID evidence intact');
 
   const success = await seed(); const attached = (await run(success)).response;
   assert.equal(attached.status, 200, attached.body);
