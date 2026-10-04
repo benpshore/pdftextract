@@ -1,0 +1,13 @@
+{
+  "run": "in-flight CPU GROBID first request",
+  "signal": "SIGTERM",
+  "runner_exit_code": 130,
+  "reported_status": "interrupted",
+  "container_removed": true,
+  "input_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+  "input_sha256_after_cancellation": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+  "original_unchanged": true,
+  "interruption": "KeyboardInterrupt: received signal 15",
+  "finished_utc": "2026-10-04T02:24:28.516158+00:00",
+  "note": "Timing run repurposed for cancellation after concurrent compiler work was discovered; no request timings claimed."
+}

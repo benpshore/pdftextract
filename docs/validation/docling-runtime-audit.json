@@ -1,0 +1,359 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-04T02:24:13.979Z",
+  "repository_head": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+  "cargo_lock_sha256": "00ff969d6bc010d669a77e8c2341a81219e7d30dadbfee892ef5825a2aadd57c",
+  "rust_toolchain_toml_sha256": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+  "source_identity": {
+    "repository": "https://github.com/docling-project/docling.rs",
+    "commit": "908f080d5def736bbc094beeaf5b4a04fe504dd3",
+    "crates": [
+      {
+        "name": "docling-pdf",
+        "version": "1.69.2",
+        "archive_url": "https://static.crates.io/crates/docling-pdf/docling-pdf-1.69.2.crate",
+        "sha256": "8adac50848aebe6b473661c01b5304271aefc399ca63da7fd3d478c6431fca48",
+        "matches_cargo_lock": true
+      },
+      {
+        "name": "docling-onnx",
+        "version": "1.69.2",
+        "archive_url": "https://static.crates.io/crates/docling-onnx/docling-onnx-1.69.2.crate",
+        "sha256": "d582d6ba220477f0878113379dc5f4fab1f4fbd2f7111cfbbf78f9508ec170ad",
+        "matches_cargo_lock": true
+      },
+      {
+        "name": "ort-sys",
+        "version": "2.0.0-rc.13",
+        "archive_url": "https://static.crates.io/crates/ort-sys/ort-sys-2.0.0-rc.13.crate",
+        "sha256": "cf211e3776eea6aec988552fa118dd746d70e1b1e5e244058d1c98015f3e5872",
+        "matches_cargo_lock": true
+      }
+    ]
+  },
+  "toolchain_observed": {
+    "rustup": "1.28.2 (e4f3ad6f8 2025-04-28)",
+    "rustc": "1.98.1 (48a229cea 2026-09-01)",
+    "rustc_commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+    "llvm": "22.1.8",
+    "cargo": "1.98.1 (797e8a9bc 2026-08-05)",
+    "clippy": "0.1.98 (48a229ceae 2026-09-01)",
+    "host": "x86_64-unknown-linux-gnu",
+    "installed_targets": [
+      "x86_64-unknown-linux-gnu"
+    ],
+    "scope": "Version commands observed; feature builds tracked in separate workstream report"
+  },
+  "upstream_release_assets": [
+    {
+      "name": "docling-ffi-v1.69.2-aarch64-unknown-linux-gnu.tar.gz",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-ffi-v1.69.2-aarch64-unknown-linux-gnu.tar.gz",
+      "sha256": "e9b89f139098fb8986993580c85bf47f819b1fe7084da0c07d1a18a3c8d28a99"
+    },
+    {
+      "name": "docling-ffi-v1.69.2-x86_64-pc-windows-msvc.zip",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-ffi-v1.69.2-x86_64-pc-windows-msvc.zip",
+      "sha256": "99fa2dce7ed0e79e0ade420d9eec82a6441d10ffe9e5760525fec8276bce3ef6"
+    },
+    {
+      "name": "docling-ffi-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-ffi-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "2abd880ad8eefb14299c645d63c9e8c6ed2aa8a306fadd404d32a43ebd3b4c5a"
+    },
+    {
+      "name": "docling-rs-v1.69.2-aarch64-unknown-linux-gnu.tar.gz",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-rs-v1.69.2-aarch64-unknown-linux-gnu.tar.gz",
+      "sha256": "763cc6541aec694beeb1b8f0c2825ab8ce8295f5d117752eef3840f1c6bebd42"
+    },
+    {
+      "name": "docling-rs-v1.69.2-x86_64-pc-windows-msvc.zip",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-rs-v1.69.2-x86_64-pc-windows-msvc.zip",
+      "sha256": "37f47b19ec53fd426114f4157cba10026b16ed3b37e0e1e6bdee574b8165f88a"
+    },
+    {
+      "name": "docling-rs-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-rs-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "2fc8c150ea31291eb7758c923953cff46537966006b3c5950169332f669eb70b"
+    }
+  ],
+  "verified_artifacts": [
+    {
+      "kind": "executable",
+      "path": "docling-rs",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/v1.69.2/docling-rs-v1.69.2-x86_64-unknown-linux-gnu.tar.gz",
+      "archive_sha256": "2fc8c150ea31291eb7758c923953cff46537966006b3c5950169332f669eb70b",
+      "member": "docling-rs",
+      "sha256": "cd19f4ad2e8493a051f04a87f8a85eabe186ef00b72b541ffc0a6b94e49e1ca0",
+      "bytes": 57259744,
+      "hash_matched": true
+    },
+    {
+      "kind": "pdfium",
+      "path": "pdfium/lib/libpdfium.so",
+      "url": "https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F8066/pdfium-linux-x64.tgz",
+      "archive_sha256": "0b43f405477cf2cfc4dbff06905093c3309756c6bca1fb9da99234a2ca97fed2",
+      "member": "lib/libpdfium.so",
+      "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+      "bytes": 7833208,
+      "hash_matched": true
+    },
+    {
+      "kind": "model",
+      "path": "models/layout_heron_int8.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5",
+      "bytes": 68695321,
+      "hash_matched": true
+    },
+    {
+      "kind": "model",
+      "path": "models/ocr_det.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/ocr_det.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "bytes": 9929594,
+      "hash_matched": true
+    },
+    {
+      "kind": "model",
+      "path": "models/ocr_rec_en.onnx",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/ocr_rec_en.onnx",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea",
+      "bytes": 8967018,
+      "hash_matched": true
+    },
+    {
+      "kind": "model",
+      "path": "models/en_dict.txt",
+      "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/en_dict.txt",
+      "archive_sha256": null,
+      "member": null,
+      "sha256": "5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3",
+      "bytes": 190,
+      "hash_matched": true
+    }
+  ],
+  "ort_sys_cpu_source_selection": {
+    "version": "1.28.0",
+    "source_commit": "002f41a8e175eac7f6695ff361d2e51a50874c48",
+    "url": "https://cdn.pyke.io/0/pyke:ort-rs/ms@1.28.0/x86_64-unknown-linux-gnu.tar.lzma2",
+    "sha256": "e454f710f8a49f53aa5b4ff51e3454ae1835777e431c6c35c5255ce6f205fd68",
+    "executed": false
+  },
+  "upstream_cli_observation": {
+    "version": "docling-rs 1.69.2 (chunking)",
+    "embedded_onnx_version": "not independently reported; do not infer from current Cargo.lock",
+    "ldd_dependencies": [
+      "libstdc++.so.6",
+      "libgcc_s.so.1",
+      "libm.so.6",
+      "libc.so.6",
+      "ld-linux-x86-64.so.2"
+    ],
+    "limits": {
+      "workers": 1,
+      "intra_threads": 1,
+      "ocr_sessions": 1,
+      "address_space_bytes": 4294967296,
+      "cpu_seconds": 60,
+      "wall_ms": 65000
+    },
+    "fixture": "/workspace/pdftextract/web/scripts/fixtures/ocr-still.png",
+    "fixture_sha256": "4154a9e6fd7faa98df6359a479e61d516608663ee13bb5af27d233b75775538f",
+    "env": {
+      "DOCLING_RS_EP": "cpu",
+      "DOCLING_RS_PDF_THREADS": "1",
+      "DOCLING_RS_PDF_WORKERS": "1",
+      "DOCLING_RS_OCR_SESSIONS": "1",
+      "DOCLING_RS_NO_GRAPH_CACHE": "1",
+      "DOCLING_RS_TIMING": "1",
+      "DOCLING_LAYOUT_ONNX": "/tmp/docling-runtime-audit/models/layout_heron_int8.onnx",
+      "DOCLING_OCR_REC_ONNX": "/tmp/docling-runtime-audit/models/ocr_rec_en.onnx",
+      "DOCLING_OCR_DICT": "/tmp/docling-runtime-audit/models/en_dict.txt",
+      "DOCLING_OCR_DET_ONNX": "/tmp/docling-runtime-audit/models/ocr_det.onnx",
+      "PDFIUM_DYNAMIC_LIB_PATH": "/tmp/docling-runtime-audit/pdfium/lib",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    },
+    "runs": [
+      {
+        "label": "process-cold",
+        "code": 0,
+        "signal": null,
+        "elapsed_ms": 1478.751,
+        "observed_peak_rss_kib": 324808,
+        "rss_method": "10 ms /proc/<pid>/status VmHWM sampling; may miss exit-time peak",
+        "expected_phrases": [
+          {
+            "text": "AUTONOMOUS OCR TEST",
+            "found": true
+          },
+          {
+            "text": "Reference 10.1000/example",
+            "found": true
+          },
+          {
+            "text": "Local pixels stay on this device.",
+            "found": true
+          }
+        ],
+        "output_sha256": "86aa03b93a299672ccb5ec1cf5ebdfa73316b9205f916320dd8025bc8998b824",
+        "stderr": "docling-pdf: layout model: /tmp/docling-runtime-audit/models/layout_heron_int8.onnx\n"
+      },
+      {
+        "label": "repeat-process-warm-filesystem",
+        "code": 0,
+        "signal": null,
+        "elapsed_ms": 1426.387,
+        "observed_peak_rss_kib": 315124,
+        "rss_method": "10 ms /proc/<pid>/status VmHWM sampling; may miss exit-time peak",
+        "expected_phrases": [
+          {
+            "text": "AUTONOMOUS OCR TEST",
+            "found": true
+          },
+          {
+            "text": "Reference 10.1000/example",
+            "found": true
+          },
+          {
+            "text": "Local pixels stay on this device.",
+            "found": true
+          }
+        ],
+        "output_sha256": "86aa03b93a299672ccb5ec1cf5ebdfa73316b9205f916320dd8025bc8998b824",
+        "stderr": "docling-pdf: layout model: /tmp/docling-runtime-audit/models/layout_heron_int8.onnx\n"
+      }
+    ],
+    "command": [
+      "prlimit",
+      "--as=4294967296",
+      "--cpu=60",
+      "--nofile=128",
+      "--",
+      "/tmp/docling-runtime-audit/docling-rs",
+      "--ocr-engine",
+      "ppocr",
+      "--ocr-lang",
+      "en",
+      "--force-full-page-ocr",
+      "--no-table-former",
+      "--to",
+      "json",
+      "/workspace/pdftextract/web/scripts/fixtures/ocr-still.png"
+    ],
+    "cwd": "/tmp/docling-runtime-audit/empty-cwd",
+    "supervisor": {
+      "runtime": "Node.js v24.19.0",
+      "method": "spawn child,10ms procfs VmHWM sampling,65000ms SIGKILL deadline",
+      "initial_script_sha256": "dc5d3f1e7d753fab1cedb1ade9c30fde4b67ebbbd89a69a211523ba5dca1f4ef",
+      "maintained_reproducer": "scripts/docling_cpu_probe.mjs",
+      "maintained_reproducer_difference": "Adds verified artifact provisioning, process-group cancellation and exclusive output handling; initial measurements remain unchanged."
+    },
+    "raw_output": "docs/validation/docling-ocr-synthetic.json",
+    "provenance_limits": [
+      "Image output page1 size1500x340 and BOTTOMLEFT boxes are upstream evidence only; image-to-PDF transform not exercised",
+      "Upstream JSON origin mimetype is text/plain although input is PNG; retain original source identity separately",
+      "No per-character accuracy, rotated scan, damaged scan or PDF evaluation in this Docling smoke probe"
+    ]
+  },
+  "not_qualified": [
+    "TPE supervised Docling ML integration",
+    "Safari WebGPU OCR model/runtime",
+    "native CoreML GPU OCR",
+    "native Apple Neural Engine OCR",
+    "iPhone/iPad performance",
+    "reused-session warm latency",
+    "production service deployment"
+  ],
+  "maintained_probe_validation": {
+    "command": [
+      "node",
+      "scripts/docling_cpu_probe.mjs",
+      "--cache",
+      "/tmp/docling-runtime-audit",
+      "--output",
+      "/tmp/docling-runtime-audit/maintained-probe-result.json"
+    ],
+    "script_sha256": "5d48ab3f1d3e7ec95743f4b05a4d4f4440f9ab0150477ef11c114a0d69df8c33",
+    "started_at": "2026-10-04T02:28:13.610Z",
+    "finished_at": "2026-10-04T02:28:16.670Z",
+    "pins_sha256": "885e76d44e947cebfe005ce5f3ede7862410536b06db053c36c44b790d823b54",
+    "passed": true,
+    "original_preserved": true,
+    "limits": {
+      "workers": 1,
+      "intra_threads": 1,
+      "ocr_sessions": 1,
+      "address_space_bytes": 4294967296,
+      "cpu_seconds": 60,
+      "wall_ms": 65000,
+      "output_bytes": 4194304
+    },
+    "runs": [
+      {
+        "label": "process-cold",
+        "code": 0,
+        "signal": null,
+        "elapsed_ms": 1437.083,
+        "observed_peak_rss_kib": 324744,
+        "timed_out": false,
+        "output_exceeded": false,
+        "interrupted": false,
+        "stderr": "",
+        "output_file": "/tmp/docling-runtime-audit/maintained-probe-result.json.process-cold.json",
+        "output_sha256": "86aa03b93a299672ccb5ec1cf5ebdfa73316b9205f916320dd8025bc8998b824",
+        "rss_method": "10 ms /proc/<pid>/status VmHWM sampling; may miss exit-time peak",
+        "expected_phrases": [
+          {
+            "text": "AUTONOMOUS OCR TEST",
+            "found": true
+          },
+          {
+            "text": "Reference 10.1000/example",
+            "found": true
+          },
+          {
+            "text": "Local pixels stay on this device.",
+            "found": true
+          }
+        ]
+      },
+      {
+        "label": "repeat-process-warm-filesystem",
+        "code": 0,
+        "signal": null,
+        "elapsed_ms": 1453.421,
+        "observed_peak_rss_kib": 325960,
+        "timed_out": false,
+        "output_exceeded": false,
+        "interrupted": false,
+        "stderr": "",
+        "output_file": "/tmp/docling-runtime-audit/maintained-probe-result.json.repeat-process-warm-filesystem.json",
+        "output_sha256": "86aa03b93a299672ccb5ec1cf5ebdfa73316b9205f916320dd8025bc8998b824",
+        "rss_method": "10 ms /proc/<pid>/status VmHWM sampling; may miss exit-time peak",
+        "expected_phrases": [
+          {
+            "text": "AUTONOMOUS OCR TEST",
+            "found": true
+          },
+          {
+            "text": "Reference 10.1000/example",
+            "found": true
+          },
+          {
+            "text": "Local pixels stay on this device.",
+            "found": true
+          }
+        ]
+      }
+    ],
+    "provisioning": "Previously downloaded and hash-verified artifact cache reused",
+    "retained_raw_output": "docs/validation/docling-ocr-synthetic.json"
+  }
+}

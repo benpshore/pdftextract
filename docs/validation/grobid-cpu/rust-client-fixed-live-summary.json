@@ -1,0 +1,15 @@
+{
+  "runtime": "existing live GROBID0.9.1 CPU CRF debug container",
+  "elapsed_seconds": 1.12150029299994,
+  "timing_note": "warm confirmation only; diagnostic container lifecycle differs from maintained-runner qualification",
+  "input_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+  "tei_sha256_matches": true,
+  "pages": 2,
+  "citations": 2,
+  "coverage": "semantic_projection",
+  "warnings": [
+    "server returned empty coordinate attributes; geometry is unavailable and no boxes were inferred",
+    "semantic structure is not proof of complete PDF text or glyph coverage"
+  ],
+  "binary_sha256": "cfa03a52ffd234cd234d996ba6a94b48fb3f786c0340a3e212fa33e472f1a35e"
+}

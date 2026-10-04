@@ -1,0 +1,146 @@
+{
+  "recorded_at": "2026-10-04T02:39:12.389173+00:00",
+  "base_commit": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+  "source_identity": "Working-tree overlay on PR175 base; these exact source hashes were checked before committing. Docs-only updates do not imply another runtime measurement.",
+  "files_sha256": {
+    "src/grobid.rs": "78d24fa75cefecfd81a59551f279c2ecad99563c1ad368fe6f16e84cacdd45f7",
+    "tests/grobid_empty_coordinates.rs": "db771318cb5fe3771da6831c01957dbbcfea253e424cebaab410027556d766ce",
+    "scripts/cpu_ocr.py": "149e16ae85ca9560268632163f127bddf979715446958eb943bf2574628a5ace",
+    "tests/test_cpu_ocr.py": "bd788ae86e5c7683f1e63581784757430e9ac6c12aeb99ffa8e08c55832ef08b",
+    "scripts/cpu_ocr_eval.py": "00e67132b5b5ee0a815a44eeaed19f2b5a41fdec0b7d7d2bec81d24d194b0a60",
+    "scripts/cpu_ocr_eval_schema.sql": "fbbc664021808447c404f67ddcd8e1769cee45baa07f3e1e0c796949daaa1986",
+    "tests/test_cpu_ocr_eval.py": "7a38ae995a5753d2f6c3364624e96ee364e770098d376024374f0b6d1ca42868",
+    "scripts/fetch_ocr_corpus.py": "d9a342bf79dfc5042020395659687478c1610694c55b216b7f5065dded044c54",
+    "scripts/grobid_cpu_runtime.py": "c0bb177e2ed5a93345a9e46529919a4271b4801ff1a5bd1a3f5a49b319af8faf",
+    "tests/test_grobid_cpu_runtime.py": "c89670a71c177efd8d9b454ec6967f087c7531b5869c17a73a85900d1328909d",
+    "scripts/docling_cpu_probe.mjs": "5d48ab3f1d3e7ec95743f4b05a4d4f4440f9ab0150477ef11c114a0d69df8c33",
+    "docs/validation/cpu-ocr-public-corpus.json": "05167f3c60421426c3036ec0b8c7a5e0a16385f2d42de5aa9fbe1bc169045a6f",
+    "docs/validation/docling-runtime-pins.json": "885e76d44e947cebfe005ce5f3ede7862410536b06db053c36c44b790d823b54",
+    "Cargo.lock": "00ff969d6bc010d669a77e8c2341a81219e7d30dadbfee892ef5825a2aadd57c",
+    "rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+  },
+  "checks": [
+    {
+      "command": "cargo fmt --check",
+      "outcome": "passed"
+    },
+    {
+      "command": "cargo clippy --locked --workspace --all-targets --features docling-text,grobid -- -D warnings",
+      "outcome": "passed before narrow empty-coordinate repair",
+      "log_path": "/workspace/scratch/cpu-runtime-clippy.log",
+      "log_sha256": "0d99bb6257d09a82f2128ea13fd1412fce2b2703a3b35100ef84dacabe00f7a3"
+    },
+    {
+      "command": "cargo test --locked --workspace --features docling-text,grobid",
+      "outcome": "passed before narrow empty-coordinate repair",
+      "log_path": "/workspace/scratch/cpu-runtime-cargo-test.log",
+      "log_sha256": "a90e39560e0cc99dd813b3820721881ce74587b8e712abe6f0dea8005ede33a1"
+    },
+    {
+      "command": "cargo clippy --locked --all-targets --features grobid -- -D warnings",
+      "outcome": "passed final Rust source",
+      "log_path": "/workspace/scratch/cpu-runtime-grobid-fix-clippy.log",
+      "log_sha256": "ecd977eade94bd77fbb4215da9e750f460af0dfd4f146b154afafa12d3e4a3c2"
+    },
+    {
+      "command": "cargo test --locked --features grobid --test grobid_empty_coordinates --test grobid_contract",
+      "outcome": "passed: 12 tests, final Rust source",
+      "log_path": "/workspace/scratch/cpu-runtime-grobid-fix-test.log",
+      "log_sha256": "5ef866cb66d64e435faa6b3440f6518035a9905621c0b873c62b7ae1da7dc5b7"
+    },
+    {
+      "command": "cargo clippy --locked --all-targets -- -D warnings",
+      "outcome": "passed final Rust source",
+      "log_path": "/workspace/scratch/cpu-runtime-default-clippy.log",
+      "log_sha256": "63a56be15ce5be6038fb95081efecab6840863f0fae02acbca171fad5e9d865e"
+    },
+    {
+      "command": "cargo test --locked",
+      "outcome": "passed final Rust source",
+      "log_path": "/workspace/scratch/cpu-runtime-default-test.log",
+      "log_sha256": "1b855a3f94b61d9c644c00b7f44101506b1332f1a663d9a2eb98f7addcf47b0d"
+    },
+    {
+      "command": "uv run ruff format && uv run ruff check",
+      "outcome": "passed; 112 files unchanged"
+    },
+    {
+      "command": "uv run pytest",
+      "outcome": "passed: 126 tests",
+      "log_path": "/workspace/scratch/cpu-runtime-pytest.log",
+      "log_sha256": "c6debc082c1660544d766223069d4bab25bf36d7fb68d424099a78ad7eca23b0"
+    },
+    {
+      "command": "uv run pytest web/tests/test_site_source.py",
+      "outcome": "passed: 28 tests",
+      "log_path": "/workspace/scratch/cpu-runtime-site-source-test.log",
+      "log_sha256": "ba1aba41b8e4b29687516a4187135f59d38657317963ddc038b436a5ed31544a"
+    },
+    {
+      "command": "uv run python scripts/site_source.py verify --source web",
+      "outcome": "passed: 153 files"
+    },
+    {
+      "command": "uv audit --preview-features audit-command",
+      "outcome": "blocked: OSV querybatch network tunnel failure after 3 retries"
+    },
+    {
+      "command": "swift build && swift test",
+      "outcome": "unavailable: swift command not installed (both invocations attempted)"
+    },
+    {
+      "command": "cmake -S . -B build && cmake --build build && ctest --test-dir build",
+      "outcome": "unavailable: cmake not installed; configure failed, dependent build/test not run; targets require macOS Foundation"
+    },
+    {
+      "command": "git diff --cached --check",
+      "outcome": "Source/docs pass when byte-preserved raw GROBID TEI, service log, stderr and PDF evidence are excluded. Full staged check reports existing whitespace in those exact service/source bytes, which are intentionally not normalized."
+    }
+  ],
+  "resource_environment": {
+    "visible_cpus": 5,
+    "cpu_max": "400000 100000",
+    "effective_cpu_quota": 4,
+    "memory_max_bytes": 17179869184
+  },
+  "rust_toolchain": {
+    "rustup": "1.28.2 (e4f3ad6f8)",
+    "rustup_init_sha256": "20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c",
+    "rustc": "1.98.1 (48a229cea 2026-09-01)",
+    "rustc_commit": "48a229ceaefd4985c50990b14116b6d856af0985",
+    "cargo": "1.98.1 (797e8a9bc 2026-08-05)",
+    "clippy": "0.1.98 (48a229ceae 2026-09-01)",
+    "host": "x86_64-unknown-linux-gnu",
+    "llvm": "22.1.8",
+    "rustup_home": "/workspace/scratch/rustup",
+    "cargo_home": "/workspace/scratch/cargo",
+    "project_pins_changed": false
+  },
+  "qualified_grobid_binary": {
+    "path": "/workspace/scratch/tpe-grobid-qualified",
+    "sha256": "cfa03a52ffd234cd234d996ba6a94b48fb3f786c0340a3e212fa33e472f1a35e"
+  },
+  "independent_review": {
+    "outstanding_substantive_findings": 0,
+    "agents": [
+      "runtime_review",
+      "cpu_ocr/cpu_ocr_review"
+    ],
+    "verified": [
+      "source/process/cancellation contracts",
+      "both SQLite integrity/FK checks and all 97 artifact BLOB hashes",
+      "complete attempt/page denominators",
+      "unchanged source truth and public original corpus files across renderer correction",
+      "Docling precompiled/model/PDFium pins and raw output",
+      "actual GROBID TEI/Rust-client source hashes, missing-coordinate warning, limits and cancellation cleanup"
+    ]
+  },
+  "limits": [
+    "Timings are small-sample shared-VM observations, not controlled production throughput. Lightweight independent review checks may overlap service observations.",
+    "No mobile/browser GPU or ANE execution measured.",
+    "No aggregate OCR process-tree peak memory claim.",
+    "Full supervised TPE Docling ML integration remains gated; upstream binary success is separate.",
+    "No GitHub heavy OCR workflow requested; benchmarks ran on Codex Cloud.",
+    "No merge, deployment or release performed."
+  ]
+}
