@@ -5,11 +5,15 @@ edition.workspace = true
 license-file.workspace = true
 description = "Scholarly metadata and full-text location clients (OpenAlex, Crossref, Semantic Scholar, PMC, Unpaywall, OpenURL)"
 
+[features]
+default = []
+network = ["dep:ureq"]
+
 [dependencies]
 serde_json = "1"
 thiserror = "2"
 tpe-common = { path = "../tpe-common" }
-ureq = "3"
+ureq = { version = "3", optional = true }
 
 [lints]
 workspace = true

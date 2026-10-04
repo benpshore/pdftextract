@@ -750,6 +750,9 @@ impl Resolver {
     #[must_use]
     pub fn new(mailto: Option<&str>) -> Self {
         let mut client = Client::new(concat!("tpe/", env!("CARGO_PKG_VERSION")))
+            // Cargo can unify tpe-biblio/network through another dependency.
+            // The engine's own capability still governs this adapter.
+            .with_offline(!cfg!(feature = "network"))
             .with_host_interval(CROSSREF_HOST, CROSSREF_INTERVAL);
         if let Some(mailto) = mailto {
             client = client.with_mailto(mailto);

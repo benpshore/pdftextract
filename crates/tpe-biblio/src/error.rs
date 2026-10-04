@@ -10,6 +10,9 @@ pub enum BiblioError {
     /// The client is in offline mode; no request was made.
     #[error("offline mode: network requests are disabled")]
     Offline,
+    /// HTTP transport was excluded from this build; runtime settings cannot enable it.
+    #[error("network capability is disabled in this build")]
+    NetworkDisabled,
     /// The server answered 404.
     #[error("not found")]
     NotFound,
@@ -35,6 +38,7 @@ pub enum BiblioError {
 
 impl BiblioError {
     /// Map a `ureq` error to a sanitised `BiblioError` (no URL in the message).
+    #[cfg(feature = "network")]
     pub fn from_ureq(err: &ureq::Error) -> Self {
         match err {
             ureq::Error::StatusCode(404) => Self::NotFound,
@@ -72,7 +76,7 @@ impl BiblioError {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "network"))]
 mod tests {
     use super::*;
 

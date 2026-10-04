@@ -1,4 +1,4 @@
-#![cfg(feature = "grobid")]
+#![cfg(all(feature = "grobid", feature = "network"))]
 
 use std::io::{Read, Seek, SeekFrom, Write};
 use std::net::{TcpListener, TcpStream};
