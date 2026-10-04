@@ -607,10 +607,10 @@
       "sha256": "1692f6e3a838c919dd4b8019050692dd45b54b5138e105d10d112a56073470ef"
     },
     {
-      "bytes": 21380,
+      "bytes": 17884,
       "mode": "0644",
       "path": "lib/clip.ts",
-      "sha256": "10df7f03b037cd64c81e4ea5af3c608542ba6ad448209e0ffb7f380484b46688"
+      "sha256": "c351e03b6943f4121a3fa846c8bd5cc55eb285a651733543dd917ee64afca4bc"
     },
     {
       "bytes": 612,
@@ -673,10 +673,10 @@
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
     },
     {
-      "bytes": 1678,
+      "bytes": 5093,
       "mode": "0644",
       "path": "lib/passive-html.ts",
-      "sha256": "6d42e6fc12c9b900920439b84e7fdb7fa43af74922ce27d3e5fc5acaf6e70fbb"
+      "sha256": "6ddc453b716510ab28816132eceb4d6ff318fb41826e998eb7acf3f9bdaa9884"
     },
     {
       "bytes": 2920,
@@ -901,10 +901,10 @@
       "sha256": "c22f7ec322106d635798332e083b617c94185707373e790db1396b3b71d25b85"
     },
     {
-      "bytes": 3687,
+      "bytes": 5659,
       "mode": "0644",
       "path": "scripts/test-network-capabilities.mjs",
-      "sha256": "9a9727fd277c738c975101133836d2677a6cad664fb1c1a986f8f58c249b823b"
+      "sha256": "8bef9286166342c92e62b48fe52c5a5cf71043642e8ee2923b4d9a8c17661fea"
     },
     {
       "bytes": 10873,
