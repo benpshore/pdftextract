@@ -6,6 +6,7 @@ import {AlertCircle, ArrowUp, Check, ChevronDown, Copy, Download, FileText, Fold
 import DOMPurify from 'dompurify';
 import {marked} from 'marked';
 import {Button} from '@/components/ui/button';
+import {CitationBrowser} from '@/components/citation-browser';
 import {ClearCachedFilesButton, DeleteStoredDocumentButton, ImportBatchProgress, ImportItemControls} from '@/components/import-controls';
 import {clipHtml, parseFeed, safeUrl, textDois, doiFrom} from '@/lib/clip';
 import {expandUploads} from '@/lib/imports';
@@ -95,7 +96,7 @@ export default function Workspace({userId}:{userId:string}) {
   const [deleteTarget,setDeleteTarget]=useState<DocumentRow|null>(null),[cleanupPending,setCleanupPending]=useState(false);
   const [error,setError]=useState(''),[recoveryWarning,setRecoveryWarning]=useState(''),[announcement,setAnnouncement]=useState(''),[queueOpen,setQueueOpen]=useState(true),[dragging,setDragging]=useState(false),[loading,setLoading]=useState(false),[restored,setRestored]=useState(false);
   const queueRef=useRef<QueueItem[]>([]),selectionRef=useRef<Selection|null>(null),running=useRef(false),mounted=useRef(true),generation=useRef(0),listGeneration=useRef(0),dirtyDraft=useRef(false),recoveryReady=useRef(false);
-  const pendingDisposals=useRef(new Map<string,()=>Promise<void>>()),composerValue=useRef(paste);composerValue.current=paste;
+  const pendingDisposals=useRef(new Map<string,()=>Promise<void>>());
   const registry=useRef(new ImportAttemptRegistry()),attempts=useRef(new Map<string,ImportAttempt>()),discoveries=useRef(new Set<AbortController>()),deletedDocuments=useRef(new Set<string>()),deletingDocuments=useRef(new Set<string>());
   const cleanedDocuments=useRef(new Set<string>());
   const pendingDeletion=useRef<PendingDeletion|null>(null);
@@ -105,6 +106,7 @@ export default function Workspace({userId}:{userId:string}) {
   const pumpRef=useRef<()=>Promise<void>>(async()=>{}),checkpointRef=useRef<(strict?:boolean)=>Promise<void>>(async()=>{}),openSavedRef=useRef<(id:string,tab?:string,scroll?:number)=>Promise<void>>(async()=>{});
   const captureRef=useRef<(url:string,feed:boolean)=>Promise<unknown>>(async()=>{});
   const fileInput=useRef<HTMLInputElement>(null),folderInput=useRef<HTMLInputElement>(null),photoInput=useRef<HTMLInputElement>(null),resultHeading=useRef<HTMLHeadingElement>(null);
+  const uploadMenu=useRef<HTMLDetailsElement>(null),uploadTrigger=useRef<HTMLElement>(null);
   const attachFolderInput=useCallback((element:HTMLInputElement|null)=>{folderInput.current=element;if(element){setFolderSupported('webkitdirectory'in element);element.setAttribute('webkitdirectory','');}},[]);
   const selectedItem=selection && 'queueId' in selection ? queue.find(item=>item.id===selection.queueId) : undefined;
   const selected=selectedItem?.record || (selection && 'record' in selection?selection.record:null);
@@ -377,8 +379,14 @@ export default function Workspace({userId}:{userId:string}) {
     addFiles([new File([html||text],html?'Pasted page.html':'Pasted text.txt',{type:html?'text/html':'text/plain'})]);
   }
   function onPaste(event:ClipboardEvent) {
+    const editable=(event.target as HTMLElement).closest('input,textarea,[contenteditable]:not([contenteditable=false])');
+    if(editable){
+      // Keep native text/HTML editing, including mixed image-and-text clipboards.
+      // A file-only paste in this composer is an explicit intake action.
+      if(editable.id==='source-paste'&&!event.clipboardData.getData('text/plain')&&!event.clipboardData.getData('text/html')){const files=Array.from(event.clipboardData.files);if(files.length){event.preventDefault();addFiles(files);}}
+      return;
+    }
     const files=Array.from(event.clipboardData.files);if(files.length){event.preventDefault();addFiles(files);return;}
-    if((event.target as HTMLElement).closest('input,textarea,[contenteditable=true]'))return;
     const text=event.clipboardData.getData('text/plain'),html=event.clipboardData.getData('text/html');if(text||html){event.preventDefault();addText(text,html);}
   }
   async function drop(event:DragEvent) {
@@ -429,6 +437,14 @@ export default function Workspace({userId}:{userId:string}) {
   },[userId,refresh]);
   useEffect(()=>{if(!restored||checkpointTimer.current)return;checkpointTimer.current=setTimeout(()=>{checkpointTimer.current=null;void checkpointRef.current();},250);},[queue,url,kind,paste,query,selection,view,readingMode,restored]);
   useEffect(()=>{
+    const outside=(event:PointerEvent)=>{const menu=uploadMenu.current;if(menu?.open&&event.target instanceof Node&&!menu.contains(event.target))menu.open=false;};
+    const cancelled=()=>uploadTrigger.current?.focus({preventScroll:true});
+    const inputs=[fileInput.current,folderInput.current,photoInput.current];
+    document.addEventListener('pointerdown',outside,true);
+    for(const input of inputs)input?.addEventListener('cancel',cancelled);
+    return()=>{document.removeEventListener('pointerdown',outside,true);for(const input of inputs)input?.removeEventListener('cancel',cancelled);};
+  },[]);
+  useEffect(()=>{
     const context=(document as Document&{modelContext?:{registerTool:(tool:unknown,options:unknown)=>unknown}}).modelContext;if(!context?.registerTool)return;
     const lifecycle=new AbortController();try{Promise.resolve(context.registerTool({name:'capture_source',title:'Capture a web page or feed',description:'Privately save a public source, extract it, and retain its import status.',inputSchema:{type:'object',properties:{url:{type:'string'},feed:{type:'boolean'}},required:['url'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async(input:unknown)=>{if(!input||typeof input!=='object'||!('url'in input)||typeof input.url!=='string'||!safeUrl(input.url))throw new Error('A public HTTP or HTTPS URL is required.');return captureRef.current(input.url,'feed'in input&&input.feed===true);}},{signal:lifecycle.signal})).catch(()=>{});}catch{}return()=>lifecycle.abort();
   },[]);
@@ -440,10 +456,8 @@ export default function Workspace({userId}:{userId:string}) {
     try {if(!navigator.clipboard?.writeText)throw new Error('Clipboard access is unavailable.');await navigator.clipboard.writeText(result.markdown||result.text);if(mounted.current){setCopied(result);setAnnouncement(result.title+' Markdown copied.');}}
     catch {if(mounted.current){setError('Markdown could not be copied. Use Download Markdown to keep a copy.');setAnnouncement('Copy failed. Download Markdown is still available.');}}
   }
-  async function detectClipboardUrl() {
-    if(paste.trim()||!navigator.clipboard?.readText)return;
-    try {const value=(await navigator.clipboard.readText()).trim();if(/^https?:\/\//i.test(value)&&safeUrl(value)&&!composerValue.current.trim()){dirtyDraft.current=true;setPaste(value);setAnnouncement('Link found on your clipboard. Send to import it.');}}catch { /* Clipboard access is optional; normal paste always works. */ }
-  }
+  function closeUpload(returnFocus=false){if(uploadMenu.current)uploadMenu.current.open=false;if(returnFocus)uploadTrigger.current?.focus({preventScroll:true});}
+  function chooseUpload(input:HTMLInputElement|null){closeUpload(true);input?.click();}
   function submitComposer() {if(paste.trim()){addText(paste);dirtyDraft.current=true;setPaste('');}}
 
   return <main onPaste={onPaste} onDragOver={event=>{event.preventDefault();setDragging(true);}} onDragLeave={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))setDragging(false);}} onDrop={event=>void drop(event)} className={dragging?'drop-active':''}>
@@ -453,11 +467,11 @@ export default function Workspace({userId}:{userId:string}) {
     <div className="workspace-grid"><aside className="intake" aria-label="Add sources">
       <form className="composer" onSubmit={event=>{event.preventDefault();submitComposer();}}>
         <label htmlFor="source-paste" className="sr-only">Paste a link or text</label>
-        <textarea id="source-paste" rows={2} value={paste} onFocus={()=>void detectClipboardUrl()} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
-        <div className="composer-actions"><details className="add-menu"><summary><Upload aria-hidden="true"/><span>Upload</span><ChevronDown aria-hidden="true"/></summary><div className="add-menu-options"><button type="button" onClick={event=>{event.currentTarget.closest('details')?.removeAttribute('open');fileInput.current?.click();}}><Upload aria-hidden="true"/>Add files</button><button type="button" disabled={!folderSupported} onClick={event=>{event.currentTarget.closest('details')?.removeAttribute('open');folderInput.current?.click();}}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={event=>{event.currentTarget.closest('details')?.removeAttribute('open');photoInput.current?.click();}}><ImagePlus aria-hidden="true"/>Add photos</button><p className="help">{folderSupported?'Choose multiple files or one folder at a time. Each selection joins the same queue.':'Folder picking is unavailable in this browser. Add files, or drop folders where supported.'}</p></div></details><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp aria-hidden="true"/></Button></div>
-        <input ref={fileInput} hidden type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
-        <input ref={attachFolderInput} hidden type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
-        <input ref={photoInput} hidden type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
+        <textarea id="source-paste" rows={2} value={paste} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
+        <div className="composer-actions"><details ref={uploadMenu} className="add-menu" onKeyDown={event=>{if(event.key==='Escape'&&uploadMenu.current?.open){event.preventDefault();event.stopPropagation();closeUpload(true);}}} onBlur={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))closeUpload();}}><summary ref={uploadTrigger}><Upload aria-hidden="true"/><span>Upload</span><ChevronDown aria-hidden="true"/></summary><div className="add-menu-options"><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Upload aria-hidden="true"/>Add files</button><button type="button" disabled={!folderSupported} onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button><p className="help">{folderSupported?'Choose multiple files or one folder at a time. Each selection joins the same queue.':'Folder picking is unavailable in this browser. Add files, or drop folders where supported.'}</p></div></details><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp aria-hidden="true"/></Button></div>
+        <input ref={fileInput} hidden type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
+        <input ref={attachFolderInput} hidden type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
+        <input ref={photoInput} hidden type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
       </form>
       <p className="intake-hint help">Files and folders share one import queue. Drop both together where your browser supports it.</p>
       {!!pending&&<div className="processing-status" role="status" aria-live="polite" aria-atomic="true"><LoaderCircle className="processing-spinner" aria-hidden="true"/><div><strong>{processing?phaseLabel(processing.phase):'Waiting to import'}</strong><span>{processing?.name||pending+' queued'}{pending>1?' · '+pending+' imports remaining':''}</span>{processing&&!queueOpen&&<StageProgress item={processing}/>}</div></div>}
@@ -478,6 +492,7 @@ export default function Workspace({userId}:{userId:string}) {
           {result.status!=='failed'&&result.metadata?.extractionAvailable!==false&&<div className="reader-toolbar"><div className="reading-modes" role="group" aria-label="Reading mode"><button aria-pressed={readingMode==='reading'} onClick={()=>changeReadingMode('reading')}>Reading</button><button aria-pressed={readingMode==='plain'} onClick={()=>changeReadingMode('plain')}>Plain text</button></div><div className="markdown-actions"><Button variant="outline" onClick={()=>void copyMarkdown()}>{copied===result?<Check aria-hidden="true"/>:<Copy aria-hidden="true"/>}Copy Markdown</Button><Button variant="outline" onClick={()=>download('extraction.md',result.markdown||result.text,'text/markdown')}><Download aria-hidden="true"/>Download Markdown</Button></div></div>}
           {result.status==='failed'?<div className="notice error"><AlertCircle/><p>{result.warnings.join(' ')}</p></div>:result.metadata?.extractionAvailable===false?<p>The original is saved. Text extraction is not available for this file type.</p>:<ReaderContent html={result.html||''} markdown={result.markdown||''} text={result.text} documentId={selected?.id} markdownFile={/\.(md|markdown)$/i.test(selected?.original_name||selectedItem?.name||'')} mode={readingMode}/>}
           <div className="reader-secondary"><details><summary>Original and other downloads</summary><div className="export-actions">{selected&&<Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}><Download aria-hidden="true"/>Original</a></Button>}<Button variant="outline" onClick={()=>download('extraction.json',JSON.stringify({source:selected,...result},null,2))}>JSON</Button></div></details>
+            <details><summary>Citations</summary><CitationBrowser key={selectedItem?.id||selected?.id||'unsaved'} result={result} record={selected||undefined}/></details>
             {!!result.links.length&&<details open={view==='links'} onToggle={event=>{if(event.currentTarget.open&&view!=='links')changeView('links');else if(!event.currentTarget.open&&view==='links')changeView('text');}}><summary>Source links</summary><div className="link-list">{result.links.map((link,index)=><div key={index} className="link-card">{link.label&&<p>{link.label}</p>}{safeUrl(link.url)?<a href={link.url} target="_blank" rel="noreferrer noopener">{link.url}</a>:<code>{link.url}</code>}</div>)}</div></details>}
             <details open={view==='evidence'} onToggle={event=>{if(event.currentTarget.open&&view!=='evidence')changeView('evidence');else if(!event.currentTarget.open&&view==='evidence')changeView('text');}}><summary>Details and review notes</summary><dl className="evidence"><dt>Engine</dt><dd>{result.engine}</dd>{selected&&<><dt>Original SHA-256</dt><dd className="hash">{selected.sha256||'Available after storage verification'}</dd><dt>Saved</dt><dd>{new Date(selected.created_at).toLocaleString()}</dd>{selected.source_url&&<><dt>Source</dt><dd>{selected.source_url}</dd></>}</>}</dl>{result.warnings.length>0&&<ul className="review-notes">{result.warnings.map((warning,index)=><li key={index}>{warning}</li>)}</ul>}<details><summary>Structured data</summary><pre className="code-panel">{JSON.stringify({metadata:result.metadata,tables:result.tables},null,2)}</pre></details>{selected&&<div className="document-actions"><Button variant="outline" disabled={!!pending||storageBusy||selectedHasWriters} onClick={rereadOriginal}>Re-read original</Button></div>}</details>
           </div>

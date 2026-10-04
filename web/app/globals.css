@@ -211,6 +211,24 @@ progress::-moz-progress-bar { background: var(--ring); }
 .link-list { display: grid; gap: .65rem; margin: .6rem 0; }
 .link-card { padding: .75rem; border: 1px solid var(--border); border-radius: .65rem; }
 .link-card a, .link-card code { overflow-wrap: anywhere; }
+.citation-browser { min-width: 0; margin: .6rem 0 1rem; }
+.citation-browser h3, .citation-browser h4 { margin: .4rem 0; font-weight: 600; }
+.citation-browser h4 { font-size: 1rem; line-height: 1.5; overflow-wrap: anywhere; }
+.citation-controls { display: flex; flex-wrap: wrap; align-items: end; gap: .65rem; margin: .8rem 0; min-width: 0; }
+.citation-controls label { display: grid; gap: .3rem; flex: 1 1 12rem; min-width: 0; font-size: .88rem; }
+.citation-controls select { width: 100%; max-width: 100%; min-width: 0; min-height: 48px; padding: .65rem .5rem; border: 1px solid var(--input); border-radius: .7rem; background: var(--card); color: var(--foreground); font: inherit; touch-action: manipulation; }
+.citation-controls button { min-width: 0; max-width: 100%; padding: .5rem .8rem; border: 1px solid var(--border); border-radius: .65rem; white-space: normal; overflow-wrap: anywhere; font-size: .88rem; }
+.citation-controls button:hover:not(:disabled) { background: var(--accent); }
+.citation-controls > span { align-self: center; overflow-wrap: anywhere; }
+.citation-list { display: grid; gap: .8rem; min-width: 0; }
+.citation-card { min-width: 0; padding: .8rem; border: 1px solid var(--border); border-radius: .65rem; }
+.citation-fields { display: grid; gap: .6rem; margin: .7rem 0; min-width: 0; }
+.citation-fields > div { display: grid; gap: .15rem; min-width: 0; }
+.citation-fields dt { color: var(--muted-foreground); font-size: .82rem; overflow-wrap: anywhere; }
+.citation-fields dd { min-width: 0; margin: 0; font-size: .92rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.citation-state { padding: .4rem 0; }
+.citation-details { margin-top: 1rem; border-top: 1px solid var(--border); }
+.citation-details summary, .citation-state summary { color: var(--muted-foreground); font-size: .88rem; }
 .evidence { display: grid; grid-template-columns: 1fr; gap: .2rem; margin: .6rem 0 1rem; }
 .evidence dt { color: var(--muted-foreground); font-size: .88rem; }
 .evidence dd { margin: 0 0 .7rem; }

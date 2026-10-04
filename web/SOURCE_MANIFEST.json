@@ -7,10 +7,10 @@
       "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
     },
     {
-      "bytes": 6741,
+      "bytes": 7231,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "9c323e8136e770f592580ae25883bb643c50ea39bedd6d6da661d68fb1e71b63"
+      "sha256": "31bf614b2a4783ba91aa853476fdc38feefce5db9d04a8fd89217e4d1994370e"
     },
     {
       "bytes": 996,
@@ -73,10 +73,10 @@
       "sha256": "4265a2e7c2dcb3a6f4b7026f762bf5b6e4caec76cc13c0a45987ee9a9f2e42cc"
     },
     {
-      "bytes": 15443,
+      "bytes": 17261,
       "mode": "0644",
       "path": "app/globals.css",
-      "sha256": "2fcfc562a5fcc5b1b1ba520f737b160aab4f85ab52bfd8e94d823751d0f6549d"
+      "sha256": "99d415b709e77d8294b02ef0b41b373b571afc1c6a636d73d1a8d54fb4d6c62b"
     },
     {
       "bytes": 524,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 61221,
+      "bytes": 62516,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "192077819d5208b68fc482b38d52b10f35dc5812097b7c0345eb3916da16999b"
+      "sha256": "01f00b13555bb531511909ed7734dde7d13223ed372075b6f4f22707007edbab"
     },
     {
       "bytes": 7211,
@@ -143,6 +143,12 @@
       "mode": "0644",
       "path": "components.json",
       "sha256": "31f4ca67a4a62572571003d3d5aac85ee6fbfca67a192924bac6b168d95e98fd"
+    },
+    {
+      "bytes": 9990,
+      "mode": "0644",
+      "path": "components/citation-browser.tsx",
+      "sha256": "972aab2406ea2de8f99437dbfb32bb19fd0f065286326fb36f68f2f5ba476741"
     },
     {
       "bytes": 1082,
@@ -541,6 +547,12 @@
       "sha256": "35c9af9d7c88b5d2849aaf9b5cdc32d40776286c7718dd11796bb9b18c672a72"
     },
     {
+      "bytes": 9165,
+      "mode": "0644",
+      "path": "docs/CITATIONS.md",
+      "sha256": "557b64c64414f0f893a0c32748185f5f1ec2703340dab85699e480935caf44ae"
+    },
+    {
       "bytes": 5163,
       "mode": "0644",
       "path": "docs/OFFICE.md",
@@ -623,6 +635,12 @@
       "mode": "0644",
       "path": "lib/asset-storage.ts",
       "sha256": "1692f6e3a838c919dd4b8019050692dd45b54b5138e105d10d112a56073470ef"
+    },
+    {
+      "bytes": 13063,
+      "mode": "0644",
+      "path": "lib/citations.ts",
+      "sha256": "6ea65e5d37e5517b87a3da08c7cf3de64f38103fb5c9c6383b3edf04d8fa9e5d"
     },
     {
       "bytes": 20905,
@@ -727,10 +745,10 @@
       "sha256": "e16d6233e10d55ed14326eb30be9534e36ad5ec2d58993fbcd78e13660ae7675"
     },
     {
-      "bytes": 627,
+      "bytes": 833,
       "mode": "0644",
       "path": "lib/types.ts",
-      "sha256": "bf82a0edd24c7a4659ab952b72fcefe336c4a33dc0c3d50cfbbca4d9904eeceb"
+      "sha256": "18c1ca5fb9ed9bc0d2d32b53a1bb05369c5c935d48fd04f68bf64c40d0fea913"
     },
     {
       "bytes": 7062,
@@ -923,6 +941,12 @@
       "mode": "0644",
       "path": "scripts/test-browser-imports.mjs",
       "sha256": "cb725294534dc9dd16b529d5f9e267ef956704d7c88a1e1f140de454cbe0f811"
+    },
+    {
+      "bytes": 16497,
+      "mode": "0644",
+      "path": "scripts/test-citations.mjs",
+      "sha256": "a1826ab791b22a204bb21b7e89caf6a52b481b2ceec99fabe6b57f54cc4f10c1"
     },
     {
       "bytes": 8235,

@@ -1,0 +1,6 @@
+- group:
+  - text: Upload
+  - button "Add files"
+  - button "Add folder"
+  - button "Add photos"
+  - paragraph: Choose multiple files or one folder at a time. Each selection joins the same queue.
