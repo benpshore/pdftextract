@@ -174,6 +174,29 @@ try{
       pass('reference CSV, explicit unavailable mentions, CSV row view and reload retain the saved scholarly attachment');
     }
   }
+  if(!probeOnly){
+    assert.match(await page.getByRole('note').innerText(),/URL and webpage fetching is disabled/);
+    const disabled=await context.request.post(baseUrl+'/api/capture',{data:{url:'https://source.fixture.invalid/'}});assert.equal(disabled.status(),503);assert.match(await disabled.text(),/disabled/);
+    await page.getByLabel('Paste text',{exact:true}).fill('https://source.fixture.invalid/');await page.getByRole('button',{name:'Import pasted source'}).click();
+    await page.getByRole('alert').filter({hasText:'URL and webpage fetching is disabled'}).waitFor();assert.equal(await page.getByLabel('Paste text',{exact:true}).inputValue(),'https://source.fixture.invalid/');
+    pass('disabled URL intake communicates the hold, preserves its draft and rejects authenticated direct capture');
+    const externalRequests=[];
+    await context.route('https://resource.fixture.invalid/**',route=>{externalRequests.push(route.request().url());return route.fulfill({status:418,body:'Unexpected fixture resource'});});
+    const localHtml='<title>Local reading fixture</title><meta name="citation_title" content="Local reading fixture"><article><h1>Local reading fixture</h1><p>Local reading remains usable. <a href="https://source.fixture.invalid/">Source link</a></p><img src="https://resource.fixture.invalid/figure.png"></article>';
+    await page.getByLabel('Choose source files',{exact:true}).setInputFiles({name:'local-reading.html',mimeType:'text/html',buffer:Buffer.from(localHtml)});
+    await page.locator('.queue-item').filter({hasText:'local-reading.html'}).locator('.phase-saved').waitFor({timeout:30000});
+    const library=await (await context.request.get(baseUrl+'/api/documents')).json();const local=library.documents.find(record=>record.original_name==='local-reading.html');assert(local);
+    const saved=(await (await context.request.get(baseUrl+`/api/documents/${local.id}`)).json()).result;assert.match(saved.text,/Local reading remains usable/);assert.equal(saved.metadata.meta.citation_title,'Local reading fixture');assert(!saved.html.includes('<img'));
+    const externalAsset=await context.request.post(baseUrl+`/api/documents/${local.id}/assets`,{data:{url:'https://resource.fixture.invalid/figure.png'}});assert.equal(externalAsset.status(),503);
+    await page.locator('.queue-item').filter({hasText:'local-reading.html'}).getByRole('button').first().click();await page.getByRole('article',{name:'Reading',exact:true}).getByText('Local reading remains usable.',{exact:false}).waitFor();
+    const markdown='# Local Markdown\n\nReadable local Markdown.\n\n![Figure](https://resource.fixture.invalid/markdown.png)';
+    await page.getByLabel('Choose source files',{exact:true}).setInputFiles({name:'local-reading.md',mimeType:'text/markdown',buffer:Buffer.from(markdown)});
+    await page.locator('.queue-item').filter({hasText:'local-reading.md'}).locator('.phase-saved').waitFor({timeout:30000});
+    await page.locator('.queue-item').filter({hasText:'local-reading.md'}).getByRole('button').first().click();await page.getByRole('article',{name:'Reading',exact:true}).getByText('Readable local Markdown.',{exact:true}).waitFor();
+    assert.equal(await page.locator('.reading img').count(),0);assert.deepEqual(externalRequests,[]);
+    pass('actual local HTML and Markdown uploads save and render text with zero external resource requests; direct remote asset retention is disabled');
+    await page.screenshot({path:path.join(output,'local-only-desktop.png'),fullPage:true});
+  }
   assert.deepEqual(browserErrors,[]);pass('no browser runtime errors');
   const report={checks,chromiumVersion,baseUrl,browserErrors,responses,mode:probeOnly?'local-stack-probe':probeUpload?runtimeMode+'-upload-probe':runtimeMode,fixtures:{pdf:sha(sourcePdf),capturedNativeJson:sha(nativeJson)},scope:'Actual local app routes, development sign-in, browser PDF WASM Worker and workerd D1/R2. '+(runtimeMode==='captured-native'?'Scholarly extraction explicitly replays captured PR206 native output for its exact independently authored PDF; no live native/GROBID execution. ':'Scholarly requests use an explicitly configured loopback live native/GROBID runtime. ')+'No production access or deployment; one synthetic PDF does not establish general scholarly extraction accuracy.',sources:{}};
   for(const file of ['web/app/workspace.tsx','web/app/globals.css','web/build/sites-vite-plugin.ts','web/build/sites-worker.ts','web/components/scholarly-controls.tsx','web/lib/scholarly-adapter.ts','web/lib/scholarly-service.ts','web/lib/scholarly-client.ts','web/lib/scholarly-naming.ts','scripts/test-web-scholarly-browser.mjs'])report.sources[file]=sha(await fs.readFile(path.join(root,file)));

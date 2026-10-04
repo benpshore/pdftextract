@@ -13,10 +13,10 @@
       "sha256": "31bf614b2a4783ba91aa853476fdc38feefce5db9d04a8fd89217e4d1994370e"
     },
     {
-      "bytes": 996,
+      "bytes": 1090,
       "mode": "0644",
       "path": "app/api/capture/route.ts",
-      "sha256": "62623348695027ccb0b86c028da0356e92b52b057f558fafd4ac7a107d89f4f8"
+      "sha256": "731f35056b54f95e97a780a0697976e4df1fe3bc3befd62f7ff453f60a139f15"
     },
     {
       "bytes": 744,
@@ -25,10 +25,10 @@
       "sha256": "963a4d297a00c461e4dc9d90165ae1f6575d5171b4f357fd4f4a61eff71d4f4e"
     },
     {
-      "bytes": 1340,
+      "bytes": 1436,
       "mode": "0644",
       "path": "app/api/documents/[id]/assets/route.ts",
-      "sha256": "166088f385bc60fce34ededd6d3b7b3a20f1a4da5cc1bc8fb6de940bab4b12dc"
+      "sha256": "f24a15a0435dc5dacfb6f4efe62826124b262409e955da4b0a6ac5cec064d5cb"
     },
     {
       "bytes": 1627,
@@ -109,10 +109,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 68102,
+      "bytes": 68855,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "1bc59c5d90c79a32f89d8705d51b30d4ebea5d94b5511ec1e8cd5fb866af6e73"
+      "sha256": "b8f1b195fa29d84139258152d48cbe63211c49f19e2728d32a46829c0f996848"
     },
     {
       "bytes": 7211,
@@ -127,10 +127,10 @@
       "sha256": "c1b6b2c420cb67d9e28f8f4ae440f578c0dfd4cb840a12cfe4b58076629a17ba"
     },
     {
-      "bytes": 1031,
+      "bytes": 1134,
       "mode": "0644",
       "path": "build/scholarly-local-worker.mjs",
-      "sha256": "45d7af4c5324c852044bd57b56d486215aaa9420265b2174f5916c9e4d4f7cfc"
+      "sha256": "34dc187b8fdc1eaec69fbb6bdeb5afb95a850244fd3606a9165e27f21551dddc"
     },
     {
       "bytes": 1063,
@@ -583,10 +583,10 @@
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
     },
     {
-      "bytes": 6014,
+      "bytes": 6861,
       "mode": "0644",
       "path": "docs/SCHOLARLY_ADAPTER.md",
-      "sha256": "f268a93d773eff072001bec02d752706395b7f418319f936f66ef2704ab32a41"
+      "sha256": "88f57c8c984901d016407ebb14d7a44c3e459a5e024173558b4a511e084179eb"
     },
     {
       "bytes": 6367,
@@ -655,10 +655,10 @@
       "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
     },
     {
-      "bytes": 1917,
+      "bytes": 2257,
       "mode": "0644",
       "path": "lib/article-assets.ts",
-      "sha256": "7a2a7b86dcb16b6efe1bce966d1e1a6884ea8cd289f94330bd373cf84373a1b0"
+      "sha256": "858509e2e73fa03e3fbbb27d1dca7c6c1c0548cbb607eece6ab3ad5f967e3aa2"
     },
     {
       "bytes": 1103,
@@ -673,10 +673,10 @@
       "sha256": "6ea65e5d37e5517b87a3da08c7cf3de64f38103fb5c9c6383b3edf04d8fa9e5d"
     },
     {
-      "bytes": 20905,
+      "bytes": 20959,
       "mode": "0644",
       "path": "lib/clip.ts",
-      "sha256": "136045b0df9249b22a1f36a4425651b64568f8df96e61926c81254ed123d7c50"
+      "sha256": "e6aa313115355d859611869cf3c2d62399921810e23ba7d2edb4507168aecd29"
     },
     {
       "bytes": 612,
@@ -745,10 +745,22 @@
       "sha256": "2e35a517687c7076f4f632b886247f6f95309b6902475d0cf7004fffc282c272"
     },
     {
+      "bytes": 506,
+      "mode": "0644",
+      "path": "lib/network-capabilities.ts",
+      "sha256": "abbacb8917d5af07a953af9bb1ce2b8051daedd6d2ead6085d89fc46246a1eaf"
+    },
+    {
       "bytes": 33567,
       "mode": "0644",
       "path": "lib/office.ts",
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
+    },
+    {
+      "bytes": 1678,
+      "mode": "0644",
+      "path": "lib/passive-html.ts",
+      "sha256": "6d42e6fc12c9b900920439b84e7fdb7fa43af74922ce27d3e5fc5acaf6e70fbb"
     },
     {
       "bytes": 35036,
@@ -769,10 +781,10 @@
       "sha256": "54e44e96706b646bc7f19119cfb145e8c7e9e72d61e74b9af196a53b815de5f0"
     },
     {
-      "bytes": 10706,
+      "bytes": 10799,
       "mode": "0644",
       "path": "lib/scholarly-service.ts",
-      "sha256": "4fd1240984b274bd16f68eb041210c4a9a4d286f92979ff9c366bc4184add076"
+      "sha256": "297fdf89aa3b4f25c7b444e1aa243712ecdea06198ee184001c826d74f510fea"
     },
     {
       "bytes": 2920,
@@ -781,10 +793,10 @@
       "sha256": "2e017bd5ce8d8d7f69eaa5f61b099a391f0ecfaacd2e34b064350e0877de3065"
     },
     {
-      "bytes": 2204,
+      "bytes": 2324,
       "mode": "0644",
       "path": "lib/source-fetch.ts",
-      "sha256": "f9819b6cdfa58267d2d8e697798f20ec71fe4271bed7d47eb3b121ec9b096bbd"
+      "sha256": "83f1575a3c80549d97080e81960faecd6da2c88fa3aeea1f28b58415c712ebeb"
     },
     {
       "bytes": 8268,
@@ -805,10 +817,10 @@
       "sha256": "18c1ca5fb9ed9bc0d2d32b53a1bb05369c5c935d48fd04f68bf64c40d0fea913"
     },
     {
-      "bytes": 7062,
+      "bytes": 7221,
       "mode": "0644",
       "path": "lib/upload-client.ts",
-      "sha256": "3a772b085d586480c7f4fe175c87a2638f7a1ad14d0d60395a8708cd77030af4"
+      "sha256": "1545c4d875621c998adb5843ddeef3e3f742888dfa235802a42a9d7223f6b84f"
     },
     {
       "bytes": 4377,
@@ -1003,10 +1015,10 @@
       "sha256": "a1826ab791b22a204bb21b7e89caf6a52b481b2ceec99fabe6b57f54cc4f10c1"
     },
     {
-      "bytes": 8235,
+      "bytes": 8183,
       "mode": "0644",
       "path": "scripts/test-clip.mjs",
-      "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
+      "sha256": "4c8e2bbe989c36ef8a52c7d73c1ac3a509f6db185fab2561a95567c24f0ca811"
     },
     {
       "bytes": 8249,
@@ -1025,6 +1037,12 @@
       "mode": "0644",
       "path": "scripts/test-import-queue.mjs",
       "sha256": "7539090dd27a1924a5af7dc294711981d72da282c75fde2f733919c2aa1d5c76"
+    },
+    {
+      "bytes": 3298,
+      "mode": "0644",
+      "path": "scripts/test-network-capabilities.mjs",
+      "sha256": "f703d65edbf6026fb70e0a0879be113f7cfbc178c4d6f56a60fdb0a025686057"
     },
     {
       "bytes": 10873,
@@ -1069,10 +1087,10 @@
       "sha256": "9fdbd5e59fdcfbffe48f695cc97286e36a581654c37a0da7e691ee769a9a40eb"
     },
     {
-      "bytes": 11241,
+      "bytes": 11214,
       "mode": "0644",
       "path": "scripts/test-web-extraction-review.mjs",
-      "sha256": "c8c4b7dbe1875795bd3f789baebce5c031c82488994f000a09dc842a1c895817"
+      "sha256": "844680f6e119ccc2ac0277dafc1866254ed11414f8d925579bba76a25839695d"
     },
     {
       "bytes": 3261,

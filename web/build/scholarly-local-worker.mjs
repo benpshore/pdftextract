@@ -2,6 +2,7 @@
 export default {async fetch(request,env){
   const path=new URL(request.url).pathname;
   if(!['/health','/grobid','/bibliography'].includes(path))return new Response('Not found',{status:404});
+  if(path==='/bibliography')return new Response('Automatic metadata lookup is disabled',{status:503});
   let base;
   try{base=new URL(env.SCHOLARLY_LOCAL_URL);}catch{return new Response('Local scholarly runtime is not configured',{status:503});}
   if(base.protocol!=='http:'||base.hostname!=='127.0.0.1'||base.username||base.password||base.search||base.hash||base.pathname!=='/')return new Response('Invalid local runtime configuration',{status:503});

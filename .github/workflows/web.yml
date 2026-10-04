@@ -44,6 +44,7 @@ jobs:
       - run: node scripts/test-citations.mjs
       - run: node scripts/test-scholarly-adapter.mjs
       - run: node scripts/test-scholarly-resolution.mjs
+      - run: node scripts/test-network-capabilities.mjs
       - run: node scripts/test-scholarly-controls.mjs
       - run: node scripts/test-scholarly-client.mjs
       - run: node ../scripts/test-site-scholarly-workers.mjs

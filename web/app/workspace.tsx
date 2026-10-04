@@ -17,6 +17,8 @@ import {recognizeImage} from '@/lib/image-ocr';
 import {extractOffice} from '@/lib/office';
 import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource} from '@/lib/upload-client';
 import {retainArticleImages} from '@/lib/article-assets';
+import {remoteExtractionEnabled,remoteExtractionMessage} from '@/lib/network-capabilities';
+import {passiveHtmlDocument} from '@/lib/passive-html';
 import {clearSavedWorkspaceCache, readWorkspace, writeWorkspace} from '@/lib/workspace-storage';
 import {deleteStoredDocument, StoredDocumentDeletionError} from '@/lib/document-client';
 import {cancelImportItem, filesFromDrop, ImportAttemptRegistry, restoreImportItems, retryImportItem, selectedImportFiles} from '@/lib/import-queue';
@@ -71,7 +73,7 @@ function nativeRecord(text:string,name:string):Extracted {
 async function supportsOcr(file:File):Promise<boolean> {const bytes=new Uint8Array(await file.slice(0,12).arrayBuffer());return (bytes[0]===0x89&&bytes[1]===0x50&&bytes[2]===0x4e&&bytes[3]===0x47)||(bytes[0]===0xff&&bytes[1]===0xd8&&bytes[2]===0xff)||(new TextDecoder().decode(bytes.slice(0,4))==='RIFF'&&new TextDecoder().decode(bytes.slice(8,12))==='WEBP');}
 function readableHtml(html:string,documentId?:string):string {
   const clean=DOMPurify.sanitize(html,{FORBID_TAGS:['iframe','script','style','object','embed','form','input','button','select','textarea','base','meta','svg','audio','video','source','track','picture','link'],FORBID_ATTR:['style','srcset','background','poster','ping','action','formaction','srcdoc']});
-  const document=new DOMParser().parseFromString(clean,'text/html');
+  const document=passiveHtmlDocument(clean,source=>{try{const target=new URL(source,window.location.origin),base='/api/documents/'+documentId;return !!documentId&&target.origin===window.location.origin&&(target.pathname.startsWith(base+'/assets/')||target.pathname===base+'/media');}catch{return false;}});
   for(const image of Array.from(document.querySelectorAll('img'))){
     let allowed=false;
     try {const target=new URL(image.getAttribute('src')||'',window.location.origin),base='/api/documents/'+documentId;allowed=!!documentId&&target.origin===window.location.origin&&(target.pathname.startsWith(base+'/assets/')||target.pathname===base+'/media');}catch {}
@@ -423,7 +425,7 @@ export default function Workspace({userId}:{userId:string}) {
 
   function addText(text:string,html='') {
     const clean=text.trim();if(!clean&&!html)return;
-    const lines=clean.split(/\r?\n/).filter(Boolean);if(lines.length&&lines.every(line=>/^https?:\/\//i.test(line)&&safeUrl(line))){add(lines.map(value=>({source:{type:'url' as const,url:value,feed:kind==='feed'},name:value})));return;}
+    const lines=clean.split(/\r?\n/).filter(Boolean);if(lines.length&&lines.every(line=>/^https?:\/\//i.test(line)&&safeUrl(line))){if(!remoteExtractionEnabled){setError(remoteExtractionMessage+' To keep a URL as text, include a description.');return false;}add(lines.map(value=>({source:{type:'url' as const,url:value,feed:kind==='feed'},name:value})));return;}
     addFiles([new File([html||text],html?'Pasted page.html':'Pasted text.txt',{type:html?'text/html':'text/plain'})]);
   }
   function onPaste(event:ClipboardEvent) {
@@ -493,6 +495,7 @@ export default function Workspace({userId}:{userId:string}) {
     return()=>{document.removeEventListener('pointerdown',outside,true);for(const input of inputs)input?.removeEventListener('cancel',cancelled);};
   },[]);
   useEffect(()=>{
+    if(!remoteExtractionEnabled)return;
     const context=(document as Document&{modelContext?:{registerTool:(tool:unknown,options:unknown)=>unknown}}).modelContext;if(!context?.registerTool)return;
     const lifecycle=new AbortController();try{Promise.resolve(context.registerTool({name:'capture_source',title:'Capture a web page or feed',description:'Privately save a public source, extract it, and retain its import status.',inputSchema:{type:'object',properties:{url:{type:'string'},feed:{type:'boolean'}},required:['url'],additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:true},execute:async(input:unknown)=>{if(!input||typeof input!=='object'||!('url'in input)||typeof input.url!=='string'||!safeUrl(input.url))throw new Error('A public HTTP or HTTPS URL is required.');return captureRef.current(input.url,'feed'in input&&input.feed===true);}},{signal:lifecycle.signal})).catch(()=>{});}catch{}return()=>lifecycle.abort();
   },[]);
@@ -506,7 +509,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
   function closeUpload(returnFocus=false){if(uploadMenu.current)uploadMenu.current.open=false;if(returnFocus)uploadTrigger.current?.focus({preventScroll:true});}
   function chooseUpload(input:HTMLInputElement|null){closeUpload(true);input?.click();}
-  function submitComposer() {if(paste.trim()){addText(paste);dirtyDraft.current=true;setPaste('');}}
+  function submitComposer() {if(paste.trim()&&addText(paste)!==false){dirtyDraft.current=true;setPaste('');}}
 
   return <main onPaste={onPaste} onDragOver={event=>{event.preventDefault();setDragging(true);}} onDragLeave={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))setDragging(false);}} onDrop={event=>void drop(event)} className={dragging?'drop-active':''}>
     <a className="skip-link" href="#reader">Skip to reader</a>
@@ -514,14 +517,15 @@ export default function Workspace({userId}:{userId:string}) {
     <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
     <div className="workspace-grid"><aside className="intake" aria-label="Add sources">
       <form className="composer" onSubmit={event=>{event.preventDefault();submitComposer();}}>
-        <label htmlFor="source-paste" className="sr-only">Paste a link or text</label>
-        <textarea id="source-paste" rows={2} value={paste} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
+        <label htmlFor="source-paste" className="sr-only">Paste text</label>
+        <textarea id="source-paste" rows={2} value={paste} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste text…"/>
         <div className="composer-actions"><details ref={uploadMenu} className="add-menu" onKeyDown={event=>{if(event.key==='Escape'&&uploadMenu.current?.open){event.preventDefault();event.stopPropagation();closeUpload(true);}}} onBlur={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))closeUpload();}}><summary ref={uploadTrigger}><Upload aria-hidden="true"/><span>Upload</span><ChevronDown aria-hidden="true"/></summary><div className="add-menu-options"><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Upload aria-hidden="true"/>Add files</button><button type="button" disabled={!folderSupported} onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button><p className="help">{folderSupported?'Choose multiple files or one folder at a time. Each selection joins the same queue.':'Folder picking is unavailable in this browser. Add files, or drop folders where supported.'}</p></div></details><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp aria-hidden="true"/></Button></div>
         <input ref={fileInput} hidden type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
         <input ref={attachFolderInput} hidden type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
         <input ref={photoInput} hidden type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';closeUpload(true);}}/>
       </form>
       <p className="intake-hint help">Files and folders share one import queue. Drop both together where your browser supports it.</p>
+      {!remoteExtractionEnabled&&<p className="help" role="note">URL and webpage fetching is disabled. Local files and pasted text remain available; external images and automatic metadata lookup are disabled.</p>}
       {!!pending&&<div className="processing-status" role="status" aria-live="polite" aria-atomic="true"><LoaderCircle className="processing-spinner" aria-hidden="true"/><div><strong>{processing?phaseLabel(processing.phase):'Waiting to import'}</strong><span>{processing?.name||pending+' queued'}{pending>1?' · '+pending+' imports remaining':''}</span>{processing&&!queueOpen&&<StageProgress item={processing}/>}</div></div>}
       {newlyReady&&<div className="ready-action"><Button variant="outline" onClick={()=>readQueue(newlyReady.id)}>Open {newlyReady.result?.title||newlyReady.name}</Button></div>}
       {error&&<div className="notice error" role="alert"><AlertCircle/><p>{error}</p><button className="icon-button" onClick={()=>setError('')} aria-label="Dismiss message"><X/></button></div>}
@@ -531,7 +535,7 @@ export default function Workspace({userId}:{userId:string}) {
       <details className="library" open={deleteTarget?true:undefined}><summary>Saved documents</summary><div className="library-actions">{deleteTarget&&cleanupPending&&<p className="help">Cleanup pending for “{deleteTarget.title}”. Use Delete saved document to retry; it has already been removed from your library.</p>}<ClearCachedFilesButton onClear={clearSavedCopies} disabled={!restored||storageBusy||Object.values(scholarly).some(scholarlyBusy)}/>{storageDocument&&<DeleteStoredDocumentButton documentName={storageDocument.title} onDelete={()=>deleteDocument(storageDocument)} disabled={!restored||storageBusy||storageDocumentHasWriters}/>}</div><form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved documents</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><div className="document-list">{documents.length?documents.map(record=><button key={record.id} aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openRecord(record)}><strong>{record.title}</strong><span className="help">{record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved'}</span></button>):<p className="help">Your saved sources appear here.</p>}</div></details>
     </aside><section id="reader" className="result-pane" aria-label="Document reader" aria-busy={!restored||loading} tabIndex={-1}>
       {loading&&selection&&<p role="status">Opening document…</p>}
-      {!selection?!restored||loading?<div className="empty-state" role="status"><h2>{loading?'Opening document…':'Restoring your workspace…'}</h2></div>:<div className="empty-state"><h2>Bring your reading here.</h2><p>Paste a link or use Upload to add files. Your reading appears here as soon as it is ready.</p></div>:<>
+      {!selection?!restored||loading?<div className="empty-state" role="status"><h2>{loading?'Opening document…':'Restoring your workspace…'}</h2></div>:<div className="empty-state"><h2>Bring your reading here.</h2><p>Paste text or use Upload to add files. Your reading appears here as soon as it is ready.</p></div>:<>
         <div className="reader-heading"><div><p className="help" role="status" aria-live="polite">{saveState}</p><h2 ref={resultHeading} tabIndex={-1}>{result?.title||selected?.title||selectedItem?.name||'Document'}</h2></div></div>
         {selectedItem?.savePending&&!activePhases.has(selectedItem.phase)&&<div className="notice"><p>Your result is ready here but has not been saved. You can copy or download it now.</p><Button disabled={settling.includes(selectedItem.id)} onClick={()=>retry(selectedItem.id,!!selectedItem.record)}>{selectedItem.record?'Retry save':'Retry import'}</Button></div>}
         {selected?.kind==='image'&&<img className="original-image" src={'/api/documents/'+selected.id+'/media'} alt={selected.title} loading="lazy"/>}

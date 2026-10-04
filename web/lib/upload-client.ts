@@ -1,4 +1,5 @@
 import type {DocumentRow, Extracted} from './types';
+import {remoteExtractionEnabled,remoteExtractionMessage} from './network-capabilities';
 export type UploadOptions={kind?:string;sourceUrl?:string;signal?:AbortSignal;onProgress?:(fraction:number)=>void};
 type AssetReceipt={url:string;id:string};
 async function responseJson<T>(response:Response):Promise<T>{
@@ -63,6 +64,7 @@ export async function uploadAssetFile(record:DocumentRow,file:File,options:Uploa
  return await multipart(file,{target:'asset',documentId:record.id,mime:file.type,name:file.name},options) as AssetReceipt;
 }
 export async function captureSource(url:string,signal?:AbortSignal):Promise<{file:File;url:string;contentType:string;decodedSource:string}>{
+ if(!remoteExtractionEnabled)throw new Error(remoteExtractionMessage);
  const response=await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url}),signal});
  if(!response.ok){await responseJson(response);throw new Error('Capture failed.');}
  const contentType=response.headers.get('content-type')||'text/html';

@@ -15,7 +15,8 @@ const production = (await Promise.all([
   source('../web/lib/asset-storage.ts'), source('../web/app/api/documents/[id]/assets/route.ts'),
   source('../web/app/api/documents/[id]/route.ts'),
   source('../web/app/api/uploads/route.ts'),
-])).map((text, index) => index === 3 ? text.replace('export async function POST(', 'async function capturedAsset(') : text).join('\n');
+  source('../web/lib/network-capabilities.ts'),
+])).map((text, index) => index === 3 ? text.replace('export async function POST(', 'async function capturedAsset(') : index === 6 ? text.replace(/^export /gm,'') : text).join('\n');
 
 const fixture = `
 import {env} from 'cloudflare:workers';
@@ -60,7 +61,7 @@ async function ownedRecord(id,user){const row=await env.DB.prepare('SELECT * FRO
 async function owner(){return fixtureOwner;}
 async function boundedBody(request){return new Uint8Array(await request.arrayBuffer());}
 function failure(error){return error instanceof Response?error:new Response(error.message,{status:500});}
-async function fetchPublicSource(){return {url:'https://fixture.invalid/image.png',response:new Response(new Uint8Array([137,80,78,71,13,10,26,10]),{headers:{'content-type':'image/png'}})};}
+async function fetchPublicSource(){count('source-fetch');return {url:'https://fixture.invalid/image.png',response:new Response(new Uint8Array([137,80,78,71,13,10,26,10]),{headers:{'content-type':'image/png'}})};}
 ${production}
 async function invoke(operation){
  if(operation.action==='delete'){await deleteDocument(operation.id,operation.user||fixtureOwner);return {deleted:true};}
@@ -182,10 +183,13 @@ try {
   await assertDeleted(patchEntry.id,[patchEntry.original.session.id]);
   passed.push('legacy_patch_cannot_republish_deleted_record');
   const captureEntry = await document();
-  const captureOutcome = await post({action:'race',id:captureEntry.id,point:'multipart-complete',pending:{action:'captured-asset',id:captureEntry.id}});
-  assert.equal(captureOutcome.deleted.status, 200, captureOutcome.deleted.message);assert.equal(captureOutcome.completed.status, 404);
+  const captureOutcome = await post({action:'captured-asset',id:captureEntry.id});
+  assert.equal(captureOutcome.status,503,captureOutcome.message);assert.match(captureOutcome.message,/disabled/);
+  assert.equal(captureOutcome.counts['source-fetch']||0,0);assert.equal(captureOutcome.counts.put||0,0);
+  assert.ok(await db.prepare('SELECT id FROM documents WHERE id=?').bind(captureEntry.id).first(),'Disabled capture preserves the saved local document');
+  assert.equal((await post({action:'delete',id:captureEntry.id})).status,200);
   await assertDeleted(captureEntry.id,[captureEntry.original.session.id]);
-  passed.push('late_captured_asset_is_removed');
+  passed.push('disabled_remote_asset_capture_preserves_local_document_without_fetch_or_write');
   const creationEntry = await document();
   const creationOutcome = await post({action:'race',id:creationEntry.id,point:'receipt-put',pending:{action:'start-upload',id:creationEntry.id}});
   assert.equal(creationOutcome.deleted.status,200,creationOutcome.deleted.message);assert.equal(creationOutcome.completed.status,410);

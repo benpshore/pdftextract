@@ -86,3 +86,17 @@ remain open under issues195/198 and service integration182. A PDF MIME/extension
 only gates manual eligibility; it does not classify every PDF as scholarly.
 Formal security scan is deferred. No deployment, production migration, credentials,
 access expansion, public native endpoint, merge or release is authorized here.
+
+## Local-file release hold (October 4, 2026)
+
+URL/webpage capture, remote image retention and automatic identifier resolution
+are disabled in draft code. There is no environment-variable override.
+`TPE_SCHOLARLY_RESOLVE=1` from an older preview is ignored. Local uploads, pasted
+text, stored originals, browser PDF/OCR assets, and embedded Office images remain
+available through owner-scoped storage. Source links are retained as evidence;
+opening a link is an explicit user action. Opt-in scholarly extraction still uses
+the configured private loopback GROBID/native service; it does not call registry
+resolution. Existing resolver artifacts remain downloadable when already saved.
+
+This capability hold is not security verification or a parser/network sandbox.
+Re-enabling remote capabilities requires verified controls and coordinated review.
