@@ -8183,7 +8183,7 @@ dependencies = [
 
 [[package]]
 name = "text-processing-engine"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "cff-parser",
@@ -8627,7 +8627,7 @@ checksum = "8df9b6e13f2d32c91b9bd719c00d1958837bc7dec474d94952798cc8e69eeec3"
 
 [[package]]
 name = "tpe-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "futures",
  "gpui",
@@ -8643,7 +8643,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-biblio"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde_json",
  "thiserror 2.0.21",
@@ -8653,7 +8653,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-browser"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "cef",
  "serde",
@@ -8664,7 +8664,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-common"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -8672,7 +8672,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-credentials"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "argon2",
  "chacha20poly1305",
@@ -8686,7 +8686,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-search"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "fastembed",
@@ -8699,7 +8699,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-speech"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "block2",
  "clap",
@@ -8714,7 +8714,7 @@ dependencies = [
 
 [[package]]
 name = "tpe-zotero"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "rusqlite",
  "serde",
