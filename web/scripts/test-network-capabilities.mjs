@@ -19,8 +19,18 @@ try{
   assert.equal(api.remoteExtractionEnabled,false);assert.equal(api.metadataResolutionEnabled,false);
   for(const operation of [()=>api.allowed('https://source.fixture.invalid/'),()=>api.fetchPublicSource('https://source.fixture.invalid/','text/html')])await assert.rejects(operation,error=>error instanceof Response&&error.status===503);
   await assert.rejects(()=>api.captureSource('https://source.fixture.invalid/'),/disabled/);
-  const local=api.clipHtml('<title>Local study</title><link rel="canonical" href="https://source.fixture.invalid/study"><link rel="alternate" type="application/rss+xml" href="https://source.fixture.invalid/feed"><link rel="stylesheet" href="https://resource.fixture.invalid/style.css"><meta name="citation_title" content="Local study"><script type="application/ld+json">{"@type":"ScholarlyArticle","headline":"Local study"}</script><article><h1>Local study</h1><p>Local readable text with a source <a href="https://source.fixture.invalid/">link</a>.</p><img src="https://resource.fixture.invalid/figure.png"></article>','https://saved.invalid/','local.html');
-  assert.equal(local.metadata.canonical,'https://source.fixture.invalid/study');assert.equal(local.metadata.feeds[0].url,'https://source.fixture.invalid/feed');assert.match(local.text,/Local readable text/);assert(!local.html.includes('<img'));assert(local.links.some(link=>link.url==='https://source.fixture.invalid/'));assert.equal(local.metadata.meta.citation_title,'Local study');assert.equal(local.metadata.structuredData[0].headline,'Local study');
+  const local=api.clipHtml('<!doctype html><html lang="fr"><head><title>Local study</title><link rel="canonical" href="https://source.fixture.invalid/study"><link rel="alternate" type="application/rss+xml" href="https://source.fixture.invalid/feed"><link rel="stylesheet" href="https://resource.fixture.invalid/style.css"><meta name="citation_title" content="Local study"><script type="application/ld+json">{"@type":"ScholarlyArticle","headline":"Local study"}</script></head><body><article><h1>Local study</h1><p>Local readable text with a source <a href="https://source.fixture.invalid/">link</a>.</p><img src="https://resource.fixture.invalid/figure.png"></article></body></html>','https://saved.invalid/','local.html');
+  assert.equal(local.metadata.language,'fr');assert.equal(local.metadata.canonical,'https://source.fixture.invalid/study');assert.equal(local.metadata.feeds[0].url,'https://source.fixture.invalid/feed');assert.match(local.text,/Local readable text/);assert(!local.html.includes('<img'));assert(local.links.some(link=>link.url==='https://source.fixture.invalid/'));assert.equal(local.metadata.meta.citation_title,'Local study');assert.equal(local.metadata.structuredData[0].headline,'Local study');
+  // A complete root declaration must survive inert fragment conversion. Entity
+  // decoding and quoted > belong to the browser's attribute parser. Fragments,
+  // comments and scripts must not invent document-level language provenance.
+  const clip=source=>api.clipHtml(source,'https://saved.invalid/','language.html');
+  const article='<head><title>Language fixture</title></head><body><article><p>Local readable language evidence.</p></article></body>';
+  assert.equal(clip(`<html>${article}</html>`).metadata.language,null);
+  assert.equal(clip(` \n<!-- prologue --><!DOCTYPE html><HTML title="a > b" LANG='fr&#45;CA'>${article}</HTML>`).metadata.language,'fr-CA');
+  assert.equal(clip(`<!-- <html lang="de"> -->${article}`).metadata.language,null);
+  assert.equal(clip(`<script>"<html lang='de'>"</script>${article}`).metadata.language,null);
+  assert.equal(clip('<article lang="es"><p>Declared article language remains.</p></article>').metadata.language,'es');
   const retained=await api.retainArticleImages({id:'local'}, {...local,html:'<p>Reading remains</p><img src="https://resource.fixture.invalid/figure.png"><img src="/api/documents/local/assets/owned">'});
   assert.match(retained.html,/Reading remains/);assert(!retained.html.includes('resource.fixture.invalid'));assert(retained.html.includes('/api/documents/local/assets/owned'));
   assert.equal(requests,0);
