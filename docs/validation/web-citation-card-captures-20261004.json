@@ -1,0 +1,24 @@
+{
+  "testedSources": {
+    "web/app/workspace.tsx": "01f00b13555bb531511909ed7734dde7d13223ed372075b6f4f22707007edbab",
+    "web/app/globals.css": "99d415b709e77d8294b02ef0b41b373b571afc1c6a636d73d1a8d54fb4d6c62b",
+    "web/lib/import-queue.ts": "693ec6aa2d2ff75c720b4c0fcc2962a0ba0e1a506702955df6c6757172157306",
+    "web/components/import-controls.tsx": "2a12d3a31d591385fa836b9ab6d2681e3709364978a06203a7bda1fd38848cf9",
+    "web/lib/document-client.ts": "5e8594eaa3e23a4775261bf35629323781d5a45efc1db4981b553a7f144c8fc6",
+    "web/lib/text-import.ts": "52dff7f83bc3f7f3419c0093c21caa22a5248f3674a40e82489d5c2393e38ac3",
+    "web/lib/workspace-storage.ts": "9e02544f2a4e98cd3f63bf9edb77477253422bda7fb37acd4d10dc21c567c965",
+    "web/lib/citations.ts": "6ea65e5d37e5517b87a3da08c7cf3de64f38103fb5c9c6383b3edf04d8fa9e5d",
+    "web/components/citation-browser.tsx": "972aab2406ea2de8f99437dbfb32bb19fd0f065286326fb36f68f2f5ba476741",
+    "web/lib/types.ts": "18c1ca5fb9ed9bc0d2d32b53a1bb05369c5c935d48fd04f68bf64c40d0fea913"
+  },
+  "viewport": {
+    "width": 390,
+    "height": 1000,
+    "rootFontPx": 36
+  },
+  "artifacts": [
+    "web-citation-reference-card-390-200-20261004.png",
+    "web-citation-csv-cell-card-390-200-20261004.png"
+  ],
+  "scope": "Actual frozen React/CSS/citation consumer in Chromium; supplied synthetic bibliography fixture. These screenshots do not demonstrate scholarly extraction or a connected backend."
+}

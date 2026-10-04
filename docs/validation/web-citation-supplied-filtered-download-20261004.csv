@@ -1,0 +1,2 @@
+﻿"type","id","label","title","authors","year","venue","raw","doi","pmid","url","page","mention","reference_ids","context","resolution_status","resolution_providers","resolution_note"
+"reference","ref-formula","","'=SUM(1,2)","[""SECOND_ONLY Author""]","","","Synthetic unresolved bibliography record","","","javascript:alert(1)","","","","","unresolved","[""crossref""]","Supplied fixture outcome"
