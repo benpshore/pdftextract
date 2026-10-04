@@ -8,7 +8,8 @@ Root owns queue/review/follow-through. No child agents, feature fanout, main mer
 ## Read this first
 
 Live main was independently fetched at `72890e6f9d23b1c10ee2cd9d368c7c0817319c10`.
-Ben's recent squash merges #168/#173/#212/#219 are preserved. Snapshot: **89 open PRs**.
+Ben's recent squash merges #168/#173/#212/#219 are preserved. Initial bounded snapshot: **89 open PRs**.
+The later web-stack repair is recorded below; this initial count is not a current global inventory.
 No old head is an ancestor of current main; squash ancestry cannot decide supersession.
 The machine-readable [repository map](stewardship/repository-map.json) has full exact
 heads/bases, contribution paths, containment, owners, next actions/reviews and done criteria.
@@ -41,16 +42,18 @@ No pins, toolchain or automatic-update permissions are changed by this stewardsh
   #172/#194/#203/#204 contribution files exactly equal current main. Closing those PRs
   does not remove their branches or erase #205's base. #175 remains a broad unqualified
   draft; its residual feature requirements are not accepted merely because some repairs landed.
-- Web: #175 → #192 → #211 → #221. #187/#188/#189 heads are contained by #192
+- Web: #175 → #192 → **#228 → #229**. #187/#188/#189 heads are contained by #192
   and retained as duplicate source/history, not independently promoted.
-  **#211's head does not contain #192's latest head**; inspect its merge base and newer
-  changes before integration. Do not retarget or combine stacks casually.
+  Original #211 descended from #207's original head while #192 contained its squash.
+  Both base trees are identical. New single-parent #228/#229 preserve the entire original
+  #211/#221 trees; original drafts are archived and closed without merging. No source
+  branch is rewritten. Broader #175/main qualification remains a separate gate.
 - OCR/GROBID #206 remains based on #175. #202 retains the isolated region contract plus merged #208 reviewed whole-span pilot;
   #207/#208/#209/#210/#213/#218 are verified merged into their feature-stack bases,
   rather than main. Their exact heads/bases are retained in
   [merged-stack-prs.json](stewardship/merged-stack-prs.json). Do not reopen or reland them separately.
-- Native #223 `7385a3bcd4592a2071cd5eb93d566fe4ec472723` and web #221
-  `3809145fc07c0a33be5a85514a50bc3dfcff4938` retain network-off boundaries.
+- Native #223 `7385a3bcd4592a2071cd5eb93d566fe4ec472723` and repaired web #229
+  `b752bae170ae628c07b12800a44a0a37b235db28` retain network-off boundaries.
   Their exact-head required ci was independently read back as terminal success;
   this is not current-main integration, full quality or security qualification.
 - Frozen native `eb5f711b` evidence (parent-reported) includes containment18/startup2/PDFium
@@ -87,7 +90,7 @@ for the current observed parent delegation, not falsely attributed to all earlie
 
 ## Verified cleanup and rationale receipts
 
-Four superseded PRs are closed **without merging**. Their individually named archive refs
+Six superseded PRs are closed **without merging**. Their individually named archive refs
 were independently read back at the exact heads before closure; original branches remain.
 Full method/receipt/reopening instructions: [cleanup-decisions.json](stewardship/cleanup-decisions.json).
 
@@ -97,13 +100,48 @@ Full method/receipt/reopening instructions: [cleanup-decisions.json](stewardship
 | #194 | `archive/steward-20261004/pr-194-0ece13395f83` | `0ece13395f8372a6e9b32aa93f16b612a850b0fe` | [receipt](https://github.com/benpshore/pdftextract/pull/194#issuecomment-5979665508) |
 | #203 | `archive/steward-20261004/pr-203-5cd375e6b2c4` | `5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0` | [receipt](https://github.com/benpshore/pdftextract/pull/203#issuecomment-5979667406) |
 | #204 | `archive/steward-20261004/pr-204-490e39f9320c` | `490e39f9320c1b9e2766f136c27f0dccf9ca78e0` | [receipt](https://github.com/benpshore/pdftextract/pull/204#issuecomment-5979669416) |
+| #211 | `archive/steward-20261004/pr-211-d8e902be6e40` | `d8e902be6e409b15f476ea126cb29e861a23b095` | [receipt](https://github.com/benpshore/pdftextract/pull/211#issuecomment-5980042744) |
+| #221 | `archive/steward-20261004/pr-221-3809145fc07c` | `3809145fc07c0a33be5a85514a50bc3dfcff4938` | [receipt](https://github.com/benpshore/pdftextract/pull/221#issuecomment-5980045854) |
 
 
 Active rationale reconciled for **#78/#83/#114/#175/#191/#192/#202/#205/#206/#211/#221/#223**;
 original evidence remains underneath a dated current-state note. [Body hashes/heads](stewardship/pr-rationale-updates.json)
 and [exact-head checks](stewardship/active-checks.json) record the revision. #222 and human/unknown
-#100/#101 remain untouched. #211 has no exact-head checks returned and does not contain its latest
-base; #78/#83 required ci fails. Green ci does not waive Native/registry/quality/security failures.
+#100/#101 remain untouched. Original #211 had no exact-head checks returned and did not contain
+its latest base. Its exact-tree replacement now has current green checks; #78/#83 required ci
+still fails and those separate dependency proposals were only classified in this follow-up.
+Green ci does not waive Native/registry/quality/security failures.
+
+## Verified linear web-stack repair
+
+Owner: Bob. Next review: 2026-10-05 UTC or any relevant main/head change.
+The [repair report](stewardship/web-stack-repair-20261004.json) records exact parents,
+trees, focused paths, ownership evidence, closures and all terminal-green check receipts.
+#207 original `32d93cab432623b6818aee2104e9c9f4094557f2` and #192 squash
+`b315c36a9d93c03ef1acac9339f758431587ff51` both have tree
+`0345a6d79cc9ba16150ea4194c865b76656103df`. This resolves the reported conflict as
+duplicate ancestry rather than a reason to discard dependent changes.
+
+| Review order | Exact head / single parent | Preserved tree / focused diff | Exact-head checks |
+|---|---|---|---|
+| [#228 adapter](https://github.com/benpshore/pdftextract/pull/228) | `e15e0e081fdaf8d5904b6154065b16dcd0658f5b` / #192 `b315c36a9d93c03ef1acac9339f758431587ff51` | Original #211 tree `d226930b2ffec77168e66bd1fa7ae14a5557b841`; 47 files | [CI](https://github.com/benpshore/pdftextract/actions/runs/37202349278), [Web](https://github.com/benpshore/pdftextract/actions/runs/37202349187): success |
+| [#229 network-off](https://github.com/benpshore/pdftextract/pull/229) | `b752bae170ae628c07b12800a44a0a37b235db28` / #228 `e15e0e081fdaf8d5904b6154065b16dcd0658f5b` | Original #221 tree `86e10a3baf49802df4ed3b8599a4d5f540c61f3c`; 25 files | [CI](https://github.com/benpshore/pdftextract/actions/runs/37202697546), [Web](https://github.com/benpshore/pdftextract/actions/runs/37202697554): success |
+
+Both new drafts are agent-created and carry this steward's validated responsible-identity
+trailers. Historical application contributors are not retroactively attributed to Bob.
+Local existing web commands passed (27 adapter, 28 network-off), as did 9/11 actual desktop
+Chromium checks, 92 Python plus 28 source-export tests on each tree and 184/187-file manifests.
+Published [command/browser reports](stewardship/web-stack-repair-20261004/) preserve exact
+source/fixture hashes. The browser bridge replays captured PR206 native output; no fresh
+native/GROBID/registry accuracy or actual-device claim. Local OSV is proxy-blocked;
+Cargo/Swift/CMake are absent. Existing system Chromium was used after the browser-download
+CDN denied access; no alternate download or permission workaround was attempted.
+
+Original owners are parent-reported idle; repeated live heads/comments found no newer claim.
+Platform runtime ownership/usage evidence remains unavailable. Done for this repair: exact
+source-tree equality, intended single-parent ancestry, green current checks, reversible
+source closure and readable current rationale/ledger. Subsequent promotion must separately
+qualify #175/main residuals and native/security gates. No merge, release or deployment occurred.
 
 ## Full bounded PR classification
 
@@ -113,11 +151,13 @@ review history and stacked dependencies. Human/unknown #100/#101 are untouched.
 
 | PR | Classification | Base / exact head prefix | Why / next step |
 |---|---|---|---|
+| [#229](https://github.com/benpshore/pdftextract/pull/229) | active-linear-draft-green | `steward/web-scholarly-linear-20261004` / `b752bae170ae` | Exact #221 tree; review after #228 |
+| [#228](https://github.com/benpshore/pdftextract/pull/228) | active-linear-draft-green | `fix/web-alpha-integration-20261004` / `e15e0e081fda` | Exact #211 tree; review after #192 |
 | [#223](https://github.com/benpshore/pdftextract/pull/223) | active-draft-gated | `fix/native-eval-provenance-20261004` / `7385a3bcd459` | Qualify focused residual against current main |
 | [#222](https://github.com/benpshore/pdftextract/pull/222) | active-separately-owned-security | `main` / `6fc3266e0860` | Read-only; separate author/owner |
-| [#221](https://github.com/benpshore/pdftextract/pull/221) | active-draft-gated | `feat/web-scholarly-adapter-local-20261004` / `3809145fc07c` | Qualify focused residual against current main |
+| [#221](https://github.com/benpshore/pdftextract/pull/221) | superseded-exact-tree / CLOSED | `feat/web-scholarly-adapter-local-20261004` / `3809145fc07c` | Archived; exact tree retained by #229 |
 | [#214](https://github.com/benpshore/pdftextract/pull/214) | active-dependency-candidate | `main` / `9aca9bf58b2a` | Read-only; separate author/owner |
-| [#211](https://github.com/benpshore/pdftextract/pull/211) | blocked-active-base-and-ci | `fix/web-alpha-integration-20261004` / `d8e902be6e40` | Base head not contained; inspect graph |
+| [#211](https://github.com/benpshore/pdftextract/pull/211) | superseded-exact-tree / CLOSED | `fix/web-alpha-integration-20261004` / `d8e902be6e40` | Archived; exact tree retained by #228 |
 | [#206](https://github.com/benpshore/pdftextract/pull/206) | active-draft-gated | `feat/native-toolkit-private-alpha-20261004` / `f7b41b93ba87` | Qualify focused residual against current main |
 | [#205](https://github.com/benpshore/pdftextract/pull/205) | active-draft-gated | `fix/docling-bibliography-order-20261004` / `3b73e37101e0` | Qualify focused residual against current main |
 | [#204](https://github.com/benpshore/pdftextract/pull/204) | superseded-exact-files / CLOSED | `fix/native-bibliography-boundaries-20261004` / `490e39f9320c` | Archived and closed; exact contribution files equal main |
@@ -213,10 +253,18 @@ No runnable extraction tool was run on Ben's Mac. No version, release tag, crede
 format, external storage permission, Site setting or security policy permission was changed.
 
 At the next review, refresh main and active exact heads before using this snapshot; inspect
-the four archive/closure receipts, finish active-head checks, and qualify any genuinely needed
+the six archive/closure receipts, refresh repaired-stack exact-head checks, and qualify any genuinely needed
 residual as a focused draft. User merging a runnable change remains a separate decision.
 
 Stable steward fingerprint: `sha256:2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f`.
+
+Usage oversight: this steward task remains active and sequential, with no child agents,
+speed escalation or credit purchase. Requested Sol6.1 / STANDARD / extra-high is recorded;
+actual runtime model/tier and provider token/credit usage are not exposed. No account-wide
+meter tool is available. Parent reports cloud ChatGPT signed out, Mac inspection unauthorized,
+and Ben's credits UI disrupting the call. Last reported 57,000 credits is self-reported,
+not live. No activity-derived balance estimate or hard spending-cap enforcement is claimed.
+Record any actual provider receipt if later exposed; do not ask Ben to switch UI during work.
 
 ## Explicit follow-up requirements from the live call
 

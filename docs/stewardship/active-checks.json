@@ -862,6 +862,117 @@
           "head_sha": "f23f392efec7d3d971c976b9f18b32b53d7039b2"
         }
       ]
+    },
+    {
+      "n": 228,
+      "head": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "checks": [
+        {
+          "name": "ci",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436922316",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "repo",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436442009",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "rust (ubuntu-24.04-arm)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441984",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "python",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441927",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "rust (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441914",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "swift",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441822",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "web",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349187/job/111436441633",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        }
+      ]
+    },
+    {
+      "n": 229,
+      "head": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "checks": [
+        {
+          "name": "ci",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437899296",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "web",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697554/job/111437446864",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "swift",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446587",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "repo",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446564",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "rust (ubuntu-24.04-arm)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446546",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "rust (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446531",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "python",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446494",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        }
+      ]
     }
-  ]
+  ],
+  "web_repair_observed_at": "2026-10-04T12:42:35Z"
 }

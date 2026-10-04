@@ -1,0 +1,111 @@
+{
+  "checks": [
+    "actual development auth rejects signed-out and spoofed identity requests",
+    "real local sign-in renders Workspace and reads the migrated isolated D1 library",
+    "actual document/scholarly/evidence routes reject the separately seeded foreign owner",
+    "real browser PDF Worker and multipart API save a readable result with exact original bytes in local D1/R2",
+    "real scholarly route reaches explicit captured-native loopback bridge through its service binding",
+    "mounted controls save two reported references while preserving reading, filename and missing-coordinate/in-text evidence",
+    "authenticated passive evidence downloads retain exact native JSON/raw TEI with source and TEI hashes",
+    "reference CSV, explicit unavailable mentions, CSV row view and reload retain the saved scholarly attachment",
+    "no browser runtime errors"
+  ],
+  "chromiumVersion": "151.0.7922.173",
+  "baseUrl": "http://127.0.0.1:37707",
+  "browserErrors": [],
+  "responses": [
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/36cf0c9b-306f-49e6-b318-37ea92024143",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/36cf0c9b-306f-49e6-b318-37ea92024143",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522/scholarly",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/3100d6eb-46d6-4839-81bd-38bb5cbc2408",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/3100d6eb-46d6-4839-81bd-38bb5cbc2408",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522/scholarly",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522/scholarly",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522/scholarly",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/36d138ec-9e01-4530-9d90-d29f2c3ce522/scholarly",
+      "status": 200
+    }
+  ],
+  "mode": "captured-native",
+  "fixtures": {
+    "pdf": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+    "capturedNativeJson": "1aadf263bbfe76e06a65cb8043fb9c86928dd3ace22499a6daae510da74999f4"
+  },
+  "scope": "Actual local app routes, development sign-in, browser PDF WASM Worker and workerd D1/R2. Scholarly extraction explicitly replays captured PR206 native output for its exact independently authored PDF; no live native/GROBID execution. No production access or deployment; one synthetic PDF does not establish general scholarly extraction accuracy.",
+  "sources": {
+    "web/app/workspace.tsx": "1bc59c5d90c79a32f89d8705d51b30d4ebea5d94b5511ec1e8cd5fb866af6e73",
+    "web/app/globals.css": "99d415b709e77d8294b02ef0b41b373b571afc1c6a636d73d1a8d54fb4d6c62b",
+    "web/build/sites-vite-plugin.ts": "07af20e7097d9ed1d76f7c446d02997550b8fc5ca89668b249e25eabd62c6834",
+    "web/build/sites-worker.ts": "28a75f74adfc226a773d1c00d5779c26412eea40a104da5c77f7d0f0fc30f0e8",
+    "web/components/scholarly-controls.tsx": "1821e7592657c7b4bc5536a7ef45a883d1cb9d818863e57dec57d8828cab0f28",
+    "web/lib/scholarly-adapter.ts": "8d7802410db89ea4dc2e5dc8cd26cd391bc3cacb887daed2542150a78f739679",
+    "web/lib/scholarly-service.ts": "4fd1240984b274bd16f68eb041210c4a9a4d286f92979ff9c366bc4184add076",
+    "web/lib/scholarly-client.ts": "ad94b399f8f7e2ddc7834fdb3823d1a0726a7c31f3bf6b365fda103c2e9c6ae8",
+    "web/lib/scholarly-naming.ts": "54e44e96706b646bc7f19119cfb145e8c7e9e72d61e74b9af196a53b815de5f0",
+    "scripts/test-web-scholarly-browser.mjs": "39cc47ec6c7006f61e9383173a19e0bae640d238cf129f3f8c993a4f74ca7cc2"
+  }
+}

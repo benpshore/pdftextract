@@ -38,6 +38,14 @@ who authorized scope, target, outcome, linked issue/PR/commit/review/test artifa
 receipt and limitations. Parent/child relationships belong to the task records.
 Unknown platform actions, runtime metadata, token use and monetary/credit spend stay
 unknown; a user-reported balance is not a usage receipt or spending authority.
+During this task, no account-wide credit-meter tool is available. The parent reports
+cloud ChatGPT signed out and no authority to inspect Ben's Mac; Ben reports that opening
+the credits UI disrupts the live call. Do not ask him to switch to that UI during work.
+His last reported 57,000 credits is self-reported, not a live balance. Record actual
+provider usage only when exposed; never infer spend or remaining credits from activity.
+Record requested model/tier, available task lifecycle and delegation facts with their
+evidence limits. Sequential work and no speed escalation are scope limits, not a hard
+spending cap, and no reliable account-wide enforcement is claimed.
 
 No further agents, Fast mode or spending expansion without parent approval. The parent
 owns the queue and follow-through. Do not create persistent signing credentials, external
