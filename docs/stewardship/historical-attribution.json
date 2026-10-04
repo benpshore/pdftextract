@@ -1,0 +1,371 @@
+{
+  "observed_at": "2026-10-04T11:46:35Z",
+  "policy": "No retrospective identities; shared GitHub login does not establish authorship.",
+  "current_parent": {
+    "name": "ChatGPTWork",
+    "task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb",
+    "prior_contributions": "unknown"
+  },
+  "known_historical": [
+    {
+      "name": "Luna (model family reported, individual name unknown)",
+      "issue": 224,
+      "source": "explicit parent delegation",
+      "task_id": null,
+      "fingerprint": null,
+      "cost": null
+    },
+    {
+      "role": "backend owner",
+      "task_id": "01a104e2-af9d-736f-a9ca-4da4148a4020",
+      "display_name": null,
+      "fingerprint": null,
+      "status": "reported idle; not reactivated"
+    },
+    {
+      "role": "web owner",
+      "task_id": "01a104e3-4ca8-7270-b6a6-a13c18acb02a",
+      "display_name": null,
+      "fingerprint": null,
+      "status": "reported idle; not reactivated"
+    }
+  ],
+  "issues": [
+    {
+      "number": 224,
+      "title": "Investigate reported release-only Cargo compile slowdown",
+      "state": "open",
+      "provenance": "known agent-created",
+      "url": "https://github.com/benpshore/pdftextract/issues/224",
+      "body_sha256": "3490d25260172fe2326befd48f34355975eb499b63cc55d008018fb3aef1dc0a"
+    },
+    {
+      "number": 220,
+      "title": "Unify release version identity and validate the exact version before publish",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/220",
+      "body_sha256": "fe188907dc58d9daf48fe83e0e44253c53a419586427f3c65748705f05998886"
+    },
+    {
+      "number": 217,
+      "title": "prevent symlink clobbering",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/217",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "number": 216,
+      "title": "block excel macros, word macros",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/216",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "number": 215,
+      "title": "harden against ssrf",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/215",
+      "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "number": 201,
+      "title": "[Release] Gate manual tags on exact-commit CI and recover interrupted automatic publication",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/201",
+      "body_sha256": "a1c5814480156034a8cb79a0c70945d176abce92f0a28d577909764730596b54"
+    },
+    {
+      "number": 200,
+      "title": "[Security][Coverage gap] Complete pinned Standard audit and final-candidate containment gate",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/200",
+      "body_sha256": "80a6be4657cc683d2eca222c670390800d4f027db5304e8a1d22ff9d19084687"
+    },
+    {
+      "number": 199,
+      "title": "[Epic] OCR PDFs: CPU-first validation and dedicated SQLite corpus",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/199",
+      "body_sha256": "2ba605c012a078d68f10d44645678fdd95029b93e469fec66acba5c1d63b2b22"
+    },
+    {
+      "number": 198,
+      "title": "[GROBID runtime] Qualify a bounded loopback CPU CRF service on the Codex Cloud VM",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/198",
+      "body_sha256": "27815e93e3267f585bf6a52a541fddfe586fb7f0e1121dba8e091f47ce272ab8"
+    },
+    {
+      "number": 197,
+      "title": "[OCR runtime] Evaluate local CPU OCR in a dedicated Codex Cloud SQLite evidence database",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/197",
+      "body_sha256": "01b0eee86d014bf1e741e308df75bd1dc4ad6013044a0a935c66c1d511bb301d"
+    },
+    {
+      "number": 196,
+      "title": "[Native engine] Preserve lopdf baseline and region alternatives before evidence-based fusion",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/196",
+      "body_sha256": "ce72f2cce07ca2cb3cc3cfd249096114d9200806cc86b515a70294360040dc1f"
+    },
+    {
+      "number": 195,
+      "title": "[Web app] Implement extracted citations, inspectable CSV, and mobile reference browsing",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/195",
+      "body_sha256": "ce70c3b2e3063ebcad1c3bf4c435da7329b000567b5625ab0a42f928f7897ec0"
+    },
+    {
+      "number": 193,
+      "title": "[PDF Oxide] Track standalone symbol, column-order and Unicode ActualText defects",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/193",
+      "body_sha256": "92f4ddd96ab31d533960706025c679d07ea8a3e56828fa963ea06f1d524fc239"
+    },
+    {
+      "number": 190,
+      "title": "[Native bibliography] Reproduce and repair eight retained zero-reference outcomes",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/190",
+      "body_sha256": "2babcd79fc6ea012befac5e9f3cc02c7e5d0d4557b5b988a26905b88ba736b54"
+    },
+    {
+      "number": 186,
+      "title": "[Web app] Safe batch controls, local cache clearing, and owned document deletion",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/186",
+      "body_sha256": "8a4e3f16c4f0c1b21294ffaa853da48920ecee209db37c1b009a94c69bcc8a03"
+    },
+    {
+      "number": 185,
+      "title": "[Web app] Show plain text before original storage completes",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/185",
+      "body_sha256": "3e4218b72b15493a6da27d6a89f57630a03707d93485e3d59e840badd311e550"
+    },
+    {
+      "number": 184,
+      "title": "[Web app] Repair Upload and stable reader flow",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/184",
+      "body_sha256": "b69fb090ccfea5d5648ddbdb591d4bd38c2f9ecedffa6fb5a96222afcb454881"
+    },
+    {
+      "number": 183,
+      "title": "[Web app][Epic] Connect read-only MCP, portable ChatGPT bundles, and future chapter audio",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/183",
+      "body_sha256": "35a64a887d8fd7dc1009ead3bcdfc760c511145af6a5ed34cf153b04ea1ed0f5"
+    },
+    {
+      "number": 182,
+      "title": "[Integration][Epic] Deploy and qualify native, GROBID, and Docling processing services",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/182",
+      "body_sha256": "8abddbbcf87e79dbd902a522a92661f4324d75e43a8af04328473d8165c7ac14"
+    },
+    {
+      "number": 181,
+      "title": "[Native engine][Epic] Complementary parser routing, evidence fusion, and performance qualification",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/181",
+      "body_sha256": "3066bf48c15871836bce8253f2fdbf22859516fa6108bb1f9f66c461ade39202"
+    },
+    {
+      "number": 180,
+      "title": "[Web app][Epic] Office/archive/OCR/media format coverage with real retained content",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/180",
+      "body_sha256": "9bbb1b52665b202680603d167121934c46230b93d7beafef7cf0c2f5f9b0d800"
+    },
+    {
+      "number": 179,
+      "title": "[Web app][Epic] 50 GB mixed-batch uploads, durable resume, and storage lifecycle",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/179",
+      "body_sha256": "c2761ba91621adcce6d0df992a7f7c265397f7a9ba2046c6f2d06efc575f2e16"
+    },
+    {
+      "number": 178,
+      "title": "[Web app][Epic] Minimal mobile UI, reliable navigation, and accessible import state",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/178",
+      "body_sha256": "fe79a043071b4fe7e23fa76d80286fcc64d742d8fd9392b90116dd7342d38a00"
+    },
+    {
+      "number": 177,
+      "title": "[Web app][Epic] Clean HTML/RSS/Atom extraction, actual images, and rendered-page coverage",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/177",
+      "body_sha256": "656f89da00d3ff675ea55fb3b1f696719a6391a58ff76b31dbfbd39a80475048"
+    },
+    {
+      "number": 176,
+      "title": "[Web app][Epic] Reproducible Site source, release evidence, and Dot handoff",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/176",
+      "body_sha256": "4c6b1d72ff82161fa179a45be09a25c837ad7d6aab68ae68ba924cb6bb7cc273"
+    },
+    {
+      "number": 164,
+      "title": "Minimal tpe command: fresh implementation pending",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/164",
+      "body_sha256": "564a73a5f983a0ae75fb179a4fc861f305d3c0444661726e4fa45e25ffed42fc"
+    },
+    {
+      "number": 154,
+      "title": "Simplify lopdf module boundaries and remove demonstrated redundant work",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/154",
+      "body_sha256": "1ad0df03f36de95913678c2605921d3e5e4e1bd920ffcac75c4d89181687b795"
+    },
+    {
+      "number": 153,
+      "title": "Pin Rust toolchain and locked production build/run provenance",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/153",
+      "body_sha256": "78aa558aa098981c4bc6d4a380b0bd5d264eee6282f596beae454c68dd0026f3"
+    },
+    {
+      "number": 152,
+      "title": "Validate supervised PDFium evidence, FFI ownership and pinned upstream source builds",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/152",
+      "body_sha256": "4f9209f97facec18e848890d9920f4adeba63e1d74b1f0b203e64dd894608ba8"
+    },
+    {
+      "number": 151,
+      "title": "Develop the macOS GUI separately with an honest offline engine adapter",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/151",
+      "body_sha256": "37a7368c58a67f2e8e609c947f6afc9417b8ec7a6004f5237da1976c738bc09d"
+    },
+    {
+      "number": 150,
+      "title": "Require relevant evaluator checks and retain scoped scaffold archival",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/150",
+      "body_sha256": "a42a0d24bf5c806bd4ef8b6d649d4fb1226dc1645c4403aa43dac64ebeced4ff"
+    },
+    {
+      "number": 149,
+      "title": "Preserve output umask permissions and publication rollback in headless jobs",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/149",
+      "body_sha256": "6c52a50b7285f45b312f034bb2283c86de55eb0ed3a9ebd88d6d33b79a7eab97"
+    },
+    {
+      "number": 148,
+      "title": "Revalidate Crossref and biomedical resolution with independent labeled end-to-end evidence",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/148",
+      "body_sha256": "22833ee7d8d812076e4cf61bf7e2f89bc3a2fbbf51393aaca1863033ab939daa"
+    },
+    {
+      "number": 147,
+      "title": "Expand independent extraction validation beyond the 60-paper regression corpus",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/147",
+      "body_sha256": "d4e0022d81ee40fe0788c575f540923ce0873eb7229c1d5832eb1d61372c777a"
+    },
+    {
+      "number": 146,
+      "title": "Complete extraction resource repairs and dense-geometry cutoffs",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/146",
+      "body_sha256": "e1033eb51c5536e775e67a52d3c8eaf6ead22cd3b0dcd55df32eb33b8e148ce1"
+    },
+    {
+      "number": 145,
+      "title": "Maintain pinned unsafe Rust and FFI inventory for production builds",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/145",
+      "body_sha256": "dac3c2495d7d3f18a14974b2c9d7b1ca6fbf7baaf0987e1d74e22322ae34f05b"
+    },
+    {
+      "number": 144,
+      "title": "Track engine repairs, GUI, validation and safety inventories",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/144",
+      "body_sha256": "c67319d897dade7f203496944cc9e7f69447bd3958883878eab5782091f0cba6"
+    },
+    {
+      "number": 122,
+      "title": "Grid: Integer Overflow in Grid::expand_rows Leads to Safe-API Undefined Behavior #2",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/122",
+      "body_sha256": "d3fea69323977f490a312a7dc019098653e7c499850e0f499c8d14a955b63fb9"
+    },
+    {
+      "number": 47,
+      "title": "pdfium: bound page-window extraction and measure peak RSS on large-image/long-document stress cases",
+      "state": "open",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/47",
+      "body_sha256": "ff8c760d0f8ceb7e1477061a3918e6d844db04d3b03467245c6226bcb5bc5b4b"
+    },
+    {
+      "number": 46,
+      "title": "Native: require complete evaluation reports and capture comparable baseline/memory evidence",
+      "state": "closed",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/46",
+      "body_sha256": "9eb27862e3a98db00c947ef106c0f2b0f0894a0ab28a490a2df57cd5f801ea92"
+    },
+    {
+      "number": 45,
+      "title": "eval: compare matched paper cohorts and expose accuracy/provenance changes",
+      "state": "closed",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/45",
+      "body_sha256": "0600caa14b787795bb4167b3a7d2e753c2d9e65028e9d65fc8c5582ab2032a5c"
+    },
+    {
+      "number": 44,
+      "title": "pdfium: enforce image retention cap during collection and release consumed blobs",
+      "state": "closed",
+      "provenance": "unresolved; protected from mutation",
+      "url": "https://github.com/benpshore/pdftextract/issues/44",
+      "body_sha256": "7a9848607eba578c88e62cca7df676e36e339858686d25daacdc3dc6d0784aab"
+    }
+  ]
+}

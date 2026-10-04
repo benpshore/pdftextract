@@ -32,6 +32,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
@@ -40,6 +41,22 @@ jobs:
       - run: uv run ruff format --check
       - run: uv run ruff check --output-format=github
       - run: uv run pytest
+      - name: Validate agent registry, action history and marked commits
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -eu
+          uv run python scripts/agent_accountability.py verify
+          if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
+            uv run python scripts/agent_accountability.py audit-range --base "$BASE_SHA" --head "$HEAD_SHA"
+            if git cat-file -e "$BASE_SHA:docs/stewardship/actions.jsonl" 2>/dev/null; then
+              baseline=$(mktemp)
+              git show "$BASE_SHA:docs/stewardship/actions.jsonl" > "$baseline"
+              uv run python scripts/agent_accountability.py verify --baseline "$baseline"
+              rm "$baseline"
+            fi
+          fi
       - run: uv run pytest web/tests/test_site_source.py
       - run: uv run python scripts/site_source.py verify --source web
       - run: uv audit --locked --preview-features audit-command

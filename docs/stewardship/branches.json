@@ -1,0 +1,397 @@
+{
+  "observed_at": "2026-10-04T11:46:35Z",
+  "branches": [
+    {
+      "name": "HEAD",
+      "sha": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10"
+    },
+    {
+      "name": "api/local-server",
+      "sha": "317d65793053acec239250e156e34c6d17832705"
+    },
+    {
+      "name": "app/cancel-job",
+      "sha": "34438e4bcc19dce60a23a29577eb829beb8fdcfe"
+    },
+    {
+      "name": "app/headless-tests",
+      "sha": "51c231411bb72a1e47909621e6ff36c03d00d0ef"
+    },
+    {
+      "name": "app/launch-smoke",
+      "sha": "34d59882f506e55c7ba5767a230ffff4e5b02e5a"
+    },
+    {
+      "name": "app/release-upload",
+      "sha": "6ba9b0550f4f553905526eb63e3823707be37a0d"
+    },
+    {
+      "name": "app/text-size",
+      "sha": "bd07c9501f5fc3718338b2e3855587d0836ed13e"
+    },
+    {
+      "name": "app/timings",
+      "sha": "d8508d52d57550bc190f941798a8219f5e330e39"
+    },
+    {
+      "name": "app/ui-jitter-probe",
+      "sha": "96f019b53b91074e92ed5781484e562bdccd5c5b"
+    },
+    {
+      "name": "app/virtual-list",
+      "sha": "39cd4450f5db8bdbde41c27b8f2fcf0e0d7a19ca"
+    },
+    {
+      "name": "archive/python-swift-cmake-2026-10-01",
+      "sha": "c8eeaaad165bc57db6f99df44dc3beccf67bd6c0"
+    },
+    {
+      "name": "audit/bibliography-adversary",
+      "sha": "deeeb291766ba5ae97d1688e07722c4e30ef44e8"
+    },
+    {
+      "name": "benpshore-patch-1",
+      "sha": "6a84632cf035337e11c9e7a4151c6292eba7f2e5"
+    },
+    {
+      "name": "benpshore-patch-2",
+      "sha": "bc653883fc8053416adec035a4ce6291471aaa72"
+    },
+    {
+      "name": "bibliography/canonical",
+      "sha": "bd51af9e09ab9d900f867ae72af6ceb86ae98dd3"
+    },
+    {
+      "name": "chore/archive-language-scaffolds",
+      "sha": "bee5459dd1beabece1274fbe38a77d35a8ac2828"
+    },
+    {
+      "name": "chore/tpe-search-clippy",
+      "sha": "4ffb5585fe92c9f0a265878757397df6f5e5a62f"
+    },
+    {
+      "name": "cli/two-commands",
+      "sha": "c6ab5f8ceb07292b9dbb03c4a5745f67d76a466d"
+    },
+    {
+      "name": "codex/215-public-source-egress",
+      "sha": "6fc3266e0860de85b0bf5bd39a364d783a1a2796"
+    },
+    {
+      "name": "codex/add-macos-application-bundle-and-features",
+      "sha": "d7e208bc6540a7f187d6c3696eefaae6d4730b38"
+    },
+    {
+      "name": "codex/add-macos-share-extension-with-intake-library",
+      "sha": "dda9a6f5f18cca39709378ab0f4bc8ad25539a3f"
+    },
+    {
+      "name": "codex/add-macos-specific-preflight-check-in-read_verified",
+      "sha": "6170f305925969a99712650b8abc2fc127c698de"
+    },
+    {
+      "name": "codex/add-resourcepolicy-and-metrics-documentation",
+      "sha": "e725632d3eb402f667d87ca5a5bf3502fae346e3"
+    },
+    {
+      "name": "codex/add-shared-artifact-writer-module",
+      "sha": "0af4b62af2ab4d07a94bf36fe420903d4df77ed6"
+    },
+    {
+      "name": "codex/add-typed-ledger-storage-policy",
+      "sha": "e6bbf0458225bd40a943e68e2e7ebba610399861"
+    },
+    {
+      "name": "codex/bounded-font-resources",
+      "sha": "b56a05ebe7be00d4f4be1d808e234235da97c7d7"
+    },
+    {
+      "name": "codex/cli-alpha-bounded-extraction",
+      "sha": "7f83d2a59b69395297a7e796cfeb3267a71b9caa"
+    },
+    {
+      "name": "codex/complete-geometry-search",
+      "sha": "f2ddf313604ebf16a01e61c5bd0160fb63febf8f"
+    },
+    {
+      "name": "codex/configure-wal-guard-protections-for-sqlite",
+      "sha": "e85c8e96615607abd00605f1bd5097f73bf68bd1"
+    },
+    {
+      "name": "codex/consolidate-fixes-from-multiple-prs",
+      "sha": "0d4bf7b4edf075e597202662666554f6461c9ea6"
+    },
+    {
+      "name": "codex/create-centralized-transport-and-endpoint-policy-module",
+      "sha": "5b81323bd788145c2e279fcd2a18b5a0be898c2f"
+    },
+    {
+      "name": "codex/create-resource-policy-module-and-cli-limits",
+      "sha": "1a8a388120d937348c853f1bd6c70ed4e1918218"
+    },
+    {
+      "name": "codex/create-watchdog-service-in-workspace-crate",
+      "sha": "bf25f48307e9ee1dfc4a471b85d5ded1685e3354"
+    },
+    {
+      "name": "codex/document-macos-26-deployment-target-and-tools",
+      "sha": "edb33dfc08efae75cf22fa07b1bae882fc12f088"
+    },
+    {
+      "name": "codex/extend-ledger-and-gui-with-new-features",
+      "sha": "861a4758230ce9643d910a29342b62a72d70ac35"
+    },
+    {
+      "name": "codex/extend-ledger-schema-with-migration-support",
+      "sha": "a814e9bab05ca49f0ac3766d9523b0663dedf6be"
+    },
+    {
+      "name": "codex/fix-auto-release-token-exposure-vulnerability",
+      "sha": "1d8021935c09014d25a8fb5bd649b9ba45ff8ba1"
+    },
+    {
+      "name": "codex/fix-medium-and-low-severity-security-issues",
+      "sha": "d0a5d30b3af239389cc6bc234a8f911d1ffc5b4b"
+    },
+    {
+      "name": "codex/fix-pdf-cpu-denial-of-service-vulnerability-xzigjw",
+      "sha": "afce5697081bb15dfec13dc70fe8c3143d334441"
+    },
+    {
+      "name": "codex/fix-pdfium-eager-parsing-vulnerability",
+      "sha": "4557fbc34ecd2924fc80aa843ec36110f5c3380f"
+    },
+    {
+      "name": "codex/fix-search-index-permission-vulnerability",
+      "sha": "1d74899107d3cc64814ffa398521b8abaad13825"
+    },
+    {
+      "name": "codex/fix-unsafe-permissions-for-ledger-files",
+      "sha": "e96fb95b0c3f48cbcb99f44bcef181e76f37b4d9"
+    },
+    {
+      "name": "codex/form-execution-evidence",
+      "sha": "77793d531574b3084710ad3563bf7e0e0c87298d"
+    },
+    {
+      "name": "codex/index-horizontal-groups",
+      "sha": "4859e45d89f31dc0cbeaace7cd9e3d6537759ab5"
+    },
+    {
+      "name": "codex/integrate-credential-management-in-tpe-app",
+      "sha": "4176bb4d729fcaa8916766eba07c663f2f893d7b"
+    },
+    {
+      "name": "codex/integrated-resource-repairs",
+      "sha": "7de09bfa473e29fc82335b4783b6a6c26269a6cc"
+    },
+    {
+      "name": "codex/lopdf-module-boundaries",
+      "sha": "6eafc85591c29e2c97c5709f126578392ac1f9ad"
+    },
+    {
+      "name": "codex/macos-gui-shell",
+      "sha": "86531f68fd6daf514105440fb542deaf4d464d6e"
+    },
+    {
+      "name": "codex/native-pmc200-validation",
+      "sha": "1de685874dfacaf9ad56091c13fe6dfaecc4daf4"
+    },
+    {
+      "name": "codex/normalize-overlapping-widths",
+      "sha": "0a43c3a883c61eaf5171184df52c424bf6a0d92e"
+    },
+    {
+      "name": "codex/pdfium-evidence-worker",
+      "sha": "85845b0fdfbb1b9f73077b1eee630d9dd3632281"
+    },
+    {
+      "name": "codex/pdfium-source-ci",
+      "sha": "d7a7c2c36dfe3862d39e9b1489b796e71886b378"
+    },
+    {
+      "name": "codex/pinned-rust-release-pr",
+      "sha": "eb7f3b7d3f63ed83f6ab6d24e3789d409e6e7314"
+    },
+    {
+      "name": "codex/project-kanban-sync",
+      "sha": "cc6479221710b3ee03013efa58bf75003f7d0719"
+    },
+    {
+      "name": "codex/propose-fix-for-cpu-exhaustion-vulnerability",
+      "sha": "6beda59896b9e8ca93e5bc39075297153f4e5efb"
+    },
+    {
+      "name": "codex/python-core-validation",
+      "sha": "af736d10df05b9a98cebbf1a6c50fe42c90fa62b"
+    },
+    {
+      "name": "codex/reconciled-repairs-validation",
+      "sha": "7a1f7417d527fc2530a75c35b26b5fc4f2659e6f"
+    },
+    {
+      "name": "codex/refactor-acquisition-and-pipeline-processing",
+      "sha": "33bb311e5f3f6de783a386758aee3105194e2a03"
+    },
+    {
+      "name": "codex/refactor-provider-definitions-for-tpe-app-and-tpe-credential",
+      "sha": "2f4f026affc452d6be5b64179f75e8d9cfdb8ec1"
+    },
+    {
+      "name": "codex/refactor-tpe_ai-for-provider-neutral-interface",
+      "sha": "e7cf5ad9a83e1b70369f142ac5fcac7dc28c181f"
+    },
+    {
+      "name": "codex/resolver-independent-cohort",
+      "sha": "2208c2c957625c7f2f3d03d1c5dae73b49cbc74e"
+    },
+    {
+      "name": "codex/resolver-venue-evidence",
+      "sha": "cbe575e0cfab9536208fe5134752477fa30fd8d4"
+    },
+    {
+      "name": "codex/skip-redundant-vector-scans",
+      "sha": "ae0cf249348990f7085efdddfa8dbdcee4139498"
+    },
+    {
+      "name": "codex/update-gpui-backend-configurations-and-tests",
+      "sha": "bc7f4a1b193d3daf0e2213eb17a13020f748e32e"
+    },
+    {
+      "name": "codex/vancouver-colon-titles",
+      "sha": "e439b79c04d56d35256176c50630c6611843b594"
+    },
+    {
+      "name": "dependabot/npm_and_yarn/web/npm_and_yarn-5158522556",
+      "sha": "9aca9bf58b2ad2bcd90bd9c8b9323bd426c93cb9"
+    },
+    {
+      "name": "diagnostics/native-bibliography-20261004",
+      "sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe"
+    },
+    {
+      "name": "docs/citation-graph-grobid-memos",
+      "sha": "bfff85ea484d87650fc885018f173b3a18a541cd"
+    },
+    {
+      "name": "docs/intended-architecture",
+      "sha": "c8eeaaad165bc57db6f99df44dc3beccf67bd6c0"
+    },
+    {
+      "name": "feat/cpu-ocr-grobid-runtime-20261004",
+      "sha": "f7b41b93ba874057f79cad1dc1f5d3a6ce3fbece"
+    },
+    {
+      "name": "feat/isolated-ingest-batch",
+      "sha": "cd14f587b11274da6f42a0a8b71773f8ac18e43b"
+    },
+    {
+      "name": "feat/native-format-ingestion",
+      "sha": "0e7b498f3bc88fb7a1497e019f6cef739234d8d6"
+    },
+    {
+      "name": "feat/native-network-capability-20261004",
+      "sha": "7385a3bcd4592a2071cd5eb93d566fe4ec472723"
+    },
+    {
+      "name": "feat/native-toolkit-private-alpha-20261004",
+      "sha": "baafb472873750e7e84d32c3c8e6fa7a680e37db"
+    },
+    {
+      "name": "feat/region-provenance-foundation-20261004",
+      "sha": "d964e9a7d939bab93bbe3ba3c57c4cc0a3c5c221"
+    },
+    {
+      "name": "feat/source-mapping-region-resume-20261004",
+      "sha": "3c9e731600f31f6cf6506e4eda92dc9ef16e78a1"
+    },
+    {
+      "name": "feat/web-batch-storage-lifecycle-20261004",
+      "sha": "5c0a3aa6d33ac22814e5906785aede118d772c87"
+    },
+    {
+      "name": "feat/web-local-only-default-20261004",
+      "sha": "3809145fc07c0a33be5a85514a50bc3dfcff4938"
+    },
+    {
+      "name": "feat/web-scholarly-adapter-local-20261004",
+      "sha": "d8e902be6e409b15f476ea126cb29e861a23b095"
+    },
+    {
+      "name": "feature/rename-from-metadata",
+      "sha": "d4f5aea806b4783470d3307307f3d14ce51ba010"
+    },
+    {
+      "name": "fix/bounded-form-resources",
+      "sha": "80bbab4caef5f960b7f4f77372350b65533e1c9f"
+    },
+    {
+      "name": "fix/detached-reference-labels",
+      "sha": "102638dfa417f8d16f067121d329fcf773d3cabf"
+    },
+    {
+      "name": "fix/docling-bibliography-order-20261004",
+      "sha": "490e39f9320c1b9e2766f136c27f0dccf9ca78e0"
+    },
+    {
+      "name": "fix/native-bibliography-boundaries-20261004",
+      "sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0"
+    },
+    {
+      "name": "fix/native-decompression-errors",
+      "sha": "627325b08bfac9318cfe3fb8025ce943e7c323ed"
+    },
+    {
+      "name": "fix/native-eval-provenance-20261004",
+      "sha": "3b73e37101e0ad1a22372601152f81403b273c54"
+    },
+    {
+      "name": "fix/refs40-title-boundaries",
+      "sha": "4188236f65e73410d0cd30febf5ce9a890aa750d"
+    },
+    {
+      "name": "fix/web-alpha-integration-20261004",
+      "sha": "b315c36a9d93c03ef1acac9339f758431587ff51"
+    },
+    {
+      "name": "fix/web-reader-upload-20261004",
+      "sha": "0d92038160dfbdf0ec39c36f5a816e5887759ef5"
+    },
+    {
+      "name": "integrate/native-bibliography-base-20261004",
+      "sha": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9"
+    },
+    {
+      "name": "lifecycle/auto-update",
+      "sha": "d547cd688b8cdd2199ca55b3ea2d4567fd1f524e"
+    },
+    {
+      "name": "main",
+      "sha": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10"
+    },
+    {
+      "name": "maintenance/current-dependency-updates",
+      "sha": "dda67a8981fb4110cc66aaa9fe63d86c4852e473"
+    },
+    {
+      "name": "maintenance/docling-1.74.1",
+      "sha": "f23f392efec7d3d971c976b9f18b32b53d7039b2"
+    },
+    {
+      "name": "perf/text-first-output-20261004",
+      "sha": "8194834e779795692732651077cada2e10cb0767"
+    },
+    {
+      "name": "publish/native-coverage",
+      "sha": "c484b73a6882431a12d8a061a307491fbc5e02cc"
+    },
+    {
+      "name": "publish/paragraph-region",
+      "sha": "5c6225c7e1dc76cea97fca6d3019cc31094fa8ac"
+    },
+    {
+      "name": "publish/pdfium-native-hyphen",
+      "sha": "23880f84e8964d1876461ad94a2ed5b470bb7e5d"
+    }
+  ]
+}
