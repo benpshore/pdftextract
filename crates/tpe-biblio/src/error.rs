@@ -49,6 +49,24 @@ impl BiblioError {
             }
             ureq::Error::TooManyRedirects => Self::Transport("too many redirects".to_string()),
             ureq::Error::BadUri(_) => Self::Transport("invalid request URI".to_string()),
+            // Classify failures without formatting their messages or source chains:
+            // TLS/proxy diagnostics can carry URLs, credentials or peer-supplied data.
+            ureq::Error::Tls(_) | ureq::Error::Rustls(_) => {
+                Self::Transport("TLS handshake or certificate validation failed".to_string())
+            }
+            ureq::Error::Pem(_) => Self::Transport("invalid TLS certificate data".to_string()),
+            ureq::Error::TlsRequired => Self::Transport("TLS transport unavailable".to_string()),
+            ureq::Error::ConnectProxyFailed(_) => {
+                Self::Transport("CONNECT proxy negotiation failed".to_string())
+            }
+            ureq::Error::InvalidProxyUrl => {
+                Self::Transport("invalid proxy configuration".to_string())
+            }
+            ureq::Error::Protocol(_) => Self::Transport("HTTP protocol error".to_string()),
+            ureq::Error::Http(_) => Self::Transport("HTTP request error".to_string()),
+            ureq::Error::RequireHttpsOnly(_) => {
+                Self::Transport("request requires HTTPS".to_string())
+            }
             _ => Self::Transport("request failed".to_string()),
         }
     }
@@ -69,5 +87,67 @@ mod tests {
             BiblioError::from_ureq(&ureq::Error::StatusCode(404)),
             BiblioError::NotFound
         ));
+    }
+
+    #[test]
+    fn transport_categories_drop_untrusted_error_payloads() {
+        const SECRET: &str = "https://USER:PASSWORD@example.org/?api_key=SECRET123";
+        let errors = [
+            (
+                ureq::Error::Tls(SECRET),
+                "TLS handshake or certificate validation failed",
+            ),
+            (
+                ureq::Error::ConnectProxyFailed(SECRET.to_string()),
+                "CONNECT proxy negotiation failed",
+            ),
+            (ureq::Error::InvalidProxyUrl, "invalid proxy configuration"),
+            (ureq::Error::TlsRequired, "TLS transport unavailable"),
+            (
+                ureq::Error::RequireHttpsOnly(SECRET.to_string()),
+                "request requires HTTPS",
+            ),
+            (
+                ureq::Error::Io(std::io::Error::new(
+                    std::io::ErrorKind::PermissionDenied,
+                    SECRET,
+                )),
+                "io: permission denied",
+            ),
+            (
+                ureq::Error::Other(Box::new(std::io::Error::other(SECRET))),
+                "request failed",
+            ),
+        ];
+        for (error, expected) in errors {
+            let mapped = BiblioError::from_ureq(&error);
+            assert!(matches!(&mapped, BiblioError::Transport(detail) if detail == expected));
+            assert_eq!(mapped.to_string(), format!("transport error: {expected}"));
+            let debug = format!("{mapped:?}");
+            for marker in ["example.org", "USER", "PASSWORD", "SECRET123"] {
+                assert!(!mapped.to_string().contains(marker));
+                assert!(!debug.contains(marker));
+            }
+        }
+    }
+
+    #[test]
+    fn malformed_certificate_and_http_request_keep_only_categories() {
+        let pem = b"-----BEGIN CERTIFICATE-----\nSECRET123!?\n-----END CERTIFICATE-----\n";
+        let error = ureq::tls::Certificate::from_pem(pem).unwrap_err();
+        assert!(matches!(&error, ureq::Error::Pem(_)));
+        assert_eq!(
+            BiblioError::from_ureq(&error).to_string(),
+            "transport error: invalid TLS certificate data"
+        );
+
+        let error = ureq::http::Request::builder()
+            .header("x-secret", "SECRET123\r\n")
+            .body(())
+            .unwrap_err();
+        assert_eq!(
+            BiblioError::from_ureq(&ureq::Error::Http(error)).to_string(),
+            "transport error: HTTP request error"
+        );
     }
 }
