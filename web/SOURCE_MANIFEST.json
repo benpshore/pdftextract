@@ -7,10 +7,10 @@
       "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
     },
     {
-      "bytes": 5199,
+      "bytes": 5234,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "536dc01742985dd2c8195fe3e293a67d884d7ad52945addb06791eee6f0beb1c"
+      "sha256": "0f1d1656f513b231d06fe0ca4fd34ce8da0ce4b0c6b21d1f5a51cdd96f9bcfac"
     },
     {
       "bytes": 996,
@@ -535,6 +535,12 @@
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
     },
     {
+      "bytes": 3440,
+      "mode": "0644",
+      "path": "docs/SOURCE_EGRESS.md",
+      "sha256": "24a293eabbd0da91574ea6f8f4c78f599d34add205e116474346e8de1f5c4873"
+    },
+    {
       "bytes": 148,
       "mode": "0644",
       "path": "drizzle.config.ts",
@@ -661,10 +667,10 @@
       "sha256": "2e017bd5ce8d8d7f69eaa5f61b099a391f0ecfaacd2e34b064350e0877de3065"
     },
     {
-      "bytes": 2204,
+      "bytes": 2521,
       "mode": "0644",
       "path": "lib/source-fetch.ts",
-      "sha256": "f9819b6cdfa58267d2d8e697798f20ec71fe4271bed7d47eb3b121ec9b096bbd"
+      "sha256": "87a3f39dd5985b18beaadc2589bd7d02528c34ca62d2817608d16af149f38b4a"
     },
     {
       "bytes": 132,
@@ -889,6 +895,12 @@
       "sha256": "0c35e57e6a1c7159a57dfe7ab624c51b58c3d5b3bb3324afa5e9f43c34fb967b"
     },
     {
+      "bytes": 7039,
+      "mode": "0644",
+      "path": "scripts/test-source-fetch.mjs",
+      "sha256": "b0aef1b8a0045a8e47962be91cf2e85d143895d94d26729de0596f2a3c79c02d"
+    },
+    {
       "bytes": 11241,
       "mode": "0644",
       "path": "scripts/test-web-extraction-review.mjs",
@@ -913,10 +925,10 @@
       "sha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a"
     },
     {
-      "bytes": 3115,
+      "bytes": 3290,
       "mode": "0644",
       "path": "vite.config.ts",
-      "sha256": "6f6d890794fbe23f3e35cceb327f49d5977432a5aaf715e040a6408932da395b"
+      "sha256": "3297e571997d361ada672b696eeb9933782e7b2dcac6cb133fed3d3af78f72f2"
     }
   ],
   "format": "tpe-site-source-v1"
