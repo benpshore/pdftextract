@@ -204,7 +204,7 @@ def read_tsv(path):
     return words, "".join(text_parts), dimensions
 
 
-def native_run(args, directory, name):
+def native_run(args, directory, name, *, allow_failure=False):
     with (
         (directory / f"{name}.stdout").open("wb") as out,
         (directory / f"{name}.stderr").open("wb") as err,
@@ -213,8 +213,107 @@ def native_run(args, directory, name):
         result = subprocess.run(  # noqa: S603
             args, stdin=subprocess.DEVNULL, stdout=out, stderr=err, check=False
         )
-    if result.returncode:
+    if result.returncode and not allow_failure:
         raise OcrError(f"{name}_exit_{result.returncode}")
+    return result.returncode
+
+
+def parse_osd(path):
+    """Parse a separate orientation diagnostic; it is not PSM1's applied transform."""
+    fields = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.partition(": ")
+        if not separator or key in fields:
+            raise OcrError("invalid_or_multiframe_orientation_report")
+        fields[key] = value
+    if fields.get("Page number") != "0":
+        raise OcrError("invalid_or_multiframe_orientation_report")
+    orientation = int(fields["Orientation in degrees"])
+    rotation = int(fields["Rotate"])
+    confidence = float(fields["Orientation confidence"])
+    script_confidence = float(fields["Script confidence"])
+    if (
+        orientation not in (0, 90, 180, 270)
+        or rotation not in (0, 90, 180, 270)
+        or (orientation + rotation) % 360
+        or not all(math.isfinite(value) and value >= 0 for value in (confidence, script_confidence))
+    ):
+        raise OcrError("invalid_orientation_values")
+    return {
+        "status": "detected",
+        "orientation_degrees": orientation,
+        "suggested_rotation_clockwise_degrees": rotation,
+        "orientation_confidence": confidence,
+        "script": fields["Script"],
+        "script_confidence": script_confidence,
+        "confidence_kind": "tesseract_score_not_probability",
+    }
+
+
+def orientation_diagnostic(config, image, directory):
+    exit_code = native_run(
+        [
+            config["tesseract"],
+            str(image),
+            str(directory / "orientation"),
+            "--tessdata-dir",
+            config["models_dir"],
+            "-l",
+            "osd",
+            "--oem",
+            "0",
+            "--psm",
+            "0",
+        ],
+        directory,
+        "orientation",
+        allow_failure=True,
+    )
+    diagnostics = (directory / "orientation.stderr").read_text(encoding="utf-8", errors="replace")
+    if exit_code:
+        # Sparse pages can lack enough orientation evidence. Other failures (including
+        # invalid/unloadable osd models) fail closed instead of a successful silent fallback.
+        if exit_code != 1 or "Too few characters. Skipping this page" not in diagnostics:
+            raise OcrError(f"orientation_exit_{exit_code}")
+        result = {"status": "unavailable", "reason": "insufficient_text"}
+    else:
+        result = parse_osd(directory / "orientation.osd")
+    result.update(
+        {
+            "diagnostic_exit_code": exit_code,
+            "source": "separate_tesseract_psm0_diagnostic",
+            "ocr_mode": "tesseract_psm1_auto_osd",
+            "internal_applied_rotation_degrees": None,
+            "output_geometry": "original_input_raster_pixels",
+        }
+    )
+    return result
+
+
+def retain_diagnostics(config, directory):
+    """Retain native evidence on successful and failed opt-in orientation attempts."""
+    artifacts = []
+    if not config["artifacts_dir"]:
+        return artifacts
+    for name in (
+        "ocr.stderr",
+        "rasterize.stderr",
+        "orientation.osd",
+        "orientation.stdout",
+        "orientation.stderr",
+    ):
+        diagnostic = directory / name
+        if diagnostic.exists():
+            target = Path(config["artifacts_dir"]) / f"page-{config['page']:06d}.{name}"
+            if target.exists():
+                # A failure after successful publication must not silently replace evidence.
+                if sha256(target) != sha256(diagnostic):
+                    raise OcrError("diagnostic_artifact_collision")
+            else:
+                with target.open("xb") as output, diagnostic.open("rb") as source:
+                    shutil.copyfileobj(source, output, length=65536)
+            artifacts.append({"name": name, "path": str(target), "sha256": sha256(target)})
+    return artifacts
 
 
 def page_worker(config_path):
@@ -245,6 +344,12 @@ def page_worker(config_path):
         image = directory / "raster.pgm"
         raster_seconds = time.monotonic() - started
     image_hash = sha256(image)
+    orientation = None
+    orientation_seconds = 0.0
+    if config["psm"] == 1:
+        before_orientation = time.monotonic()
+        orientation = orientation_diagnostic(config, image, directory)
+        orientation_seconds = time.monotonic() - before_orientation
     before_ocr = time.monotonic()
     native_run(
         [
@@ -266,10 +371,23 @@ def page_worker(config_path):
         "ocr",
     )
     ocr_seconds = time.monotonic() - before_ocr
+    if config["psm"] == 1:
+        diagnostics = (directory / "ocr.stderr").read_text(encoding="utf-8", errors="replace")
+        if (
+            "osd language failed to load" in diagnostics
+            or "Failed loading language 'osd'" in diagnostics
+        ):
+            raise OcrError("ocr_orientation_model_failed_to_load")
     before_parse = time.monotonic()
     tsv = directory / "recognition.tsv"
     words, text, (width, height) = read_tsv(tsv)
-    warnings = ["ocr_is_inferred_text_not_verified_complete", "automatic_orientation_not_performed"]
+    warnings = ["ocr_is_inferred_text_not_verified_complete"]
+    if orientation is None:
+        warnings.append("automatic_orientation_not_performed")
+    else:
+        warnings.append("orientation_diagnostic_is_not_the_applied_internal_transform")
+        if orientation["status"] != "detected":
+            warnings.append("orientation_estimate_unavailable")
     if config["kind"] == "pdf":
         warnings.append("pdf_coordinate_transform_unverified")
     if not words:
@@ -283,17 +401,16 @@ def page_worker(config_path):
             else "tesseract_diagnostics_present_not_retained"
         )
     artifacts = {"tsv": {"sha256": sha256(tsv), "path": None}}
+    if orientation is not None:
+        artifacts["diagnostics"] = []
     if config["artifacts_dir"]:
         destination = Path(config["artifacts_dir"]) / f"page-{config['page']:06d}.tsv"
         with destination.open("xb") as output, tsv.open("rb") as source:
             shutil.copyfileobj(source, output, length=65536)
         artifacts["tsv"]["path"] = str(destination)
-        for name in ("ocr.stderr", "rasterize.stderr"):
-            diagnostic = directory / name
-            if diagnostic.exists():
-                target = destination.with_suffix("." + name)
-                with target.open("xb") as output, diagnostic.open("rb") as source:
-                    shutil.copyfileobj(source, output, length=65536)
+        diagnostics = retain_diagnostics(config, directory)
+        if orientation is not None:
+            artifacts["diagnostics"] = diagnostics
     record = {
         "event": "page",
         "page": config["page"],
@@ -323,6 +440,13 @@ def page_worker(config_path):
             "rss_scope": "separate_process_maxima_not_simultaneous_tree_peak",
         },
     }
+    if orientation is not None:
+        record["orientation"] = orientation
+        record["timing_seconds"]["orientation"] = orientation_seconds
+        # Tesseract's TSV PageIterator returns original-image boxes after internal
+        # re-rotation. No external pixels were transformed, so do not rotate twice.
+        # Verified against all60 words of the pinned public upright/left-rotated pair.
+        record["raster"]["tsv_to_input_affine"] = [1, 0, 0, 1, 0, 0]
     with (directory / "result.jsonl").open("w", encoding="utf-8") as output:
         json.dump(record, output, ensure_ascii=False, allow_nan=False)
         output.write("\n")
@@ -351,7 +475,13 @@ def parser():
     result.add_argument("--dpi", type=positive_int, default=200)
     result.add_argument("--timeout-seconds", type=positive_float, default=120)
     result.add_argument("--memory-mib", type=positive_int, default=1024)
-    result.add_argument("--psm", type=int, choices=[3, 4, 5, 6, 7, 8, 9, 10, 11, 13], default=6)
+    result.add_argument(
+        "--psm",
+        type=int,
+        choices=[1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13],
+        default=6,
+        help="Segmentation mode; opt-in 1 needs osd.traineddata and records orientation evidence",
+    )
     result.add_argument("--tesseract", default="tesseract")
     result.add_argument("--pdftoppm", default="pdftoppm")
     result.add_argument("--pdfinfo", default="pdfinfo")
@@ -393,13 +523,18 @@ def execute(args, supervisor, output, root):
     models_dir = root / "models"
     models_dir.mkdir()
     models = []
-    for language in dict.fromkeys(args.language.split("+")):
+    model_languages = args.language.split("+") + (["osd"] if args.psm == 1 else [])
+    for language in dict.fromkeys(model_languages):
         model = snapshot(
             args.tessdata_dir / f"{language}.traineddata",
             models_dir / f"{language}.traineddata",
             supervisor,
         )
         model["language"] = language
+        if args.psm == 1:
+            model["role"] = (
+                "orientation_legacy_classifier" if language == "osd" else "recognition_lstm"
+            )
         models.append(model)
     runtime = {
         "tesseract": runtime_identity(
@@ -409,6 +544,8 @@ def execute(args, supervisor, output, root):
         "execution_provider": "native_cpu_tesseract_lstm",
         "native_dependency_closure": "not_fingerprinted",
     }
+    if args.psm == 1:
+        runtime["orientation_execution_provider"] = "native_cpu_tesseract_legacy_osd"
     total_pages = 1
     if kind == "pdf":
         for name in ("pdfinfo", "pdftoppm"):
@@ -614,6 +751,8 @@ if __name__ == "__main__":
                     "source_sha256": config["source_sha256"],
                     "timing_seconds": {"total": time.monotonic() - started},
                 }
+                if config["psm"] == 1:
+                    record["artifacts"] = {"diagnostics": retain_diagnostics(config, directory)}
                 (directory / "result.jsonl").write_text(json.dumps(record) + "\n")
                 (directory / "status").write_text("failed")
     else:

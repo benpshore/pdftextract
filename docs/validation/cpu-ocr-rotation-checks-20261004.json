@@ -1,0 +1,78 @@
+{
+  "recorded_at": "2026-10-04T03:01:46.137879+00:00",
+  "base_commit": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "source_identity": "Exact follow-up source hashes; recorded after evaluation and independent review before commit.",
+  "files_sha256": {
+    "scripts/cpu_ocr.py": "50758c6d0f628d8cb62c334518caf00d849ba7aa2041e67fd864e3d6f67316f7",
+    "scripts/cpu_ocr_eval.py": "16c25cacc5dc7fe5aa5e6a4fceffa37cfd3c9feb02a1b56cafa0a6b27d9a8299",
+    "scripts/cpu_ocr_eval_schema.sql": "fbbc664021808447c404f67ddcd8e1769cee45baa07f3e1e0c796949daaa1986",
+    "tests/test_cpu_ocr.py": "3dcd559e3e0a9126b10a89b368dd0a8fcbe8412454dbea5ef1c85a98f475c0c9",
+    "tests/test_cpu_ocr_eval.py": "41385fcc35ee961e99a6b4fec4a331ab47f1560ebfa66de4ec911b0a5d8931de"
+  },
+  "checks": [
+    {
+      "command": "uv run ruff format && uv run ruff check",
+      "outcome": "passed; 114 files unchanged"
+    },
+    {
+      "command": "uv run pytest",
+      "outcome": "141 passed in 13.67 seconds",
+      "log_path": "/workspace/scratch/cpu-ocr-rotation-pytest.log",
+      "log_sha256": "f0e0de89bc242b1474fa56e72beefce7532032cbbc7a0ac29c090817f05a4150"
+    },
+    {
+      "command": "git diff --check",
+      "outcome": "passed"
+    }
+  ],
+  "unchanged_base_checks": {
+    "commit": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+    "required_ci": "https://github.com/benpshore/pdftextract/actions/runs/37172044324",
+    "binary_builds": "https://github.com/benpshore/pdftextract/actions/runs/37172044281",
+    "conclusion": "both success; Rust x64/ARM, Swift, dependency audit and Linux x64/ARM/macOS ARM binary checks passed. Follow-up modifies only Python/docs/tests; dependency manifests and Rust/Swift/native sources unchanged."
+  },
+  "independent_review": {
+    "outstanding_substantive_findings": 0,
+    "worker_tests_passed": 28,
+    "verified": [
+      "all 35 new database BLOB hashes and lengths",
+      "SQLite integrity and foreign keys",
+      "all 6 page/attempt/score denominators",
+      "unchanged source/truth/nominal geometry on retained synthetic fixture",
+      "60 public word boxes match exact source-raster right-angle transform in both phases",
+      "original two database hashes unchanged",
+      "failed page diagnostics retained as BLOBs and omitted pages remain scored",
+      "actual active OSD deadline/SIGTERM cleanup, corrupt and missing model, blank page warnings"
+    ]
+  },
+  "databases": {
+    "cpu-ocr-evaluation.sqlite": {
+      "bytes": 39378944,
+      "sha256": "5cac89b7fbaaeb1d945e70cf46ff3cf2529946b7c903ad0f0698016ba587ba17"
+    },
+    "cpu-ocr-evaluation-font-qualified.sqlite": {
+      "bytes": 39546880,
+      "sha256": "ec01327b4714832a840e39e883c4a99dd9a2c253d4bdeafbde400b457b3fdd5c"
+    },
+    "cpu-ocr-evaluation-rotation-psm1.sqlite": {
+      "bytes": 47939584,
+      "sha256": "c4e24c6ad6cab9d3e51941ab6aaaa09f8b040c2d54e36876da861520533e03ca"
+    }
+  },
+  "limits": [
+    "Three known regression fixtures, not a held-out general accuracy corpus.",
+    "PSM1 is opt-in; default PSM6 unchanged.",
+    "Separate OSD diagnostic recommendation is not claimed as internal applied transform.",
+    "TSV boxes are in original raster coordinates; PDF transform stays null.",
+    "Ben-supplied personal dewarping algorithm remains deferred.",
+    "Hard termination may prevent in-progress temporary diagnostics from being published.",
+    "No new Rust/Swift/native source, toolchain or dependency-pin changes."
+  ],
+  "durable_original_bundle": {
+    "path": "/workspace/scratch/library-ocr-delivery-20261004/pdftextract-cpu-ocr-evidence-20261004-pr206.tar.gz",
+    "bytes": 50862409,
+    "sha256": "cf104511a1cfdeb8a6e722a62dc966b69222ae2f4c3f28074d61adc489236ff3",
+    "entries": 16,
+    "verified": true
+  }
+}

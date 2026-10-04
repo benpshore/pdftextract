@@ -48,9 +48,11 @@ or shared libraries during a run is outside this qualification contract.
 Inputs are PDFs, still PNG/JPEG images, binary grayscale/RGB PNM images, and
 classic little/big endian TIFF. Multi-frame TIFF is rejected if Tesseract reports
 more than one page; a successful first frame is never silently published as a
-complete TIFF result. Animated images, BigTIFF and automatic orientation are
-not qualified. Mode 6 assumes one text block; select another supported `--psm`
-for a different layout. Modes requiring automatic orientation are excluded.
+complete TIFF result. Animated images and BigTIFF are not qualified. Mode 6
+assumes one text block and remains the default. The separate
+[rotation follow-up](CPU_OCR_ROTATION_FOLLOWUP.md) qualifies opt-in `--psm 1`
+orientation detection with an explicitly provisioned `osd.traineddata` model;
+it retains source-raster coordinates and diagnostic uncertainty.
 
 ## Evidence and completion
 
