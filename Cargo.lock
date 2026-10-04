@@ -8639,6 +8639,7 @@ dependencies = [
  "thiserror 2.0.21",
  "tpe-common",
  "ureq",
+ "url",
 ]
 
 [[package]]
