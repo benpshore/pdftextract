@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "Actual owner and CSRF checks reject unauthenticated/foreign/extra-authority requests before native or object reads",
+    "Source bytes and captured-native source/TEI hash failures leave the prior readable result intact",
+    "A failed resolver bridge call saves real supplied bibliography with unavailable resolution, unverified identifiers, prior reading and canonical GROBID evidence intact",
+    "Actual captured output attaches two references without invented mentions; original reading/warnings and byte-exact passive evidence downloads survive with integrity checks",
+    "Stale preconditions and an interleaved real D1 CAS cannot overwrite the newer winner or retain the losing evidence",
+    "Cancellation before publication cleans this attempt; cancellation after the real CAS preserves a discoverable committed result",
+    "Deletion at bridge, artifact-write and pre/post-CAS barriers never resurrects metadata or leaves late attempt objects readable"
+  ],
+  "fixture": {
+    "source_sha256": "cc9f98b7c98aedfb6d48cb12b49354dc38b4bd5683eac131216cea18e42794fa",
+    "native_json_sha256": "1aadf263bbfe76e06a65cb8043fb9c86928dd3ace22499a6daae510da74999f4",
+    "tei_sha256": "439bface8b48fda35736ea13436ae90581d2587c187a721421e1531ce6383090"
+  },
+  "scope": "Actual API/service/adapter, real disposable workerd D1/R2. Identity and service responses are isolated fixtures; captured-native replay is not live GROBID, deployed auth or production evidence."
+}

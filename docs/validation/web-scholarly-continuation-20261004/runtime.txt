@@ -1,0 +1,23 @@
+✔ configuration restricts endpoint, command path and explicit mode (1.109216ms)
+✔ explicit resolver preserves existing proxy/certificate settings without unrelated credentials (1.268463ms)
+✔ missing runtime is blocked and never silently replays fixtures (35.718309ms)
+✔ captured mode is explicit, exact-byte preserving and source bound (17.305252ms)
+✔ browser origins, browser fetch metadata, Host rebinding and absent bridge marker are rejected (10.519863ms)
+✔ rejects invalid input type, non-PDF bytes and over-limit bodies (15.128847ms)
+✔ invokes native CLI with fixed safe arguments, retains all JSON and removes temporary PDF (60.328528ms)
+✔ optional resolver calls the real bibliography command separately and retains partial evidence (43.127936ms)
+✔ rejects overflow native output without publishing result (32.899756ms)
+✔ rejects invalid-utf8 native output without publishing result (37.007452ms)
+✔ rejects wrong-hash native output without publishing result (36.010062ms)
+✔ rejects failed native output without publishing result (34.049282ms)
+✔ deadline kills a SIGTERM-ignoring child and exposes no partial result (1359.519346ms)
+✔ request socket cancellation kills child, clears temporary file, and releases busy slot (453.599452ms)
+✔ runtime shutdown awaits forced child termination and temporary-file cleanup (306.437334ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2519.306317

@@ -1,0 +1,68 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 2 /Kids [4 0 R 6 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 1352 >>
+stream
+BT /F1 18 Tf 1 0 0 1 50 730 Tm (Synthetic Study of Reproducible Document Processing) Tj ET
+BT /F1 12 Tf 1 0 0 1 50 702 Tm (Alice Example and Ben Sample) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 681 Tm (Department of Computer Science, Example University) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 660 Tm (October 2026) Tj ET
+BT /F1 14 Tf 1 0 0 1 50 639 Tm (Abstract) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 611 Tm (We describe a benign synthetic study of reproducible document processing.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 590 Tm (This fixture checks retained scholarly structure and page coordinates.) Tj ET
+BT /F1 14 Tf 1 0 0 1 50 569 Tm (1 Introduction) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 541 Tm (Document processing requires explicit provenance and preserved originals.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 520 Tm (Example and Sample \(2024\) describe a controlled validation procedure.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 499 Tm (The present study measures a local CPU service with no metadata lookup.) Tj ET
+BT /F1 14 Tf 1 0 0 1 50 478 Tm (2 Methods) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 450 Tm (We generated two pages containing a title, abstract, methods and references.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 429 Tm (All paragraphs and reference records were written for this software test.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 408 Tm (The original bytes remain unchanged during repeated structured extraction.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 1127 >>
+stream
+BT /F1 14 Tf 1 0 0 1 50 730 Tm (3 Results) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 702 Tm (The experiment reports cold and warm service request times separately.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 681 Tm (A successful request is not a claim of exhaustive text or citation accuracy.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 660 Tm (The CPU runtime returns page surfaces and region coordinates in raw TEI.) Tj ET
+BT /F1 14 Tf 1 0 0 1 50 639 Tm (4 Discussion) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 611 Tm (Learned extraction can omit or misclassify synthetic scholarly fields.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 590 Tm (Raw evidence is retained so that downstream projections can be audited.) Tj ET
+BT /F1 14 Tf 1 0 0 1 50 569 Tm (References) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 541 Tm (Example, A. and Sample, B. \(2024\). Reproducible document processing.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 520 Tm (Journal of Synthetic Methods, 12\(3\), 100-110. doi:10.5555/synthetic.2024.) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 499 Tm (Reader, C. \(2025\). Provenance in scholarly extraction. Test Research,) Tj ET
+BT /F1 11 Tf 1 0 0 1 50 478 Tm (7\(2\), 22-30. doi:10.5555/synthetic.2025.) Tj ET
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000193 00000 n 
+0000000319 00000 n 
+0000001723 00000 n 
+0000001849 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+3028
+%%EOF

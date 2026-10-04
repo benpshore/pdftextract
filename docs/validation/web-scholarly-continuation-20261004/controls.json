@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "ordinary web sources never submit PDFs or advertise scholarly extraction",
+    "double activation rechecks capability once and starts with its current result-key precondition",
+    "document changes abort pending checks and ignore stale parsed capabilities",
+    "storage/import disabling that changes during an awaited check prevents extraction",
+    "cancellation has explicit processing/cancelling/uncertain states and reconciliation instead of an assumed rollback",
+    "passive native/TEI download controls require attachment metadata and unmount aborts pending work"
+  ],
+  "passed": 6,
+  "scope": "Actual React component; synthetic deferred capability requests, no native execution."
+}

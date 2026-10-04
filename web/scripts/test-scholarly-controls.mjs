@@ -1,0 +1,44 @@
+/** Actual React controls; deferred fetches exercise stale/double-click boundaries. */
+import assert from 'node:assert/strict';
+import {createRequire,Module} from 'node:module';
+import {fileURLToPath} from 'node:url';
+const require=createRequire(import.meta.url),{JSDOM}=require('jsdom');
+const dom=new JSDOM('<div id="root"></div>',{url:'https://synthetic-controls.test/'});
+for(const key of ['window','document','HTMLElement','Element','Node','Event','MouseEvent','MutationObserver','getComputedStyle'])globalThis[key]=dom.window[key];
+Object.defineProperty(globalThis,'navigator',{configurable:true,value:dom.window.navigator});globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+const React=require('react'),{act}=React,{createRoot}=require('react-dom/client');
+const {build}=require(require.resolve('esbuild',{paths:[require.resolve('vite')]})),web=fileURLToPath(new URL('../',import.meta.url));
+const compiled=new Module(web+'synthetic-scholarly-controls.cjs');compiled.filename=web+'synthetic-scholarly-controls.cjs';compiled.paths=Module._nodeModulePaths(web);
+compiled._compile((await build({entryPoints:[web+'components/scholarly-controls.tsx'],tsconfig:web+'tsconfig.json',bundle:true,write:false,platform:'node',format:'cjs',packages:'external'})).outputFiles[0].text,compiled.filename);
+const {ScholarlyControls}=compiled.exports,root=createRoot(document.getElementById('root')),requests=[],checks=[];
+const actualFetch=globalThis.fetch;globalThis.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));
+const record={id:'first',kind:'pdf',mime:'application/pdf',result_key:'first/results/old'},result={text:'Reading',metadata:{}};
+let starts=[],cancels=0,reconciles=0;
+const props={record,result,disabled:false,onExtract:key=>starts.push(key),onCancel:()=>cancels++,onReconcile:()=>reconciles++};
+const render=async extra=>{await act(async()=>root.render(React.createElement(ScholarlyControls,{...props,...extra})));};
+const capability={available:true,mode:'captured-native',resolver:false,baseResultKey:'first/results/old'};
+const respond=async(request,value=capability)=>{await act(async()=>request.resolve(Response.json(value)));};
+const button=name=>[...document.querySelectorAll('button')].find(node=>node.textContent===name);
+const click=async node=>{assert(node);await act(async()=>node.click());};
+try{
+  await render({record:{...record,kind:'html',mime:'text/html'}});assert.equal(requests.length,0);assert.match(document.body.textContent,/saved, readable PDF/);
+  checks.push('ordinary web sources never submit PDFs or advertise scholarly extraction');
+  await render();await respond(requests.at(-1));assert.match(document.body.textContent,/Captured runtime replay/);
+  await act(async()=>{button('Extract references').click();button('Extract references').click();});assert.equal(requests.length,2);
+  await respond(requests.at(-1));assert.deepEqual(starts,['first/results/old']);checks.push('double activation rechecks capability once and starts with its current result-key precondition');
+  starts=[];await click(button('Extract references'));const old=requests.at(-1);
+  await render({record:{...record,id:'second',result_key:'second/results/new'}});assert(old.options.signal.aborted);
+  await respond(old);assert.deepEqual(starts,[]);await respond(requests.at(-1),{...capability,baseResultKey:'second/results/new'});
+  checks.push('document changes abort pending checks and ignore stale parsed capabilities');
+  await click(button('Extract references'));const blocked=requests.at(-1);await render({record:{...record,id:'second',result_key:'second/results/new'},disabled:true});await respond(blocked);assert.deepEqual(starts,[]);
+  checks.push('storage/import disabling that changes during an awaited check prevents extraction');
+  await render({operation:{phase:'processing',message:'Working'}});await respond(requests.at(-1));assert.equal(button('Extract references'),undefined);await click(button('Cancel reference extraction'));assert.equal(cancels,1);
+  await render({operation:{phase:'cancelling',message:'Cancellation requested'}});assert(button('Cancel reference extraction').disabled);
+  await render({operation:{phase:'uncertain',message:'Unknown saved outcome'}});assert.equal(button('Extract references'),undefined);await click(button('Check saved result'));assert.equal(reconciles,1);
+  checks.push('cancellation has explicit processing/cancelling/uncertain states and reconciliation instead of an assumed rollback');
+  await render({result:{...result,metadata:{scholarly:{schema:'tpe.scholarly-attachment',version:1,evidence_id:'00000000-0000-4000-8000-000000000001',mode:'captured-native',generated_at:'2026-10-04T00:00:00Z',has_resolution:false}}}});
+  assert.equal(document.querySelectorAll('a').length,2);assert([...document.querySelectorAll('a')].every(link=>link.hasAttribute('download')));
+  await act(async()=>root.unmount());assert(requests.at(-1).options.signal.aborted);
+  checks.push('passive native/TEI download controls require attachment metadata and unmount aborts pending work');
+  console.log(JSON.stringify({checks,passed:checks.length,scope:'Actual React component; synthetic deferred capability requests, no native execution.'},null,2));
+}finally{globalThis.fetch=actualFetch;dom.window.close();}

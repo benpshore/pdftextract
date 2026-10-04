@@ -1,0 +1,16 @@
+{
+  "scope": "Actual Miniflare runtime probe using the unchanged local proxy and actual captured-mode Node runtime, before the root fix. This is not a deployed Site observation.",
+  "before": {
+    "health": {
+      "status": "ready",
+      "mode": "captured-native"
+    },
+    "error": "TypeError: Invalid redirect value, must be one of \"follow\" or \"manual\" (\"error\" won't be implemented since it does not make sense at the edge; use \"manual\" and check the response status code).",
+    "cause": "Worker proxy fetch used redirect:'error'"
+  },
+  "fix": {
+    "implementation": "redirect:'manual' with explicit 3xx rejection",
+    "proxySha256": "45d7af4c5324c852044bd57b56d486215aaa9420265b2174f5916c9e4d4f7cfc",
+    "verification": "See subsequent full-app browser report."
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "source_commit": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "source_tree": "76171017dde1d85c94f610c209368811245e1ad4",
+  "source_archive_sha256": "2a424efac7ad700907ca42d757c67e5a0e8df1f5e9012694f26d9f7988399500",
+  "cargo_lock_sha256": "00ff969d6bc010d669a77e8c2341a81219e7d30dadbfee892ef5825a2aadd57c",
+  "features": [
+    "grobid"
+  ],
+  "profile": "dev (debug)",
+  "build_command": "cargo build --locked -p text-processing-engine --bin tpe --features grobid -j 2",
+  "build_timeout_seconds": 900,
+  "build_version_override": "git-df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "build_version_override_reason": "Exact git archive has no .git directory; explicitly embed inspected source commit.",
+  "rustc_verbose": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: x86_64-unknown-linux-gnu\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "cargo_version": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "toolchain_components": {
+    "rustc": {
+      "url": "https://static.rust-lang.org/dist/2026-09-03/rustc-1.98.1-x86_64-unknown-linux-gnu.tar.xz",
+      "expected_sha256": "e974f036b28565f37c0f3bd92ddefa809bee16c04f9dcf07b9ed96e05aaaf7c4",
+      "actual_sha256": "e974f036b28565f37c0f3bd92ddefa809bee16c04f9dcf07b9ed96e05aaaf7c4"
+    },
+    "rust-std": {
+      "url": "https://static.rust-lang.org/dist/2026-09-03/rust-std-1.98.1-x86_64-unknown-linux-gnu.tar.xz",
+      "expected_sha256": "fa3ff450172a16c026944030230c5069947af93c728d9179971d44e5e0cfb561",
+      "actual_sha256": "fa3ff450172a16c026944030230c5069947af93c728d9179971d44e5e0cfb561"
+    },
+    "cargo": {
+      "url": "https://static.rust-lang.org/dist/2026-09-03/cargo-1.98.1-x86_64-unknown-linux-gnu.tar.xz",
+      "expected_sha256": "ea1de9f9e23107d97ee2b41a72c552f34064a593da503789218387aee59f3ba4",
+      "actual_sha256": "ea1de9f9e23107d97ee2b41a72c552f34064a593da503789218387aee59f3ba4"
+    }
+  },
+  "expected_binary": "/tmp/pdftextract-pr206-native/target/debug/tpe",
+  "build_log": "/tmp/pdftextract-pr206-native/build.log",
+  "production_build": false,
+  "build_succeeded": true,
+  "build_elapsed_seconds": 51.99,
+  "source_files_byte_equal_to_archive": 498,
+  "binary_sha256": "280fc91832368ebc4420a2a67eb98d7ffa6a4e3b7cb10ef8410063da41aba108",
+  "binary_size_bytes": 151444104,
+  "binary_version": "tpe git-df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+  "cli_help_verified": [
+    "grobid",
+    "bibliography"
+  ]
+}
