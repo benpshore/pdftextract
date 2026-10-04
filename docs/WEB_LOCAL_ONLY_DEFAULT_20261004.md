@@ -42,6 +42,12 @@ remaining checks before acceptance.
 The parent authorized publishing this benign feature hold as a draft PR. Hosted
 CI must complete on the published exact head. Only functional implementation and
 its limits are published; potential exploit details remain private.
+The first hosted Web run passed the feature checks but exposed an obsolete
+remote-capture race fixture. That fixture stripped the new capability import and
+waited for a capture barrier that is now unreachable. It now includes the actual
+capability guard and verifies 503, zero fetch/write, preserved local document and
+ordinary explicit deletion; all 11 lifecycle checks pass locally. No production
+code was changed for this test correction. The final published head must pass CI.
 Parent visual QA remains a separate acceptance gate. No deployment or production
 migration occurred. This change does not verify SSRF/rebinding claims, parser RCE,
 injection, or future MCP confidentiality/prompt-injection/symlink risks. Security
