@@ -1,5 +1,7 @@
 //! Backend built on `docling-pdf` / `docling-core` 1.69.2 (the `docling.rs`
-//! port of docling). Two modes share one implementation:
+//! port of docling). This is the legacy model-backed/library adapter. The CLI
+//! `docling-text` backend now uses `docling_text_backend`, a separate retained
+//! page parser without ML dependencies. Two library modes remain here:
 //!
 //! * **text layer** (`docling-text`): `docling_pdf::convert_text_layer_pages`,
 //!   a pure-Rust content-stream parser plus docling's line/paragraph
@@ -13,7 +15,9 @@
 //!
 //! docling already decides the reading order, so [`Extractor::provides_reading_order`]
 //! is `true` and spans are emitted in docling's node order with a running
-//! `seq` per page.
+//! `seq` per page. The adapter also supplies final lines: a narrowly qualified
+//! split reference opening at the bottom of two columns is moved beside its
+//! continuation, while the upstream spans and sequence remain unchanged.
 //!
 //! # Limitations (all by construction of the docling API)
 //!
@@ -69,7 +73,7 @@ const FORMULA_PLACEHOLDER: &str = "<!-- formula-not-decoded -->";
 /// Placeholder docling writes into a table cell that holds a picture.
 const IMAGE_PLACEHOLDER: &str = "<!-- image -->";
 /// Warning for a page docling produced nothing for.
-const NO_ITEMS_WARNING: &str = "docling: no items on page";
+const NO_ITEMS_WARNING: &str = "extraction_incomplete: docling produced no items on page";
 /// Logical document name handed to docling (it only labels the output).
 const DOC_NAME: &str = "doc";
 /// Bound on the `/Parent` walk used for inherited page attributes.
@@ -164,6 +168,14 @@ impl Extractor for DoclingBackend {
         config.insert("tables".to_string(), self.tables.to_string());
         config.insert("force_ocr".to_string(), self.force_ocr.to_string());
         config.insert("provider".to_string(), "cpu".to_string());
+        config.insert("ocr_engine".to_string(), "ppocr".to_string());
+        config.insert("evidence_policy".to_string(), "2".to_string());
+        if self.full {
+            config.insert(
+                "line_layout".to_string(),
+                "split-reference-start-v1".to_string(),
+            );
+        }
         if let Some((first, last)) = self.window {
             config.insert("window".to_string(), format!("{first}-{last}"));
         }
@@ -202,6 +214,14 @@ impl Extractor for DoclingBackend {
             let count = u32::try_from(doc.get_pages().len()).unwrap_or(u32::MAX);
             (count, page_geometry(&doc), info_entries(&doc))
         };
+        if page_count == 0 {
+            return Err(BackendError::Malformed(
+                "docling document has no pages".to_string(),
+            ));
+        }
+        let native_evidence = super::lopdf_backend::LopdfBackend::default()
+            .open(bytes, password)
+            .map_err(|error| error.to_string());
         Ok(Box::new(DoclingSession {
             bytes: bytes.to_vec(),
             password: password.map(String::from),
@@ -210,13 +230,19 @@ impl Extractor for DoclingBackend {
             geometry,
             info,
             converted: None,
+            native_evidence,
             figure_bytes: HashMap::new(),
         }))
     }
 
-    /// docling orders items itself.
+    /// Raw spans preserve upstream node order; the line projection can repair
+    /// a geometrically and semantically qualified split reference opening.
     fn provides_reading_order(&self) -> bool {
         true
+    }
+
+    fn provides_line_layout(&self) -> bool {
+        self.full
     }
 }
 
@@ -277,6 +303,7 @@ fn convert_full(
         index
     } else {
         let pipeline = Pipeline::new()?
+            .ocr_engine(Some(docling_pdf::OcrEngine::PpOcr))
             .no_ocr(!key.ocr)
             .no_table_former(!key.tables)
             .force_full_page_ocr(key.force_ocr);
@@ -329,6 +356,7 @@ struct PageGeometry {
     width: f32,
     height: f32,
     rotation: i32,
+    links_match_frame: bool,
 }
 
 /// One page of the cached conversion.
@@ -339,6 +367,7 @@ struct ConvertedPage {
     spans: Vec<Span>,
     figures: Vec<Figure>,
     warnings: Vec<String>,
+    list_items: Vec<usize>,
 }
 
 /// Pages 1..=count of the conversion; `None` where docling emitted nothing.
@@ -355,6 +384,7 @@ struct DoclingSession {
     /// `None` until the first `page_text`; then the conversion or its failure message.
     converted: Option<Result<Converted, String>>,
     figure_bytes: HashMap<(u32, u32), Vec<u8>>,
+    native_evidence: Result<Box<dyn DocumentSession>, String>,
 }
 
 impl DoclingSession {
@@ -431,8 +461,50 @@ impl DocumentSession for DoclingSession {
             text
         };
         if width <= 0.0 || height <= 0.0 {
-            text.warnings
-                .push("docling: page size unknown (no page marker, no MediaBox)".to_string());
+            text.warnings.push(
+                "extraction_incomplete: docling page size unknown (no page marker, no MediaBox)"
+                    .to_string(),
+            );
+        }
+        match &mut self.native_evidence {
+            Ok(session) => match session.page_text(page) {
+                Ok(native) => {
+                    text.links = native.links;
+                    if !fallback.links_match_frame
+                        || (width - fallback.width).abs() > 0.01
+                        || (height - fallback.height).abs() > 0.01
+                    {
+                        for link in &mut text.links {
+                            link.bbox = None;
+                        }
+                        text.warnings.push("extraction_incomplete: docling annotation geometry frame is unverified; URI targets retained without rectangles".to_string());
+                    }
+                    text.warnings.extend(native.warnings);
+                }
+                Err(error) => text.warnings.push(format!(
+                    "extraction_incomplete: native annotation evidence unavailable: {error}"
+                )),
+            },
+            Err(error) => text.warnings.push(format!(
+                "extraction_incomplete: native annotation evidence unavailable: {error}"
+            )),
+        }
+        text.warnings.push(
+            "extraction_incomplete: docling reconstruction coverage is unverified".to_string(),
+        );
+        crate::router::mark_incomplete(&mut text);
+        if self.config.full {
+            crate::reading_order::lines_in_backend_order(&mut text);
+            if let Some(current) = pages.get(index).and_then(Option::as_ref)
+                && let Some(next) = pages.get(index + 1).and_then(Option::as_ref)
+            {
+                super::docling_layout::repair_split_reference_start(
+                    &mut text,
+                    &current.list_items,
+                    &next.spans,
+                    &next.list_items,
+                );
+            }
         }
         Ok(text)
     }
@@ -554,6 +626,7 @@ struct PageBuild {
     figures: Vec<Figure>,
     warnings: Vec<String>,
     formulas_undecoded: u32,
+    list_items: Vec<usize>,
 }
 
 /// Walks a [`DoclingDocument`]'s nodes in order, tracking the current page
@@ -587,7 +660,7 @@ impl Walker {
         self.current = Some(1);
         let page = self.pages.entry(1).or_default();
         page.warnings
-            .push("docling: items before the first page marker attributed to page 1".to_string());
+            .push("extraction_incomplete: docling items before the first page marker attributed to page 1".to_string());
         1
     }
 
@@ -673,7 +746,11 @@ impl Walker {
             | Node::TextDump(text) => self.push_text(text, bbox),
             Node::ListItem { text, location, .. } => {
                 let own = self.own_location(*location);
+                let before = self.page().spans.len();
                 self.push_text(text, bbox.or(own));
+                if self.page().spans.len() > before {
+                    self.page().list_items.push(before);
+                }
             }
             Node::Formula {
                 latex,
@@ -812,7 +889,7 @@ impl Walker {
             if build.formulas_undecoded > 0 {
                 let count = build.formulas_undecoded;
                 build.warnings.push(format!(
-                    "docling: {count} formula region(s) not decoded; no text emitted"
+                    "extraction_incomplete: docling {count} formula region(s) not decoded; no text emitted"
                 ));
             }
             if build.spans.is_empty() && build.figures.is_empty() {
@@ -824,6 +901,7 @@ impl Walker {
                 spans: build.spans,
                 figures: build.figures,
                 warnings: build.warnings,
+                list_items: build.list_items,
             }));
         }
         (pages, self.figure_bytes)
@@ -951,6 +1029,10 @@ fn page_geometry(doc: &Document) -> Vec<PageGeometry> {
             width,
             height,
             rotation: page_rotation(doc, page_dict),
+            links_match_frame: page_rotation(doc, page_dict) == 0
+                && super::docling_text_backend::page_box(doc, *page_id).is_some_and(|bounds| {
+                    bounds.x0.abs() <= f32::EPSILON && bounds.y0.abs() <= f32::EPSILON
+                }),
         });
     }
     geometry
@@ -1051,6 +1133,8 @@ mod tests {
         config.insert("full".to_string(), "false".to_string());
         config.insert("ocr".to_string(), "false".to_string());
         config.insert("provider".to_string(), "cpu".to_string());
+        config.insert("ocr_engine".to_string(), "ppocr".to_string());
+        config.insert("evidence_policy".to_string(), "2".to_string());
         config.insert("tables".to_string(), "false".to_string());
         assert_eq!(text.config_digest, config_digest(&config));
 
@@ -1063,6 +1147,8 @@ mod tests {
         assert_eq!(DoclingBackend::default(), DoclingBackend::text_layer());
         assert!(DoclingBackend::text_layer().provides_reading_order());
         assert!(DoclingBackend::full().provides_reading_order());
+        assert!(DoclingBackend::full().provides_line_layout());
+        assert!(!DoclingBackend::text_layer().provides_line_layout());
     }
 
     #[test]
