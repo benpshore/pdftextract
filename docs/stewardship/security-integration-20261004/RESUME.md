@@ -11,16 +11,23 @@ verified #225 checkpoint SHA. Integration review branch is
 684d5588d9c6471d8f4996dc405ceea66456b316. A file cannot know its own containing
 commit SHA; the external #225 receipt records the verified checkpoint.
 
-Current step: recoverably save five explicit-network qualification workflow
-corrections and one existing PDFium workflow YAML syntax repair, plus their
-provenance/review queue. This checkpoint is WIP until corrected-head hosted CI
-is observed; no green qualification claim. Next action: read back checkpoint
-ref/tree and validate exact commit trailers/action segment; fast-forward the
-integration branch to the checkpoint candidate, update draft #234, then inspect
-its exact-head required CI/Web/Registry outcomes. Diagnose failures without
-weakening assertions or security settings. Hosted heavy diagnostic lanes may
-remain independently blocked by native/Partial gates. Never infer success from
-an older head or source PR.
+Current step: reviewed integration candidate is remotely saved and held at
+82f95ad99185b6641023169f8dd99d6f92438ac1 (tree
+cb2052eab4bca61231b9302f44feed061d81e7ad), draft #234. Required CI, Web,
+Registry, Native repair and bibliography evidence are terminal successful at
+that exact head; see final-ci.json. This later WIP checkpoint changes only
+stewardship documentation/evidence, not the integration code or candidate ref.
+Do not automatically advance the integration PR to a documentation-only WIP
+commit or repeat mutations that already match the verified target.
+
+Next action: parent coordinates bounded independent read-only Arch/Synthesis
+reviews at integration 82f95ad... and registers each reviewer identity/config/task
+and evidence. Observe pending Native37212097012 / Build37212096981 if needed;
+PDFium37212097064 platform blockers and Poppler37212096993 export failure are
+in blockers.json. Main promotion/release/deploy/formal clearance remain held.
+No unrelated native adapter/parser repairs or corpus material retrieval are
+authorized by this handoff. Preserve exact source PRs/archive refs and review
+requests; do not force push or waive mandatory checks.
 
 Evidence: 14 web commands; five actual local Chromium interactions; Ruff;
 210 Python + 28 source tests; 159-file manifest pass. Application/test/config
@@ -30,7 +37,7 @@ binary intent. Initial head Web passed; its live registry lane failed offline
 errors, now addressed by explicit network feature selection only in existing
 network-dependent test lanes. Original PDFium YAML failure was present on main;
 the exact intended shell command is preserved. Cargo/Swift/CMake are absent
-locally. Local OSV tunnel blocked, although initial hosted Python audit passed.
+locally. Local OSV tunnel blocked; corrected-head hosted Python audit passed.
 
 All source PRs #222/#223/#229 remain open/draft/unchanged and exact heads are
 preserved in individually named archive/steward-20261004 refs. Parent stacks
@@ -47,8 +54,8 @@ Bob fingerprint sha256:2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a
 config sha256:4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3.
 All new agent commits require those validated trailers plus task/action/authority.
 Ben human commits exempt. Hash integrity/lookup is not signing or correctness.
-13-record integration action checkpoint:
-4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e;
+17-record integration action checkpoint:
+bfca25a87c4c86aa428a2fe6c97d951b56ac4df9063e6554ad49c76366c1a3c4;
 original eight-record prefix preserved. External receipts provide later anchors.
 
 After this checkpoint, parent coordinates bounded independent read-only Arch

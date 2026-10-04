@@ -117,9 +117,9 @@ Responsible integration fingerprint:
 configuration: `sha256:4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3`.
 The stable [identity registry](https://github.com/benpshore/pdftextract/blob/aa51e4343853a4c41f723b6706889ea2fca820d5/docs/stewardship/agents.json)
 and validator in #226 were used for the new commit trailers and
-[13-record integration action segment](stewardship/security-integration-20261004/actions.jsonl).
+[17-record integration action segment](stewardship/security-integration-20261004/actions.jsonl).
 [Independent checkpoint](stewardship/security-integration-20261004/checkpoint.json):
-`4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e`.
+`bfca25a87c4c86aa428a2fe6c97d951b56ac4df9063e6554ad49c76366c1a3c4`.
 This segment does not rewrite #226's earlier journal. SHA256 establishes registry
 lookup/content/order integrity, not authenticated signing, authorship or
 correctness. Ben's human commits are exempt; a GitHub account is transport, not
@@ -168,3 +168,22 @@ reviewed head, decision and artifact evidence must be recorded; labels alone do
 not establish independence or approval. Formal security resources remain blocked.
 The separately queued Rusty Rick `makeghrepo --no-ci` and `--no-pr` task does not
 authorize changing this repository's CI/PR policy, or personal Todoist updates.
+
+## Exact-head handoff evidence
+
+At integration head `82f95ad99185b6641023169f8dd99d6f92438ac1`, required CI,
+Web, Registry, Native repair checks and native bibliography evidence are terminal
+successful. [Final run snapshot](stewardship/security-integration-20261004/final-ci.json)
+records exact IDs/heads, with [remaining blockers](stewardship/security-integration-20261004/blockers.json).
+PDFium macOS header checksum invocation and Linux ARM64 unsigned c_char compilation
+failed in source unchanged from main; Linux x64 probe passed. Poppler failed its
+visual-audit export step; no corpus/held-out artifacts were retrieved/republished.
+Native and binary builds remain active at the checkpoint, without accuracy or
+release claims. Broader green qualification and independent/formal reviews are
+not established. This documentation-only WIP save does not change the held draft
+integration candidate, restart its PR workflows, or imply merge authority.
+The prior 13-record action prefix is preserved; all 245 tested application/config
+hashes and original source heads remain unchanged. No local editing occurred
+during the intervening read-only CI wait/review, so no empty cadence commit was
+created. The next action and parent reviewer coordination are standalone in
+RESUME.md, recoverable independently of this chat.

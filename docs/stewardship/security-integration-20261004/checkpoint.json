@@ -1,6 +1,6 @@
 {
-  "count": 13,
-  "head_sha256": "4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e",
-  "previous_external_checkpoint": "65de5e4a22d33bc3c3e0cdaf6e0389243a9b63b8b9d52075f2f0df96c68b50be",
-  "scope": "Append-only integration segment; old 8-record prefix unchanged. Hash lookup/order/integrity only, not signing/authorship/correctness."
+  "count": 17,
+  "head_sha256": "bfca25a87c4c86aa428a2fe6c97d951b56ac4df9063e6554ad49c76366c1a3c4",
+  "previous_external_checkpoint": "4c41bd79106aa21ba4e8c9300ca69c39d567f4e97d0165b581d8e1c49006478e",
+  "scope": "Append-only integration segment; all 13 prior records preserved. Hash lookup/order/integrity, not signing/authorship/correctness."
 }
