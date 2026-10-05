@@ -123,6 +123,29 @@ repository root after `fetch.sh` needs an absolute `PDFIUM_DYNAMIC_LIB_PATH`.
 CI sets both variables to absolute paths, so tests and `tpe` do not depend on
 the CWD.
 
+## Per-page routing with confirmation (`routed`)
+
+`--backend routed` (features `pdf-oxide,pdfium`) extracts every page with PDF
+Oxide and consults `PDFium` page by page (`src/router.rs::page_route`, one
+`match`): a page goes to `PDFium` when PDF Oxide failed to read it, a font has
+no usable Unicode mapping, the text is empty, or it contains U+FFFD or
+private-use characters. Each page records its supplier
+(`routed: <backend> (<reason>)`); the two parsers are never combined within a
+page.
+
+A page that PDF Oxide mapped cleanly is additionally cross-read by `PDFium`
+when the library is available (environment variable or `tpe-pdfium fetch`
+install). When the two independent parsers agree (whitespace ignored, Dice
+similarity of character 4-grams at or above 0.98), the page drops PDF Oxide's
+standing `extraction_incomplete: ... completeness not independently verified`
+warning, records `confirmed: pdfium agrees (similarity ...)`, and is
+`complete`. Disagreement keeps the Oxide text, records
+`unconfirmed: pdfium disagrees (similarity ...)`, and stays `partial`; without
+`PDFium` the page records `unconfirmed: pdfium unavailable: ...` and stays
+`partial`. The routed identity carries the policy name
+(`oxide-default-pdfium-per-page-confirm-v2`), so ledger runs made before and
+after this rule are distinguishable.
+
 ## Licences
 
 | artifact | licence |

@@ -8,6 +8,15 @@
 //! document (an eager whole-document read, see `pdfium_backend`). When `PDFium`
 //! is missing or fails for a page, the Oxide page is kept and the page says so
 //! (`route not taken: ...`); nothing is silently substituted.
+//!
+//! An Oxide page that mapped cleanly is additionally *confirmed* by `PDFium`
+//! when it is available: both parsers read the page independently and, when
+//! their texts agree ([`agreement`]), the page drops PDF Oxide's standing
+//! "completeness not independently verified" warning and records
+//! `confirmed: pdfium agrees (...)`, so the page is Complete. Disagreement or
+//! an unavailable `PDFium` leaves the Oxide text and its Partial status in
+//! place and records `unconfirmed: ...`. The Oxide text itself is never edited
+//! from `PDFium`'s.
 
 use std::collections::BTreeMap;
 
@@ -18,7 +27,7 @@ use crate::router::{PageBackend, PageEvidence, Task, page_route};
 use crate::schema::{BackendIdentity, PageText, config_digest};
 
 /// Identity of the per-page rule; bump when [`page_route`] changes.
-pub const POLICY: &str = "oxide-default-pdfium-per-page-v1";
+pub const POLICY: &str = "oxide-default-pdfium-per-page-confirm-v2";
 
 /// The two-parser backend selected with `--backend routed`.
 #[derive(Clone, Debug, Default)]
@@ -85,6 +94,116 @@ impl RoutedSession {
     }
 }
 
+/// PDF Oxide's standing warning that its completeness was not independently
+/// verified (`pdf_oxide_backend`); lifted only by a `PDFium` confirmation.
+const UNVERIFIED_PREFIX: &str =
+    "extraction_incomplete: pdf-oxide character extraction retains upstream fallback uncertainty";
+/// Word-multiset similarity at or above which two parsers are taken to agree.
+const AGREEMENT_THRESHOLD: f64 = 0.98;
+
+/// How two parsers' texts for one page relate.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Agreement {
+    /// Identical after whitespace normalisation.
+    Same,
+    /// Word multisets overlap at this Dice similarity (at or above the threshold).
+    Close(f64),
+    /// Below the threshold.
+    Different(f64),
+}
+
+impl Agreement {
+    /// The similarity score behind the verdict.
+    #[must_use]
+    pub fn score(self) -> f64 {
+        match self {
+            Self::Same => 1.0,
+            Self::Close(score) | Self::Different(score) => score,
+        }
+    }
+}
+
+/// Compare two page texts. Whitespace is irrelevant (the parsers split spans
+/// and lines differently); otherwise the Dice coefficient of their character
+/// 4-gram multisets decides (`2|A∩B| / (|A|+|B|)`), which is insensitive to
+/// where either parser breaks words or lines.
+#[must_use]
+pub fn agreement(left: &str, right: &str) -> Agreement {
+    let left_chars: Vec<char> = left.chars().filter(|c| !c.is_whitespace()).collect();
+    let right_chars: Vec<char> = right.chars().filter(|c| !c.is_whitespace()).collect();
+    if left_chars == right_chars {
+        return Agreement::Same;
+    }
+    let grams = |chars: &[char]| -> Vec<String> {
+        if chars.len() < 4 {
+            vec![chars.iter().collect()]
+        } else {
+            chars.windows(4).map(|w| w.iter().collect()).collect()
+        }
+    };
+    let left_grams = grams(&left_chars);
+    let right_grams = grams(&right_chars);
+    let mut counts: BTreeMap<&str, i64> = BTreeMap::new();
+    for gram in &left_grams {
+        *counts.entry(gram.as_str()).or_default() += 1;
+    }
+    let mut shared = 0_i64;
+    for gram in &right_grams {
+        if let Some(count) = counts.get_mut(gram.as_str())
+            && *count > 0
+        {
+            *count -= 1;
+            shared += 1;
+        }
+    }
+    let total = left_grams.len() + right_grams.len();
+    #[allow(clippy::cast_precision_loss)]
+    let score = if total == 0 {
+        1.0
+    } else {
+        2.0 * shared as f64 / total as f64
+    };
+    if score >= AGREEMENT_THRESHOLD {
+        Agreement::Close(score)
+    } else {
+        Agreement::Different(score)
+    }
+}
+
+/// The page's characters in span order, exactly as the parser emitted them
+/// (PDF Oxide emits one span per character, `PDFium` one per line).
+fn page_words(page: &PageText) -> String {
+    page.spans.iter().map(|span| span.text.as_str()).collect()
+}
+
+impl RoutedSession {
+    /// Read `number` with `PDFium` too and, when the two parsers agree, lift
+    /// PDF Oxide's "not independently verified" warning from `page`. Every
+    /// outcome is recorded on the page; the Oxide text is never changed.
+    fn confirm_with_pdfium(&mut self, number: u32, page: &mut PageText) {
+        let verdict = match self.pdfium() {
+            Ok(session) => match session.page_text(number) {
+                Ok(native) => Ok(agreement(&page_words(page), &page_words(&native))),
+                Err(error) => Err(format!("pdfium page failed: {error}")),
+            },
+            Err(unavailable) => Err(format!("pdfium unavailable: {unavailable}")),
+        };
+        match verdict {
+            Ok(Agreement::Same | Agreement::Close(_)) => {
+                let score = verdict.as_ref().map_or(0.0, |v| v.score());
+                page.warnings.retain(|w| !w.starts_with(UNVERIFIED_PREFIX));
+                page.warnings.push(format!(
+                    "confirmed: pdfium agrees (similarity {score:.3}); completeness independently verified"
+                ));
+            }
+            Ok(Agreement::Different(score)) => page.warnings.push(format!(
+                "unconfirmed: pdfium disagrees (similarity {score:.3}); pdf-oxide text retained"
+            )),
+            Err(why) => page.warnings.push(format!("unconfirmed: {why}")),
+        }
+    }
+}
+
 /// Keep the Oxide page when `PDFium` cannot supply the routed one, saying why.
 fn keep_oxide(
     oxide: Result<PageText, BackendError>,
@@ -108,13 +227,15 @@ impl DocumentSession for RoutedSession {
     }
 
     fn page_text(&mut self, page: u32) -> Result<PageText, BackendError> {
-        let oxide = self.oxide.page_text(page);
+        let number = page;
+        let oxide = self.oxide.page_text(number);
         let evidence = PageEvidence::from_oxide(oxide.as_ref());
         let (choice, reason) = page_route(Task::Extract(&evidence));
         match choice {
             PageBackend::PdfOxide => {
                 let mut page = oxide?;
                 page.warnings.push(format!("routed: pdf-oxide ({reason})"));
+                self.confirm_with_pdfium(number, &mut page);
                 Ok(page)
             }
             PageBackend::Pdfium => match self.pdfium() {
@@ -290,6 +411,79 @@ mod tests {
 
     fn text_of(page: &PageText) -> String {
         page.spans.iter().map(|s| s.text.as_str()).collect()
+    }
+
+    fn confirmation(page: &PageText) -> String {
+        let lines: Vec<&String> = page
+            .warnings
+            .iter()
+            .filter(|w| w.starts_with("confirmed: ") || w.starts_with("unconfirmed: "))
+            .collect();
+        assert_eq!(lines.len(), 1, "exactly one confirmation line: {lines:?}");
+        lines[0].clone()
+    }
+
+    #[test]
+    fn agreement_ignores_whitespace_and_scores_character_overlap() {
+        assert_eq!(agreement("a  b\nc", "a b c"), Agreement::Same);
+        assert_eq!(agreement("F a i t h f u l", "Faithful"), Agreement::Same);
+        assert_eq!(agreement("", ""), Agreement::Same);
+        assert_eq!(agreement("ab", "ab"), Agreement::Same);
+        let words: Vec<String> = (0..1000).map(|i| format!("word{i}")).collect();
+        let mut one_off = words.clone();
+        one_off[500] = "changed".to_string();
+        match agreement(&words.join(" "), &one_off.join("\n")) {
+            Agreement::Close(score) => assert!(score > 0.99 && score < 1.0, "{score}"),
+            other => panic!("{other:?}"),
+        }
+        let half: Vec<String> = words[..500].to_vec();
+        match agreement(&words.join(" "), &half.join(" ")) {
+            Agreement::Different(score) => assert!(score > 0.5 && score < 0.75, "{score}"),
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(
+            agreement("alpha beta", "gamma delta"),
+            Agreement::Different(0.0)
+        );
+        assert!((Agreement::Same.score() - 1.0).abs() < f64::EPSILON);
+    }
+
+    #[test]
+    fn clean_oxide_pages_stay_partial_and_unconfirmed_without_pdfium() {
+        let backend = without_pdfium();
+        let page = page_of(&backend, &fixture("native.pdf"));
+        assert_eq!(supplier(&page), "routed: pdf-oxide (text mapped cleanly)");
+        assert!(confirmation(&page).starts_with("unconfirmed: pdfium unavailable:"));
+        assert!(
+            page.warnings
+                .iter()
+                .any(|w| w.starts_with(UNVERIFIED_PREFIX)),
+            "{:?}",
+            page.warnings
+        );
+        assert_eq!(page.extraction_status(), Status::Partial);
+    }
+
+    #[test]
+    fn pdfium_confirms_clean_oxide_pages_as_complete() {
+        if !native_available() {
+            return;
+        }
+        let backend = RoutedBackend::default();
+        let page = page_of(&backend, &fixture("native.pdf"));
+        assert_eq!(supplier(&page), "routed: pdf-oxide (text mapped cleanly)");
+        let line = confirmation(&page);
+        assert!(line.starts_with("confirmed: pdfium agrees"), "{line}");
+        assert!(
+            !page
+                .warnings
+                .iter()
+                .any(|w| w.starts_with(UNVERIFIED_PREFIX)),
+            "{:?}",
+            page.warnings
+        );
+        assert_eq!(page.extraction_status(), Status::Complete);
+        assert!(text_of(&page).contains("Faithful native text"));
     }
 
     #[test]
