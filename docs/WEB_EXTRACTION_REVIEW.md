@@ -80,3 +80,29 @@ Recorded 2026-10-04 01:04:35 UTC / 2026-10-03 19:04:35 MDT (America/Denver); ben
 - **Web extraction epic:** current work is tracked in [PR 175](https://github.com/benpshore/pdftextract/pull/175). Implemented by the HTML owner: clean article evidence, actual image elements, feed semantics, and structured-content recovery. Independently tested here: five targeted cases plus eleven HTTP fixtures, with quantified losses and timings. These are local source tests, not proof the production deployment includes this exact source hash.
 - **Storage/presentation epic:** parent and UI agents own durable large-file upload, actual asset materialization, and presentation. This review supplies extraction evidence; it does not certify their deployment or a 100 GB transfer.
 - **Explicitly unproven:** live browser render worker, voice/audio transcription, OCR of web imagery, universal format support, and a native extraction backend deployed behind the Sites UI. Keep these as gaps until an actual configured runtime and end-to-end test demonstrate them.
+
+## Article extraction module (2026-10-05)
+
+The HTML path described above now lives in `web/lib/article-extract/` and `clipHtml` is a thin
+projection of its `Article` record; the five regressions in this review and
+`web/scripts/test-clip.mjs` pass unchanged against the refactor. What changed, and what the new
+synthetic suite (`web/lib/article-extract/tests/run.mjs`) checks:
+
+- Metadata is first-class: authors, published/modified dates (ISO 8601, no local time zone),
+  canonical URL, site name, language, description and scholarly fields from `citation_*`,
+  Dublin Core, PRISM, JSON-LD and DOI/PubMed/PMC links.
+- Explicit chrome markers grew to cover cookie/consent banners, comment sections, share bars,
+  related/recommended modules and paywall prompts; the rule against broad substring deletion
+  stands, and the structured-content fallback from this review is unchanged.
+- A Readability-style block scorer is the fallback when Readability returns nothing, before the
+  main-boundary fallback.
+- AMP documents, paywalled previews (public text only, no bypass), `rel=next` chains on the same
+  site, more lazy-image attributes and truncated or garbled HTML are handled and reported.
+- Markdown carries headings, lists, quotes, code, tables and figures with captions; plain text keeps
+  list and quote markers and captions. Output is deterministic and capped (input size, images,
+  links, tables, elements, pages).
+- The server fetch is hardened: complete private/reserved IPv4 and IPv6 tables including embedded
+  IPv4 forms, reserved hostnames, re-checked redirects (max five), no cookies, a 15 s deadline,
+  text-only content types with binary sniffing, and a 16 MiB body cap with a truncation header.
+
+See `docs/WEB_ARTICLES.md` for the field sources, limits and the remaining gaps.
