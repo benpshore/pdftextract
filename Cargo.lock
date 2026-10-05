@@ -8192,8 +8192,6 @@ dependencies = [
  "docling-pdf",
  "flate2",
  "hex",
- "libc",
- "libloading 0.8.9",
  "liteparse",
  "lopdf 0.45.0",
  "office_oxide",
@@ -8212,6 +8210,7 @@ dependencies = [
  "tempfile",
  "thiserror 2.0.21",
  "tpe-biblio",
+ "tpe-ffi",
  "unicode-normalization",
  "ureq",
 ]
@@ -8631,13 +8630,13 @@ version = "0.2.0"
 dependencies = [
  "futures",
  "gpui",
- "objc",
  "rusqlite",
  "serde_json",
  "tempfile",
  "text-processing-engine",
  "thiserror 2.0.21",
  "tpe-common",
+ "tpe-ffi",
  "ureq",
 ]
 
@@ -8685,6 +8684,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "tpe-ffi"
+version = "0.2.0"
+dependencies = [
+ "block2",
+ "libc",
+ "libloading 0.8.9",
+ "objc",
+ "objc2",
+ "objc2-avf-audio",
+ "objc2-foundation",
+ "rustix 1.1.5",
+]
+
+[[package]]
 name = "tpe-search"
 version = "0.2.0"
 dependencies = [
@@ -8701,15 +8714,12 @@ dependencies = [
 name = "tpe-speech"
 version = "0.2.0"
 dependencies = [
- "block2",
  "clap",
  "docling-asr",
  "kokoro-tts",
- "objc2",
- "objc2-avf-audio",
- "objc2-foundation",
  "thiserror 2.0.21",
  "tokio",
+ "tpe-ffi",
 ]
 
 [[package]]

@@ -27,6 +27,11 @@ use tpe::pipeline::{self, PipelineError, Progress};
 use tpe::schema::{ExtractionResult, Job, Metadata};
 
 mod cli_worker;
+
+/// Disposable native workers abort on a null allocation once their OS limits
+/// are installed (`worker_allocator::enforce`); until then this is `System`.
+#[global_allocator]
+static ALLOCATOR: tpe_ffi::alloc::WorkerAllocator = tpe_ffi::alloc::WorkerAllocator;
 #[cfg(feature = "grobid")]
 mod grobid_cli;
 mod worker_allocator;

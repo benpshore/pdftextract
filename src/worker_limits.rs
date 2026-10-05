@@ -179,32 +179,10 @@ fn virtual_bytes() -> anyhow::Result<u64> {
 
 #[cfg(target_os = "macos")]
 fn virtual_bytes() -> anyhow::Result<u64> {
-    let mut info = std::mem::MaybeUninit::<libc::proc_taskinfo>::uninit();
-    let size = i32::try_from(std::mem::size_of::<libc::proc_taskinfo>())?;
-    let pid = i32::try_from(std::process::id())?;
-    // SAFETY: the buffer is correctly aligned and exactly size bytes long;
-    // proc_pidinfo receives its exclusive writable pointer and retains none.
-    // We read fields only after the exact full-structure return is confirmed.
-    let written = unsafe {
-        libc::proc_pidinfo(
-            pid,
-            libc::PROC_PIDTASKINFO,
-            0,
-            info.as_mut_ptr().cast(),
-            size,
-        )
-    };
-    ensure!(
-        written == size,
-        "worker virtual-memory accounting returned {written} bytes, expected {size}"
-    );
-    // SAFETY: the successful exact-size call initialized the full structure.
-    let info = unsafe { info.assume_init() };
     // XNU reports vm_map_adjusted_size. Exotic/transformed processes may have
     // reserved regions subtracted while RLIMIT_AS checks the full map size.
     // Installation must therefore fail closed rather than increasing the cap.
-    // <https://github.com/apple-oss-distributions/xnu/blob/xnu-11417.140.69/osfmk/kern/bsd_kern.c#L1010>
-    Ok(info.pti_virtual_size)
+    tpe_ffi::process::virtual_bytes().map_err(anyhow::Error::msg)
 }
 
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
@@ -355,37 +333,12 @@ mod tests {
     }
 
     fn mapping_probe(bytes: u64, should_succeed: bool) {
-        use rustix::mm::{MapFlags, ProtFlags, mmap_anonymous, munmap};
-
         let length = usize::try_from(bytes).unwrap();
-        // SAFETY: null requests a fresh kernel-chosen address. No references
-        // alias this private mapping; the returned region is always unmapped.
-        let mapping = unsafe {
-            mmap_anonymous(
-                std::ptr::null_mut(),
-                length,
-                ProtFlags::READ | ProtFlags::WRITE,
-                MapFlags::PRIVATE,
-            )
-        };
-        match mapping {
-            Ok(pointer) => {
-                if should_succeed {
-                    // SAFETY: these two bytes are inside the fresh nonempty
-                    // writable mapping. Volatile writes prove usable pages.
-                    unsafe {
-                        pointer.cast::<u8>().write_volatile(1);
-                        pointer.cast::<u8>().add(length - 1).write_volatile(1);
-                    }
-                }
-                // SAFETY: this is the untouched base and length from mmap;
-                // no references to the mapping exist when it is released.
-                unsafe { munmap(pointer, length).unwrap() };
-                assert!(
-                    should_succeed,
-                    "OS accepted a mapping over the address-space limit"
-                );
-            }
+        match tpe_ffi::mem::anonymous_mapping_probe(length, should_succeed) {
+            Ok(()) => assert!(
+                should_succeed,
+                "OS accepted a mapping over the address-space limit"
+            ),
             Err(error) => {
                 assert!(!should_succeed, "small mapping failed: {error}");
                 assert_eq!(error, rustix::io::Errno::NOMEM);

@@ -9,21 +9,21 @@
 //! snapshotted. No default loader search or current-directory lookup is used.
 
 use std::collections::BTreeMap;
-use std::ffi::{CString, c_char, c_int, c_void};
+use std::ffi::CString;
 use std::fs::File;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use libloading::Library;
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
+use tpe_ffi::provider::{OpenError, ProviderDocument, ProviderLibrary};
 use unicode_normalization::UnicodeNormalization;
 
 use super::{BackendError, DocumentSession, EncryptionProblem, Extractor};
 use crate::schema::{BBox, BackendIdentity, Figure, Link, PageText, Span, config_digest};
 
-const ABI: u32 = 1;
+const ABI: u32 = tpe_ffi::provider::ABI;
 const MAX_LIBRARY: u64 = 256 * 1024 * 1024;
 const MAX_OUTPUT: usize = 16 * 1024 * 1024;
 const MAX_CHARACTERS: usize = 1_000_000;
@@ -166,249 +166,60 @@ impl Extractor for NativeProviderBackend {
             .as_ref()
             .map_err(|e| BackendError::Unsupported(e.clone()))?;
         let api =
-            Arc::new(Api::load(config, self.engine.names().0).map_err(BackendError::Unsupported)?);
+            Arc::new(load_api(config, self.engine.names().0).map_err(BackendError::Unsupported)?);
         let bytes = bytes.to_vec().into_boxed_slice();
         let password = password
             .map(CString::new)
             .transpose()
             .map_err(|_| BackendError::Unsupported("password contains NUL".to_string()))?;
-        let mut handle = std::ptr::null_mut();
-        let mut pages = 0;
-        let mut error = [0; 512];
-        // SAFETY: ABI-checked trusted provider; owners retain input/API until close.
-        let status = unsafe {
-            (api.open)(
-                bytes.as_ptr(),
-                bytes.len(),
-                password.as_ref().map_or(std::ptr::null(), |p| p.as_ptr()),
-                &raw mut handle,
-                &raw mut pages,
-                error.as_mut_ptr(),
-                error.len(),
-            )
-        };
-        if status != 0 || handle.is_null() || pages == 0 {
-            if !handle.is_null() {
-                unsafe {
-                    (api.close)(handle);
+        let document = api
+            .open(bytes, password.as_deref())
+            .map_err(|error| match error {
+                OpenError::PasswordRequired => {
+                    BackendError::Encrypted(EncryptionProblem::PasswordRequired)
                 }
-            }
-            return Err(match status {
-                2 => BackendError::Encrypted(EncryptionProblem::PasswordRequired),
-                3 => BackendError::Encrypted(EncryptionProblem::WrongPassword),
-                _ => BackendError::Malformed(format!(
-                    "{} provider open: {}",
-                    self.engine.names().0,
-                    error_message(&error)
+                OpenError::WrongPassword => {
+                    BackendError::Encrypted(EncryptionProblem::WrongPassword)
+                }
+                OpenError::Failed(message) => BackendError::Malformed(format!(
+                    "{} provider open: {message}",
+                    self.engine.names().0
                 )),
-            });
-        }
-        Ok(Box::new(Session {
-            api,
-            handle,
-            _bytes: bytes,
-            pages,
-        }))
+            })?;
+        Ok(Box::new(Session { document }))
     }
 }
 
-type Open = unsafe extern "C" fn(
-    *const u8,
-    usize,
-    *const c_char,
-    *mut *mut c_void,
-    *mut u32,
-    *mut c_char,
-    usize,
-) -> c_int;
-type Page = unsafe extern "C" fn(
-    *mut c_void,
-    u32,
-    usize,
-    *mut *mut u8,
-    *mut usize,
-    *mut c_char,
-    usize,
-) -> c_int;
-type Close = unsafe extern "C" fn(*mut c_void);
-type Free = unsafe extern "C" fn(*mut u8);
-struct Api {
-    // Function pointers are used only while both libraries remain loaded.
-    _provider: Library,
-    _runtime: Library,
-    open: Open,
-    page: Page,
-    close: Close,
-    free: Free,
-    engine: String,
-    version: String,
-}
-impl Api {
-    fn load(config: &Configuration, expected_engine: &str) -> Result<Self, String> {
-        config.verify()?;
-        // SAFETY: explicit, fingerprinted trusted deployment files. The provider
-        // contract forbids exceptions crossing ABI and requires thread-safe
-        // independent sessions. Native faults are contained by the CLI worker.
-        unsafe {
-            let runtime = Library::new(&config.runtime).map_err(|e| e.to_string())?;
-            let provider = Library::new(&config.provider).map_err(|e| e.to_string())?;
-            let abi = provider
-                .get::<unsafe extern "C" fn() -> u32>(b"tpe_pdf_provider_abi_version\0")
-                .map_err(|e| e.to_string())?;
-            if abi() != ABI {
-                return Err("unsupported native provider ABI".to_string());
-            }
-            let string = |name: &[u8]| -> Result<String, String> {
-                let function = provider
-                    .get::<unsafe extern "C" fn() -> *const c_char>(name)
-                    .map_err(|e| e.to_string())?;
-                bounded_string(function())
-            };
-            let engine = string(b"tpe_pdf_provider_engine\0")?;
-            let version = string(b"tpe_pdf_provider_version\0")?;
-            if engine != expected_engine
-                || version.is_empty()
-                || !version.bytes().all(|b| b.is_ascii_graphic())
-            {
-                return Err("native provider engine/version mismatch".to_string());
-            }
-            let anchor_symbol = CString::new(string(b"tpe_pdf_provider_runtime_symbol\0")?)
-                .map_err(|e| e.to_string())?;
-            let runtime_anchor = runtime
-                .get::<*const c_void>(anchor_symbol.as_bytes_with_nul())
-                .map_err(|e| e.to_string())?;
-            let anchor = provider
-                .get::<unsafe extern "C" fn() -> usize>(b"tpe_pdf_provider_runtime_anchor\0")
-                .map_err(|e| e.to_string())?;
-            if anchor() != *runtime_anchor as usize {
-                return Err("provider does not use the fingerprinted native runtime".to_string());
-            }
-            let open = *provider
-                .get::<Open>(b"tpe_pdf_provider_open\0")
-                .map_err(|e| e.to_string())?;
-            let page = *provider
-                .get::<Page>(b"tpe_pdf_provider_page\0")
-                .map_err(|e| e.to_string())?;
-            let close = *provider
-                .get::<Close>(b"tpe_pdf_provider_close\0")
-                .map_err(|e| e.to_string())?;
-            let free = *provider
-                .get::<Free>(b"tpe_pdf_provider_free\0")
-                .map_err(|e| e.to_string())?;
-            config.verify()?;
-            Ok(Self {
-                _provider: provider,
-                _runtime: runtime,
-                open,
-                page,
-                close,
-                free,
-                engine,
-                version,
-            })
-        }
-    }
+/// Load the configured provider/runtime pair, re-fingerprinting both files
+/// before and after symbol resolution (`Configuration::verify`).
+fn load_api(config: &Configuration, expected_engine: &str) -> Result<ProviderLibrary, String> {
+    ProviderLibrary::load(&config.provider, &config.runtime, expected_engine, &|| {
+        config.verify()
+    })
 }
 
-// SAFETY requirement: provider string is readable through its NUL, max 255 bytes.
-unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
-    if pointer.is_null() {
-        return Err("provider returned a null identity string".to_string());
-    }
-    let mut bytes = Vec::new();
-    for offset in 0..256 {
-        let byte = unsafe { *pointer.add(offset) }.cast_unsigned();
-        if byte == 0 {
-            return String::from_utf8(bytes).map_err(|e| e.to_string());
-        }
-        bytes.push(byte);
-    }
-    Err("provider identity string exceeds 255 bytes".to_string())
-}
-fn error_message(error: &[c_char]) -> String {
-    String::from_utf8_lossy(
-        &error
-            .iter()
-            .take_while(|&&b| b != 0)
-            .map(|b| b.cast_unsigned())
-            .collect::<Vec<_>>(),
-    )
-    .into_owned()
-}
 struct Session {
-    api: Arc<Api>,
-    handle: *mut c_void,
-    _bytes: Box<[u8]>,
-    pages: u32,
-}
-impl Drop for Session {
-    fn drop(&mut self) {
-        unsafe {
-            (self.api.close)(self.handle);
-        }
-    }
-}
-struct Output<'a> {
-    api: &'a Api,
-    pointer: *mut u8,
-}
-impl Drop for Output<'_> {
-    fn drop(&mut self) {
-        if !self.pointer.is_null() {
-            unsafe {
-                (self.api.free)(self.pointer);
-            }
-        }
-    }
+    document: ProviderDocument,
 }
 impl DocumentSession for Session {
     fn page_count(&self) -> u32 {
-        self.pages
+        self.document.page_count()
     }
     fn info(&self) -> BTreeMap<String, String> {
         BTreeMap::new()
     }
     fn page_text(&mut self, page: u32) -> Result<PageText, BackendError> {
-        if page == 0 || page > self.pages {
-            return Err(BackendError::PageRange {
-                page,
-                count: self.pages,
-            });
+        let pages = self.document.page_count();
+        if page == 0 || page > pages {
+            return Err(BackendError::PageRange { page, count: pages });
         }
-        let mut pointer = std::ptr::null_mut();
-        let mut length = 0;
-        let mut error = [0; 512];
-        // SAFETY: live handle and bounded output ABI; provider memory is freed
-        // on every path, before the shared libraries or document can be dropped.
-        let status = unsafe {
-            (self.api.page)(
-                self.handle,
-                page,
-                MAX_OUTPUT,
-                &raw mut pointer,
-                &raw mut length,
-                error.as_mut_ptr(),
-                error.len(),
-            )
-        };
-        let output = Output {
-            api: &self.api,
-            pointer,
-        };
         let fail = |message| BackendError::Page { page, message };
-        if status != 0 {
-            return Err(fail(error_message(&error)));
-        }
-        if length == 0 || length > MAX_OUTPUT || output.pointer.is_null() {
-            return Err(fail(
-                "provider returned invalid or oversized page output".to_string(),
-            ));
-        }
-        let bytes = unsafe { std::slice::from_raw_parts(output.pointer, length) };
-        let mut result = parse_page(bytes, page).map_err(fail)?;
+        let bytes = self.document.page(page, MAX_OUTPUT).map_err(fail)?;
+        let mut result = parse_page(&bytes, page).map_err(fail)?;
         result.warnings.push(format!(
             "native_provider: {} {}",
-            self.api.engine, self.api.version
+            self.document.library().engine(),
+            self.document.library().version()
         ));
         Ok(result)
     }
@@ -665,58 +476,19 @@ mod tests {
     #[ignore = "requires separately licensed MuPDF provider and runtime paths"]
     fn native_output_limit_fails_closed_and_releases_the_document() {
         let config = Configuration::read(Engine::MuPdf).unwrap();
-        let api = Api::load(&config, "mupdf").unwrap();
-        let bytes = super::super::probe_pdf().unwrap();
-        let mut handle = std::ptr::null_mut();
-        let mut pages = 0;
-        let mut error = [0; 512];
-        let status = unsafe {
-            (api.open)(
-                bytes.as_ptr(),
-                bytes.len(),
-                std::ptr::null(),
-                &raw mut handle,
-                &raw mut pages,
-                error.as_mut_ptr(),
-                error.len(),
-            )
-        };
-        assert_eq!(status, 0);
-        let mut pointer = std::ptr::null_mut();
-        let mut length = 0;
-        let status = unsafe {
-            (api.page)(
-                handle,
-                1,
-                32,
-                &raw mut pointer,
-                &raw mut length,
-                error.as_mut_ptr(),
-                error.len(),
-            )
-        };
-        assert_ne!(status, 0);
-        assert!(pointer.is_null());
-        assert_eq!(length, 0);
-        assert!(error_message(&error).contains("output limit"));
-        let status = unsafe {
-            (api.page)(
-                handle,
-                1,
-                MAX_OUTPUT,
-                &raw mut pointer,
-                &raw mut length,
-                error.as_mut_ptr(),
-                error.len(),
-            )
-        };
-        let output = Output { api: &api, pointer };
-        assert_eq!(status, 0);
-        assert!(length > 32 && length < MAX_OUTPUT);
-        drop(output);
-        unsafe {
-            (api.close)(handle);
-        }
+        let api = Arc::new(load_api(&config, "mupdf").unwrap());
+        let bytes = super::super::probe_pdf().unwrap().into_boxed_slice();
+        let document = api.open(bytes, None).unwrap();
+        let error = document.page(1, 32).unwrap_err();
+        assert!(error.contains("output limit"), "{error}");
+        // The provider contract: no output buffer is handed back on failure.
+        assert!(
+            !error.contains("provider returned output on failure"),
+            "{error}"
+        );
+        let output = document.page(1, MAX_OUTPUT).unwrap();
+        assert!(output.len() > 32 && output.len() < MAX_OUTPUT);
+        drop(document);
     }
 
     #[test]

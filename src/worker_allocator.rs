@@ -1,70 +1,14 @@
 //! Stop disposable workers on allocation failure, including fallible allocation.
 //!
-//! A decoder can suppress an error from `Vec::try_reserve`/`Read::read_to_end`
-//! and return a successful prefix. Once the native worker's OS limits and core
-//! policy are installed, a null Rust allocation must end that worker instead.
+//! The allocator itself (`tpe_ffi::alloc::WorkerAllocator`) is declared as this
+//! binary's `#[global_allocator]` in `main.rs`; this module only switches its
+//! abort-on-null policy on once the native worker's OS limits are installed.
 //! Controllers and library users keep their normal allocator behavior. This is
 //! not an additional memory limit and does not intercept native malloc/mmap.
 
-use std::alloc::{GlobalAlloc, Layout, System};
-use std::sync::atomic::{AtomicBool, Ordering};
-
-static ENABLED: AtomicBool = AtomicBool::new(false);
-
-struct WorkerAllocator;
-
-#[global_allocator]
-static ALLOCATOR: WorkerAllocator = WorkerAllocator;
-
-fn checked(pointer: *mut u8) -> *mut u8 {
-    if pointer.is_null() && ENABLED.load(Ordering::SeqCst) {
-        allocation_failed();
-    }
-    pointer
-}
-
-#[cold]
-fn allocation_failed() -> ! {
-    // No formatting, locks, allocation or unwinding inside GlobalAlloc. In
-    // particular, handle_alloc_error is permitted to unwind under some policies.
-    // Worker stderr is a controller-owned capture file; failure to write must
-    // still terminate the process.
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    let _ = rustix::io::write(
-        rustix::stdio::stderr(),
-        b"memory allocation failed in native worker\n",
-    );
-    std::process::abort()
-}
-
-// SAFETY: every allocation/deallocation uses System with its original layout;
-// failure can abort, but none of these methods may unwind. Activation never
-// changes allocator ownership, including for storage allocated before activation.
-unsafe impl GlobalAlloc for WorkerAllocator {
-    unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        // SAFETY: the caller supplies a valid allocation layout.
-        checked(unsafe { System.alloc(layout) })
-    }
-
-    unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-        // SAFETY: the caller supplies a valid allocation layout.
-        checked(unsafe { System.alloc_zeroed(layout) })
-    }
-
-    unsafe fn dealloc(&self, pointer: *mut u8, layout: Layout) {
-        // SAFETY: the pointer and layout came from this same System allocator.
-        unsafe { System.dealloc(pointer, layout) };
-    }
-
-    unsafe fn realloc(&self, pointer: *mut u8, layout: Layout, bytes: usize) -> *mut u8 {
-        // SAFETY: the caller supplies the original allocation and valid new size.
-        checked(unsafe { System.realloc(pointer, layout, bytes) })
-    }
-}
-
 /// One-way process policy; call only after installing disposable-worker limits.
 pub(super) fn enforce() {
-    ENABLED.store(true, Ordering::SeqCst);
+    tpe_ffi::alloc::enforce();
 }
 
 #[cfg(all(test, any(target_os = "linux", target_os = "macos")))]
@@ -162,7 +106,7 @@ mod tests {
             .checked_add(1024 * 1024)
             .unwrap();
         // This must reach the allocator, not fail Vec's capacity-overflow check.
-        let layout = Layout::array::<u8>(bytes).unwrap();
+        assert!(std::alloc::Layout::array::<u8>(bytes).is_ok());
         eprintln!(
             "allocator-request mode={mode} bytes={bytes} address_limit={}",
             limits.effective_address_space_bytes
@@ -177,30 +121,17 @@ mod tests {
             existing.try_reserve_exact(64 * 1024).unwrap();
             assert!(existing.iter().all(|byte| *byte == 42));
             assert_eq!(fresh, b"allocation control");
-            // SAFETY: a nonzero valid layout; its returned allocation is freed once.
-            let small = Layout::from_size_align(4096, 8).unwrap();
-            let pointer = std::hint::black_box(unsafe {
-                std::alloc::alloc_zeroed(std::hint::black_box(small))
-            });
-            assert!(!pointer.is_null());
-            // SAFETY: pointer is a live, non-null 4096-byte allocation.
-            assert_eq!(unsafe { *pointer }, 0);
-            // SAFETY: exact layout and pointer from alloc_zeroed above.
-            unsafe { std::alloc::dealloc(pointer, small) };
+            assert!(tpe_ffi::alloc::zeroed_small_control(4096, 8).unwrap());
             eprintln!("small allocation control passed");
             return;
         }
         if mode.ends_with("zeroed") {
-            // SAFETY: layout is nonzero and valid. An unexpected successful
-            // allocation is freed without touching its potentially huge mapping.
-            let pointer = std::hint::black_box(unsafe {
-                std::alloc::alloc_zeroed(std::hint::black_box(layout))
-            });
-            if !pointer.is_null() {
-                // SAFETY: exact pointer/layout returned above, still live.
-                unsafe { std::alloc::dealloc(pointer, layout) };
-                panic!("oversized zeroed allocation unexpectedly succeeded");
-            }
+            // An unexpected successful allocation is freed without touching
+            // its potentially huge mapping.
+            assert!(
+                !tpe_ffi::alloc::zeroed_allocation_succeeds(bytes, 1).unwrap(),
+                "oversized zeroed allocation unexpectedly succeeded"
+            );
         } else {
             let mut buffer = if mode.ends_with("realloc") {
                 existing

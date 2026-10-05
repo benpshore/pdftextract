@@ -1,7 +1,8 @@
 //! macOS `AVSpeechSynthesizer` engine, captured to PCM instead of played.
 //!
 //! On other operating systems every call returns [`SpeechError::Unsupported`].
-//! The Objective-C calls live in the private `av_ffi` module.
+//! The Objective-C calls live in `tpe_ffi::av_speech`; this module maps its
+//! plain-data results onto this crate's types.
 
 use std::time::Duration;
 
@@ -71,7 +72,21 @@ impl Tts for AvSpeech {
 #[cfg(target_os = "macos")]
 #[allow(clippy::unnecessary_wraps)]
 fn platform_voices() -> Result<Vec<VoiceInfo>, SpeechError> {
-    Ok(crate::av_ffi::voices())
+    use tpe_ffi::av_speech::Quality;
+    Ok(tpe_ffi::av_speech::voices()
+        .into_iter()
+        .map(|voice| VoiceInfo {
+            id: voice.id,
+            name: voice.name,
+            language: voice.language,
+            quality: match voice.quality {
+                Quality::Default => VoiceQuality::Default,
+                Quality::Enhanced => VoiceQuality::Enhanced,
+                Quality::Premium => VoiceQuality::Premium,
+                Quality::Unknown => VoiceQuality::Unknown,
+            },
+        })
+        .collect())
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -83,7 +98,17 @@ fn platform_voices() -> Result<Vec<VoiceInfo>, SpeechError> {
 
 #[cfg(target_os = "macos")]
 fn platform_synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, SpeechError> {
-    crate::av_ffi::synthesize(text, voice, timeout)
+    use tpe_ffi::av_speech::SynthesisError;
+    match tpe_ffi::av_speech::synthesize(text, voice, timeout) {
+        Ok(pcm) => Ok(Audio {
+            sample_rate: pcm.sample_rate,
+            samples: pcm.samples,
+        }),
+        Err(SynthesisError::VoiceNotFound(voice)) => Err(SpeechError::VoiceNotFound(voice)),
+        Err(SynthesisError::Timeout(message)) => Err(SpeechError::Timeout(message)),
+        Err(SynthesisError::Engine(message)) => Err(SpeechError::Engine(message)),
+        Err(SynthesisError::SilentOutput) => Err(SpeechError::SilentOutput),
+    }
 }
 
 #[cfg(not(target_os = "macos"))]

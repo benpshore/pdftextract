@@ -31,9 +31,9 @@ ureq = "3"
 # the dependency target-scoped means Linux builds never fetch or compile it.
 [target.'cfg(target_os = "macos")'.dependencies]
 gpui = "0.2"
-# The Finder Services provider (`services.rs`) is an Objective-C object
-# declared at run time; `objc` is already in the tree through gpui.
-objc = "0.2"
+# The Finder Services provider is an Objective-C object declared at run time
+# inside the workspace's one `unsafe` crate.
+tpe-ffi = { path = "../tpe-ffi", features = ["finder-services"] }
 
 [lints]
 workspace = true
