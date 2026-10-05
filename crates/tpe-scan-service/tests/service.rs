@@ -547,7 +547,19 @@ fn shutdown_stops_the_listener() {
     let service = Service::start(config()).unwrap();
     let addr = service.addr();
     assert_eq!(request(addr, "GET", "/capabilities", &[], b"").status, 200);
+    // `shutdown` joins the accept thread and closes the listening socket
+    // before it returns, so the port must refuse connections from here on.
+    // macOS keeps completing handshakes into the backlog until the socket is
+    // closed, so probe with a short bounded retry rather than one attempt.
     service.shutdown();
-    let refused = TcpStream::connect_timeout(&addr, Duration::from_secs(2));
-    assert!(refused.is_err(), "the port still accepts connections");
+    let deadline = std::time::Instant::now() + Duration::from_secs(5);
+    loop {
+        match TcpStream::connect_timeout(&addr, Duration::from_millis(500)) {
+            Err(_) => break,
+            Ok(_) if std::time::Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(50));
+            }
+            Ok(_) => panic!("the port still accepts connections 5 s after shutdown returned"),
+        }
+    }
 }

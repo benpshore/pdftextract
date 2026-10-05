@@ -146,6 +146,8 @@ struct Shared {
 pub struct Service {
     addr: SocketAddr,
     shared: Arc<Shared>,
+    /// Shared with the accept thread; the last handle to go closes the port.
+    listener: Option<Arc<TcpListener>>,
     accept_thread: Option<JoinHandle<()>>,
 }
 
@@ -171,7 +173,10 @@ impl Service {
                 "the bearer token is too short",
             ));
         }
-        let listener = TcpListener::bind(SocketAddr::new(config.bind, config.port))?;
+        let listener = Arc::new(TcpListener::bind(SocketAddr::new(
+            config.bind,
+            config.port,
+        ))?);
         let addr = listener.local_addr()?;
         let dirs = models::search_dirs(config.models_dir.as_deref());
         let models = models::probe(&dirs, config.hash_models);
@@ -184,12 +189,14 @@ impl Service {
             config,
         });
         let accept_shared = Arc::clone(&shared);
+        let accept_listener = Arc::clone(&listener);
         let accept_thread = std::thread::Builder::new()
             .name("tpe-scan-accept".to_string())
-            .spawn(move || accept_loop(&listener, &accept_shared))?;
+            .spawn(move || accept_loop(accept_listener, &accept_shared))?;
         Ok(Self {
             addr,
             shared,
+            listener: Some(listener),
             accept_thread: Some(accept_thread),
         })
     }
@@ -204,15 +211,29 @@ impl Service {
         refresh_models(&self.shared)
     }
 
-    /// Stop accepting, cancel running scans, and join the handlers.
+    /// Stop accepting, close the listening socket, and join the handlers.
+    /// Returns only once the port no longer accepts connections.
     pub fn shutdown(mut self) {
         self.stop();
     }
 
     fn stop(&mut self) {
         self.shared.shutdown.store(true, Ordering::SeqCst);
+        if let Some(listener) = self.listener.take() {
+            // From now on an accept returns `WouldBlock` instead of blocking,
+            // so the loop notices the flag even if the wake-up below is lost.
+            let _ = listener.set_nonblocking(true);
+            // Release this handle first: the accept thread's handle is then
+            // the last one, and it closes the socket the moment its loop ends.
+            drop(listener);
+        }
         // Wake the blocking accept with a throwaway connection.
         let _ = TcpStream::connect_timeout(&self.addr, Duration::from_secs(1));
+        // Joining guarantees the socket is closed before this returns. That
+        // matters on macOS, where the kernel keeps completing handshakes into
+        // the listen backlog for as long as the socket exists, so a flag alone
+        // (or an unjoined drop on another thread) leaves the port observably
+        // open for a while after "shutdown".
         if let Some(thread) = self.accept_thread.take() {
             let _ = thread.join();
         }
@@ -236,14 +257,17 @@ impl Drop for Service {
     }
 }
 
-fn accept_loop(listener: &TcpListener, shared: &Arc<Shared>) {
+fn accept_loop(listener: Arc<TcpListener>, shared: &Arc<Shared>) {
     let mut handlers: Vec<JoinHandle<()>> = Vec::new();
     let max_handlers = shared.config.max_concurrent * 2 + 8;
-    for stream in listener.incoming() {
+    loop {
         if shared.shutdown.load(Ordering::SeqCst) {
             break;
         }
-        let Ok(stream) = stream else {
+        let Ok((stream, _)) = listener.accept() else {
+            // `WouldBlock` once shutdown made the socket non-blocking, or a
+            // transient accept failure: re-check the flag, do not spin.
+            std::thread::sleep(Duration::from_millis(10));
             continue;
         };
         handlers.retain(|handle| !handle.is_finished());
@@ -270,6 +294,9 @@ fn accept_loop(listener: &TcpListener, shared: &Arc<Shared>) {
             }
         }
     }
+    // Close the listening socket before waiting for open connections to
+    // finish, so the port refuses new ones as soon as accepting stops.
+    drop(listener);
     for handle in handlers {
         let _ = handle.join();
     }
