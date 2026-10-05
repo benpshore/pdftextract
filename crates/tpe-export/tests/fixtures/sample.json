@@ -1,0 +1,120 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "9f2c1d0e8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e",
+    "size": 123456,
+    "pages": 12,
+    "sources": [
+      {"path": "fixtures/worked-example.pdf", "inode": null, "device": null, "mtime_unix": null, "size": 123456}
+    ]
+  },
+  "backend": {"name": "lopdf", "version": "0.45", "config_digest": "0000000000000000000000000000000000000000000000000000000000000000"},
+  "status": "complete",
+  "pages": [],
+  "chunks": [],
+  "metadata": {
+    "title": "Reverse citation export: a worked example",
+    "authors": [
+      {"name": "Ada Lovelace", "affiliation": null, "orcid": null, "email": null},
+      {"name": "Babbage, Charles", "affiliation": "Example University", "orcid": null, "email": null},
+      {"name": "Émile de la Tour", "affiliation": null, "orcid": null, "email": null}
+    ],
+    "doi": "10.1000/example.2024.1",
+    "arxiv_id": null,
+    "year": 2024,
+    "venue": "Journal of Worked Examples",
+    "abstract_text": "An abstract with a \"quoted\" phrase & an ampersand.\nSecond paragraph of the abstract.",
+    "keywords": ["citations", "zotero"],
+    "info": {"Title": "Reverse citation export: a worked example"},
+    "provenance": {"title": "info:Title"}
+  },
+  "references": [
+    {
+      "index": 1, "label": "[1]",
+      "raw": "[1] J. A. Smith and J. Doe, \"A study of \"things\" & other <matters>,\" Journal of Important Results, vol. 12, no. 3, pp. 45-67, 2019, doi:10.1000/jir.2019.001.",
+      "authors": ["Smith, John A.", "Doe, Jane"],
+      "title": "A study of \"things\" & other <matters>",
+      "year": 2019, "venue": "Journal of Important Results", "volume": "12", "issue": "3", "pages": "45-67",
+      "doi": "10.1000/jir.2019.001", "arxiv_id": null, "url": null, "page": 11,
+      "attempts": [{"method": "printed", "doi": "10.1000/jir.2019.001", "outcome": "verified", "detail": null}],
+      "resolved": {"doi": "10.1000/jir.2019.001", "pmid": "12345678", "pmcid": "PMC1234567", "title": "A study of things & other matters", "authors": ["Smith JA", "Doe J"], "year": 2019, "venue": "Journal of Important Results", "source": "europepmc", "method": "printed", "score": 1.0}
+    },
+    {
+      "index": 2, "label": "[2]",
+      "raw": "[2] D. E. Knuth, The Art of Computer Programming, vol. 1. Addison-Wesley, 1968.",
+      "authors": ["Knuth, Donald E."],
+      "title": "The Art of Computer Programming",
+      "year": 1968, "venue": null, "volume": "1", "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": null, "page": 11
+    },
+    {
+      "index": 3, "label": "[3]",
+      "raw": "[3] H. Müller, \"Chapter on examples,\" in Handbook of Things, J. Smith, Ed. Springer, 2005, pp. 100-120.",
+      "authors": ["Müller, Hans"],
+      "title": "Chapter on examples",
+      "year": 2005, "venue": "In: Handbook of Things, Smith (Ed.)", "volume": null, "issue": null, "pages": "100-120",
+      "doi": null, "arxiv_id": null, "url": "https://example.org/handbook/ch5", "page": 11
+    },
+    {
+      "index": 4, "label": "[4]",
+      "raw": "[4] K. Lee and J. H. Park, \"Learning from examples,\" in Proceedings of the 10th Conference on Examples, 2020, pp. 1-8.",
+      "authors": ["Lee K", "Park JH"],
+      "title": "Learning from examples",
+      "year": 2020, "venue": "Proceedings of the 10th Conference on Examples", "volume": null, "issue": null, "pages": "1-8",
+      "doi": "10.1000/conf.2020.5", "arxiv_id": null, "url": null, "page": 11
+    },
+    {
+      "index": 5, "label": "[5]",
+      "raw": "[5] A. B. van der Berg, \"On things,\" PhD thesis, Massachusetts Institute of Technology, 2015.",
+      "authors": ["A. B. van der Berg"],
+      "title": "On things",
+      "year": 2015, "venue": "PhD thesis, Massachusetts Institute of Technology", "volume": null, "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": null, "page": 12
+    },
+    {
+      "index": 6, "label": "[6]",
+      "raw": "[6] Example Group, \"Report on things,\" Technical Report TR-2018-07, Example University, 2018.",
+      "authors": ["Example Group"],
+      "title": "Report on things",
+      "year": 2018, "venue": "Technical Report TR-2018-07, Example University", "volume": null, "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": "https://example.org/reports/tr-2018-07.pdf", "page": 12
+    },
+    {
+      "index": 7, "label": "[7]",
+      "raw": "[7] \"Things online,\" https://example.org/things, accessed 2021.",
+      "authors": [],
+      "title": "Things online",
+      "year": 2021, "venue": null, "volume": null, "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": "https://example.org/things", "page": 12
+    },
+    {
+      "index": 8, "label": "[8]",
+      "raw": "[8] W. Zhang et al., \"Preprint on things,\" arXiv:2201.00001, 2022.",
+      "authors": ["Zhang, Wei", "et al."],
+      "title": "Preprint on things",
+      "year": 2022, "venue": null, "volume": null, "issue": null, "pages": null,
+      "doi": null, "arxiv_id": "2201.00001", "url": null, "page": 12
+    },
+    {
+      "index": 9, "label": "[9]",
+      "raw": "[9] R. Roe, Some Journal, 7, 2010.",
+      "authors": ["Roe, Richard"],
+      "title": null,
+      "year": 2010, "venue": "Some Journal", "volume": "7", "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": null, "page": 12,
+      "doi_link": "10.1000/linked.9",
+      "resolved": {"doi": "10.1000/linked.9", "title": "A title only the registry knows", "authors": ["Roe, Richard"], "year": 2010, "venue": "Some Journal", "source": "crossref", "method": "link", "score": 0.95}
+    },
+    {
+      "index": 10, "label": "[10]",
+      "raw": "[10] P. Poe, \"Duplicate link,\" Other Journal, 2, 2011, https://example.org/things.",
+      "authors": ["Poe, Pat"],
+      "title": "Duplicate link",
+      "year": 2011, "venue": "Other Journal", "volume": "2", "issue": null, "pages": null,
+      "doi": null, "arxiv_id": null, "url": "https://example.org/things", "page": 12
+    }
+  ],
+  "citations": [],
+  "warnings": [],
+  "timings": {"acquire_ms": 0.0, "parse_ms": 0.0, "order_ms": 0.0, "metadata_ms": 0.0, "citations_ms": 0.0, "write_ms": 0.0, "hash_ms": 0.0}
+}

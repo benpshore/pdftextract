@@ -1,0 +1,335 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:z="http://www.zotero.org/namespaces/export#"
+ xmlns:dcterms="http://purl.org/dc/terms/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:bib="http://purl.org/net/biblio#"
+ xmlns:foaf="http://xmlns.com/foaf/0.1/"
+ xmlns:prism="http://prismstandard.org/namespaces/1.2/basic/">
+    <bib:Article rdf:about="#item_1">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:title>Journal of Worked Examples</dc:title>
+                <dc:identifier>DOI 10.1000/example.2024.1</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lovelace</foaf:surname>
+                        <foaf:givenName>Ada</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Babbage</foaf:surname>
+                        <foaf:givenName>Charles</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>de la Tour</foaf:surname>
+                        <foaf:givenName>Émile</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dc:relation rdf:resource="#item_2"/>
+        <dc:relation rdf:resource="#item_3"/>
+        <dc:relation rdf:resource="https://example.org/handbook/ch5"/>
+        <dc:relation rdf:resource="#item_5"/>
+        <dc:relation rdf:resource="#item_6"/>
+        <dc:relation rdf:resource="https://example.org/reports/tr-2018-07.pdf"/>
+        <dc:relation rdf:resource="https://example.org/things"/>
+        <dc:relation rdf:resource="#item_9"/>
+        <dc:relation rdf:resource="#item_10"/>
+        <dc:relation rdf:resource="#item_11"/>
+        <dc:subject>citations</dc:subject>
+        <dc:subject>zotero</dc:subject>
+        <dc:title>Reverse citation export: a worked example</dc:title>
+        <dcterms:abstract>An abstract with a &quot;quoted&quot; phrase &amp; an ampersand. Second paragraph of the abstract.</dcterms:abstract>
+        <dc:date>2024</dc:date>
+        <dc:description>Source SHA-256: 9f2c1d0e8b7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e</dc:description>
+    </bib:Article>
+    <bib:Article rdf:about="#item_2">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:title>Journal of Important Results</dc:title>
+                <prism:volume>12</prism:volume>
+                <prism:number>3</prism:number>
+                <dc:identifier>DOI 10.1000/jir.2019.001</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Smith</foaf:surname>
+                        <foaf:givenName>John A.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Doe</foaf:surname>
+                        <foaf:givenName>Jane</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>A study of &quot;things&quot; &amp; other &lt;matters&gt;</dc:title>
+        <dc:date>2019</dc:date>
+        <bib:pages>45-67</bib:pages>
+        <z:PMID>12345678</z:PMID>
+        <z:PMCID>PMC1234567</z:PMCID>
+        <dc:description>Reference index: 1
+Reference label: [1]
+Reference text: [1] J. A. Smith and J. Doe, &quot;A study of &quot;things&quot; &amp; other &lt;matters&gt;,&quot; Journal of Important Results, vol. 12, no. 3, pp. 45-67, 2019, doi:10.1000/jir.2019.001.</dc:description>
+    </bib:Article>
+    <bib:Book rdf:about="#item_3">
+        <z:itemType>book</z:itemType>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Knuth</foaf:surname>
+                        <foaf:givenName>Donald E.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>The Art of Computer Programming</dc:title>
+        <prism:volume>1</prism:volume>
+        <dc:date>1968</dc:date>
+        <dc:description>Reference index: 2
+Reference label: [2]
+Reference text: [2] D. E. Knuth, The Art of Computer Programming, vol. 1. Addison-Wesley, 1968.</dc:description>
+    </bib:Book>
+    <bib:BookSection rdf:about="https://example.org/handbook/ch5">
+        <z:itemType>bookSection</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Book>
+               <dc:title>Handbook of Things, Smith (Ed.)</dc:title>
+            </bib:Book>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Müller</foaf:surname>
+                        <foaf:givenName>Hans</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Chapter on examples</dc:title>
+        <dc:date>2005</dc:date>
+        <bib:pages>100-120</bib:pages>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://example.org/handbook/ch5</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dc:description>Reference index: 3
+Reference label: [3]
+Reference text: [3] H. Müller, &quot;Chapter on examples,&quot; in Handbook of Things, J. Smith, Ed. Springer, 2005, pp. 100-120.</dc:description>
+    </bib:BookSection>
+    <rdf:Description rdf:about="#item_5">
+        <z:itemType>conferencePaper</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:title>Proceedings of the 10th Conference on Examples</dc:title>
+                <dc:identifier>DOI 10.1000/conf.2020.5</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Lee</foaf:surname>
+                        <foaf:givenName>K</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Park</foaf:surname>
+                        <foaf:givenName>JH</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Learning from examples</dc:title>
+        <dc:date>2020</dc:date>
+        <bib:pages>1-8</bib:pages>
+        <dc:description>Reference index: 4
+Reference label: [4]
+Reference text: [4] K. Lee and J. H. Park, &quot;Learning from examples,&quot; in Proceedings of the 10th Conference on Examples, 2020, pp. 1-8.</dc:description>
+    </rdf:Description>
+    <bib:Thesis rdf:about="#item_6">
+        <z:itemType>thesis</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Massachusetts Institute of Technology</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>van der Berg</foaf:surname>
+                        <foaf:givenName>A. B.</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>On things</dc:title>
+        <z:type>PhD thesis</z:type>
+        <dc:date>2015</dc:date>
+        <dc:description>Reference index: 5
+Reference label: [5]
+Reference text: [5] A. B. van der Berg, &quot;On things,&quot; PhD thesis, Massachusetts Institute of Technology, 2015.</dc:description>
+    </bib:Thesis>
+    <bib:Report rdf:about="https://example.org/reports/tr-2018-07.pdf">
+        <z:itemType>report</z:itemType>
+        <dc:publisher>
+            <foaf:Organization>
+               <foaf:name>Example University</foaf:name>
+            </foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Group</foaf:surname>
+                        <foaf:givenName>Example</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Report on things</dc:title>
+        <prism:number>TR-2018-07</prism:number>
+        <z:type>Technical Report</z:type>
+        <dc:date>2018</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://example.org/reports/tr-2018-07.pdf</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dc:description>Reference index: 6
+Reference label: [6]
+Reference text: [6] Example Group, &quot;Report on things,&quot; Technical Report TR-2018-07, Example University, 2018.</dc:description>
+    </bib:Report>
+    <bib:Document rdf:about="https://example.org/things">
+        <z:itemType>webpage</z:itemType>
+        <dcterms:isPartOf>
+           <z:Website></z:Website>
+        </dcterms:isPartOf>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Things online</dc:title>
+        <dc:date>2021</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://example.org/things</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dc:description>Reference index: 7
+Reference label: [7]
+Reference text: [7] &quot;Things online,&quot; https://example.org/things, accessed 2021.</dc:description>
+    </bib:Document>
+    <rdf:Description rdf:about="#item_9">
+        <z:itemType>preprint</z:itemType>
+        <dc:publisher>
+           <foaf:Organization><foaf:name>arXiv</foaf:name></foaf:Organization>
+        </dc:publisher>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Zhang</foaf:surname>
+                        <foaf:givenName>Wei</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Preprint on things</dc:title>
+        <prism:number>arXiv:2201.00001</prism:number>
+        <dc:date>2022</dc:date>
+        <dc:description>Reference index: 8
+Reference label: [8]
+Reference text: [8] W. Zhang et al., &quot;Preprint on things,&quot; arXiv:2201.00001, 2022.</dc:description>
+    </rdf:Description>
+    <bib:Article rdf:about="#item_10">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+                <dc:title>Some Journal</dc:title>
+                <prism:volume>7</prism:volume>
+                <dc:identifier>DOI 10.1000/linked.9</dc:identifier>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Roe</foaf:surname>
+                        <foaf:givenName>Richard</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>A title only the registry knows</dc:title>
+        <dc:date>2010</dc:date>
+        <dc:description>Reference index: 9
+Reference label: [9]
+Reference text: [9] R. Roe, Some Journal, 7, 2010.</dc:description>
+    </bib:Article>
+    <bib:Article rdf:about="#item_11">
+        <z:itemType>journalArticle</z:itemType>
+        <dcterms:isPartOf>
+            <bib:Journal>
+               <dc:title>Other Journal</dc:title><prism:volume>2</prism:volume>
+            </bib:Journal>
+        </dcterms:isPartOf>
+        <bib:authors>
+            <rdf:Seq>
+                <rdf:li>
+                    <foaf:Person>
+                        <foaf:surname>Poe</foaf:surname>
+                        <foaf:givenName>Pat</foaf:givenName>
+                    </foaf:Person>
+                </rdf:li>
+            </rdf:Seq>
+        </bib:authors>
+        <dcterms:isReferencedBy rdf:resource="#item_1"/>
+        <dc:relation rdf:resource="#item_1"/>
+        <dc:title>Duplicate link</dc:title>
+        <dc:date>2011</dc:date>
+        <dc:identifier>
+            <dcterms:URI>
+               <rdf:value>https://example.org/things</rdf:value>
+            </dcterms:URI>
+        </dc:identifier>
+        <dc:description>Reference index: 10
+Reference label: [10]
+Reference text: [10] P. Poe, &quot;Duplicate link,&quot; Other Journal, 2, 2011, https://example.org/things.</dc:description>
+    </bib:Article>
+</rdf:RDF>

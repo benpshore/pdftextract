@@ -8684,6 +8684,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "tpe-export"
+version = "0.2.0"
+dependencies = [
+ "clap",
+ "regex",
+ "roxmltree",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "text-processing-engine",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "tpe-ffi"
 version = "0.2.0"
 dependencies = [
