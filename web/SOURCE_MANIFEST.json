@@ -637,10 +637,10 @@
       "sha256": "1c93d747e384c8e17e3e3dd5361b24412babf5eba2a11d2ae7a75f4e0924112c"
     },
     {
-      "bytes": 19098,
+      "bytes": 19362,
       "mode": "0644",
       "path": "lib/folder-traversal.ts",
-      "sha256": "329e33820702e5538d14f615327ecca8a6d213a8c67868efbf6690cb26f76eb5"
+      "sha256": "8d22a03d6b5e756d3aec87560135d52e3eef69def7ce6ff602bdd6c99f93fc7b"
     },
     {
       "bytes": 13743,
@@ -889,10 +889,10 @@
       "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
     },
     {
-      "bytes": 12104,
+      "bytes": 12196,
       "mode": "0644",
       "path": "scripts/test-import-flow.mjs",
-      "sha256": "ebee3562ed7ef76f9442bcc6d75977cb9b3a6bb6b0794e1e0057f72ce5310ec1"
+      "sha256": "48cd83ff139b72593bb1d9c23b7a4f9536a7fb2393c94c02825d5f002f3faac5"
     },
     {
       "bytes": 10873,
