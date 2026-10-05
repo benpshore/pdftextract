@@ -1,0 +1,59 @@
+name: Reviewed region fusion pilot
+
+on:
+  pull_request:
+    paths:
+      - experiments/region-fusion/**
+      - experiments/region-evidence/**
+      - rust-toolchain.toml
+      - .github/workflows/region-fusion.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CARGO_BUILD_JOBS: 2
+      CARGO_PROFILE_DEV_DEBUG: 0
+      PDFIUM_DYNAMIC_LIB_PATH: ${{ github.workspace }}/.pdfium/lib/libpdfium.so
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+      - name: Record actual toolchain
+        run: |
+          rustup show active-toolchain
+          rustc --version --verbose
+          cargo --version --verbose
+          cargo clippy --version
+      - name: Contract and CLI checks
+        run: |
+          cargo fmt --manifest-path experiments/region-fusion/Cargo.toml --check
+          cargo clippy --locked --manifest-path experiments/region-fusion/Cargo.toml --all-targets -- -D warnings
+          cargo test --locked --manifest-path experiments/region-fusion/Cargo.toml
+      - name: Runner fault tests
+        run: uv run --locked pytest experiments/region-fusion/test_runner.py
+      - name: Fetch existing pinned PDFium runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          entry=$(jq -ce '[.entries[] | select(.kind == "pdfium" and .platform == "linux-x64")] | if length == 1 then .[0] else error("expected one pin") end' native/manifest.json)
+          curl --fail --location --retry 3 "$(jq -er '.url' <<< "$entry")" -o /tmp/region-pdfium.tgz
+          printf '%s  /tmp/region-pdfium.tgz\n' "$(jq -er '.archive_sha256' <<< "$entry")" | sha256sum --check
+          mkdir -p .pdfium
+          tar -xzf /tmp/region-pdfium.tgz -C .pdfium lib/libpdfium.so
+          printf '%s  .pdfium/lib/libpdfium.so\n' "$(jq -er '.sha256' <<< "$entry")" | sha256sum --check
+      - name: Build test executables
+        run: |
+          cargo build --locked --features pdfium --bin tpe
+          cargo build --locked --manifest-path experiments/region-fusion/Cargo.toml --bin fuse_artifacts
+      - name: Actual lopdf and PDFium region-selection regressions
+        env:
+          REGION_TPE_BIN: ${{ github.workspace }}/target/debug/tpe
+          REGION_FUSION_BIN: ${{ github.workspace }}/experiments/region-fusion/target/debug/fuse_artifacts
+        run: uv run --locked pytest experiments/region-fusion/test_real_extraction.py
