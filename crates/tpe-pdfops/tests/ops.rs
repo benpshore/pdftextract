@@ -584,7 +584,7 @@ fn clean_renders_with_pdfium_and_writes_image_pages() {
         let page_id = reparsed.get_pages()[&1];
         let images = reparsed.get_page_images(page_id).unwrap();
         assert_eq!(images.len(), 1);
-        let expected = vec![String::from_utf8_lossy(filter).into_owned()];
+        let expected = [String::from_utf8_lossy(filter).into_owned()];
         assert_eq!(images[0].filters.as_deref(), Some(&expected[..]), "{name}");
         assert_eq!(images[0].width, 612);
     }

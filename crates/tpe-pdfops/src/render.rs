@@ -112,7 +112,8 @@ fn to_gray(rgba: &[u8], width: i32, height: i32) -> GrayImage {
         u32::try_from(height).unwrap_or(0),
     );
     let mut gray = GrayImage::new(w, h);
-    for (pixel, chunk) in gray.pixels_mut().zip(rgba.chunks_exact(4)) {
+    let (chunks, _) = rgba.as_chunks::<4>();
+    for (pixel, chunk) in gray.pixels_mut().zip(chunks) {
         let luma =
             (u32::from(chunk[0]) * 299 + u32::from(chunk[1]) * 587 + u32::from(chunk[2]) * 114)
                 / 1000;
