@@ -43,7 +43,13 @@ const uploadPath = path.join(webRoot, 'lib', 'upload-client.ts');
 const uploadModule = new Module(uploadPath);
 uploadModule.filename = uploadPath;
 uploadModule._compile(ts.transpileModule(fs.readFileSync(uploadPath, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, uploadPath);
+// The folder traversal has no imports and touches the DOM only when called, so the real module is loaded too.
+const folderPath = path.join(webRoot, 'lib', 'folder-traversal.ts');
+const folderModule = new Module(folderPath);
+folderModule.filename = folderPath;
+folderModule._compile(ts.transpileModule(fs.readFileSync(folderPath, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, folderPath);
 const helpers = {
+    '@/lib/folder-traversal': folderModule.exports,
     '@/components/ui/button': { Button: ({ asChild, children, variant, ...props }) => asChild ? React.cloneElement(children, props) : React.createElement('button', props, children) },
     '@/lib/clip': { clipHtml: (text, url, name) => { if (failParse === 'result')
             return { ...blank(name, ''), status: 'failed', warnings: ['Parser returned Failed'] }; if (failParse)

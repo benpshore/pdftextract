@@ -73,6 +73,49 @@ it is not application source and is intentionally omitted from export/import.
 Ignored files added beside a bundle are never imported. Extra or missing files
 inside the source allowlist cause verification to fail.
 
+## Folder imports
+
+The browser app imports whole folders recursively from `web/lib/folder-traversal.ts`,
+wired into the composer's Upload options, the `webkitdirectory` input and the drop
+zone in `web/app/workspace.tsx`:
+
+- **Chrome/Edge** use `showDirectoryPicker()` (read mode) and walk the directory
+  handles asynchronously. A folder picked in this session is offered again as
+  "Import `<name>` again" in the Upload options; the handle is re-used after a
+  `queryPermission` check and the browser only re-prompts when its grant lapsed.
+  The picker is also passed `startIn` and a stable `id` so it reopens near the
+  last location. Where the picker is missing or rejects, nothing is added.
+- **Safari/Firefox** (and every other browser) get `<input type="file"
+  webkitdirectory>`; relative paths come from `webkitRelativePath`. Dropped
+  folders use `DataTransferItem.webkitGetAsEntry()`: entries are taken
+  synchronously inside the drop event and every directory reader is drained with
+  `readEntries` until it returns an empty batch.
+- **Policy** (`collectFolder`): hidden and system files are skipped (`.DS_Store`,
+  `._*`, any dot-file or dot-folder, `Thumbs.db`, `desktop.ini`, `__MACOSX`,
+  `~$` lock files); files are classified by extension, PDFs are queued first and
+  the rest keep path order; unsupported types, files over the per-file limit
+  (512 MB) and unreadable files stay in the import queue as "Not imported" with
+  the reason instead of vanishing; the queue-entry limit (2000) and the
+  directory-entry limit (50 000) stop a scan with a message that says where it
+  stopped; duplicates are dropped once per batch by relative path or by equal
+  size plus content digest (full SHA-256 up to 64 MB, a sampled digest above);
+  progress reports "n of m files (bytes)"; Cancel aborts between entries and
+  adds nothing. Nothing on disk is modified.
+- **Queue and saved list**: the relative path names each queue entry and is sent
+  as `path` with the original, where `app/api/uploads` keeps it (sanitised: no
+  leading slash, `..` or control characters) as `original_name`, so the saved
+  articles list shows "In `<folder>`" for every file imported from a folder.
+- **Accessibility**: the scan status is a live region with a 48 px Cancel button,
+  the summary stays until dismissed, options are keyboard reachable with visible
+  focus, and focus returns to the Upload control after choosing an option.
+
+Tests: `node scripts/test-import-flow.mjs` covers the three sources and the
+policy without a DOM; `scripts/test-browser-ui.mjs` (Chromium against a running
+`pnpm dev`, `TPE_UI_ONLY=folder` runs only that scenario) imports a generated
+nested folder through the directory input, a mocked directory picker, Cancel and
+a synthetic drop, and verifies the queue entries. Headless Chromium rejects the
+real picker immediately, so the picker itself is mocked, not proven there.
+
 ## Local setup and deployment boundary
 
 Use Node and pnpm versions declared in `web/package.json`. The lockfile pins
