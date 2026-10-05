@@ -36,5 +36,9 @@ Native repair checks now compile and test `pdf-oxide`, `mupdf`, `poppler`, and
 `grobid` alongside `pdfium` on Linux x64, Linux ARM64, and macOS ARM64. The
 licensed-provider runtime tests remain explicitly ignored without their
 external libraries. This exercises the optional dependency APIs too.
+The expanded Linux ARM64 check exposed an existing signed-`c_char` assumption
+in provider identity/error strings. Decode the native one-byte representation
+on either signedness; the regression checks UTF-8, NUL termination, and invalid
+bytes without changing pointer bounds or library ownership.
 GROBID remains non-resolving with `allow_dtd: false`;
 no changed path connects these pins to #215 or #216.
