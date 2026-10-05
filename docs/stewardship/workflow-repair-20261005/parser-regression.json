@@ -1,0 +1,102 @@
+{
+  "observed_at": "2026-10-05T09:38:49.195Z",
+  "base": "88d65b565bbf1037b1b76df1cc2462a1ae324add",
+  "parser": "js-yaml 4.1.1, existing installed package; no dependency changes",
+  "original_rejected": {
+    "reason": "bad indentation of a mapping entry",
+    "line": 87,
+    "column": 75
+  },
+  "reverting_hunk_reproduces_failure": true,
+  "intended_command_unchanged": true,
+  "all_other_workflow_semantics_unchanged": true,
+  "workflow_count": 16,
+  "workflows": [
+    {
+      "file": "app.yml",
+      "parsed": true,
+      "sha256": "5f12433a4ea416fbf21a428c7606606fb6b31d5b9477bb58b0f71cb3d32030e9"
+    },
+    {
+      "file": "auto-release.yml",
+      "parsed": true,
+      "sha256": "10d07eff3f243b420ceeb0cd96b3b1fbd23a4f0d4a284662c42e12d095442fe4"
+    },
+    {
+      "file": "build-binaries.yml",
+      "parsed": true,
+      "sha256": "944543c971d5cdd448246805127eb0bb7bd791ea8673a226022cac2c4ef35468"
+    },
+    {
+      "file": "ci.yml",
+      "parsed": true,
+      "sha256": "c15213800bd55dfbf793c41c9ea52e6ff99ba0a416f44ac5dfc1602de49af5f1"
+    },
+    {
+      "file": "codeql.yml",
+      "parsed": true,
+      "sha256": "0bb9fe8b1ef784ff3c9a3370c4e25074d9f8513c6bb593ba3f05c7617a89505c"
+    },
+    {
+      "file": "eval.yml",
+      "parsed": true,
+      "sha256": "ceb574d1dd71aab003c804a07fa833c9c421f961fe63d13be0fd203d67459954"
+    },
+    {
+      "file": "install-check.yml",
+      "parsed": true,
+      "sha256": "9eb6b52f9d78fbd9722f7f0146fdf6018be0ce95e7b06c38fe160cf437143cc1"
+    },
+    {
+      "file": "native-bibliography-evidence.yml",
+      "parsed": true,
+      "sha256": "278968707b05bd459261606ae2318873e38baf52eae3743c401805234df035c0"
+    },
+    {
+      "file": "native-repair-checks.yml",
+      "parsed": true,
+      "sha256": "712b509fb697e04deab1e3f566c485099c8504131dbbb0c21662fc4b0a351d2e"
+    },
+    {
+      "file": "native.yml",
+      "parsed": true,
+      "sha256": "69fac98f0a9d94135ed240fa7217ab7da3d31e7aa62017730503d0514e49d385"
+    },
+    {
+      "file": "pdfium-probe.yml",
+      "parsed": true,
+      "sha256": "02a4b05fed9fb7c55fb362d2ff9e2cd0f3717239a56c379b683940f1bc503f65"
+    },
+    {
+      "file": "pmc-bibliography.yml",
+      "parsed": true,
+      "sha256": "155a4acfc9cba1545899530ca6706d3cffdc70e06ffe9418d50268e7ff8de965"
+    },
+    {
+      "file": "poppler-compare.yml",
+      "parsed": true,
+      "sha256": "15dfc652fa1b795277ced2d6ff95557211273097d23bb890e0045c97ba51ce87"
+    },
+    {
+      "file": "registry-accuracy.yml",
+      "parsed": true,
+      "sha256": "64e31bdb2890da20e4508bc976afc1df065b519b9393bf8453a227de7cce2007"
+    },
+    {
+      "file": "release.yml",
+      "parsed": true,
+      "sha256": "5b3ddb3fc7fb0dd62af43f1015c97970c1826ccc7bed89a7f945d43b32bbc7ab"
+    },
+    {
+      "file": "web.yml",
+      "parsed": true,
+      "sha256": "cf646babe38ed8404fb5043546fd83aa0f467a458bbf9f71621b3578702ad316"
+    }
+  ],
+  "source_patch": "diff --git a/.github/workflows/pdfium-probe.yml b/.github/workflows/pdfium-probe.yml\nindex f0711c3..19167af 100644\n--- a/.github/workflows/pdfium-probe.yml\n+++ b/.github/workflows/pdfium-probe.yml\n@@ -84,7 +84,8 @@ jobs:\n         run: sh native/fetch-liteparse.sh --archive pdfium.tgz\n       - run: cargo fmt --all --check\n       - run: cargo clippy --locked --all-targets --features \"$TPE_FEATURES\" -- -D warnings\n-      - run: cargo test --locked --features \"$TPE_FEATURES\" --lib backend:: -- --nocapture\n+      - run: |\n+          cargo test --locked --features \"$TPE_FEATURES\" --lib backend:: -- --nocapture\n       - run: cargo test --locked --features \"$TPE_FEATURES\" --test pdf_oxide_backend --test pdf_extract_cff --test liteparse_layout --test native_provider -- --nocapture\n       - run: cargo test --locked --features pdfium --lib backend::pdfium_backend::unicode_mapping::tests -- --nocapture\n       - run: cargo test --locked --features pdfium --lib backend::pdfium_backend::tests -- --nocapture\n",
+  "limitations": [
+    "YAML parsing/structural regression only; not native-runtime qualification.",
+    "GitHub hosted launch and results remain separate observations.",
+    "No new permanent dependency or duplicated implementation test."
+  ]
+}

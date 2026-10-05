@@ -1,0 +1,18 @@
+{
+  "source_pr": 235,
+  "head": "3f1dfed526a8db4202af014ba98fc49e7f2186fa",
+  "run": 37286778202,
+  "job": 111687538642,
+  "incomplete_partial_by_backend": {
+    "lopdf": 47,
+    "pdfium": 50,
+    "docling-text": 52,
+    "docling": 60
+  },
+  "total_incomplete_partial": 209,
+  "zero_exception_statements": 4,
+  "other_validator_errors": 0,
+  "failed_step": "Validate coverage and bounded outcomes for every backend",
+  "ownership": "Recent serial repairs on #235 and updated compatibility evidence show active work; no canonical agent identity is available in its commit message. GitHub transport account alone is not attribution.",
+  "observed_source": "Read job steps/logs and current PR body/code paths, not downloaded corpus artifacts."
+}
