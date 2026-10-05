@@ -1630,7 +1630,11 @@ fn ligature_letters(ch: char) -> Option<&'static str> {
 }
 
 /// `text` with every Latin ligature expanded, and how many were expanded.
-fn expand_ligatures(text: String) -> (String, u32) {
+///
+/// Shared by the other text backends (`pdf-oxide`, the native providers) so
+/// that the same glyph normalises to the same letters whichever parser read
+/// it; NFC is applied by each caller afterwards.
+pub(crate) fn expand_ligatures(text: String) -> (String, u32) {
     if !text.chars().any(|ch| ligature_letters(ch).is_some()) {
         return (text, 0);
     }
