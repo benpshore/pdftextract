@@ -1,0 +1,344 @@
+{
+  "observed_at": "2026-10-05 06:57:36 UTC",
+  "main": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "release": {
+    "tag": "v0.55.0",
+    "annotated_tag": "5c6ada44956fb99604cc6de6bb6cf2aeb8994874",
+    "target": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10"
+  },
+  "pr": {
+    "number": 238,
+    "url": "https://github.com/benpshore/pdftextract/pull/238",
+    "draft": true,
+    "base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+    "head": "1ce49e1a8df7e9249fbd29635301116bea983d5f",
+    "tree": "0f39f4c1fd20607a2d33a58b65cd864d88586eb4",
+    "branch": "docs/readme-236-20261005",
+    "changed_files": [
+      "README.md"
+    ],
+    "labels": [
+      "agent-created"
+    ],
+    "closed_or_merged": false
+  },
+  "original_evidence": {
+    "branch": "wip/busybody-bob-readme-236-20261005",
+    "commit": "57640813fe9eab97a0ce9078d289a3c3de216e82",
+    "tree": "f58a15f2e0de029e129f9aead0aa4d1682972eeb",
+    "journal_records": 109,
+    "journal_sha256": "14e8159df98682ba3d1e6375da9d88cab5134c4e8042cb2a1d144481d30fc234"
+  },
+  "issue236": {
+    "unchanged_body": true,
+    "state": "open",
+    "comments": 0,
+    "updated_at": "2026-10-05T06:36:07Z"
+  },
+  "readme100": {
+    "unchanged": true,
+    "inspected_patch": "Adds lopdf to the original foundation list; clarified as shipped default in rewritten README. No closure or editing."
+  },
+  "ci": {
+    "id": 37274809399,
+    "status": "in_progress",
+    "head": "1ce49e1a8df7e9249fbd29635301116bea983d5f",
+    "jobs": [
+      {
+        "name": "swift",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Initialize containers",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run swift build",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run swift test",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Stop containers",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "name": "python",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv sync --locked",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv run ruff format --check",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv run ruff check --output-format=github",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv run pytest",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv run pytest web/tests/test_site_source.py",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv run python scripts/site_source.py verify --source web",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv audit --locked --preview-features audit-command",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run uv build",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Post Run astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "name": "repo",
+        "status": "completed",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "No junk, databases or secrets committed",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Complete job",
+            "conclusion": "success",
+            "status": "completed"
+          }
+        ]
+      },
+      {
+        "name": "rust (ubuntu-24.04-arm)",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run rustup show active-toolchain",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run rustc --version --verbose && uname -m",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo fmt --check",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo clippy --locked --workspace --all-targets -- -D warnings",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo test --locked --workspace",
+            "conclusion": null,
+            "status": "in_progress"
+          },
+          {
+            "name": "Check optional CFF, Docling text, and GROBID modules",
+            "conclusion": null,
+            "status": "pending"
+          },
+          {
+            "name": "Post Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+            "conclusion": null,
+            "status": "pending"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": null,
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "name": "rust (ubuntu-latest)",
+        "status": "in_progress",
+        "conclusion": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run rustup show active-toolchain",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run rustc --version --verbose && uname -m",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo fmt --check",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo clippy --locked --workspace --all-targets -- -D warnings",
+            "conclusion": "success",
+            "status": "completed"
+          },
+          {
+            "name": "Run cargo test --locked --workspace",
+            "conclusion": null,
+            "status": "in_progress"
+          },
+          {
+            "name": "Check optional CFF, Docling text, and GROBID modules",
+            "conclusion": null,
+            "status": "pending"
+          },
+          {
+            "name": "Post Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+            "conclusion": null,
+            "status": "pending"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "conclusion": null,
+            "status": "pending"
+          }
+        ]
+      }
+    ]
+  },
+  "other_run": {
+    "id": 37274723134,
+    "name": ".github/workflows/pdfium-probe.yml",
+    "conclusion": "failure",
+    "jobs": 0,
+    "workflow_unchanged_from_main": true,
+    "limitations": "Existing workflow fails before jobs. No workflow/code fix authorized or attempted; no formal cause claimed from absent logs."
+  },
+  "trailer_validation": "registered agent metadata (not authenticated); exact one-commit PR range validated",
+  "scope": "Sequential README-only continuation under existing Bob identity. No main/release/deploy/protection/application/UI changes or user-issue edits; no agents spawned.",
+  "limitations": [
+    "CI is a dated observation, not represented as terminal or all green.",
+    "Local OSV audit connection failed; hosted Python job succeeded including its audit step.",
+    "Hashes and GitHub receipts are not signatures or independently immutable storage; platform retention applies."
+  ]
+}
