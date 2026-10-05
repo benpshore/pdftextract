@@ -81,19 +81,41 @@ Check the build log of the first Native run for these. Pinning ONNX Runtime
 
 | variable | meaning | default when unset |
 | --- | --- | --- |
-| `PDFIUM_DYNAMIC_LIB_PATH` | absolute directory containing `libpdfium.{so,dylib}`, or the absolute library file itself | required for `pdfium` and full `docling` |
+| `PDFIUM_DYNAMIC_LIB_PATH` | absolute directory containing `libpdfium.{so,dylib}`, or the absolute library file itself | `pdfium`: the verified per-user install from `tpe-pdfium fetch`; full `docling`: required |
 | `DOCLING_RS_MODELS_DIR` | the `.models` directory **itself** (not its parent). It is consulted for a `.models/<file>` path only when that path does not exist under the CWD | `.models/` under the CWD, then next to the executable and one level above it |
 | `DOCLING_LAYOUT_ONNX`, `DOCLING_OCR_DET_ONNX`, … | per-file overrides from docling.rs; they bypass the resolver entirely | unset |
 | `DOCLING_RS_FP32` | `1` forces the fp32 layout model, which is not provisioned here | unset |
 
-Relative PDFium paths are rejected. In particular, the runtime never loads
-`.pdfium/lib` relative to the working directory; pass the absolute path to a
-provisioned library instead (for example,
-`PDFIUM_DYNAMIC_LIB_PATH="$(pwd)/.pdfium/lib"`). Until that variable is set,
-every `pdfium` open fails with `pdfium library not found`, and `tpe backends`
-reports the same; the binding itself (pdfium-render 0.8, dynamic loading) needs
-nothing else. The `pdfium` feature alone does not need the models: provision
-just the library with `sh native/fetch.sh --pdfium-only` (about 8 MB).
+The `pdfium` backend looks for the library in this order and never consults
+the working directory:
+
+1. `PDFIUM_DYNAMIC_LIB_PATH`, when set: an absolute directory or file, loaded as
+   configured (relative paths are rejected).
+2. The per-user install written by `tpe-pdfium fetch`
+   (`$XDG_DATA_HOME/tpe/pdfium/<release>/<platform>/`, default
+   `~/.local/share/...`; macOS `~/Library/Application Support/tpe/pdfium/...`;
+   Windows `%LOCALAPPDATA%\tpe\pdfium\...`; `TPE_DATA_DIR` overrides the base).
+   It is used only while the file's SHA-256 equals the digest pinned in
+   `native/manifest.json`, which is compiled into the binary; a changed or
+   corrupted file is ignored, not loaded.
+
+```sh
+cargo run --release --bin tpe-pdfium -- fetch   # ~3 MB download; verifies the archive and library digests
+tpe-pdfium status                                # platform, pin, install path, what the backend would load
+tpe extract paper.pdf --backend pdfium --db local.sqlite --out out/   # no environment variable needed
+export PDFIUM_DYNAMIC_LIB_PATH="$(tpe-pdfium path)"   # only for tools that read the variable themselves (full docling)
+```
+
+`tpe-pdfium fetch` downloads the pinned bblanchon/pdfium-binaries archive over
+HTTPS, refuses anything over 64 MB, checks the archive digest, extracts the
+single pinned member in memory, checks the library digest, and installs it by
+an atomic rename; on any mismatch nothing is installed. Until one of the two
+locations is usable, every `pdfium` open fails with `pdfium library not found`
+and names both remedies, and `tpe backends` reports the same; the binding
+itself (pdfium-render 0.8, dynamic loading) needs nothing else. The `pdfium`
+feature alone does not need the models; `sh native/fetch.sh --pdfium-only`
+(about 8 MB) remains the repository-local alternative for CI and developers
+who prefer `.pdfium/lib` plus the environment variable.
 
 The resolution order comes from docling-core 1.69.2 (`assets.rs`) and
 docling-pdf 1.69.2 (`pdfium_backend.rs`, `layout.rs`). Running `tpe` from the
@@ -121,7 +143,7 @@ None of these artifacts is committed to the repository. The `.models/` and
 ```sh
 sh native/fetch.sh                                   # about 82 MB of models plus PDFium; prints a table
 # (or `sh native/fetch.sh --pdfium-only` for the `pdfium` feature without docling)
-export PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"    # required: relative library paths are rejected
+export PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"    # for docling; `pdfium` alone also works after `tpe-pdfium fetch`
 cargo build --release --features docling,pdfium      # the first build downloads ONNX Runtime
 cargo test --features docling,pdfium -- --nocapture  # native smoke tests must not print "skipped:"
 # Full model-backed docling remains restricted to explicitly provisioned library/eval use.

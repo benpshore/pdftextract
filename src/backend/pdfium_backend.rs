@@ -127,17 +127,29 @@ const FIGURE_BYTES_CAP: usize = 256 * 1024 * 1024;
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct PdfiumBackend {
     /// Directory holding `libpdfium.so` / `libpdfium.dylib` / `pdfium.dll`.
-    /// `None` uses `$PDFIUM_DYNAMIC_LIB_PATH` (an absolute directory or file).
-    /// Relative paths and implicit loader searches are rejected so an
-    /// attacker-controlled working directory cannot supply native code.
+    /// Search order when `None`: `$PDFIUM_DYNAMIC_LIB_PATH` (an absolute
+    /// directory or file, taken as configured), then the per-user install
+    /// written by `tpe-pdfium fetch`, which is used only while its SHA-256
+    /// equals the pin compiled in from `native/manifest.json`
+    /// (`crate::pdfium_provision`). Relative paths and implicit loader
+    /// searches are rejected so an attacker-controlled working directory
+    /// cannot supply native code.
     pub library_dir: Option<String>,
 }
 
 impl Extractor for PdfiumBackend {
     /// Fingerprint the effective configured library without loading native code.
     fn identity(&self) -> BackendIdentity {
-        let environment = std::env::var(ENV_LIBRARY_PATH).ok();
-        library_identity(self.library_dir.as_deref(), environment.as_deref())
+        let environment = std::env::var(ENV_LIBRARY_PATH)
+            .ok()
+            .filter(|value| !value.is_empty());
+        let installed = (self.library_dir.is_none() && environment.is_none())
+            .then(installed_library_path)
+            .flatten();
+        library_identity(
+            self.library_dir.as_deref(),
+            environment.as_deref().or(installed.as_deref()),
+        )
     }
 
     /// Geometry only; the engine's XY-cut orders the spans.
@@ -346,6 +358,8 @@ fn bind(library_dir: Option<&str>) -> Result<Pdfium, BackendError> {
         && !configured.is_empty()
     {
         candidates.push(configured_library_file(&configured)?);
+    } else if let Some(installed) = installed_library_path() {
+        candidates.push(PathBuf::from(installed));
     }
     let mut failures: Vec<String> = Vec::new();
     for candidate in &candidates {
@@ -362,11 +376,18 @@ fn bind(library_dir: Option<&str>) -> Result<Pdfium, BackendError> {
     }
     let detail = failures.join("; ");
     let hint = format!(
-        "set {ENV_LIBRARY_PATH} to an absolute trusted path (provision the pinned library with `sh native/fetch.sh --pdfium-only`, then export {ENV_LIBRARY_PATH}=\"$PWD/.pdfium/lib\")"
+        "run `tpe-pdfium fetch` to install the pinned, hash-verified library for this user, or set {ENV_LIBRARY_PATH} to an absolute trusted path (e.g. after `sh native/fetch.sh --pdfium-only`, export {ENV_LIBRARY_PATH}=\"$PWD/.pdfium/lib\")"
     );
     Err(BackendError::Unsupported(format!(
         "pdfium library not found: {hint} ({detail})"
     )))
+}
+
+/// The per-user install from `tpe-pdfium fetch`, only while it still hashes
+/// to the compiled-in pin (`crate::pdfium_provision::installed_library`).
+fn installed_library_path() -> Option<String> {
+    crate::pdfium_provision::installed_library()
+        .map(|library| library.path.to_string_lossy().into_owned())
 }
 
 /// Resolve an explicitly trusted library location without consulting the
@@ -1052,6 +1073,17 @@ mod tests {
         assert!(fingerprint_library(&file).is_err());
         let error = bind(file.to_str()).err().unwrap();
         assert!(error.to_string().contains("no larger than 64 MiB"));
+    }
+
+    #[test]
+    fn unconfigured_bind_hint_names_the_provisioning_command() {
+        let directory = tempfile::tempdir().unwrap();
+        let missing = directory.path().join("absent").join("libpdfium.so");
+        let error = bind(missing.to_str()).err().unwrap();
+        let text = error.to_string();
+        assert!(text.contains("pdfium library not found"), "{text}");
+        assert!(text.contains("tpe-pdfium fetch"), "{text}");
+        assert!(text.contains(ENV_LIBRARY_PATH), "{text}");
     }
 
     #[test]

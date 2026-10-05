@@ -84,7 +84,7 @@ jobs:
         run: sh native/fetch-liteparse.sh --archive pdfium.tgz
       - run: cargo fmt --all --check
       - run: cargo clippy --locked --all-targets --features "$TPE_FEATURES" -- -D warnings
-      - run: cargo test --locked --features "$TPE_FEATURES" --lib backend:: -- --nocapture
+      - run: cargo test --locked --features "$TPE_FEATURES" --lib 'backend::' -- --nocapture
       - run: cargo test --locked --features "$TPE_FEATURES" --test pdf_oxide_backend --test pdf_extract_cff --test liteparse_layout --test native_provider -- --nocapture
       - run: cargo test --locked --features pdfium --lib backend::pdfium_backend::unicode_mapping::tests -- --nocapture
       - run: cargo test --locked --features pdfium --lib backend::pdfium_backend::tests -- --nocapture
