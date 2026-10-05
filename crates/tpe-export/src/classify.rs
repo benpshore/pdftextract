@@ -59,13 +59,16 @@ impl ItemType {
 /// The engine fields the classifier looks at.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Hints<'a> {
+    /// The parsed venue string (journal, proceedings, publisher, ...).
     pub venue: Option<&'a str>,
     pub volume: Option<&'a str>,
     pub issue: Option<&'a str>,
     pub pages: Option<&'a str>,
     pub doi: Option<&'a str>,
+    /// With or without the `arXiv:` scheme.
     pub arxiv_id: Option<&'a str>,
     pub url: Option<&'a str>,
+    /// The printed entry, consulted only when there is no venue.
     pub raw: Option<&'a str>,
 }
 
@@ -78,9 +81,13 @@ pub struct Hints<'a> {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Classification {
     pub item_type: ItemType,
+    /// Zotero base field `publicationTitle`.
     pub publication_title: Option<String>,
+    /// Zotero base field `publisher`.
     pub publisher: Option<String>,
+    /// Zotero base field `type`.
     pub type_field: Option<String>,
+    /// Zotero base field `number`.
     pub number: Option<String>,
 }
 
