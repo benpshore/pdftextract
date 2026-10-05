@@ -8698,6 +8698,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "tpe-scan-service"
+version = "0.2.0"
+dependencies = [
+ "clap",
+ "flate2",
+ "getrandom 0.3.4",
+ "httparse",
+ "image",
+ "lopdf 0.45.0",
+ "rustix 1.1.5",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "signal-hook",
+ "tempfile",
+ "text-processing-engine",
+ "thiserror 2.0.21",
+ "tpe-ffi",
+]
+
+[[package]]
 name = "tpe-search"
 version = "0.2.0"
 dependencies = [
