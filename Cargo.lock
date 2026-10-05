@@ -2796,7 +2796,7 @@ version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbc773e24e02d4ddd8395fd30dc147524273a83e54e0f312d986ea30de5f5646"
 dependencies = [
- "roxmltree",
+ "roxmltree 0.20.0",
 ]
 
 [[package]]
@@ -6835,6 +6835,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
 
 [[package]]
+name = "roxmltree"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1964b10c76125c36f8afe190065a4bf9a87bf324842c05701330bba9f1cacbb"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "rsqlite-vfs"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7396,9 +7405,9 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "signal-hook"
-version = "0.3.18"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
+checksum = "b2a0c28ca5908dbdbcd52e6fdaa00358ab88637f8ab33e1f188dd510eb44b53d"
 dependencies = [
  "libc",
  "signal-hook-registry",
@@ -8193,7 +8202,7 @@ dependencies = [
  "flate2",
  "hex",
  "libc",
- "libloading 0.8.9",
+ "libloading 0.9.0",
  "liteparse",
  "lopdf 0.45.0",
  "office_oxide",
@@ -8201,7 +8210,7 @@ dependencies = [
  "pdf_oxide",
  "pdfium-render",
  "regex",
- "roxmltree",
+ "roxmltree 0.21.1",
  "rusqlite",
  "rustix 1.1.5",
  "serde",
@@ -8691,7 +8700,7 @@ dependencies = [
  "clap",
  "fastembed",
  "rusqlite",
- "sha2 0.10.9",
+ "sha2 0.11.0",
  "tempfile",
  "thiserror 2.0.21",
  "usearch",
@@ -9046,7 +9055,7 @@ dependencies = [
  "kurbo 0.11.3",
  "log",
  "pico-args",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustybuzz 0.18.0",
  "simplecss",
  "siphasher",
@@ -9073,7 +9082,7 @@ dependencies = [
  "kurbo 0.11.3",
  "log",
  "pico-args",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustybuzz 0.20.1",
  "simplecss",
  "siphasher",

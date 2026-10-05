@@ -11,7 +11,7 @@ tpe extract paper.pdf --backend pdf-oxide --db extraction.sqlite --json
 The adapter pins `pdf_oxide` 0.3.78 with default features disabled. It enables
 no OCR, rendering, system fonts, models, external programs, or network access.
 The source is opened from the immutable bytes supplied by the engine.
-`office_oxide` is constrained to 0.1.9 because the otherwise selected 0.1.13
+`office_oxide` is constrained to 0.1.9 because 0.1.12 (and 0.1.13)
 adds `DocumentIR.defined_names`, breaking PDF Oxide 0.3.78's constructor with
 Rust error E0063. Both packages have crates.io checksums in Cargo.lock.
 

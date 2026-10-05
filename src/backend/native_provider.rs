@@ -317,7 +317,8 @@ unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     }
     let mut bytes = Vec::new();
     for offset in 0..256 {
-        let byte = unsafe { *pointer.add(offset) }.cast_unsigned();
+        // Preserve the byte whether this platform's c_char is i8 or u8.
+        let byte = unsafe { *pointer.add(offset) }.to_ne_bytes()[0];
         if byte == 0 {
             return String::from_utf8(bytes).map_err(|e| e.to_string());
         }
@@ -330,7 +331,7 @@ fn error_message(error: &[c_char]) -> String {
         &error
             .iter()
             .take_while(|&&b| b != 0)
-            .map(|b| b.cast_unsigned())
+            .map(|b| b.to_ne_bytes()[0])
             .collect::<Vec<_>>(),
     )
     .into_owned()
@@ -717,6 +718,18 @@ mod tests {
         unsafe {
             (api.close)(handle);
         }
+    }
+
+    #[test]
+    fn provider_strings_preserve_bytes_for_either_c_char_signedness() {
+        let chars = b"caf\xc3\xa9\0ignored".map(|byte| c_char::from_ne_bytes([byte]));
+        // SAFETY: the local array is readable through its NUL within the bound.
+        assert_eq!(unsafe { bounded_string(chars.as_ptr()) }.unwrap(), "café");
+        assert_eq!(error_message(&chars), "café");
+        let invalid = [c_char::from_ne_bytes([0xff]), 0];
+        // SAFETY: both elements are readable and the second is NUL.
+        assert!(unsafe { bounded_string(invalid.as_ptr()) }.is_err());
+        assert_eq!(error_message(&invalid), "\u{fffd}");
     }
 
     #[test]
