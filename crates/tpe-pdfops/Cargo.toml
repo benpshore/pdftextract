@@ -1,0 +1,37 @@
+[package]
+name = "tpe-pdfops"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "PDF operations that always write new files: concatenate, paginate, reorient, normalise to US Letter, remove an open password, and raster clean-ups (water-stain, dewarp, deskew) through PDFium"
+
+[lib]
+name = "tpe_pdfops"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tpe-pdfops"
+path = "src/main.rs"
+
+[features]
+default = []
+# Raster path (`clean`): render pages with PDFium (loaded from the absolute
+# location in `PDFIUM_DYNAMIC_LIB_PATH`), process them with `image`, and write
+# image-backed pages. Same feature set as the root crate so one `pdfium-render`
+# is built and linked.
+pdfium = ["dep:pdfium-render"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+# `jpeg` only: the DCT encoder for image-backed pages. Flate pages go through
+# lopdf's own encoder.
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+lopdf = "0.45"
+pdfium-render = { version = "0.8", optional = true, default-features = false, features = ["pdfium_latest", "thread_safe"] }
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true
