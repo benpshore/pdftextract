@@ -60,6 +60,9 @@ fn mock_server(replies: Vec<Reply>) -> (String, JoinHandle<Vec<Vec<u8>>>) {
                     Err(error) => panic!("mock listener: {error}"),
                 }
             };
+            // macOS can inherit the listener's nonblocking mode on accept.
+            // This mock expects blocking reads bounded by its socket timeout.
+            stream.set_nonblocking(false).unwrap();
             stream
                 .set_read_timeout(Some(Duration::from_secs(2)))
                 .unwrap();

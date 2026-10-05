@@ -40,5 +40,8 @@ The expanded Linux ARM64 check exposed an existing signed-`c_char` assumption
 in provider identity/error strings. Decode the native one-byte representation
 on either signedness; the regression checks UTF-8, NUL termination, and invalid
 bytes without changing pointer bounds or library ownership.
+The macOS GROBID mock also explicitly clears inherited nonblocking mode on
+accepted sockets before applying its read timeout. This fixes `WouldBlock`
+failures in the test server without changing production network or XML policy.
 GROBID remains non-resolving with `allow_dtd: false`;
 no changed path connects these pins to #215 or #216.
