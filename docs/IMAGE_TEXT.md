@@ -105,6 +105,11 @@ file with `unsupported: ocrs has only the English/Latin-script models …`. ocrs
 exposes no per-character confidence, so `confidence` is `null` and a warning
 says so. Blocks are reading-ordered lines grouped by vertical gap.
 
+Speed depends on the build profile: rten is unoptimised in `dev` builds, and
+on a shared 4-CPU machine the 420x90 px fixtures took 12 to 25 s each there
+(`timing_ms.ocr`); use `cargo build --release -p tpe-image-text` for real use.
+No throughput claim is made beyond that measurement.
+
 ### docling (detected, not runnable here)
 
 docling.rs 1.69.2 performs OCR with PP-OCR ONNX models only inside its PDF
