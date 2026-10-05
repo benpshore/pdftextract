@@ -115,16 +115,22 @@
       "sha256": "c1b6b2c420cb67d9e28f8f4ae440f578c0dfd4cb840a12cfe4b58076629a17ba"
     },
     {
+      "bytes": 1492,
+      "mode": "0644",
+      "path": "build/hosting.ts",
+      "sha256": "1b2e56f75fae92d46a1b6bcee2d39af0ea3bd883f75fd363d07a30483964301f"
+    },
+    {
       "bytes": 1063,
       "mode": "0644",
       "path": "build/sites-vite-plugin.LICENSE",
       "sha256": "7de1e115d165f176e68f962acdb809b5ab8d8ae78d3981e0701392b2ac50c713"
     },
     {
-      "bytes": 7185,
+      "bytes": 7611,
       "mode": "0644",
       "path": "build/sites-vite-plugin.ts",
-      "sha256": "07af20e7097d9ed1d76f7c446d02997550b8fc5ca89668b249e25eabd62c6834"
+      "sha256": "679615fd46af9824764405daded91de5ca03b076c6b679ea9936a88986057d41"
     },
     {
       "bytes": 1279,
@@ -919,10 +925,10 @@
       "sha256": "bc7d83425702955b4cb67cb14ede9d603f9d912376d57a2d81d661094d2a782a"
     },
     {
-      "bytes": 3115,
+      "bytes": 3490,
       "mode": "0644",
       "path": "vite.config.ts",
-      "sha256": "6f6d890794fbe23f3e35cceb327f49d5977432a5aaf715e040a6408932da395b"
+      "sha256": "7859b78f64ac9314b004f29a186ca7c35c6e7d450a561316a18910c8d8e57764"
     }
   ],
   "format": "tpe-site-source-v1"
