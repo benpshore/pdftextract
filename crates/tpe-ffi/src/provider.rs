@@ -299,7 +299,9 @@ unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     for offset in 0..256 {
         // SAFETY: the caller guarantees readability up to the NUL, which this
         // loop stops at; `offset` never exceeds 255.
-        let byte = unsafe { *pointer.add(offset) }.cast_unsigned();
+        // `c_char` is `i8` on x86-64 and Apple targets but `u8` on AArch64
+        // Linux; `to_ne_bytes` yields the byte on both without a cast.
+        let byte = unsafe { *pointer.add(offset) }.to_ne_bytes()[0];
         if byte == 0 {
             return String::from_utf8(bytes).map_err(|e| e.to_string());
         }
@@ -314,7 +316,7 @@ pub fn error_message(error: &[c_char]) -> String {
         &error
             .iter()
             .take_while(|&&b| b != 0)
-            .map(|b| b.cast_unsigned())
+            .map(|b| b.to_ne_bytes()[0])
             .collect::<Vec<_>>(),
     )
     .into_owned()
@@ -341,7 +343,7 @@ mod tests {
     fn error_messages_stop_at_nul() {
         let mut buffer = [0 as c_char; 8];
         for (slot, byte) in buffer.iter_mut().zip(b"abc\0def") {
-            *slot = *byte as c_char;
+            *slot = c_char::from_ne_bytes([*byte]);
         }
         assert_eq!(error_message(&buffer), "abc");
     }
