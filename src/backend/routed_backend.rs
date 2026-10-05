@@ -1,0 +1,420 @@
+//! `routed`: PDF Oxide extracts by default and `PDFium` supplies any page whose
+//! Oxide text is unusable, decided page by page by [`page_route`]. Every page
+//! records which parser supplied it (`routed: <backend> (<reason>)`), the two
+//! parsers are never combined within a page, and a `PDFium` page keeps `PDFium`'s
+//! own mapping diagnostics, so unresolved mappings stay Partial.
+//!
+//! `PDFium` is bound lazily: the first page that needs it opens the native
+//! document (an eager whole-document read, see `pdfium_backend`). When `PDFium`
+//! is missing or fails for a page, the Oxide page is kept and the page says so
+//! (`route not taken: ...`); nothing is silently substituted.
+
+use std::collections::BTreeMap;
+
+use super::pdf_oxide_backend::PdfOxideBackend;
+use super::pdfium_backend::PdfiumBackend;
+use super::{BackendError, DocumentSession, Extractor};
+use crate::router::{PageBackend, PageEvidence, Task, page_route};
+use crate::schema::{BackendIdentity, PageText, config_digest};
+
+/// Identity of the per-page rule; bump when [`page_route`] changes.
+pub const POLICY: &str = "oxide-default-pdfium-per-page-v1";
+
+/// The two-parser backend selected with `--backend routed`.
+#[derive(Clone, Debug, Default)]
+pub struct RoutedBackend {
+    /// `PDFium` configuration (library location); PDF Oxide needs none.
+    pub pdfium: PdfiumBackend,
+}
+
+impl Extractor for RoutedBackend {
+    fn identity(&self) -> BackendIdentity {
+        let oxide = PdfOxideBackend.identity();
+        let pdfium = self.pdfium.identity();
+        BackendIdentity {
+            name: "routed".to_string(),
+            version: format!("pdf-oxide-{}+pdfium-{}", oxide.version, pdfium.version),
+            config_digest: config_digest(&BTreeMap::from([
+                ("policy".to_string(), POLICY.to_string()),
+                ("extract".to_string(), oxide.config_digest),
+                ("render_and_fallback".to_string(), pdfium.config_digest),
+            ])),
+        }
+    }
+
+    fn open(
+        &self,
+        bytes: &[u8],
+        password: Option<&str>,
+    ) -> Result<Box<dyn DocumentSession>, BackendError> {
+        let oxide = PdfOxideBackend.open(bytes, password)?;
+        Ok(Box::new(RoutedSession {
+            oxide,
+            pdfium: None,
+            pdfium_failure: None,
+            backend: self.pdfium.clone(),
+            bytes: bytes.to_vec(),
+            password: password.map(str::to_owned),
+        }))
+    }
+}
+
+struct RoutedSession {
+    oxide: Box<dyn DocumentSession>,
+    pdfium: Option<Box<dyn DocumentSession>>,
+    /// Why `PDFium` could not be opened; remembered so it is attempted once.
+    pdfium_failure: Option<String>,
+    backend: PdfiumBackend,
+    bytes: Vec<u8>,
+    password: Option<String>,
+}
+
+impl RoutedSession {
+    fn pdfium(&mut self) -> Result<&mut dyn DocumentSession, String> {
+        if self.pdfium.is_none() && self.pdfium_failure.is_none() {
+            match self.backend.open(&self.bytes, self.password.as_deref()) {
+                Ok(session) => self.pdfium = Some(session),
+                Err(error) => self.pdfium_failure = Some(error.to_string()),
+            }
+        }
+        match (self.pdfium.as_deref_mut(), &self.pdfium_failure) {
+            (Some(session), _) => Ok(session),
+            (None, Some(failure)) => Err(failure.clone()),
+            (None, None) => Err("pdfium was not opened".to_string()),
+        }
+    }
+}
+
+/// Keep the Oxide page when `PDFium` cannot supply the routed one, saying why.
+fn keep_oxide(
+    oxide: Result<PageText, BackendError>,
+    not_taken: String,
+    reason: &str,
+) -> Result<PageText, BackendError> {
+    let mut page = oxide?;
+    page.warnings.push(not_taken);
+    page.warnings
+        .push(format!("routed: pdf-oxide (retained; {reason})"));
+    Ok(page)
+}
+
+impl DocumentSession for RoutedSession {
+    fn page_count(&self) -> u32 {
+        self.oxide.page_count()
+    }
+
+    fn info(&self) -> BTreeMap<String, String> {
+        self.oxide.info()
+    }
+
+    fn page_text(&mut self, page: u32) -> Result<PageText, BackendError> {
+        let oxide = self.oxide.page_text(page);
+        let evidence = PageEvidence::from_oxide(oxide.as_ref());
+        let (choice, reason) = page_route(Task::Extract(&evidence));
+        match choice {
+            PageBackend::PdfOxide => {
+                let mut page = oxide?;
+                page.warnings.push(format!("routed: pdf-oxide ({reason})"));
+                Ok(page)
+            }
+            PageBackend::Pdfium => match self.pdfium() {
+                Ok(session) => match session.page_text(page) {
+                    Ok(mut native) => {
+                        native.warnings.push(format!("routed: pdfium ({reason})"));
+                        Ok(native)
+                    }
+                    Err(error) => keep_oxide(
+                        oxide,
+                        format!("route not taken: pdfium page failed: {error}"),
+                        reason,
+                    ),
+                },
+                Err(unavailable) => keep_oxide(
+                    oxide,
+                    format!("route not taken: pdfium unavailable: {unavailable}"),
+                    reason,
+                ),
+            },
+        }
+    }
+
+    /// Only `PDFium` pages carry figures, so only its session can have the bytes.
+    fn take_figure_bytes(&mut self, page: u32, index: u32) -> Option<Vec<u8>> {
+        self.pdfium
+            .as_deref_mut()
+            .and_then(|session| session.take_figure_bytes(page, index))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use lopdf::content::{Content, Operation};
+    use lopdf::{Dictionary, Document, Object, Stream, dictionary};
+
+    use super::*;
+    use crate::schema::Status;
+
+    fn native_available() -> bool {
+        if std::env::var_os("PDFIUM_DYNAMIC_LIB_PATH").is_none() {
+            eprintln!("skipped: set PDFIUM_DYNAMIC_LIB_PATH for routed-backend regressions");
+            return false;
+        }
+        true
+    }
+
+    /// A backend whose `PDFium` can never bind: proves which pages need it.
+    fn without_pdfium() -> RoutedBackend {
+        RoutedBackend {
+            pdfium: PdfiumBackend {
+                library_dir: Some("/nonexistent/pdfium".to_string()),
+            },
+        }
+    }
+
+    fn fixture(name: &str) -> Vec<u8> {
+        std::fs::read(
+            Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("tests/fixtures/pdfium-unicode")
+                .join(name),
+        )
+        .unwrap()
+    }
+
+    /// One page showing `shown` with `font` (a complete font dictionary).
+    fn pdf_with_font(font: Dictionary, shown: Object) -> Vec<u8> {
+        let mut doc = Document::with_version("1.5");
+        let tree_id = doc.new_object_id();
+        let font_id = doc.add_object(font);
+        let resources_id = doc.add_object(dictionary! {
+            "Font" => dictionary! { "F1" => font_id },
+        });
+        let operations = vec![
+            Operation::new("BT", vec![]),
+            Operation::new("Tf", vec!["F1".into(), 24_i32.into()]),
+            Operation::new("Td", vec![72_i32.into(), 700_i32.into()]),
+            Operation::new("Tj", vec![shown]),
+            Operation::new("ET", vec![]),
+        ];
+        let content = Content { operations }.encode().unwrap();
+        let content_id = doc.add_object(Stream::new(dictionary! {}, content));
+        let page_id = doc.add_object(dictionary! {
+            "Type" => "Page",
+            "Parent" => tree_id,
+            "Contents" => content_id,
+            "Resources" => resources_id,
+            "MediaBox" => vec![0_i32.into(), 0_i32.into(), 612_i32.into(), 792_i32.into()],
+        });
+        doc.objects.insert(
+            tree_id,
+            Object::Dictionary(dictionary! {
+                "Type" => "Pages",
+                "Kids" => vec![Object::Reference(page_id)],
+                "Count" => Object::Integer(1),
+            }),
+        );
+        let catalog_id = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => tree_id });
+        doc.trailer.set("Root", catalog_id);
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).unwrap();
+        bytes
+    }
+
+    /// A non-embedded Type0/Identity-H font with no `ToUnicode`: PDF Oxide
+    /// reports `to_unicode_missing` and emits U+FFFD.
+    fn identity_without_tounicode() -> Vec<u8> {
+        let descriptor = dictionary! {
+            "Type" => "FontDescriptor", "FontName" => "Helvetica", "Flags" => 32,
+            "FontBBox" => vec![0_i32.into(), 0_i32.into(), 1000_i32.into(), 1000_i32.into()],
+            "ItalicAngle" => 0, "Ascent" => 800, "Descent" => -200, "CapHeight" => 700, "StemV" => 80,
+        };
+        let descendant = dictionary! {
+            "Type" => "Font", "Subtype" => "CIDFontType2", "BaseFont" => "Helvetica",
+            "CIDSystemInfo" => dictionary! { "Registry" => Object::string_literal("Adobe"), "Ordering" => Object::string_literal("Identity"), "Supplement" => 0 },
+            "FontDescriptor" => descriptor, "DW" => 600,
+        };
+        pdf_with_font(
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "Helvetica",
+                "Encoding" => "Identity-H", "DescendantFonts" => vec![Object::Dictionary(descendant)],
+            },
+            Object::String(vec![0, 1, 0, 2, 0, 3], lopdf::StringFormat::Hexadecimal),
+        )
+    }
+
+    /// A simple font whose `Differences` name private-use glyphs.
+    fn private_use_differences() -> Vec<u8> {
+        pdf_with_font(
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "Encoding" => dictionary! {
+                    "Type" => "Encoding",
+                    "Differences" => vec![1.into(), "uniE001".into(), "uniE002".into(), "uniE003".into()],
+                },
+            },
+            Object::string_literal(vec![1_u8, 2, 3]),
+        )
+    }
+
+    /// A simple font whose `Differences` name glyphs nothing can map:
+    /// PDF Oxide's text for the page is empty.
+    fn unknown_glyph_names() -> Vec<u8> {
+        pdf_with_font(
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "Encoding" => dictionary! {
+                    "Type" => "Encoding",
+                    "Differences" => vec![1.into(), "g17".into(), "g23".into(), "g42".into()],
+                },
+            },
+            Object::string_literal(vec![1_u8, 2, 3]),
+        )
+    }
+
+    fn page_of(backend: &RoutedBackend, bytes: &[u8]) -> PageText {
+        let mut session = backend.open(bytes, None).unwrap();
+        assert_eq!(session.page_count(), 1);
+        session.page_text(1).unwrap()
+    }
+
+    fn supplier(page: &PageText) -> String {
+        let routed: Vec<&String> = page
+            .warnings
+            .iter()
+            .filter(|w| w.starts_with("routed: "))
+            .collect();
+        assert_eq!(routed.len(), 1, "exactly one supplier per page: {routed:?}");
+        routed[0].clone()
+    }
+
+    fn text_of(page: &PageText) -> String {
+        page.spans.iter().map(|s| s.text.as_str()).collect()
+    }
+
+    #[test]
+    fn identity_names_both_parsers_and_the_policy() {
+        let identity = RoutedBackend::default().identity();
+        assert_eq!(identity.name, "routed");
+        assert!(identity.version.starts_with("pdf-oxide-0.3.78+pdfium-"));
+        assert_ne!(
+            without_pdfium().identity().config_digest,
+            identity.config_digest
+        );
+    }
+
+    #[test]
+    fn clean_pages_come_from_pdf_oxide_without_binding_pdfium() {
+        let backend = without_pdfium();
+        let probe = page_of(&backend, &crate::backend::probe_pdf().unwrap());
+        assert_eq!(supplier(&probe), "routed: pdf-oxide (text mapped cleanly)");
+        assert_eq!(text_of(&probe), "probe");
+        // The committed fixtures map cleanly through PDF Oxide, so `PDFium` is
+        // never opened for them (the unbindable library proves it).
+        let native = page_of(&backend, &fixture("native.pdf"));
+        assert_eq!(supplier(&native), "routed: pdf-oxide (text mapped cleanly)");
+        assert!(text_of(&native).contains("Faithful native text remains available"));
+        let partial = page_of(&backend, &fixture("partial-cmap.pdf"));
+        assert_eq!(
+            supplier(&partial),
+            "routed: pdf-oxide (text mapped cleanly)"
+        );
+        assert_eq!(text_of(&partial).trim(), "ALPHA BETA GAMMA");
+        for page in [&probe, &native, &partial] {
+            assert!(
+                !page
+                    .warnings
+                    .iter()
+                    .any(|w| w.starts_with("route not taken:")),
+                "{:?}",
+                page.warnings
+            );
+        }
+    }
+
+    #[test]
+    fn missing_pdfium_is_recorded_rather_than_substituted() {
+        let backend = without_pdfium();
+        for (bytes, reason) in [
+            (
+                identity_without_tounicode(),
+                "a font has no usable Unicode mapping",
+            ),
+            (unknown_glyph_names(), "pdf-oxide text is empty"),
+            (
+                private_use_differences(),
+                "pdf-oxide text contains replacement or private-use characters",
+            ),
+        ] {
+            let page = page_of(&backend, &bytes);
+            assert!(
+                page.warnings
+                    .iter()
+                    .any(|w| w.starts_with("route not taken: pdfium unavailable:")),
+                "{:?}",
+                page.warnings
+            );
+            assert_eq!(
+                supplier(&page),
+                format!("routed: pdf-oxide (retained; {reason})")
+            );
+            assert_eq!(page.extraction_status(), Status::Partial);
+        }
+    }
+
+    #[test]
+    fn unusable_oxide_text_routes_the_page_to_pdfium() {
+        if !native_available() {
+            return;
+        }
+        let backend = RoutedBackend::default();
+        let unmapped = page_of(&backend, &identity_without_tounicode());
+        assert_eq!(
+            supplier(&unmapped),
+            "routed: pdfium (a font has no usable Unicode mapping)"
+        );
+        // `PDFium`'s own mapping diagnostics travel with its page: still Partial,
+        // and no PDF Oxide text is mixed in.
+        assert!(
+            crate::router::has_unmapped_text(&unmapped),
+            "{:?}",
+            unmapped.warnings
+        );
+        assert!(!text_of(&unmapped).contains('\u{fffd}'));
+        assert_eq!(unmapped.extraction_status(), Status::Partial);
+
+        let empty = page_of(&backend, &unknown_glyph_names());
+        assert_eq!(supplier(&empty), "routed: pdfium (pdf-oxide text is empty)");
+
+        let private = page_of(&backend, &private_use_differences());
+        assert_eq!(
+            supplier(&private),
+            "routed: pdfium (pdf-oxide text contains replacement or private-use characters)"
+        );
+    }
+
+    #[test]
+    fn pipeline_result_carries_the_routed_identity_and_per_page_supplier() {
+        if !native_available() {
+            return;
+        }
+        let directory = tempfile::tempdir().unwrap();
+        let path = directory.path().join("unmapped.pdf");
+        std::fs::write(&path, identity_without_tounicode()).unwrap();
+        let result = crate::pipeline::run_job(&crate::schema::Job {
+            path: path.to_string_lossy().into_owned(),
+            backend: "routed".into(),
+            pages: None,
+            password: None,
+            max_bytes: None,
+            figures_dir: None,
+        })
+        .unwrap();
+        assert_eq!(result.backend.name, "routed");
+        assert_eq!(result.status, Status::Partial);
+        assert_eq!(
+            supplier(&result.pages[0]),
+            "routed: pdfium (a font has no usable Unicode mapping)"
+        );
+    }
+}

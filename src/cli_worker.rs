@@ -180,13 +180,14 @@ fn check_supervised_backend(name: &str) -> anyhow::Result<()> {
             "lopdf"
                 | "pdfium"
                 | "pdf-oxide"
+                | "routed"
                 | "liteparse-layout"
                 | "docling-text"
                 | "mupdf"
                 | "poppler"
                 | "auto"
         ),
-        "supervised extraction supports native lopdf/pdfium/pdf-oxide/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
+        "supervised extraction supports native lopdf/pdfium/pdf-oxide/routed/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
     );
     ensure!(
         name != "auto" || !tpe::backend::available().contains(&"docling"),

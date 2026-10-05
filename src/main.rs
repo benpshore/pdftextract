@@ -128,7 +128,7 @@ struct ExtractArgs {
     /// Path of the `SQLite` ledger; created when missing.
     #[arg(long, value_name = "FILE")]
     db: PathBuf,
-    /// Extraction backend: lopdf, pdfium, pdf-oxide, liteparse-layout, mupdf, poppler, or auto without OCR.
+    /// Extraction backend: lopdf, pdfium, pdf-oxide, routed (pdf-oxide with per-page pdfium), liteparse-layout, mupdf, poppler, or auto without OCR.
     #[arg(long, default_value = "lopdf")]
     backend: String,
     /// Directory that receives `<hash>.json` and `<hash>.txt` per document.
