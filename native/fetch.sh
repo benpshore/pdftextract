@@ -5,6 +5,7 @@
 # `docling` backend needs into .models/. See docs/NATIVE.md.
 #
 #   sh native/fetch.sh                 fetch what is missing, verify, print a table
+#   sh native/fetch.sh --pdfium-only   only the PDFium library (the `pdfium` feature needs nothing else)
 #   sh native/fetch.sh --force         re-download everything
 #   sh native/fetch.sh --print-hashes  no network: print file, bytes, sha256 of what is on disk
 #
@@ -18,15 +19,17 @@
 set -eu
 
 usage() {
-  echo "usage: sh native/fetch.sh [--force] [--print-hashes]" >&2
+  echo "usage: sh native/fetch.sh [--pdfium-only] [--force] [--print-hashes]" >&2
 }
 
 FORCE=false
 PRINT_ONLY=false
+PDFIUM_ONLY=false
 for arg in "$@"; do
   case "$arg" in
     --force) FORCE=true ;;
     --print-hashes) PRINT_ONLY=true ;;
+    --pdfium-only) PDFIUM_ONLY=true ;;
     -h | --help)
       usage
       exit 0
@@ -143,6 +146,9 @@ FAILED=0
 UNPINNED=0
 while IFS='|' read -r kind platform url member dest archive_pin pin; do
   if [ "$platform" != any ] && [ "$platform" != "$PLATFORM" ]; then
+    continue
+  fi
+  if [ "$PDFIUM_ONLY" = true ] && [ "$kind" != pdfium ]; then
     continue
   fi
   state=cached

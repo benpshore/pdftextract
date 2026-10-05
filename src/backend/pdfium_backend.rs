@@ -361,7 +361,9 @@ fn bind(library_dir: Option<&str>) -> Result<Pdfium, BackendError> {
         }
     }
     let detail = failures.join("; ");
-    let hint = format!("set {ENV_LIBRARY_PATH} to an absolute trusted path");
+    let hint = format!(
+        "set {ENV_LIBRARY_PATH} to an absolute trusted path (provision the pinned library with `sh native/fetch.sh --pdfium-only`, then export {ENV_LIBRARY_PATH}=\"$PWD/.pdfium/lib\")"
+    );
     Err(BackendError::Unsupported(format!(
         "pdfium library not found: {hint} ({detail})"
     )))
