@@ -43,3 +43,4 @@ jobs:
       - run: node --experimental-strip-types ../scripts/test-site-mcp.mjs
       - run: node --experimental-strip-types ../scripts/test-site-uploads-workers.mjs
       - run: pnpm run build
+      - run: node scripts/test-source-fetch.mjs

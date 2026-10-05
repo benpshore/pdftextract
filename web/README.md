@@ -47,6 +47,7 @@ node ../scripts/test-web-workspace.cjs
 node --experimental-strip-types ../scripts/test-site-mcp.mjs
 node --experimental-strip-types ../scripts/test-site-uploads-workers.mjs
 pnpm run build
+node scripts/test-source-fetch.mjs
 ```
 
 Before local type checking/building, create the local binding configuration as described in `../docs/WEB_ALPHA.md`. An external host must implement a verified identity boundary rather than trusting caller-supplied authentication headers. Do not disable authorization to make deployment work.
