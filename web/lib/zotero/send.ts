@@ -4,7 +4,7 @@
 // with the item key.
 
 import { ZoteroApi, ZoteroApiError, itemWebUrl, keyAt, type KeyInfo, type ZoteroLibraryRef } from './api';
-import { importedFileAttachment } from './mapping';
+import { importedFileAttachment, linkedUrlAttachment } from './mapping';
 import { md5OfBlob } from './md5';
 
 export type SendPlan = {
@@ -29,7 +29,7 @@ export async function sendToZotero(api: ZoteroApi, info: KeyInfo | null, plan: S
   const outcome: SendOutcome = { itemKey, webUrl: info ? itemWebUrl(info, plan.library, itemKey) : null, warnings: [] };
   const children: { kind: 'note' | 'link'; object: Record<string, unknown> }[] = [];
   if (plan.noteHtml) children.push({ kind: 'note', object: { itemType: 'note', parentItem: itemKey, note: plan.noteHtml, tags: [], relations: {} } });
-  if (plan.link) children.push({ kind: 'link', object: { itemType: 'attachment', linkMode: 'linked_url', parentItem: itemKey, title: plan.link.title, url: plan.link.url, accessDate: '', note: '', contentType: '', charset: '', tags: [], relations: {} } });
+  if (plan.link) children.push({ kind: 'link', object: linkedUrlAttachment(itemKey, plan.link.url, plan.link.title) });
   if (children.length) {
     onProgress('Adding the references note and link…');
     try {
