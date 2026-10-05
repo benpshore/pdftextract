@@ -194,7 +194,8 @@ export async function collectFolder(root: string, scan: Scan, options: FolderOpt
   const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const files: FolderFile[] = [], skipped: FolderSkip[] = [...(scan.hidden ?? []), ...(scan.unreadable ?? [])];
   const seenPaths = new Set<string>(), bySize = new Map<number, FolderFile[]>();
-  let bytes = 0, prepared = 0, reported = 0, truncated = !!scan.truncated, stoppedAt = 0;
+  // `reported` starts at -Infinity so the first file is always announced, whatever the process uptime; later events are throttled to one per 100 ms.
+  let bytes = 0, prepared = 0, reported = -Infinity, truncated = !!scan.truncated, stoppedAt = 0;
   const total = scan.candidates.length;
   const report = (path: string, force = false) => {
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -232,6 +233,7 @@ export async function collectFolder(root: string, scan: Scan, options: FolderOpt
     report(path);
   }
   report('', true);
+  cancelled(options.signal); // a Cancel pressed during the last progress update still discards the batch
   const pdfs = files.filter(entry => entry.kind === 'pdf'), others = files.filter(entry => entry.kind !== 'pdf');
   const ordered = [...pdfs, ...others];
   const counts = (kind: FolderSkipKind) => skipped.filter(entry => entry.kind === kind).length;

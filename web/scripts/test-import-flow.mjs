@@ -68,7 +68,7 @@ try{
  assert.equal(result.files.find(f=>f.path==='root/same-size.pdf').digest.startsWith('sha256:'),true,'same-size files are hashed and kept when they differ');
  assert.equal(result.files.find(f=>f.path==='root/notes.txt').digest,undefined,'unique sizes are never hashed');
  assert.equal(result.bytes,result.files.reduce((sum,f)=>sum+f.size,0));assert.equal(result.truncated,false);
- assert.equal(events.at(-1).phase,'preparing');assert.equal(events.at(-1).total,7);assert.equal(events.at(-1).prepared,7);assert.match(events.at(-1).label,/7 of 7 files \(\d+ B\)/);
+ assert.equal(events[0].prepared,1,'the first file is reported whatever the process uptime');assert.equal(events.at(-1).phase,'preparing');assert.equal(events.at(-1).total,7);assert.equal(events.at(-1).prepared,7);assert.match(events.at(-1).label,/7 of 7 files \(\d+ B\)/);
  assert.match(result.message,/^5 files queued from root \(\d+ B\); 4 PDFs first; 1 unsupported, 1 duplicate skipped, 3 hidden skipped\.$/);
  const limited=await T.collectFolder('root',list,{limits:{maxFileBytes:10,maxFiles:3}});
  assert.deepEqual(limited.skipped.filter(s=>s.kind==='too-large').map(s=>s.path),['root/a.pdf','root/dup/a-copy.pdf']);
