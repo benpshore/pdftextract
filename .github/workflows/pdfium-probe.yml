@@ -6,6 +6,9 @@ on:
     paths:
       - src/backend/pdfium_backend.rs
       - src/backend/pdfium_backend/**
+      - src/backend/routed_backend.rs
+      - src/pdfium_provision.rs
+      - src/bin/tpe-pdfium.rs
       - src/backend/pdf_oxide_backend.rs
       - src/backend/liteparse_layout_backend.rs
       - src/backend/native_provider.rs
@@ -91,6 +94,22 @@ jobs:
       - run: cargo test --locked --features pdfium --lib bibliography::tests -- --nocapture
       - run: cargo test --locked --features pdfium --test pdfium_unicode -- --nocapture
       - run: cargo test --locked --features pdfium --test resource_outcomes -- --nocapture
+      - name: Provision through tpe-pdfium and prove discovery without the environment variable
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --locked --features "$TPE_FEATURES" --bins
+          ./target/debug/tpe-pdfium fetch | tee out/pdfium-probe/tpe-pdfium-fetch.txt
+          ./target/debug/tpe-pdfium fetch | grep '^already installed: '
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe-pdfium status | tee out/pdfium-probe/tpe-pdfium-status.txt
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe-pdfium status | grep '^effective: installed '
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe backends | tee out/pdfium-probe/backends-discovery.txt
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe backends | grep -E '^pdfium[[:space:]]+available[[:space:]]+opens'
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe extract tests/fixtures/pdfium-unicode/native.pdf --backend pdfium --db out/pdfium-probe/discovery.sqlite --out out/pdfium-probe/discovery | tee out/pdfium-probe/extract-discovery.txt
+          grep -q '^complete' out/pdfium-probe/extract-discovery.txt
+          env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe extract tests/fixtures/pdfium-unicode/native.pdf --backend routed --db out/pdfium-probe/routed.sqlite --out out/pdfium-probe/routed | tee out/pdfium-probe/extract-routed.txt
+          grep -q '^complete' out/pdfium-probe/extract-routed.txt
+          grep -l 'confirmed: pdfium agrees' out/pdfium-probe/routed/*.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
