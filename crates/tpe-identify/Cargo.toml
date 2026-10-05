@@ -1,0 +1,27 @@
+[package]
+name = "tpe-identify"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Article identity, near-duplicate detection, cross-referencing and reversible canonical renaming for PDF corpora"
+
+[[bin]]
+name = "tpe-identify"
+path = "src/bin/tpe-identify.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+regex = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+text-processing-engine = { path = "../.." }
+thiserror = "2"
+tpe-common = { path = "../tpe-common" }
+unicode-normalization = "0.1"
+
+[dev-dependencies]
+lopdf = "0.45"
+tempfile = "3"
+
+[lints]
+workspace = true
