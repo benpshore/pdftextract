@@ -22,13 +22,23 @@ use std::fmt;
 use std::fmt::Write as _;
 use std::hash::{BuildHasher, Hasher};
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::sync::{Mutex, PoisonError};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 use crate::error::ZError;
 use crate::headers::{link_next, parse_u64};
 use crate::item::{ZItem, ZItemPatch};
+use crate::retry::{RetryPolicy, backoff_delay, retry_delay};
+use crate::schema::{
+    NamedEntry, ZGroup, ZKeyInfo, ZTag, collection_body, parse_groups, parse_key_info,
+    parse_named_list, parse_tags, parse_template,
+};
+use crate::upload::{
+    FileDescriptor, UploadAuthorization, UploadTarget, parse_upload_authorization,
+    registration_body,
+};
 
 /// Default API base URL.
 pub const DEFAULT_BASE: &str = "https://api.zotero.org";
@@ -36,8 +46,8 @@ pub const DEFAULT_BASE: &str = "https://api.zotero.org";
 pub const API_VERSION: &str = "3";
 /// Largest `limit` the Web API accepts for multi-object reads.
 pub const MAX_LIMIT: u32 = 100;
-/// Longest pause honoured for a `Backoff` header between pages, in seconds.
-const MAX_BACKOFF_SECS: u64 = 60;
+/// Longest pause honoured for a `Backoff` header before the next request.
+const MAX_BACKOFF: Duration = Duration::from_secs(60);
 /// Most objects one write request may carry.
 pub const MAX_WRITE_ITEMS: usize = 50;
 /// `User-Agent` sent by this client.
@@ -155,6 +165,29 @@ pub struct WriteResult {
     pub last_modified_version: Option<u64>,
 }
 
+impl WriteResult {
+    /// The key of the object uploaded at `index` (created, modified or
+    /// unchanged), or the server's refusal as [`ZError::WriteFailed`].
+    pub fn key_at(&self, index: usize) -> Result<String, ZError> {
+        if let Some(key) = self
+            .successful
+            .get(&index)
+            .or_else(|| self.unchanged.get(&index))
+        {
+            return Ok(key.clone());
+        }
+        match self.failed.get(&index) {
+            Some(failure) => Err(ZError::WriteFailed {
+                code: failure.code,
+                message: failure.message.clone(),
+            }),
+            None => Err(ZError::Parse(format!(
+                "write response has no entry for object {index}"
+            ))),
+        }
+    }
+}
+
 /// A response reduced to what the parsers need; lets them be tested on
 /// recorded data without a network.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -202,9 +235,12 @@ impl RawResponse {
 pub fn check_status(raw: RawResponse) -> Result<RawResponse, ZError> {
     match raw.status {
         200..=299 | 304 => Ok(raw),
+        400 => Err(ZError::BadRequest(truncate(&raw.body, 300))),
         403 => Err(ZError::Forbidden),
         404 => Err(ZError::NotFound(truncate(&raw.body, 300))),
+        409 => Err(ZError::Conflict),
         412 => Err(ZError::PreconditionFailed),
+        413 => Err(ZError::TooLarge(truncate(&raw.body, 300))),
         428 => Err(ZError::PreconditionRequired),
         429 => Err(ZError::RateLimited {
             retry_after_secs: parse_u64(raw.header("Retry-After")),
@@ -416,12 +452,18 @@ enum WriteMethod {
 }
 
 /// Blocking Zotero Web API v3 client for one library.
+///
+/// Every request first waits out a pending `Backoff` (any earlier response
+/// may carry one), and `429` / `5xx` / transport failures are retried
+/// according to the [`RetryPolicy`] (default: three attempts).
 pub struct ZoteroClient {
     base: String,
     library: Library,
     key: Option<ApiKey>,
     agent: ureq::Agent,
     offline: bool,
+    retry: RetryPolicy,
+    backoff_until: Mutex<Option<Instant>>,
 }
 
 impl fmt::Debug for ZoteroClient {
@@ -431,6 +473,7 @@ impl fmt::Debug for ZoteroClient {
             .field("library", &self.library)
             .field("key", &self.key)
             .field("offline", &self.offline)
+            .field("retry", &self.retry)
             .finish_non_exhaustive()
     }
 }
@@ -451,6 +494,8 @@ impl ZoteroClient {
             key,
             agent: ureq::Agent::new_with_config(config),
             offline: false,
+            retry: RetryPolicy::default(),
+            backoff_until: Mutex::new(None),
         }
     }
 
@@ -459,6 +504,25 @@ impl ZoteroClient {
     pub fn with_base(mut self, base: &str) -> Self {
         self.base = base.trim_end_matches('/').to_string();
         self
+    }
+
+    /// Change how `429`, `5xx` and transport failures are retried.
+    #[must_use]
+    pub fn with_retry_policy(mut self, policy: RetryPolicy) -> Self {
+        self.retry = policy;
+        self
+    }
+
+    /// The retry policy in force.
+    pub fn retry_policy(&self) -> RetryPolicy {
+        self.retry
+    }
+
+    /// Absolute URL of a path outside any library (`/itemTypes`,
+    /// `/items/new`, `/keys/current`, ...).
+    pub fn api_url(&self, path: &str) -> String {
+        let base = &self.base;
+        format!("{base}{path}")
     }
 
     /// When `true`, every request fails with [`ZError::Offline`] before any
@@ -538,6 +602,12 @@ impl ZoteroClient {
         ZItem::parse_one(&raw.body)
     }
 
+    /// Every item matching `query` (all pages, following `Link: rel="next"`;
+    /// `start` and `limit` in the query only position the first page).
+    pub fn all_items(&self, query: &ItemQuery) -> Result<Vec<ZItem>, ZError> {
+        self.collect_pages(self.items_url(query), ZItem::parse_many)
+    }
+
     /// Child notes and attachments of an item (all pages).
     pub fn children(&self, key: &str) -> Result<Vec<ZItem>, ZError> {
         validate_key(key)?;
@@ -545,26 +615,7 @@ impl ZoteroClient {
             &self.library_url(&format!("/items/{key}/children")),
             &[("limit", MAX_LIMIT.to_string())],
         );
-        let mut out = Vec::new();
-        let mut next = Some(url);
-        while let Some(url) = next {
-            let raw = self.get(&url)?;
-            out.extend(ZItem::parse_many(&raw.body)?);
-            next = raw.header("Link").and_then(link_next);
-            if let Some(link) = &next {
-                self.check_same_origin(link)?;
-                Self::honor_backoff(&raw);
-            }
-        }
-        Ok(out)
-    }
-
-    /// Sleep for the server-requested `Backoff` (seconds, capped at
-    /// [`MAX_BACKOFF_SECS`]) before the next request of a multi-page read.
-    fn honor_backoff(raw: &RawResponse) {
-        if let Some(secs) = parse_u64(raw.header("Backoff")).filter(|s| *s > 0) {
-            std::thread::sleep(std::time::Duration::from_secs(secs.min(MAX_BACKOFF_SECS)));
-        }
+        self.collect_pages(url, ZItem::parse_many)
     }
 
     /// All collections in the library (all pages).
@@ -573,18 +624,260 @@ impl ZoteroClient {
             &self.library_url("/collections"),
             &[("limit", MAX_LIMIT.to_string())],
         );
+        self.collect_pages(url, parse_collections)
+    }
+
+    /// All tags in the library (all pages).
+    pub fn tags(&self) -> Result<Vec<ZTag>, ZError> {
+        let url = build_url(
+            &self.library_url("/tags"),
+            &[("limit", MAX_LIMIT.to_string())],
+        );
+        self.collect_pages(url, parse_tags)
+    }
+
+    /// Follow `Link: rel="next"` from `first_url` until the last page,
+    /// refusing links that leave the API base. `Backoff` headers are
+    /// honoured between pages like between any two requests.
+    fn collect_pages<T>(
+        &self,
+        first_url: String,
+        parse: fn(&str) -> Result<Vec<T>, ZError>,
+    ) -> Result<Vec<T>, ZError> {
         let mut out = Vec::new();
-        let mut next = Some(url);
+        let mut next = Some(first_url);
         while let Some(url) = next {
+            self.check_same_origin(&url)?;
             let raw = self.get(&url)?;
-            out.extend(parse_collections(&raw.body)?);
+            out.extend(parse(&raw.body)?);
             next = raw.header("Link").and_then(link_next);
-            if let Some(link) = &next {
-                self.check_same_origin(link)?;
-                Self::honor_backoff(&raw);
-            }
         }
         Ok(out)
+    }
+
+    /// The empty template for a new item of `item_type` (`GET
+    /// /items/new?itemType=…`); `link_mode` is required for attachments.
+    pub fn item_template(
+        &self,
+        item_type: &str,
+        link_mode: Option<&str>,
+    ) -> Result<Map<String, Value>, ZError> {
+        let mut params = vec![("itemType", item_type.to_string())];
+        if let Some(mode) = link_mode {
+            params.push(("linkMode", mode.to_string()));
+        }
+        let raw = self.get(&build_url(&self.api_url("/items/new"), &params))?;
+        parse_template(&raw.body)
+    }
+
+    /// All item types (`GET /itemTypes`).
+    pub fn item_types(&self) -> Result<Vec<NamedEntry>, ZError> {
+        let raw = self.get(&self.api_url("/itemTypes"))?;
+        parse_named_list(&raw.body)
+    }
+
+    /// The valid fields of an item type (`GET /itemTypeFields?itemType=…`).
+    pub fn item_type_fields(&self, item_type: &str) -> Result<Vec<NamedEntry>, ZError> {
+        let url = build_url(
+            &self.api_url("/itemTypeFields"),
+            &[("itemType", item_type.to_string())],
+        );
+        let raw = self.get(&url)?;
+        parse_named_list(&raw.body)
+    }
+
+    /// The valid creator types of an item type
+    /// (`GET /itemTypeCreatorTypes?itemType=…`).
+    pub fn item_type_creator_types(&self, item_type: &str) -> Result<Vec<NamedEntry>, ZError> {
+        let url = build_url(
+            &self.api_url("/itemTypeCreatorTypes"),
+            &[("itemType", item_type.to_string())],
+        );
+        let raw = self.get(&url)?;
+        parse_named_list(&raw.body)
+    }
+
+    /// The user id and permissions behind the configured key
+    /// (`GET /keys/current`; the key travels in the header, not the URL).
+    pub fn key_info(&self) -> Result<ZKeyInfo, ZError> {
+        if self.key.is_none() {
+            return Err(ZError::MissingKey);
+        }
+        let raw = self.get(&self.api_url("/keys/current"))?;
+        parse_key_info(&raw.body)
+    }
+
+    /// The groups `user_id` belongs to (`GET /users/<id>/groups`, all pages).
+    pub fn groups(&self, user_id: u64) -> Result<Vec<ZGroup>, ZError> {
+        let url = build_url(
+            &self.api_url(&format!("/users/{user_id}/groups")),
+            &[("limit", MAX_LIMIT.to_string())],
+        );
+        self.collect_pages(url, parse_groups)
+    }
+
+    /// Create a collection (`POST <prefix>/collections`, write-token
+    /// guarded). `parent` is the key of the parent collection.
+    pub fn create_collection(
+        &self,
+        name: &str,
+        parent: Option<&str>,
+    ) -> Result<WriteResult, ZError> {
+        if let Some(parent) = parent {
+            validate_key(parent)?;
+        }
+        let body = serde_json::to_string(&Value::Array(vec![collection_body(name, parent)]))?;
+        let token = new_write_token();
+        let raw = self.send_json(
+            WriteMethod::Post,
+            &self.library_url("/collections"),
+            &body,
+            &[("Zotero-Write-Token", token)],
+        )?;
+        parse_write_result(&raw.body, parse_u64(raw.header("Last-Modified-Version")))
+    }
+
+    /// Rename or move a collection (`PATCH <prefix>/collections/<key>`) if
+    /// it is still at `version`.
+    pub fn update_collection(
+        &self,
+        key: &str,
+        version: u64,
+        name: &str,
+        parent: Option<&str>,
+    ) -> Result<Option<u64>, ZError> {
+        validate_key(key)?;
+        if let Some(parent) = parent {
+            validate_key(parent)?;
+        }
+        let mut body = collection_body(name, parent);
+        if let Some(object) = body.as_object_mut() {
+            object.remove("relations");
+        }
+        let raw = self.send_json(
+            WriteMethod::Patch,
+            &self.library_url(&format!("/collections/{key}")),
+            &serde_json::to_string(&body)?,
+            &[("If-Unmodified-Since-Version", version.to_string())],
+        )?;
+        Ok(parse_u64(raw.header("Last-Modified-Version")))
+    }
+
+    /// Delete an item (`DELETE <prefix>/items/<key>`) if it is still at
+    /// `version`. (Trashing instead is a `PATCH` with `deleted: 1`, see
+    /// [`Self::update_item`].)
+    pub fn delete_item(&self, key: &str, version: u64) -> Result<(), ZError> {
+        validate_key(key)?;
+        self.ensure_online()?;
+        let Some(api_key) = &self.key else {
+            return Err(ZError::MissingKey);
+        };
+        let url = self.library_url(&format!("/items/{key}"));
+        self.with_retries(|| {
+            self.wait_for_backoff();
+            let response = self
+                .agent
+                .delete(&url)
+                .header("Zotero-API-Version", API_VERSION)
+                .header("Zotero-API-Key", api_key.expose())
+                .header("If-Unmodified-Since-Version", version.to_string())
+                .call()?;
+            let raw = RawResponse::from_http(response)?;
+            self.note_backoff(&raw);
+            check_status(raw)
+        })
+        .map(|_| ())
+    }
+
+    /// Step 1 of a file upload: ask where to send `file` for the attachment
+    /// item `key`. `existing_md5` is the digest of the file the item holds
+    /// now (`If-Match`), or `None` for an item without a file
+    /// (`If-None-Match: *`).
+    pub fn authorize_upload(
+        &self,
+        key: &str,
+        file: &FileDescriptor,
+        existing_md5: Option<&str>,
+    ) -> Result<UploadAuthorization, ZError> {
+        validate_key(key)?;
+        let raw = self.send_form(
+            &self.library_url(&format!("/items/{key}/file")),
+            &file.authorization_body(),
+            existing_md5,
+        )?;
+        parse_upload_authorization(&raw.body)
+    }
+
+    /// Step 2 of a file upload: send the bytes to the storage host named by
+    /// `target`. No Zotero headers are sent to that host.
+    pub fn upload_file(
+        &self,
+        target: &UploadTarget,
+        file: &[u8],
+        filename: &str,
+    ) -> Result<(), ZError> {
+        self.ensure_online()?;
+        let boundary = format!("tpe{}", new_write_token());
+        let (content_type, body) = target.request_body(file, filename, &boundary);
+        self.with_retries(|| {
+            let response = self
+                .agent
+                .post(&target.url)
+                .content_type(&content_type)
+                .send(body.as_slice())?;
+            check_status(RawResponse::from_http(response)?)
+        })
+        .map(|_| ())
+    }
+
+    /// Step 3 of a file upload: tell the API the upload named by
+    /// `upload_key` is complete (`204`).
+    pub fn register_upload(
+        &self,
+        key: &str,
+        upload_key: &str,
+        existing_md5: Option<&str>,
+    ) -> Result<(), ZError> {
+        validate_key(key)?;
+        self.send_form(
+            &self.library_url(&format!("/items/{key}/file")),
+            &registration_body(upload_key),
+            existing_md5,
+        )
+        .map(|_| ())
+    }
+
+    /// Create an `imported_file` attachment under `parent` and upload
+    /// `file` for it (all three upload steps). Returns the attachment key.
+    pub fn attach_file(
+        &self,
+        parent: &str,
+        file: &[u8],
+        filename: &str,
+        content_type: &str,
+        title: &str,
+    ) -> Result<String, ZError> {
+        validate_key(parent)?;
+        let mtime_ms = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map_or(0, |d| u64::try_from(d.as_millis()).unwrap_or(u64::MAX));
+        let descriptor = FileDescriptor::from_bytes(file, filename, mtime_ms);
+        let patch = ZItemPatch::imported_file_attachment(
+            parent,
+            title,
+            filename,
+            content_type,
+            &descriptor.md5,
+            mtime_ms,
+        );
+        let key = self.write_items(&[patch])?.key_at(0)?;
+        if let UploadAuthorization::Upload(target) =
+            self.authorize_upload(&key, &descriptor, None)?
+        {
+            self.upload_file(&target, file, filename)?;
+            self.register_upload(&key, &target.upload_key, None)?;
+        }
+        Ok(key)
     }
 
     /// Create (or, with `key` + `version` properties, update) up to 50
@@ -599,7 +892,7 @@ impl ZoteroClient {
         let raw = self.send_json(
             WriteMethod::Post,
             &self.library_url("/items"),
-            body,
+            &body,
             &[("Zotero-Write-Token", token)],
         )?;
         parse_write_result(&raw.body, parse_u64(raw.header("Last-Modified-Version")))
@@ -619,7 +912,7 @@ impl ZoteroClient {
         let raw = self.send_json(
             WriteMethod::Patch,
             &self.library_url(&format!("/items/{key}")),
-            body,
+            &body,
             &[("If-Unmodified-Since-Version", version.to_string())],
         )?;
         Ok(parse_u64(raw.header("Last-Modified-Version")))
@@ -659,43 +952,127 @@ impl ZoteroClient {
         }
     }
 
+    /// Sleep until a previously announced `Backoff` period is over.
+    fn wait_for_backoff(&self) {
+        let until = self
+            .backoff_until
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take();
+        if let Some(until) = until {
+            let now = Instant::now();
+            if until > now {
+                std::thread::sleep(until - now);
+            }
+        }
+    }
+
+    /// Remember a `Backoff` header for the next request.
+    fn note_backoff(&self, raw: &RawResponse) {
+        if let Some(delay) = backoff_delay(parse_u64(raw.header("Backoff")), MAX_BACKOFF) {
+            *self
+                .backoff_until
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner) = Some(Instant::now() + delay);
+        }
+    }
+
+    /// Run `attempt` until it succeeds or the retry policy gives up,
+    /// sleeping for the computed delay between attempts.
+    fn with_retries(
+        &self,
+        mut attempt: impl FnMut() -> Result<RawResponse, ZError>,
+    ) -> Result<RawResponse, ZError> {
+        let mut attempts = 0;
+        loop {
+            attempts += 1;
+            match attempt() {
+                Ok(raw) => return Ok(raw),
+                Err(error) => match retry_delay(&error, attempts, &self.retry) {
+                    Some(delay) => std::thread::sleep(delay),
+                    None => return Err(error),
+                },
+            }
+        }
+    }
+
     fn get(&self, url: &str) -> Result<RawResponse, ZError> {
         self.ensure_online()?;
-        let mut request = self
-            .agent
-            .get(url)
-            .header("Zotero-API-Version", API_VERSION);
-        if let Some(key) = &self.key {
-            request = request.header("Zotero-API-Key", key.expose());
-        }
-        let response = request.call()?;
-        check_status(RawResponse::from_http(response)?)
+        self.with_retries(|| {
+            self.wait_for_backoff();
+            let mut request = self
+                .agent
+                .get(url)
+                .header("Zotero-API-Version", API_VERSION);
+            if let Some(key) = &self.key {
+                request = request.header("Zotero-API-Key", key.expose());
+            }
+            let raw = RawResponse::from_http(request.call()?)?;
+            self.note_backoff(&raw);
+            check_status(raw)
+        })
     }
 
     fn send_json(
         &self,
         method: WriteMethod,
         url: &str,
-        body: String,
+        body: &str,
+        extra_headers: &[(&str, String)],
+    ) -> Result<RawResponse, ZError> {
+        self.send_body(method, url, "application/json", body, extra_headers)
+    }
+
+    /// `POST` an `application/x-www-form-urlencoded` body with the
+    /// `If-None-Match: *` / `If-Match: <md5>` header of the upload flow.
+    fn send_form(
+        &self,
+        url: &str,
+        body: &str,
+        existing_md5: Option<&str>,
+    ) -> Result<RawResponse, ZError> {
+        let precondition = match existing_md5 {
+            Some(md5) => ("If-Match", md5.to_string()),
+            None => ("If-None-Match", "*".to_string()),
+        };
+        self.send_body(
+            WriteMethod::Post,
+            url,
+            "application/x-www-form-urlencoded",
+            body,
+            &[precondition],
+        )
+    }
+
+    fn send_body(
+        &self,
+        method: WriteMethod,
+        url: &str,
+        content_type: &str,
+        body: &str,
         extra_headers: &[(&str, String)],
     ) -> Result<RawResponse, ZError> {
         self.ensure_online()?;
         let Some(key) = &self.key else {
             return Err(ZError::MissingKey);
         };
-        let mut request = match method {
-            WriteMethod::Post => self.agent.post(url),
-            WriteMethod::Patch => self.agent.patch(url),
-        };
-        request = request
-            .header("Zotero-API-Version", API_VERSION)
-            .header("Zotero-API-Key", key.expose())
-            .content_type("application/json");
-        for (name, value) in extra_headers {
-            request = request.header(*name, value.as_str());
-        }
-        let response = request.send(body)?;
-        check_status(RawResponse::from_http(response)?)
+        self.with_retries(|| {
+            self.wait_for_backoff();
+            let mut request = match method {
+                WriteMethod::Post => self.agent.post(url),
+                WriteMethod::Patch => self.agent.patch(url),
+            };
+            request = request
+                .header("Zotero-API-Version", API_VERSION)
+                .header("Zotero-API-Key", key.expose())
+                .content_type(content_type);
+            for (name, value) in extra_headers {
+                request = request.header(*name, value.as_str());
+            }
+            let raw = RawResponse::from_http(request.send(body)?)?;
+            self.note_backoff(&raw);
+            check_status(raw)
+        })
     }
 }
 
@@ -945,5 +1322,171 @@ mod tests {
             client.next_page(&page),
             Err(ZError::ForeignLink(_))
         ));
+    }
+
+    #[test]
+    fn more_status_mappings() {
+        assert!(matches!(
+            check_status(raw(400, &[], "Invalid value")),
+            Err(ZError::BadRequest(m)) if m == "Invalid value"
+        ));
+        assert!(matches!(
+            check_status(raw(409, &[], "")),
+            Err(ZError::Conflict)
+        ));
+        assert!(matches!(
+            check_status(raw(413, &[], "big")),
+            Err(ZError::TooLarge(_))
+        ));
+        assert!(matches!(
+            check_status(raw(428, &[], "")),
+            Err(ZError::PreconditionRequired)
+        ));
+    }
+
+    #[test]
+    fn key_at_reports_each_outcome() {
+        let body = r#"{"success": {"0": "AAAA2222"}, "unchanged": {"1": "BBBB3333"},
+                       "failed": {"2": {"code": 400, "message": "Invalid field"}}}"#;
+        let result = parse_write_result(body, None).unwrap();
+        assert_eq!(result.key_at(0).unwrap(), "AAAA2222");
+        assert_eq!(result.key_at(1).unwrap(), "BBBB3333");
+        assert!(matches!(
+            result.key_at(2),
+            Err(ZError::WriteFailed { code: 400, message }) if message == "Invalid field"
+        ));
+        assert!(matches!(result.key_at(3), Err(ZError::Parse(_))));
+    }
+
+    #[test]
+    fn schema_and_key_urls_are_outside_the_library_prefix() {
+        let client = ZoteroClient::new(Library::User(7), None);
+        assert_eq!(
+            client.api_url("/keys/current"),
+            "https://api.zotero.org/keys/current"
+        );
+        assert_eq!(
+            build_url(
+                &client.api_url("/items/new"),
+                &[
+                    ("itemType", "attachment".to_string()),
+                    ("linkMode", "imported_file".to_string())
+                ]
+            ),
+            "https://api.zotero.org/items/new?itemType=attachment&linkMode=imported_file"
+        );
+        assert_eq!(
+            client.library_url("/items/ABCD2345/file"),
+            "https://api.zotero.org/users/7/items/ABCD2345/file"
+        );
+    }
+
+    #[test]
+    fn new_endpoints_respect_offline_and_missing_key() {
+        let offline = ZoteroClient::new(Library::User(1), Some(ApiKey::new("k"))).offline(true);
+        assert!(matches!(
+            offline.all_items(&ItemQuery::default()),
+            Err(ZError::Offline)
+        ));
+        assert!(matches!(offline.tags(), Err(ZError::Offline)));
+        assert!(matches!(offline.item_types(), Err(ZError::Offline)));
+        assert!(matches!(
+            offline.item_template("book", None),
+            Err(ZError::Offline)
+        ));
+        assert!(matches!(offline.key_info(), Err(ZError::Offline)));
+        assert!(matches!(offline.groups(1), Err(ZError::Offline)));
+        assert!(matches!(
+            offline.create_collection("x", None),
+            Err(ZError::Offline)
+        ));
+        assert!(matches!(
+            offline.delete_item("ABCD2345", 1),
+            Err(ZError::Offline)
+        ));
+        assert!(matches!(
+            offline.attach_file("ABCD2345", b"x", "x.pdf", "application/pdf", "PDF"),
+            Err(ZError::Offline)
+        ));
+        let target = UploadTarget {
+            url: "https://storage.example/".to_string(),
+            upload_key: "k".to_string(),
+            ..UploadTarget::default()
+        };
+        assert!(matches!(
+            offline.upload_file(&target, b"x", "x.pdf"),
+            Err(ZError::Offline)
+        ));
+        let keyless = ZoteroClient::new(Library::User(1), None);
+        assert!(matches!(keyless.key_info(), Err(ZError::MissingKey)));
+        assert!(matches!(
+            keyless.delete_item("ABCD2345", 1),
+            Err(ZError::MissingKey)
+        ));
+        assert!(matches!(
+            keyless.register_upload("ABCD2345", "k", None),
+            Err(ZError::MissingKey)
+        ));
+        assert!(matches!(
+            keyless.update_collection("bad key", 1, "n", None),
+            Err(ZError::InvalidKey(_))
+        ));
+        assert!(matches!(
+            keyless.create_collection("n", Some("../x")),
+            Err(ZError::InvalidKey(_))
+        ));
+    }
+
+    #[test]
+    fn backoff_is_remembered_for_the_next_request() {
+        let client = ZoteroClient::new(Library::User(1), None);
+        client.note_backoff(&raw(200, &[("Backoff", "0")], "[]"));
+        assert!(client.backoff_until.lock().unwrap().is_none());
+        client.note_backoff(&raw(200, &[("Backoff", "30")], "[]"));
+        let until = client.backoff_until.lock().unwrap().unwrap();
+        let remaining = until.saturating_duration_since(Instant::now());
+        assert!(remaining <= Duration::from_secs(30));
+        assert!(remaining > Duration::from_secs(25));
+        // Waiting takes the pending pause, so a zero pause is instant.
+        *client.backoff_until.lock().unwrap() = Some(Instant::now());
+        client.wait_for_backoff();
+        assert!(client.backoff_until.lock().unwrap().is_none());
+    }
+
+    #[test]
+    fn retries_give_up_after_the_policy() {
+        let client = ZoteroClient::new(Library::User(1), None).with_retry_policy(RetryPolicy {
+            max_attempts: 3,
+            base_delay: Duration::from_millis(1),
+            max_delay: Duration::from_millis(2),
+        });
+        let mut calls = 0;
+        let result = client.with_retries(|| {
+            calls += 1;
+            Err(ZError::Status {
+                code: 503,
+                message: String::new(),
+            })
+        });
+        assert!(matches!(result, Err(ZError::Status { code: 503, .. })));
+        assert_eq!(calls, 3);
+        let mut calls = 0;
+        let result = client.with_retries(|| {
+            calls += 1;
+            Err(ZError::Forbidden)
+        });
+        assert!(matches!(result, Err(ZError::Forbidden)));
+        assert_eq!(calls, 1);
+        let mut calls = 0;
+        let ok = client.with_retries(|| {
+            calls += 1;
+            if calls < 2 {
+                Err(ZError::Transport("reset".to_string()))
+            } else {
+                Ok(raw(204, &[], ""))
+            }
+        });
+        assert_eq!(ok.unwrap().status, 204);
+        assert_eq!(calls, 2);
     }
 }

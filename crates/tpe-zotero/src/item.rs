@@ -461,6 +461,121 @@ impl ZItemPatch {
             .set("tags", json!([]))
             .set("relations", json!({}))
     }
+
+    /// A child `imported_file` attachment under `parent` whose file is
+    /// uploaded afterwards (see [`crate::upload`]). `md5` is the lower-case
+    /// hex digest of the file, `mtime_ms` its modification time in
+    /// milliseconds; both must match the bytes that are uploaded.
+    pub fn imported_file_attachment(
+        parent: &str,
+        title: &str,
+        filename: &str,
+        content_type: &str,
+        md5: &str,
+        mtime_ms: u64,
+    ) -> Self {
+        Self::new()
+            .set("itemType", json!("attachment"))
+            .set("linkMode", json!("imported_file"))
+            .set("parentItem", json!(parent))
+            .set("title", json!(title))
+            .set("filename", json!(filename))
+            .set("contentType", json!(content_type))
+            .set("md5", json!(md5))
+            .set("mtime", json!(mtime_ms))
+            .set("charset", json!(""))
+            .set("accessDate", json!(""))
+            .set("note", json!(""))
+            .set("tags", json!([]))
+            .set("relations", json!({}))
+    }
+
+    /// Set manual tags (`[{"tag": "..."}]`); empty strings are dropped.
+    #[must_use]
+    pub fn with_tags<S: AsRef<str>>(self, tags: &[S]) -> Self {
+        let list: Vec<Value> = tags
+            .iter()
+            .map(|t| t.as_ref().trim())
+            .filter(|t| !t.is_empty())
+            .map(|t| json!({ "tag": t }))
+            .collect();
+        self.set("tags", Value::Array(list))
+    }
+
+    /// Set the collections a top-level item belongs to.
+    #[must_use]
+    pub fn with_collections<S: AsRef<str>>(self, keys: &[S]) -> Self {
+        let list: Vec<Value> = keys.iter().map(|k| json!(k.as_ref())).collect();
+        self.set("collections", Value::Array(list))
+    }
+
+    /// A new item built on the server's template for its type (`GET
+    /// /items/new?itemType=…`, see [`crate::schema::parse_template`]). Only
+    /// fields the template lists are filled, so the object is valid for that
+    /// type; identifiers without a field in the template go to `extra`.
+    pub fn from_template(template: &Map<String, Value>, record: &PaperRecord) -> Self {
+        let item_type = template
+            .get("itemType")
+            .and_then(Value::as_str)
+            .unwrap_or("document")
+            .to_string();
+        let mut patch = Self {
+            fields: template.clone(),
+        };
+        let has = |name: &str| template.contains_key(name);
+        let creators: Vec<Value> = record
+            .authors
+            .iter()
+            .map(|a| ZCreator::author_from_display(a).to_json())
+            .collect();
+        patch = patch
+            .set("title", json!(record.title))
+            .set("creators", Value::Array(creators));
+        if !has("tags") {
+            patch = patch.set("tags", json!([]));
+        }
+        if !has("collections") {
+            patch = patch.set("collections", json!([]));
+        }
+        if !has("relations") {
+            patch = patch.set("relations", json!({}));
+        }
+        if let (Some(text), true) = (&record.abstract_text, has("abstractNote")) {
+            patch = patch.set("abstractNote", json!(text));
+        }
+        if let (Some(year), true) = (record.year, has("date")) {
+            patch = patch.set("date", json!(year.to_string()));
+        }
+        if let (Some(url), true) = (&record.url, has("url")) {
+            patch = patch.set("url", json!(url));
+        }
+        if let Some(venue) = &record.venue
+            && let Some(name) = venue_fields(&item_type).iter().find(|name| has(name))
+        {
+            patch = patch.set(name, json!(venue));
+        }
+        let mut extra: Vec<String> = Vec::new();
+        if let Some(doi) = &record.doi {
+            if has("DOI") {
+                patch = patch.set("DOI", json!(doi));
+            } else {
+                extra.push(format!("DOI: {doi}"));
+            }
+        }
+        if let Some(id) = &record.arxiv_id {
+            extra.push(format!("arXiv: {id}"));
+        }
+        if let Some(id) = &record.pmid {
+            extra.push(format!("PMID: {id}"));
+        }
+        if let Some(id) = &record.pmcid {
+            extra.push(format!("PMCID: {id}"));
+        }
+        if !extra.is_empty() {
+            patch = patch.set("extra", json!(extra.join("\n")));
+        }
+        patch
+    }
 }
 
 #[cfg(test)]
@@ -652,5 +767,80 @@ mod tests {
         assert_eq!(link["parentItem"], json!("ABCD2345"));
         assert_eq!(link["url"], json!("https://example.org/p.pdf"));
         assert!(link.get("collections").is_none());
+    }
+
+    #[test]
+    fn imported_file_attachment_carries_checksum_and_mtime() {
+        let body = ZItemPatch::imported_file_attachment(
+            "ABCD2345",
+            "Full Text PDF",
+            "paper.pdf",
+            "application/pdf",
+            "900150983cd24fb0d6963f7d28e17f72",
+            1_700_000_000_123,
+        )
+        .to_json();
+        assert_eq!(body["linkMode"], json!("imported_file"));
+        assert_eq!(body["parentItem"], json!("ABCD2345"));
+        assert_eq!(body["filename"], json!("paper.pdf"));
+        assert_eq!(body["contentType"], json!("application/pdf"));
+        assert_eq!(body["md5"], json!("900150983cd24fb0d6963f7d28e17f72"));
+        assert_eq!(body["mtime"], json!(1_700_000_000_123u64));
+        assert!(body.get("collections").is_none());
+    }
+
+    #[test]
+    fn tags_and_collections_builders() {
+        let body = ZItemPatch::new()
+            .with_tags(&["tpe", " ", "to read"])
+            .with_collections(&["COLL2345"])
+            .to_json();
+        assert_eq!(body["tags"], json!([{"tag": "tpe"}, {"tag": "to read"}]));
+        assert_eq!(body["collections"], json!(["COLL2345"]));
+    }
+
+    #[test]
+    fn from_template_only_fills_fields_the_type_has() {
+        // Recorded shape of GET /items/new?itemType=webpage (no DOI field).
+        let template: Map<String, Value> = serde_json::from_str(
+            r#"{"itemType": "webpage", "title": "", "creators": [{"creatorType": "author", "firstName": "", "lastName": ""}],
+                "abstractNote": "", "websiteTitle": "", "websiteType": "", "date": "", "shortTitle": "", "url": "",
+                "accessDate": "", "language": "", "rights": "", "extra": "", "tags": [], "collections": [], "relations": {}}"#,
+        )
+        .unwrap();
+        let rec = PaperRecord {
+            title: "Page".to_string(),
+            authors: vec!["Hopper, Grace".to_string()],
+            year: Some(2024),
+            venue: Some("Journal".to_string()),
+            doi: Some("10.1/x".to_string()),
+            url: Some("https://example.org/page".to_string()),
+            abstract_text: Some("Summary".to_string()),
+            ..PaperRecord::default()
+        };
+        let body = ZItemPatch::from_template(&template, &rec).to_json();
+        assert_eq!(body["itemType"], json!("webpage"));
+        assert_eq!(body["title"], json!("Page"));
+        assert_eq!(body["date"], json!("2024"));
+        assert_eq!(body["url"], json!("https://example.org/page"));
+        assert_eq!(body["abstractNote"], json!("Summary"));
+        assert_eq!(body["extra"], json!("DOI: 10.1/x"));
+        assert!(body.get("DOI").is_none());
+        // The journal venue has no field on a web page: not invented.
+        assert!(body.get("publicationTitle").is_none());
+        assert_eq!(body["websiteTitle"], json!(""));
+        assert_eq!(
+            body["creators"],
+            json!([{"creatorType": "author", "firstName": "Grace", "lastName": "Hopper"}])
+        );
+        // A journal template has the DOI and venue fields.
+        let journal: Map<String, Value> = serde_json::from_str(
+            r#"{"itemType": "journalArticle", "title": "", "creators": [], "publicationTitle": "", "DOI": "", "date": "", "extra": "", "tags": [], "collections": [], "relations": {}}"#,
+        )
+        .unwrap();
+        let body = ZItemPatch::from_template(&journal, &rec).to_json();
+        assert_eq!(body["DOI"], json!("10.1/x"));
+        assert_eq!(body["publicationTitle"], json!("Journal"));
+        assert!(body.get("extra").is_none_or(|v| v == &json!("")));
     }
 }
