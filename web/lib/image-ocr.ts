@@ -2,6 +2,26 @@ import type { Extracted, LinkEvidence } from './types';
 
 export type OcrProgress = { status: string; progress: number };
 export const OCR_ASSET_BASE = '/ocr/7.0.0';
+/** Pre-processing acceleration: `auto` uses WebGPU when the browser offers it and falls back to the
+ * CPU kernels; `webgpu` keeps using a slow software adapter instead of demoting; `cpu` runs only the
+ * CPU kernels; `off` skips pre-processing and hands the working image to the recognizer unchanged. */
+export type OcrAcceleration = 'auto' | 'webgpu' | 'cpu' | 'off';
+export type OcrPreprocessing = { runtime: 'webgpu' | 'cpu' | 'none'; reason: string | null; threshold: number | null; skewDegrees: number | null; skewConfidence: number | null; deskewed: boolean; timings: { grayscaleMs: number; histogramMs: number; skewMs: number; totalMs: number } | null; status: string; crossCheck: { identical: boolean; gpuMs: number; cpuMs: number; decision: 'webgpu' | 'cpu' } | null };
+/** Deskew only when the estimate is at least one search step and clearly better than no rotation. */
+const DESKEW_MIN_DEGREES = 0.25, DESKEW_MIN_CONFIDENCE = 1.05;
+let acceleration: OcrAcceleration = 'auto';
+export function setOcrAcceleration(mode: OcrAcceleration): void { acceleration = mode; }
+export function getOcrAcceleration(): OcrAcceleration { return acceleration; }
+type Preprocessor = typeof import('./webgpu/index');
+/** The kernels are loaded on demand so the recognizer still works where the module cannot load. */
+async function loadPreprocessor(): Promise<Preprocessor | null> { try { return await import('./webgpu/index'); } catch { return null; } }
+/** One plain sentence for an accessible status line: which runtime pre-processes images and that nothing leaves the device. */
+export async function ocrAccelerationStatus(): Promise<string> {
+  if (acceleration === 'off') return 'Image pre-processing is off: OCR receives the working image unchanged and runs on the CPU (WASM). Nothing leaves this device.';
+  if (acceleration === 'cpu') return 'Image pre-processing runs on the CPU by setting; OCR runs on the CPU (WASM). Nothing leaves this device.';
+  const preprocessor = await loadPreprocessor();
+  return preprocessor ? preprocessor.accelerationStatusLine() : 'Image pre-processing module is unavailable: OCR runs on the CPU (WASM) without it. Nothing leaves this device.';
+}
 const WORKING_PIXELS = 4_000_000;
 const WORKING_SIDE = 4096;
 type Dimensions = { width: number; height: number; orientation: number };
@@ -146,6 +166,41 @@ class OcrWorker {
   }
 }
 
+/** Grayscale, Otsu and skew estimation on the working canvas (WebGPU or CPU kernels), then an
+ * in-place grayscale write-back and an optional deskew rotation. Any failure leaves the canvas as
+ * drawn and is reported in the result instead of stopping OCR. */
+async function preprocessCanvas(canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, onProgress?: (event: OcrProgress) => void, signal?: AbortSignal): Promise<OcrPreprocessing> {
+  const none = (reason: string, status = 'Image pre-processing did not run; OCR runs on the CPU (WASM). Nothing leaves this device.'): OcrPreprocessing => ({ runtime: 'none', reason, threshold: null, skewDegrees: null, skewConfidence: null, deskewed: false, timings: null, status, crossCheck: null });
+  if (acceleration === 'off') return none('pre-processing is off by setting');
+  if (typeof context.getImageData !== 'function' || typeof context.putImageData !== 'function') return none('canvas pixel access is unavailable');
+  const preprocessor = await loadPreprocessor();
+  if (!preprocessor) return none('pre-processing module failed to load');
+  const width = canvas.width, height = canvas.height;
+  try {
+    onProgress?.({ status: 'Preparing image', progress: 0 });
+    const pixels = context.getImageData(0, 0, width, height);
+    const result = await preprocessor.preprocessForOcr(pixels.data, width, height, { mode: acceleration === 'cpu' ? 'cpu' : acceleration === 'webgpu' ? 'webgpu' : 'auto', signal });
+    // Write the luma back so the recognizer receives the same grayscale both paths computed.
+    const data = pixels.data;
+    for (let index = 0, at = 0; index < result.gray.length; index++, at += 4) { data[at] = data[at + 1] = data[at + 2] = result.gray[index]; data[at + 3] = 255; }
+    context.putImageData(pixels, 0, 0);
+    const skew = result.skew.degrees, deskew = Math.abs(skew) >= DESKEW_MIN_DEGREES && result.skew.confidence >= DESKEW_MIN_CONFIDENCE && typeof context.rotate === 'function';
+    if (deskew) {
+      const straight = document.createElement('canvas'); straight.width = width; straight.height = height;
+      const target = straight.getContext('2d');
+      if (target) {
+        target.fillStyle = '#fff'; target.fillRect(0, 0, width, height);
+        target.translate(width / 2, height / 2); target.rotate(-skew * Math.PI / 180); target.drawImage(canvas, -width / 2, -height / 2);
+        context.setTransform(1, 0, 0, 1, 0, 0); context.drawImage(straight, 0, 0);
+        straight.width = 1; straight.height = 1;
+      }
+    }
+    return { runtime: result.runtime, reason: result.fallbackReason, threshold: result.threshold, skewDegrees: skew, skewConfidence: result.skew.confidence, deskewed: deskew, timings: result.timings, status: await preprocessor.accelerationStatusLine(), crossCheck: result.crossCheck ? { identical: result.crossCheck.identical, gpuMs: result.crossCheck.gpuMs, cpuMs: result.crossCheck.cpuMs, decision: result.crossCheck.decision } : null };
+  } catch (error) {
+    if (signal?.aborted) throw signal.reason;
+    return none(`pre-processing failed: ${(error as Error).message || String(error)}`);
+  }
+}
 function ocrLinks(text: string): LinkEvidence[] {
   const matches = text.match(/10\.\d{4,9}\/[^\s<>"?#]+/gi) || [];
   return Array.from(new Set(matches.map(doi => doi.replace(/[.,;]+$/, '')))).map(doi => ({ url: `https://doi.org/${doi}`, doi, kind: 'OCR DOI (unverified)' }));
@@ -166,6 +221,8 @@ export async function recognizeImage(file: File, onProgress?: (event: OcrProgres
     const context = canvas.getContext('2d');
     if (!context) throw new Error('The browser could not allocate the OCR working image. The full original remains saved.');
     context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); context.drawImage(bitmap, 0, 0);
+    const preprocessing = await preprocessCanvas(canvas, context, onProgress, signal);
+    signal?.throwIfAborted();
     const png = await new Promise<Blob>((resolve, reject) => canvas!.toBlob(value => value ? resolve(value) : reject(new Error('The browser could not encode the OCR working image.')), 'image/png'));
     const image = new Uint8Array(await png.arrayBuffer());
     signal?.throwIfAborted();
@@ -179,8 +236,10 @@ export async function recognizeImage(file: File, onProgress?: (event: OcrProgres
     const warnings = ['OCR is an English-model transcription and may omit or misread text. Compare important details and identifiers with the saved original.'];
     if (scale < 1) warnings.push(`The full original was retained. OCR used a ${canvas.width} × ${canvas.height} working image to control browser memory; small print may be missed.`);
     if (!text) warnings.push('No text was recognized; this does not establish that the original image has no text.');
+    if (preprocessing.deskewed) warnings.push(`The working image was rotated by ${(-preprocessing.skewDegrees!).toFixed(2)}° to straighten text lines before OCR; corners may be clipped. The original is unchanged.`);
     onProgress?.({ status: 'OCR finished; review the transcription', progress: 1 });
-    return { title: file.name, text, markdown: text, links: ocrLinks(text), warnings, engine: 'Tesseract.js 7.0.0 (CPU/WASM)', status: 'partial', metadata: { ocr: { language: 'eng', confidence, originalWidth: original.width, originalHeight: original.height, processedWidth: canvas.width, processedHeight: canvas.height, downscaled: scale < 1, runtime: 'cpu-wasm', model: 'eng best_int 1.0.0' } } };
+    const engine = `Tesseract.js 7.0.0 (CPU/WASM)${preprocessing.runtime === 'webgpu' ? '; WebGPU pre-processing' : preprocessing.runtime === 'cpu' ? '; CPU pre-processing' : ''}`;
+    return { title: file.name, text, markdown: text, links: ocrLinks(text), warnings, engine, status: 'partial', metadata: { ocr: { language: 'eng', confidence, originalWidth: original.width, originalHeight: original.height, processedWidth: canvas.width, processedHeight: canvas.height, downscaled: scale < 1, runtime: 'cpu-wasm', model: 'eng best_int 1.0.0', preprocessing } } };
   } catch (error) {
     if (signal?.aborted) throw signal.reason;
     if (error instanceof RangeError) throw new Error('The browser could not allocate memory to decode this image. The full original remains saved; try a lower-resolution working copy.');
