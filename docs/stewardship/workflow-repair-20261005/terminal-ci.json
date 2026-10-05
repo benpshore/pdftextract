@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "observed_at": "2026-10-05T09:58:38Z",
+  "head": "52ff2462ce3c0d030a78da4f5f3b852a38489ef3",
+  "base": "88d65b565bbf1037b1b76df1cc2462a1ae324add",
+  "pr": 240,
+  "required_ci": {
+    "run_id": 37292223711,
+    "jobs": [
+      {
+        "id": 111705044317,
+        "name": "repo",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:46:22Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111705044317"
+      },
+      {
+        "id": 111705044548,
+        "name": "python",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:46:28Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111705044548"
+      },
+      {
+        "id": 111705044595,
+        "name": "swift",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:47:00Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111705044595"
+      },
+      {
+        "id": 111705044707,
+        "name": "rust (ubuntu-24.04-arm)",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:49:16Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111705044707"
+      },
+      {
+        "id": 111705045002,
+        "name": "rust (ubuntu-latest)",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:48:52Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111705045002"
+      },
+      {
+        "id": 111706114020,
+        "name": "ci",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:49:22Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223711/job/111706114020"
+      }
+    ]
+  },
+  "pdfium": {
+    "run_id": 37292223638,
+    "jobs": [
+      {
+        "id": 111705044719,
+        "name": "probe (ubuntu-24.04-arm, linux-arm64, so)",
+        "conclusion": "failure",
+        "completed_at": "2026-10-05T09:47:40Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223638/job/111705044719",
+        "failed_steps": [
+          "Run cargo clippy --locked --all-targets --features \"$TPE_FEATURES\" -- -D warnings"
+        ]
+      },
+      {
+        "id": 111705045111,
+        "name": "probe (ubuntu-24.04, linux-x64, so)",
+        "conclusion": "success",
+        "completed_at": "2026-10-05T09:49:53Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223638/job/111705045111",
+        "failed_steps": []
+      },
+      {
+        "id": 111705045116,
+        "name": "probe (macos-15, mac-arm64, dylib)",
+        "conclusion": "failure",
+        "completed_at": "2026-10-05T09:46:36Z",
+        "url": "https://github.com/benpshore/pdftextract/actions/runs/37292223638/job/111705045116",
+        "failed_steps": [
+          "Provision matching headers for the pure LiteParse layout dependency"
+        ]
+      }
+    ]
+  },
+  "diagnostics": [
+    {
+      "target": "linux-arm64",
+      "status": "failed",
+      "command": "cargo clippy --locked --all-targets --features \"$TPE_FEATURES\" -- -D warnings",
+      "source": "src/backend/native_provider.rs:320,333",
+      "error": "E0599 cast_unsigned unavailable for u8 and &u8 (c_char unsigned on target)",
+      "repair_owner": "Active PR235 exact 3f1dfed526a8db4202af014ba98fc49e7f2186fa already contains portable byte conversion; no duplicate edit."
+    },
+    {
+      "target": "mac-arm64",
+      "status": "failed",
+      "command": "sh native/fetch-liteparse.sh --archive pdfium.tgz",
+      "error": "sha256sum --check rejects option, prints usage and exits 1; archive and dylib had already passed shasum verification in prior step.",
+      "repair_owner": "Held PR234 exact 1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe contains Bob's checksum-interface correction. PR235 does not change this script."
+    },
+    {
+      "target": "linux-x64",
+      "status": "passed",
+      "command": "cargo test --locked --features pdfium --test pdfium_unicode -- --nocapture",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "missing_library_skip_message": false
+    },
+    {
+      "target": "linux-x64",
+      "status": "passed",
+      "command": "cargo test --locked --features pdfium --lib backend::pdfium_backend::unicode_mapping::tests -- --nocapture",
+      "passed": 5,
+      "failed": 0,
+      "ignored": 0,
+      "native_failed_open_close_test": "native_failure_closes_handles_and_preserves_the_next_query ... ok"
+    },
+    {
+      "target": "linux-x64",
+      "status": "not_run",
+      "suite": "tests/native_provider.rs",
+      "passed": 0,
+      "failed": 0,
+      "ignored": 3,
+      "reason": "Licensed MuPDF/Poppler provider/runtime paths not provisioned; Cargo success is not native provider execution."
+    },
+    {
+      "target": "linux-x64",
+      "status": "not_run",
+      "test": "native_output_limit_fails_closed_and_releases_the_document",
+      "reason": "Ignored: requires separately licensed MuPDF provider and runtime paths."
+    }
+  ],
+  "limits": [
+    "One-file syntax repair; no native/runtime/dependency fixes imported.",
+    "Required CI success includes hosted OSV audit; local audit was connection-blocked.",
+    "No full native-matrix success, Miri/sanitizer execution, formal security clearance or release acceptance claimed.",
+    "Review is bounded to public/access-authorized GitHub source/issues/reviews/logs; no private dashboard scan or corpus artifact downloads."
+  ]
+}

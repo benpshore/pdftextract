@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "observed_at": "2026-10-05T09:58:38Z",
+  "agent": "Busybody Bob",
+  "fingerprint": "2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f",
+  "repair": {
+    "commit": "52ff2462ce3c0d030a78da4f5f3b852a38489ef3",
+    "tree": "5b8bd04d7a9f459098cd843254f8177cadfd2eaf",
+    "parent": "88d65b565bbf1037b1b76df1cc2462a1ae324add",
+    "branch": "fix/pdfium-workflow-yaml-20261005",
+    "pr": 240,
+    "url": "https://github.com/benpshore/pdftextract/pull/240",
+    "draft": true,
+    "merged": false,
+    "labels": [
+      "agent-created"
+    ],
+    "paths": [
+      ".github/workflows/pdfium-probe.yml"
+    ],
+    "additions": 2,
+    "deletions": 1,
+    "provenance": "Exact existing Bob hunk from held PR234 isolated on main; no branch combined or overwritten."
+  },
+  "initial_evidence": {
+    "commit": "0641389eefbe832ccdab4c828056298c005b07b3",
+    "tree": "8d596d17a5f609d82e8b038f53aa982bd7a13aa1",
+    "parent": "2e72bb744b022d0a654a0d746399d836aed49fe2",
+    "branch": "wip/busybody-bob-workflow-20261005",
+    "records": 126,
+    "journal_head": "a93f6b059a6b1489eb2bce5dd2c8e8eb46c78f2e900aef7e034d00b43827db10"
+  },
+  "assessment_issue": 239,
+  "no_assessment_implementation": true,
+  "main_unchanged_at_observation": "88d65b565bbf1037b1b76df1cc2462a1ae324add"
+}
