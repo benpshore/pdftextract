@@ -126,10 +126,36 @@ fn writes_text_and_json_per_input_without_touching_inputs() {
     assert_eq!(report["engine"]["name"], "tesseract");
     assert_eq!(report["engine"]["version"], "5.9.9-fake");
     assert_eq!(report["engine"]["lang"], "eng");
-    assert_eq!(
-        report["engine"]["resource_limits_applied"],
-        cfg!(any(target_os = "linux", target_os = "macos"))
-    );
+    let applied = report["engine"]["resource_limits_applied"]
+        .as_array()
+        .expect("subprocess engine reports a list")
+        .iter()
+        .map(|v| v.as_str().unwrap().to_string())
+        .collect::<Vec<_>>();
+    for name in &applied {
+        assert!(
+            ["core", "cpu", "fsize", "as"].contains(&name.as_str()),
+            "{applied:?}"
+        );
+    }
+    if cfg!(target_os = "linux") {
+        assert_eq!(applied, ["core", "cpu", "fsize", "as"]);
+    } else if cfg!(target_os = "macos") {
+        // What macOS keeps is reported, never assumed; a skipped limit is a warning.
+        let skipped = report["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|w| {
+                w.as_str()
+                    .unwrap()
+                    .starts_with("resource limit not applied: ")
+            })
+            .count();
+        assert_eq!(applied.len() + skipped, 4, "{report}");
+    } else {
+        assert!(applied.is_empty(), "{applied:?}");
+    }
     assert_eq!(report["image"]["format"], "png");
     assert_eq!(report["image"]["width"], 420);
     assert_eq!(report["image"]["height"], 90);
@@ -397,10 +423,47 @@ fn kernel_limits_reach_the_engine_process() {
     );
     assert_eq!(code, 0, "{stderr}");
     let text = fs::read_to_string(out.path().join("hello.txt")).unwrap();
-    assert_eq!(
-        text, "as=524288 cpu=7\n",
-        "ulimit -v is in KiB, -t in seconds"
-    );
+    let report: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(out.path().join("hello.json")).unwrap()).unwrap();
+    let applied: Vec<&str> = report["engine"]["resource_limits_applied"]
+        .as_array()
+        .expect("list")
+        .iter()
+        .map(|v| v.as_str().unwrap())
+        .collect();
+    // Only what the helper reports as applied is checked inside the engine
+    // process; Linux applies all four and that stays required.
+    if cfg!(target_os = "linux") {
+        assert_eq!(applied, ["core", "cpu", "fsize", "as"]);
+    }
+    let seen: std::collections::HashMap<&str, &str> = text
+        .split_whitespace()
+        .filter_map(|tok| tok.split_once('='))
+        .collect();
+    if applied.contains(&"as") {
+        assert_eq!(
+            seen.get("as"),
+            Some(&"524288"),
+            "ulimit -v is in KiB: {text}"
+        );
+    }
+    if applied.contains(&"cpu") {
+        assert_eq!(
+            seen.get("cpu"),
+            Some(&"7"),
+            "ulimit -t is in seconds: {text}"
+        );
+    }
+    for name in ["core", "cpu", "fsize", "as"] {
+        if !applied.contains(&name) {
+            let noted = report["warnings"].as_array().unwrap().iter().any(|w| {
+                w.as_str()
+                    .unwrap()
+                    .starts_with(&format!("resource limit not applied: {name}: "))
+            });
+            assert!(noted, "skipped {name} must be explained: {report}");
+        }
+    }
 }
 
 #[test]

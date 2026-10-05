@@ -93,8 +93,10 @@ pub struct Recognition {
     pub blocks: Vec<Block>,
     /// Non-fatal engine messages.
     pub warnings: Vec<String>,
-    /// For subprocess engines: whether kernel resource limits were installed.
-    pub resource_limits_applied: Option<bool>,
+    /// For subprocess engines: the kernel limits in force in the engine
+    /// process (`core`, `cpu`, `fsize`, `as`), empty when none could be
+    /// installed; `None` for engines that run in this process.
+    pub resource_limits_applied: Option<Vec<String>>,
 }
 
 impl Recognition {

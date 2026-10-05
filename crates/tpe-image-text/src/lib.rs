@@ -101,8 +101,9 @@ pub struct EngineInfo {
     pub version: String,
     /// Language requested.
     pub lang: String,
-    /// For subprocess engines: whether kernel limits were installed.
-    pub resource_limits_applied: Option<bool>,
+    /// For subprocess engines: the kernel limits in force in the engine
+    /// process (`core`, `cpu`, `fsize`, `as`); `None` for in-process engines.
+    pub resource_limits_applied: Option<Vec<String>>,
 }
 
 /// Decoded image facts.

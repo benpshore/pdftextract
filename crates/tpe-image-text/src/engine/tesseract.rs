@@ -15,7 +15,7 @@ use image::GrayImage;
 
 use super::{Availability, BBox, Block, Engine, EngineOptions, Recognition};
 use crate::ImageTextError;
-use crate::limits::limited_command;
+use crate::limits::{limited_command, split_marker};
 
 /// Most bytes of engine stdout/stderr read back.
 const MAX_CAPTURE_BYTES: u64 = 32 * 1024 * 1024;
@@ -37,8 +37,15 @@ pub struct TesseractEngine {
 /// Locate the executable: an explicit path must exist; otherwise `PATH` is searched.
 pub fn find_binary(explicit: Option<&Path>) -> Result<PathBuf, String> {
     if let Some(path) = explicit {
+        // The engine runs in a temporary directory, so a relative path must
+        // be resolved now, against the controller's working directory.
         return if path.is_file() {
-            Ok(path.to_path_buf())
+            std::path::absolute(path).map_err(|e| {
+                format!(
+                    "configured tesseract executable {} cannot be made absolute: {e}",
+                    path.display()
+                )
+            })
         } else {
             Err(format!(
                 "configured tesseract executable does not exist: {}",
@@ -273,7 +280,7 @@ impl Engine for TesseractEngine {
                 "tesseract was killed".to_string(),
             ));
         }
-        let stderr = String::from_utf8_lossy(&captured.stderr).to_string();
+        let (limits, stderr) = split_marker(&String::from_utf8_lossy(&captured.stderr));
         if !captured.success {
             return Err(ImageTextError::Engine(format!(
                 "tesseract exited {}: {}",
@@ -290,7 +297,23 @@ impl Engine for TesseractEngine {
                 .filter(|l| !l.is_empty() && !l.starts_with("Estimating resolution"))
                 .map(|l| format!("tesseract: {l}")),
         );
-        recognition.resource_limits_applied = Some(limited);
+        let limits = match (limited, limits) {
+            (true, Some(outcome)) => outcome,
+            (true, None) => {
+                recognition
+                    .warnings
+                    .push("exec-limited: helper did not report its limits".to_string());
+                crate::limits::LimitsOutcome::default()
+            }
+            (false, _) => crate::limits::LimitsOutcome::default(),
+        };
+        recognition.warnings.extend(
+            limits
+                .skipped
+                .iter()
+                .map(|s| format!("resource limit not applied: {s}")),
+        );
+        recognition.resource_limits_applied = Some(limits.applied);
         Ok(recognition)
     }
 }
@@ -466,6 +489,27 @@ mod tests {
         ] {
             assert!(validate_lang(bad).is_err(), "{bad:?} accepted");
         }
+    }
+
+    #[test]
+    fn explicit_relative_binary_is_made_absolute() {
+        let dir = tempfile::tempdir().expect("tempdir");
+        let bin = dir.path().join("tess");
+        std::fs::write(&bin, "#!/bin/sh\n").expect("write");
+        let cwd = std::env::current_dir().expect("cwd");
+        let relative = pathdiff_relative(&bin, &cwd);
+        let found = find_binary(Some(&relative)).expect("found");
+        assert!(found.is_absolute(), "{}", found.display());
+        assert_eq!(found, std::path::absolute(&relative).unwrap());
+    }
+
+    /// `target` as a path relative to `base` (both absolute), without symlink resolution.
+    fn pathdiff_relative(target: &Path, base: &Path) -> PathBuf {
+        let mut up = PathBuf::new();
+        for _ in base.components().skip(1) {
+            up.push("..");
+        }
+        up.join(target.strip_prefix("/").unwrap_or(target))
     }
 
     #[test]

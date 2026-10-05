@@ -70,11 +70,16 @@ with `tesseract <png> stdout -l <lang> --psm 3 tsv`, `OMP_NUM_THREADS=1`, and:
 - kernel limits installed by re-executing this binary as
   `tpe-image-text exec-limited <cpu-seconds> <address-space-bytes> <program> <args>`,
   which lowers `RLIMIT_CORE` (0), `RLIMIT_CPU` (timeout, hard +5 s),
-  `RLIMIT_FSIZE` (256 MiB) and `RLIMIT_AS` (`--max-memory-mib`, default 2048,
-  never above an inherited limit) on itself through `rustix` and then `exec`s
-  tesseract, which inherits them. No `unsafe`, no shell: every argument is its
-  own `OsString`. `engine.resource_limits_applied` in the report is `true`
-  when the helper was used (Linux and macOS);
+  `RLIMIT_FSIZE` (256 MiB) and `RLIMIT_AS` (`--max-memory-mib`, default 2048),
+  each one independently and never above an inherited limit, on itself through
+  `rustix` and then `exec`s tesseract, which inherits them. A limit the kernel
+  refuses or does not keep is skipped, not fatal (macOS answers `EINVAL` for
+  `RLIMIT_AS`): the helper prints one `exec-limited: applied …; skipped …` line
+  on stderr, the controller turns it into `engine.resource_limits_applied`
+  (the list of limits in force: `["core","cpu","fsize","as"]` on Linux) plus a
+  `resource limit not applied: <name>: <reason>` warning per skipped limit, and
+  the wall-clock kill remains the guarantee. No `unsafe`, no shell: every
+  argument is its own `OsString`;
 - stdout/stderr spooled to files (no pipes to deadlock), 32 MiB read back,
   tesseract's stderr lines kept as warnings, a non-zero exit quoted as the error.
 
@@ -160,7 +165,8 @@ output-collision rules. Integration tests drive the binary with
 path is exercised everywhere: outputs and JSON fields, `--force`, directory
 walking, the timeout kill, quoted engine failures, rejected language codes, the
 `exec-limited` helper, and that `ulimit -v`/`ulimit -t` inside the engine
-process equal the requested limits. Tests needing a real engine print
+process equal the requested limits for every limit the report lists as applied
+(all four on Linux; on macOS the skipped `RLIMIT_AS` must appear as a warning). Tests needing a real engine print
 `skipped: …` and pass when `tesseract` is not on `PATH` or the ocrs models are
 not under `TPE_OCRS_MODELS_DIR` / `.models/ocrs`; with the models present the
 ocrs test recognises `hello.png` and the skewed fixture end to end.
