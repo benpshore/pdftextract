@@ -1437,6 +1437,126 @@ fn page1_abstract(page: &PageText) -> Option<String> {
     (!joined.is_empty()).then_some(joined)
 }
 
+/// Identifiers that name the paper itself, gathered from the metadata and
+/// from what is printed (page 1 and the `/Info` strings). Nothing is
+/// guessed: a PMID needs a `PMID` label or a `PubMed` URL, an ISSN or ISBN
+/// needs a label and a valid check digit, and every value records where it
+/// came from in `provenance`.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct PaperIdentifiers {
+    /// Normalised DOI (lower-case, no resolver prefix).
+    pub doi: Option<String>,
+    /// `arXiv` id without version.
+    pub arxiv_id: Option<String>,
+    /// `PubMed` id, digits only.
+    pub pmid: Option<String>,
+    /// `PubMed` Central id, `PMC<digits>`.
+    pub pmcid: Option<String>,
+    /// Labelled ISSNs (`NNNN-NNNC`), check digit verified.
+    pub issns: Vec<String>,
+    /// Labelled ISBNs (digits only), check digit verified.
+    pub isbns: Vec<String>,
+    /// Field -> source (`metadata:doi`, `first_page:pmid`, `info:Subject`).
+    pub provenance: BTreeMap<String, String>,
+}
+
+/// The text of page 1 (the ordered text, or the lines when it is empty).
+fn first_page_text(pages: &[PageText]) -> Option<String> {
+    let page = pages.iter().find(|page| page.page == 1)?;
+    if !page.text.trim().is_empty() {
+        return Some(page.text.clone());
+    }
+    let joined = page
+        .lines
+        .iter()
+        .map(|l| l.text.trim())
+        .filter(|t| !t.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n");
+    (!joined.is_empty()).then_some(joined)
+}
+
+/// Gather the paper's identifiers: the metadata DOI and `arXiv` id first,
+/// then labelled PMID, PMCID, ISSN and ISBN values printed on page 1, then
+/// the same from the `/Info` strings (`Subject` often carries a citation).
+/// A DOI or `arXiv` id missing from the metadata is also taken from a
+/// labelled `/Info` string, never from running page text (page 1 cites
+/// other papers too).
+pub fn extract_identifiers(meta: &Metadata, pages: &[PageText]) -> PaperIdentifiers {
+    use tpe_biblio::identifiers::{extract_identifiers as scan, normalize_doi_text};
+    let mut ids = PaperIdentifiers::default();
+    if let Some(doi) = meta.doi.as_deref().and_then(normalize_doi_text) {
+        ids.doi = Some(doi);
+        ids.provenance
+            .insert("doi".to_string(), "metadata:doi".to_string());
+    }
+    if let Some(arxiv) = meta
+        .arxiv_id
+        .as_deref()
+        .and_then(tpe_biblio::normalize_arxiv_id)
+    {
+        ids.arxiv_id = Some(arxiv);
+        ids.provenance
+            .insert("arxiv_id".to_string(), "metadata:arxiv_id".to_string());
+    }
+    let mut sources: Vec<(String, String)> = Vec::new();
+    if let Some(text) = first_page_text(pages) {
+        sources.push(("first_page".to_string(), text));
+    }
+    for (key, value) in &meta.info {
+        if !value.trim().is_empty() {
+            sources.push((format!("info:{key}"), value.clone()));
+        }
+    }
+    for (source, text) in &sources {
+        let found = scan(text);
+        if ids.pmid.is_none()
+            && let Some(pmid) = found.pmids.first()
+        {
+            ids.pmid = Some(pmid.clone());
+            ids.provenance.insert("pmid".to_string(), source.clone());
+        }
+        if ids.pmcid.is_none()
+            && let Some(pmcid) = found.pmcids.first()
+        {
+            ids.pmcid = Some(pmcid.clone());
+            ids.provenance.insert("pmcid".to_string(), source.clone());
+        }
+        for issn in found.issns.iter().filter(|h| h.labelled) {
+            if !ids.issns.contains(&issn.value) {
+                ids.issns.push(issn.value.clone());
+                ids.provenance
+                    .entry("issns".to_string())
+                    .or_insert_with(|| source.clone());
+            }
+        }
+        for isbn in found.isbns.iter().filter(|h| h.labelled) {
+            if !ids.isbns.contains(&isbn.value) {
+                ids.isbns.push(isbn.value.clone());
+                ids.provenance
+                    .entry("isbns".to_string())
+                    .or_insert_with(|| source.clone());
+            }
+        }
+        if source.starts_with("info:") {
+            if ids.doi.is_none()
+                && let Some(doi) = found.dois.first()
+            {
+                ids.doi = Some(doi.clone());
+                ids.provenance.insert("doi".to_string(), source.clone());
+            }
+            if ids.arxiv_id.is_none()
+                && let Some(arxiv) = found.arxiv_ids.iter().find(|h| h.labelled)
+            {
+                ids.arxiv_id = Some(arxiv.value.clone());
+                ids.provenance
+                    .insert("arxiv_id".to_string(), source.clone());
+            }
+        }
+    }
+    ids
+}
+
 /// Compile every regex this module uses, so the first document does not pay
 /// for it inside its stage timings. Repeated calls are cheap.
 pub fn warm_up() {
@@ -2574,5 +2694,83 @@ mod tests {
             ),
             "John Smith, and Ann Lee"
         );
+    }
+}
+
+#[cfg(test)]
+mod identifier_tests {
+    use super::*;
+
+    fn page_with(lines: &[&str]) -> PageText {
+        let mut page = PageText::new(1, 600.0, 800.0, 0);
+        for text in lines {
+            page.lines.push(Line {
+                text: (*text).to_string(),
+                ..Line::default()
+            });
+        }
+        page
+    }
+
+    #[test]
+    fn identifiers_come_from_metadata_page_one_and_info() {
+        let mut meta = Metadata {
+            doi: Some("https://doi.org/10.7717/PEERJ.4375".to_string()),
+            arxiv_id: Some("arXiv:1706.03762v2".to_string()),
+            ..Metadata::default()
+        };
+        meta.info.insert(
+            "Subject".to_string(),
+            "PeerJ 2018; 6:e4375. ISBN 978-0-306-40615-7".to_string(),
+        );
+        let page = page_with(&[
+            "The state of OA",
+            "PMID: 29456894  PMCID: PMC5815332",
+            "ISSN 2167-8359; cited: doi:10.1000/other 2020",
+            "pages 1742-1750",
+        ]);
+        let ids = extract_identifiers(&meta, &[page]);
+        assert_eq!(ids.doi.as_deref(), Some("10.7717/peerj.4375"));
+        assert_eq!(ids.arxiv_id.as_deref(), Some("1706.03762"));
+        assert_eq!(ids.pmid.as_deref(), Some("29456894"));
+        assert_eq!(ids.pmcid.as_deref(), Some("PMC5815332"));
+        assert_eq!(ids.issns, vec!["2167-8359"]);
+        assert_eq!(ids.isbns, vec!["9780306406157"]);
+        assert_eq!(ids.provenance["doi"], "metadata:doi");
+        assert_eq!(ids.provenance["pmid"], "first_page");
+        assert_eq!(ids.provenance["issns"], "first_page");
+        assert_eq!(ids.provenance["isbns"], "info:Subject");
+    }
+
+    #[test]
+    fn info_strings_supply_a_missing_doi_but_page_text_never_does() {
+        let mut meta = Metadata::default();
+        meta.info.insert(
+            "Subject".to_string(),
+            "J Stuff 2020. doi:10.1000/own arXiv:2105.12345".to_string(),
+        );
+        let page = page_with(&["see https://doi.org/10.1000/cited", "PMID 5"]);
+        let ids = extract_identifiers(&meta, std::slice::from_ref(&page));
+        assert_eq!(ids.doi.as_deref(), Some("10.1000/own"));
+        assert_eq!(ids.arxiv_id.as_deref(), Some("2105.12345"));
+        assert_eq!(ids.provenance["doi"], "info:Subject");
+        assert_eq!(ids.pmid.as_deref(), Some("5"));
+        let none = extract_identifiers(&Metadata::default(), &[page]);
+        assert_eq!(none.doi, None);
+        assert_eq!(none.arxiv_id, None);
+        assert_eq!(none.pmid.as_deref(), Some("5"));
+        assert!(
+            extract_identifiers(&Metadata::default(), &[])
+                .provenance
+                .is_empty()
+        );
+    }
+
+    #[test]
+    fn ordered_page_text_is_preferred_over_lines() {
+        let mut page = page_with(&["PMID: 1"]);
+        page.text = "PMID: 2".to_string();
+        let ids = extract_identifiers(&Metadata::default(), &[page]);
+        assert_eq!(ids.pmid.as_deref(), Some("2"));
     }
 }

@@ -51,7 +51,7 @@ pub use error::BiblioError;
 pub use fetch::Fetcher;
 pub use lookup::Lookup;
 pub use retry::RetryPolicy;
-pub use tpe_common::{PaperRecord, normalize_doi};
+pub use tpe_common::{PaperRecord, normalize_arxiv_id, normalize_doi};
 
 /// Whether a full-text candidate points at a PDF or at an HTML landing page.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
