@@ -1,0 +1,180 @@
+{
+  "observed_at": "2026-10-05T06:46:38.360347+00:00",
+  "source_main": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "release": "v0.55.0",
+  "archive_sha256": "df456b13a8af389167c09302c433412d83b92635ad9a1a0d24685a446c2d570f",
+  "binary_sha256": "c084b75034b1f53567ea45365d9802bb2f3b6ab6f963d39fc163744b7763eeca",
+  "fixture": "crates/tpe-app/tests/fixtures/synthetic-paper.pdf",
+  "fixture_sha256": "e96031da73e99283f5cf19958ff27e812966a2e7fce7d7df3cbaea893ddae56f",
+  "fixture_unchanged": true,
+  "export_status": "complete",
+  "export_pages": 2,
+  "export_references": 3,
+  "bibliography_status": "found",
+  "bibliography_references": 3,
+  "readme_words": 740,
+  "readme_lines": 110,
+  "local_links_verified": [
+    "docs/BIBLIOGRAPHY.md",
+    "docs/CLI-WORKERS.md",
+    "docs/PUBLICATION.md",
+    "docs/NATIVE_FALLBACK.md",
+    "docs/EXTRACTION_ROUTING_REVIEW.md",
+    "docs/DOCLING.md",
+    "docs/NATIVE.md",
+    "docs/GROBID.md",
+    "web/README.md",
+    "docs/WEB_ALPHA.md",
+    "docs/APP.md",
+    "AGENTS.md",
+    "docs/RUST_BUILD.md",
+    "web/README.md",
+    "docs/EVAL.md",
+    "docs/analysis/",
+    "docs/ENGINE_REPAIR_2026-10-03.md",
+    "LICENSE"
+  ],
+  "commands": [
+    {
+      "args": [
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "tpe 0.55.0\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "--help"
+      ],
+      "exit_code": 0,
+      "stdout": "Native PDF text, metadata and citation extraction engine for academic corpora\n\nUsage: tpe <COMMAND>\n\nCommands:\n  extract       Extract text, metadata and citations from PDF files into a ledger\n  bibliography  Extract the final bibliography by reading PDF pages from the end\n  stats         Print ledger statistics as `key: value` lines\n  show          Show the latest run stored for a document hash prefix\n  bench         Measure warm service time per 20-page chunk (no ledger writes)\n  corpus        Manage the evaluation corpus described by a manifest\n  eval          Evaluate extraction against `arXiv` `LaTeX` ground truth and write a report\n  backends      List every known backend, whether it is compiled in, and whether it opens a one-page probe PDF (native libraries found)\n  help          Print this message or the help of the given subcommand(s)\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "backends"
+      ],
+      "exit_code": 0,
+      "stdout": "lopdf\tavailable\topens (1 page probe)\nmupdf\tnot compiled\trebuild with --features mupdf\npoppler\tnot compiled\trebuild with --features poppler\npdfium\tnot compiled\trebuild with --features pdfium\npdf-oxide\tnot compiled\trebuild with --features pdf-oxide\ndocling-text\tnot compiled\trebuild with --features docling-text\ndocling\tnot compiled\trebuild with --features docling\nliteparse-layout\tnot compiled\trebuild with --features liteparse-layout\nlopdf-cff-recovery\tnot compiled\trebuild with --features pdf-extract (lopdf font helper)\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "extract",
+        "paper.pdf",
+        "--db",
+        "corpus.sqlite",
+        "--out",
+        "out/"
+      ],
+      "exit_code": 0,
+      "stdout": "complete\te96031da73e9\t2p\t3 refs\t3 cites\t77.4 ms\tpaper.pdf\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "bibliography",
+        "paper.pdf"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"path\":\"paper.pdf\",\"sha256\":\"e96031da73e99283f5cf19958ff27e812966a2e7fce7d7df3cbaea893ddae56f\",\"backend\":{\"name\":\"lopdf\",\"version\":\"0.45.0\",\"config_digest\":\"e46ef733124a70a6fdb3a7ea5b9f261e82e950f61d7093a61997d0ff2b5a9fb4\"},\"status\":\"found\",\"extraction_status\":\"complete\",\"total_pages\":2,\"pages_scanned\":1,\"section_page\":2,\"heading\":\"References\",\"references\":[{\"index\":1,\"label\":\"[1]\",\"raw\":\"[1] A. Lovelace and C. Babbage, \\\"Analytical engines,\\\" in Proceedings of the 1st Conference on Computing, 1843, pp. 1\u201310.\",\"authors\":[\"A. Lovelace\",\"C. Babbage\"],\"title\":\"Analytical engines\",\"year\":null,\"venue\":\"Proceedings of the 1st Conference on Computing\",\"volume\":null,\"issue\":null,\"pages\":\"1\u201310\",\"doi\":null,\"arxiv_id\":null,\"url\":null,\"page\":2,\"anchor\":{\"x0\":60.0,\"y0\":620.0,\"x1\":60.0,\"y1\":630.0},\"doi_link\":null,\"attempts\":[],\"resolved\":null},{\"index\":2,\"label\":\"[2]\",\"raw\":\"[2] G. Hopper, \\\"Compilers,\\\" Journal of Programming, vol. 3, no. 2, pp. 45\u201367, 1952, doi:10.1000/abc456.\",\"authors\":[\"G. Hopper\"],\"title\":\"Compilers\",\"year\":1952,\"venue\":\"Journal of Programming\",\"volume\":\"3\",\"issue\":\"2\",\"pages\":\"45\u201367\",\"doi\":\"10.1000/abc456\",\"arxiv_id\":null,\"url\":null,\"page\":2,\"anchor\":{\"x0\":60.0,\"y0\":596.0,\"x1\":60.0,\"y1\":606.0},\"doi_link\":null,\"attempts\":[],\"resolved\":null},{\"index\":3,\"label\":\"[3]\",\"raw\":\"[3] A. Turing, \\\"On computable numbers,\\\" arXiv:1936.00001, 1936.\",\"authors\":[\"A. Turing\"],\"title\":\"On computable numbers\",\"year\":1936,\"venue\":null,\"volume\":null,\"issue\":null,\"pages\":null,\"doi\":null,\"arxiv_id\":\"1936.00001\",\"url\":null,\"page\":2,\"anchor\":{\"x0\":60.0,\"y0\":572.0,\"x1\":60.0,\"y1\":582.0},\"doi_link\":null,\"attempts\":[],\"resolved\":null}],\"warnings\":[],\"assessment\":{\"pages\":1,\"scanned\":0,\"unmapped\":0,\"empty\":0},\"plausible\":true,\"paper\":null,\"resolution\":null,\"elapsed_ms\":52.238963,\"error\":null}\n",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "stats",
+        "--db",
+        "corpus.sqlite"
+      ],
+      "exit_code": 0,
+      "stdout": "documents: 1\nruns: 1\ncomplete: 1\npartial: 0\nfailed: 0\npages: 2\nreferences: 3\ncitations: 3\nfigures: 0\n",
+      "stderr": ""
+    }
+  ],
+  "limitations": [
+    "Synthetic fixture only; no corpus accuracy measurement.",
+    "Manual Linux x64 release path exercised. mise is unavailable locally; other platforms not rerun.",
+    "No resolve or GROBID calls; optional native backends not loaded.",
+    "No Mac, deployment, heldout material, or application code changes."
+  ],
+  "checks": {
+    "ruff_format": "107 files already formatted",
+    "ruff_check": "passed",
+    "pytest_root": "210 passed",
+    "pytest_web_source": "28 passed",
+    "web_source_manifest": "153 files verified",
+    "dependency_audit": "attempted; OSV querybatch connection/tunnel failed after 3 retries; no audit clearance",
+    "cargo_swift_cmake_ctest": "not installed locally; no local results claimed",
+    "git_diff_check": "passed",
+    "changed_paths": [
+      "README.md"
+    ]
+  },
+  "readme_sha256": "58a1820917a78a49903423b83d418c64b80ce2b5e8a43bcd1603bec74588506c",
+  "original_words": 4273,
+  "original_lines": 268,
+  "source_assertion_map": {
+    "release_and_cli": [
+      "Cargo.toml default features",
+      "src/main.rs Cmd, ExtractArgs, BibliographyArgs",
+      ".github/workflows/build-binaries.yml default locked build",
+      ".github/workflows/install-check.yml mise installation",
+      ".github/workflows/auto-release.yml release trigger",
+      "v0.55.0 release assets and real Linux x64 executable"
+    ],
+    "worker_boundary": [
+      "src/cli_worker.rs check_supervised_backend",
+      "docs/CLI-WORKERS.md",
+      "docs/PUBLICATION.md",
+      "tests/cli_containment.rs",
+      "tests/worker_startup.rs"
+    ],
+    "fallback_no_fusion": [
+      "src/pipeline.rs route_result_with_policy, native_fallback_result and regression fixtures",
+      "docs/NATIVE_FALLBACK.md",
+      "docs/EXTRACTION_ROUTING_REVIEW.md"
+    ],
+    "docling_and_ocr": [
+      "src/backend/docling_backend.rs tables false; partial reconstruction evidence",
+      "src/cli_worker.rs supervised backend allowlist",
+      "docs/DOCLING.md"
+    ],
+    "bibliography": [
+      "src/bibliography.rs Record, backward scan, separate extraction_status",
+      "src/main.rs bibliography resolution controls",
+      "tests/end_to_end.rs",
+      "tests/bibliography_input_safety.rs",
+      "docs/BIBLIOGRAPHY.md"
+    ],
+    "web_runtime": [
+      "web/public/pdf-worker.js separate PDF Oxide WASM, partial output",
+      "web/lib/image-ocr.ts English CPU/WASM still images, partial output",
+      "web/lib/office.ts",
+      "web/lib/imports.ts",
+      "web/lib/uploads.ts",
+      "web/lib/mcp.ts",
+      "web/README.md",
+      "docs/WEB_ALPHA.md"
+    ],
+    "macos_prototype": [
+      "crates/tpe-app/src/jobs.rs",
+      "crates/tpe-app/src/gui.rs",
+      "docs/APP.md"
+    ],
+    "unmerged_work": [
+      "Fresh open PRs: #234 at 1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe remains draft; #175/#192/#202/#206 remain draft. #226 now non-draft, not merged.",
+      "Main ref independently fetched as 72890e6f9d23b1c10ee2cd9d368c7c0817319c10."
+    ]
+  },
+  "identity": {
+    "name": "Busybody Bob",
+    "alias": "Mara Keel",
+    "task_id": "pdftextract/stewardship/2026-10-04/busybody-bob",
+    "parent_task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb",
+    "fingerprint": "2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f",
+    "configuration": "4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3",
+    "continuation": "Ben #236 documentation retry; no new agent or retrospective identity",
+    "usage": "unknown"
+  }
+}
