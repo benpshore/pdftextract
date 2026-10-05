@@ -1,0 +1,33 @@
+[package]
+name = "tpe-refcheck"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Validate extracted reference entries against DOI and Crossref records"
+
+[[bin]]
+name = "tpe-refcheck"
+path = "src/main.rs"
+
+[lib]
+name = "tpe_refcheck"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+hex = "0.4"
+percent-encoding = "2.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.11"
+strsim = "0.11"
+text-processing-engine = { path = "../.." }
+thiserror = "2"
+unicode-normalization = "0.1"
+ureq = "3"
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true
