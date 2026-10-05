@@ -199,6 +199,11 @@ fn scan_window(
         pages: total_pages,
         total: total_pages,
     });
+    // A qualifying list whose heading sits where a running head goes (a
+    // journal repeats `References` at the top of every page of the list).
+    // It may be the tail of a list that starts on a page not read yet, so
+    // the scan goes on; it is returned when no earlier start absorbs it.
+    let mut pending: Option<BibliographyScan> = None;
 
     for number in (floor.max(1)..=total_pages).rev() {
         let mut page = session.page_text(number)?;
@@ -227,10 +232,21 @@ fn scan_window(
             .iter()
             .flat_map(|page| page.warnings.iter().cloned())
             .collect();
-        for section in citations::find_reference_sections(&checked)
-            .into_iter()
-            .rev()
+        let sections = citations::find_reference_sections(&checked);
+        // The pending tail is a list of its own until an earlier heading
+        // absorbs it; then the earlier list is the one to report.
+        if let Some(held) = pending.as_ref()
+            && sections
+                .iter()
+                .any(|section| Some(section.first_page) == held.section_page)
+            && sections.iter().any(|section| section.first_page == number)
         {
+            let mut scan = pending.take().expect("checked above");
+            scan.pages_scanned = u32::try_from(pages.len()).unwrap_or(u32::MAX);
+            scan.assessment = router::assess(&pages);
+            return Ok(scan);
+        }
+        for section in sections.into_iter().rev() {
             if section.first_page != number {
                 continue;
             }
@@ -261,18 +277,34 @@ fn scan_window(
             }
             let assessment = router::assess(&pages);
             let plausible = list_plausible(&checked, &section, references.len());
-            return Ok(BibliographyScan {
+            let running_head = citations::heading_is_running_head(&checked, &section);
+            let scan = BibliographyScan {
                 total_pages,
                 pages_scanned: u32::try_from(pages.len()).unwrap_or(u32::MAX),
                 found: true,
                 section_page: Some(section.first_page),
                 heading: (!section.heading.is_empty()).then_some(section.heading),
                 references,
-                warnings,
+                warnings: warnings.clone(),
                 assessment,
                 plausible,
-            });
+            };
+            if running_head && number > floor.max(1) {
+                pending = Some(scan);
+                break;
+            }
+            return Ok(scan);
         }
+    }
+
+    if let Some(mut scan) = pending {
+        scan.pages_scanned = u32::try_from(pages.len()).unwrap_or(u32::MAX);
+        scan.assessment = router::assess(&pages);
+        scan.warnings.push(format!(
+            "heading on page {} sits in a running-head position; no earlier list start was found",
+            scan.section_page.unwrap_or(0)
+        ));
+        return Ok(scan);
     }
 
     let assessment = router::assess(&pages);
@@ -1050,6 +1082,92 @@ mod tests {
         assert_eq!(scan.references[0].page, 3);
         assert_eq!(scan.references[2].page, 4);
         assert!(scan.references.iter().all(|r| !r.raw.contains("Earlier")));
+    }
+
+    /// `References` repeated as the running head of the list's last page
+    /// (the first line of the test PDF sits in the top margin band): the
+    /// scan reads on to the page the list starts on instead of returning
+    /// the last page's three entries.
+    #[test]
+    fn running_head_on_the_last_page_does_not_end_the_backward_scan() {
+        let bytes = pdf(&[
+            &["Introduction"],
+            &[
+                "References",
+                "[1] A. One, First cited work, 2020.",
+                "[2] B. Two, Second cited work, 2021.",
+            ],
+            &[
+                "References",
+                "[3] C. Three, Third cited work, 2022.",
+                "[4] D. Four, Fourth cited work, 2023.",
+                "[5] E. Five, Fifth cited work, 2024.",
+            ],
+        ]);
+        let scan = scan_backward(&LopdfBackend::default(), &bytes, None).unwrap();
+        assert!(scan.found);
+        assert_eq!(scan.pages_scanned, 2);
+        assert_eq!(scan.section_page, Some(2));
+        assert_eq!(scan.references.len(), 5);
+        assert_eq!(scan.references[0].label.as_deref(), Some("[1]"));
+        assert_eq!(scan.references[4].label.as_deref(), Some("[5]"));
+        assert!(
+            scan.references
+                .iter()
+                .all(|entry| !entry.raw.contains("References")),
+            "{:?}",
+            scan.references
+        );
+    }
+
+    /// A list whose heading sits in a running-head position but opens
+    /// with its first label begins there: the scan stops at once.
+    #[test]
+    fn heading_in_the_top_band_with_a_first_label_is_accepted_at_once() {
+        let bytes = pdf(&[
+            &["Introduction"],
+            &["Body text continues here."],
+            &[
+                "References",
+                "[1] A. One, First cited work, 2020.",
+                "[2] B. Two, Second cited work, 2021.",
+                "[3] C. Three, Third cited work, 2022.",
+            ],
+        ]);
+        let scan = scan_backward(&LopdfBackend::default(), &bytes, None).unwrap();
+        assert!(scan.found);
+        assert_eq!(scan.pages_scanned, 1);
+        assert_eq!(scan.section_page, Some(3));
+        assert_eq!(scan.references.len(), 3);
+    }
+
+    /// A continuation under a running head with no list start on any
+    /// earlier page is still reported, with a warning, after the scan
+    /// reads every page.
+    #[test]
+    fn running_head_without_an_earlier_start_is_reported_after_a_full_scan() {
+        let bytes = pdf(&[
+            &["Introduction"],
+            &["Body text without any list."],
+            &[
+                "References",
+                "[4] D. Four, Fourth cited work, 2023.",
+                "[5] E. Five, Fifth cited work, 2024.",
+                "[6] F. Six, Sixth cited work, 2025.",
+            ],
+        ]);
+        let scan = scan_backward(&LopdfBackend::default(), &bytes, None).unwrap();
+        assert!(scan.found);
+        assert_eq!(scan.pages_scanned, 3);
+        assert_eq!(scan.section_page, Some(3));
+        assert_eq!(scan.references.len(), 3);
+        assert!(
+            scan.warnings
+                .iter()
+                .any(|warning| warning.contains("running-head position")),
+            "{:?}",
+            scan.warnings
+        );
     }
 
     #[test]
