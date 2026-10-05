@@ -1,0 +1,56 @@
+[package]
+name = "tpe-ffi"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "The only workspace crate that may contain `unsafe`: the worker allocator, process-limit probes, the C ABI PDF-provider loader, and the macOS Objective-C bridges"
+
+[features]
+default = []
+# Optional C ABI PDF providers (MuPDF, Poppler) loaded from explicit library files.
+provider = ["dep:libloading"]
+# macOS AVSpeechSynthesizer / AVAudioPlayer bridge used by `tpe-speech`.
+speech = ["dep:objc2", "dep:block2", "dep:objc2-foundation", "dep:objc2-avf-audio"]
+# macOS Finder Services provider used by `tpe-app`.
+finder-services = ["dep:objc"]
+
+[dependencies]
+libloading = { version = "0.8.9", optional = true }
+
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+rustix = { version = "1", features = ["mm", "stdio"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+libc = "0.2"
+# Finder Services provider: an Objective-C class declared at run time.
+objc = { version = "0.2", optional = true }
+# Same ranges as objc2-avf-audio 0.3.2 so Cargo resolves ONE objc2/block2
+# (the block type in `writeUtterance:toBufferCallback:` must be the same crate).
+objc2 = { version = ">=0.6.2, <0.8.0", optional = true }
+block2 = { version = ">=0.6.1, <0.8.0", optional = true }
+objc2-foundation = { version = "0.3.2", default-features = false, optional = true, features = [
+    "std",
+    "NSArray",
+    "NSDate",
+    "NSError",
+    "NSObject",
+    "NSRunLoop",
+    "NSString",
+    "NSURL",
+] }
+objc2-avf-audio = { version = "0.3.2", default-features = false, optional = true, features = [
+    "std",
+    "block2",
+    "AVAudioBuffer",
+    "AVAudioFormat",
+    "AVAudioPlayer",
+    "AVAudioTypes",
+    "AVSpeechSynthesis",
+] }
+
+# This crate is the one exemption from the workspace-wide `unsafe_code = "forbid"`.
+[lints.rust]
+unsafe_code = "allow"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }

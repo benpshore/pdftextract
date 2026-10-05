@@ -14,9 +14,16 @@ pub fn play(audio: &Audio) -> Result<(), SpeechError> {
         std::process::id()
     ));
     crate::wav::write(&path, audio)?;
-    let result = crate::av_ffi::play_file(&path);
+    let result = tpe_ffi::av_speech::play_file(&path);
     let _ = std::fs::remove_file(&path);
-    result
+    result.map_err(|error| {
+        use tpe_ffi::av_speech::PlaybackError;
+        match error {
+            PlaybackError::InvalidPath(message) => SpeechError::InvalidInput(message),
+            PlaybackError::Engine(message) => SpeechError::Engine(message),
+            PlaybackError::Timeout(message) => SpeechError::Timeout(message),
+        }
+    })
 }
 
 /// Playback is macOS-only; elsewhere this returns `Unsupported`.

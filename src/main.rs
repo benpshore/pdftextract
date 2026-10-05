@@ -27,6 +27,11 @@ use tpe::pipeline::{self, PipelineError, Progress};
 use tpe::schema::{ExtractionResult, Job, Metadata};
 
 mod cli_worker;
+
+/// Disposable native workers abort on a null allocation once their OS limits
+/// are installed (`worker_allocator::enforce`); until then this is `System`.
+#[global_allocator]
+static ALLOCATOR: tpe_ffi::alloc::WorkerAllocator = tpe_ffi::alloc::WorkerAllocator;
 #[cfg(feature = "grobid")]
 mod grobid_cli;
 mod worker_allocator;
@@ -123,7 +128,7 @@ struct ExtractArgs {
     /// Path of the `SQLite` ledger; created when missing.
     #[arg(long, value_name = "FILE")]
     db: PathBuf,
-    /// Extraction backend: lopdf, pdfium, pdf-oxide, liteparse-layout, mupdf, poppler, or auto without OCR.
+    /// Extraction backend: lopdf, pdfium, pdf-oxide, routed (pdf-oxide with per-page pdfium), liteparse-layout, mupdf, poppler, or auto without OCR.
     #[arg(long, default_value = "lopdf")]
     backend: String,
     /// Directory that receives `<hash>.json` and `<hash>.txt` per document.

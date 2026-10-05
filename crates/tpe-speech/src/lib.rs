@@ -4,7 +4,8 @@
 //! captured to PCM rather than played) and, behind the `kokoro` feature,
 //! `Kokoro` (Kokoro-82M ONNX on every OS). [`validate::round_trip`] feeds the
 //! synthesized audio to docling's Whisper (feature `asr`) and scores the word
-//! error rate. An empty transcript means the synthesis failed.
+//! error rate. An empty transcript means the synthesis failed. The Objective-C
+//! calls live in `tpe_ffi::av_speech` (macOS only).
 
 #![allow(
     clippy::must_use_candidate,
@@ -23,9 +24,6 @@ pub mod kokoro;
 pub mod play;
 pub mod validate;
 pub mod wav;
-
-#[cfg(target_os = "macos")]
-mod av_ffi;
 
 pub use audio::{Audio, resample_to_16k};
 pub use avspeech::AvSpeech;

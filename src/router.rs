@@ -19,11 +19,16 @@
 //! [`Route::Poppler`]. The assessment itself never selects them; the pipeline
 //! permits each once after the `PDFium` route needs additional help.
 //!
+//! The `routed` backend (`backend::routed_backend`) uses a different, per-page
+//! rule, [`page_route`]: PDF Oxide extracts by default and `PDFium` supplies the
+//! pages whose Oxide text is unusable. It is a plain `match` over
+//! [`PageEvidence`] so the rule can be read in one place.
+//!
 //! Nothing here touches geometry or reading order.
 
 use serde::Serialize;
 
-use crate::backend::{self, Extractor};
+use crate::backend::{self, BackendError, Extractor};
 use crate::schema::PageText;
 
 /// Below this many non-whitespace characters a page is "without text".
@@ -129,6 +134,157 @@ fn native_runtime_configured(
             path.is_absolute() && path.is_file()
         })
     })
+}
+
+/// Which parser supplies one page of the `routed` backend.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PageBackend {
+    /// PDF Oxide, the default extractor.
+    PdfOxide,
+    /// `PDFium`: every render, and the pages PDF Oxide cannot read usably.
+    Pdfium,
+}
+
+impl PageBackend {
+    /// The backend name for [`crate::backend::by_name`].
+    #[must_use]
+    pub fn backend_name(self) -> &'static str {
+        match self {
+            Self::PdfOxide => "pdf-oxide",
+            Self::Pdfium => "pdfium",
+        }
+    }
+}
+
+/// What the `routed` backend is being asked to do with a page.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Task<'a> {
+    /// Rasterise or draw the page.
+    Render,
+    /// Produce the page's text, given what PDF Oxide's pass reported.
+    Extract(&'a PageEvidence),
+}
+
+/// How PDF Oxide's pass ended for one page.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum OxideOutcome {
+    /// PDF Oxide returned an error for the page.
+    Failed,
+    /// PDF Oxide read the page; `unmapped_font` is true when a font on it has
+    /// no usable Unicode mapping (it reported `to_unicode_missing` or an
+    /// unresolved mapping).
+    Read { unmapped_font: bool },
+}
+
+/// What PDF Oxide's text for the page looks like.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum TextShape {
+    /// Whitespace only, or no text at all.
+    Empty,
+    /// Contains U+FFFD or private-use characters.
+    ReplacementOrPrivateUse,
+    /// Ordinary mapped text.
+    #[default]
+    Plain,
+}
+
+/// What PDF Oxide's pass reported about one page.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct PageEvidence {
+    pub oxide: OxideOutcome,
+    pub text: TextShape,
+}
+
+impl Default for PageEvidence {
+    /// A page PDF Oxide read cleanly.
+    fn default() -> Self {
+        Self {
+            oxide: OxideOutcome::Read {
+                unmapped_font: false,
+            },
+            text: TextShape::Plain,
+        }
+    }
+}
+
+impl PageEvidence {
+    /// Read the evidence off PDF Oxide's result for a page.
+    #[must_use]
+    pub fn from_oxide(page: Result<&PageText, &BackendError>) -> Self {
+        let Ok(page) = page else {
+            return Self {
+                oxide: OxideOutcome::Failed,
+                text: TextShape::Empty,
+            };
+        };
+        let text: String = if page.text.is_empty() {
+            page.spans.iter().map(|s| s.text.as_str()).collect()
+        } else {
+            page.text.clone()
+        };
+        let unmapped_font = page.warnings.iter().any(|w| {
+            w.starts_with("unicode_mapping:") || w.contains("pdf-oxide to_unicode_missing")
+        });
+        let shape = if text.trim().is_empty() {
+            TextShape::Empty
+        } else if text.chars().any(is_replacement_or_private_use) {
+            TextShape::ReplacementOrPrivateUse
+        } else {
+            TextShape::Plain
+        };
+        Self {
+            oxide: OxideOutcome::Read { unmapped_font },
+            text: shape,
+        }
+    }
+}
+
+/// U+FFFD, or a code point in one of the three Private Use Areas.
+#[must_use]
+pub fn is_replacement_or_private_use(ch: char) -> bool {
+    matches!(
+        ch,
+        '\u{fffd}' | '\u{e000}'..='\u{f8ff}' | '\u{f0000}'..='\u{ffffd}' | '\u{100000}'..='\u{10fffd}'
+    )
+}
+
+/// The per-page rule of the `routed` backend, with the reason recorded on the
+/// page. Rendering always goes to `PDFium`. Extraction goes to PDF Oxide unless
+/// its page failed, a font has no usable Unicode mapping, its text is empty,
+/// or its text contains replacement or private-use characters.
+#[must_use]
+pub fn page_route(task: Task<'_>) -> (PageBackend, &'static str) {
+    match task {
+        Task::Render => (PageBackend::Pdfium, "render"),
+        Task::Extract(PageEvidence {
+            oxide: OxideOutcome::Failed,
+            ..
+        }) => (PageBackend::Pdfium, "pdf-oxide failed to read the page"),
+        Task::Extract(PageEvidence {
+            oxide: OxideOutcome::Read {
+                unmapped_font: true,
+            },
+            ..
+        }) => (PageBackend::Pdfium, "a font has no usable Unicode mapping"),
+        Task::Extract(PageEvidence {
+            text: TextShape::Empty,
+            ..
+        }) => (PageBackend::Pdfium, "pdf-oxide text is empty"),
+        Task::Extract(PageEvidence {
+            text: TextShape::ReplacementOrPrivateUse,
+            ..
+        }) => (
+            PageBackend::Pdfium,
+            "pdf-oxide text contains replacement or private-use characters",
+        ),
+        Task::Extract(PageEvidence {
+            oxide: OxideOutcome::Read {
+                unmapped_font: false,
+            },
+            text: TextShape::Plain,
+        }) => (PageBackend::PdfOxide, "text mapped cleanly"),
+    }
 }
 
 /// Non-whitespace characters and U+FFFD characters of `text`.
@@ -344,6 +500,93 @@ mod tests {
         assert_eq!(assessment.scanned, 1);
         assert_eq!(assessment.unmapped, 1);
         assert_eq!(assessment.route(), Route::Pdfium);
+    }
+
+    #[test]
+    fn page_route_is_the_documented_match() {
+        assert_eq!(page_route(Task::Render), (PageBackend::Pdfium, "render"));
+        let clean = PageEvidence::default();
+        assert_eq!(
+            page_route(Task::Extract(&clean)),
+            (PageBackend::PdfOxide, "text mapped cleanly")
+        );
+        let unmapped = OxideOutcome::Read {
+            unmapped_font: true,
+        };
+        for (evidence, reason) in [
+            (
+                PageEvidence {
+                    oxide: OxideOutcome::Failed,
+                    text: TextShape::Empty,
+                },
+                "pdf-oxide failed to read the page",
+            ),
+            (
+                PageEvidence {
+                    oxide: unmapped,
+                    ..clean
+                },
+                "a font has no usable Unicode mapping",
+            ),
+            (
+                PageEvidence {
+                    text: TextShape::Empty,
+                    ..clean
+                },
+                "pdf-oxide text is empty",
+            ),
+            (
+                PageEvidence {
+                    text: TextShape::ReplacementOrPrivateUse,
+                    ..clean
+                },
+                "pdf-oxide text contains replacement or private-use characters",
+            ),
+        ] {
+            assert_eq!(
+                page_route(Task::Extract(&evidence)),
+                (PageBackend::Pdfium, reason)
+            );
+        }
+        // Precedence: an unmapped font is reported before an empty page.
+        let both = PageEvidence {
+            oxide: unmapped,
+            text: TextShape::Empty,
+        };
+        assert_eq!(
+            page_route(Task::Extract(&both)).1,
+            "a font has no usable Unicode mapping"
+        );
+        assert_eq!(PageBackend::PdfOxide.backend_name(), "pdf-oxide");
+        assert_eq!(PageBackend::Pdfium.backend_name(), "pdfium");
+    }
+
+    #[test]
+    fn page_evidence_reads_pdf_oxide_output() {
+        let failed = PageEvidence::from_oxide(Err(&BackendError::Malformed("x".into())));
+        assert_eq!(failed.oxide, OxideOutcome::Failed);
+        let clean = PageEvidence::from_oxide(Ok(&page("Readable text of a page.")));
+        assert_eq!(clean, PageEvidence::default());
+        let empty = PageEvidence::from_oxide(Ok(&page("   \n ")));
+        assert_eq!(empty.text, TextShape::Empty);
+        let private = PageEvidence::from_oxide(Ok(&page("abc\u{e001}def")));
+        assert_eq!(private.text, TextShape::ReplacementOrPrivateUse);
+        let replaced = PageEvidence::from_oxide(Ok(&page("abc\u{fffd}def")));
+        assert_eq!(replaced.text, TextShape::ReplacementOrPrivateUse);
+        let mut unmapped = page("abc");
+        unmapped.warnings.push(
+            "extraction_incomplete: pdf-oxide to_unicode_missing: font F1 has no ToUnicode".into(),
+        );
+        assert_eq!(
+            PageEvidence::from_oxide(Ok(&unmapped)).oxide,
+            OxideOutcome::Read {
+                unmapped_font: true
+            }
+        );
+        assert!(is_replacement_or_private_use('\u{f8ff}'));
+        assert!(is_replacement_or_private_use('\u{10fffd}'));
+        assert!(!is_replacement_or_private_use('a'));
+        assert!(!is_replacement_or_private_use('\u{e9}'));
     }
 
     #[test]

@@ -1,8 +1,9 @@
-//! The only `unsafe` Objective-C code in the crate (macOS only).
+//! macOS `AVSpeechSynthesizer` captured to PCM, and `AVAudioPlayer` playback.
 //!
 //! Every `AVFAudio` call is quoted from the offline `objc2-avf-audio-0.3.2`
 //! sources (`src/generated/...`); Foundation calls from
-//! `objc2-foundation-0.3.2`, blocks from `block2-0.6.2`.
+//! `objc2-foundation-0.3.2`, blocks from `block2-0.6.2`. The results are plain
+//! data so that `tpe-speech` can map them onto its own types.
 
 use std::path::Path;
 use std::ptr::NonNull;
@@ -17,15 +18,55 @@ use objc2_avf_audio::{
 };
 use objc2_foundation::{NSDate, NSRunLoop, NSString, NSURL};
 
-use crate::audio::Audio;
-use crate::{SpeechError, VoiceInfo, VoiceQuality};
-
 /// How long to pump the run loop per iteration, in seconds.
 const PUMP_SECS: f64 = 0.05;
 
 /// Stop waiting this long after the last buffer when no terminating
 /// zero-length buffer arrives.
 const IDLE_AFTER_LAST_BUFFER: Duration = Duration::from_secs(3);
+
+/// Voice quality tier as `AVFAudio` reports it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Quality {
+    Default,
+    Enhanced,
+    Premium,
+    /// A value this crate does not know.
+    Unknown,
+}
+
+/// One installed `AVSpeechSynthesisVoice`.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Voice {
+    pub id: String,
+    pub name: String,
+    pub language: String,
+    pub quality: Quality,
+}
+
+/// Mono PCM captured from the synthesizer.
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct Pcm {
+    pub sample_rate: u32,
+    pub samples: Vec<f32>,
+}
+
+/// Why synthesis produced no audio.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum SynthesisError {
+    VoiceNotFound(String),
+    Timeout(String),
+    Engine(String),
+    SilentOutput,
+}
+
+/// Why playback did not complete.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum PlaybackError {
+    InvalidPath(String),
+    Engine(String),
+    Timeout(String),
+}
 
 /// State shared with the buffer callback block.
 #[derive(Default)]
@@ -38,38 +79,41 @@ struct Capture {
 }
 
 /// Map the `AVFAudio` quality enum.
-fn quality_of(quality: AVSpeechSynthesisVoiceQuality) -> VoiceQuality {
+fn quality_of(quality: AVSpeechSynthesisVoiceQuality) -> Quality {
     // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:35-41
     if quality == AVSpeechSynthesisVoiceQuality::Premium {
-        VoiceQuality::Premium
+        Quality::Premium
     } else if quality == AVSpeechSynthesisVoiceQuality::Enhanced {
-        VoiceQuality::Enhanced
+        Quality::Enhanced
     } else if quality == AVSpeechSynthesisVoiceQuality::Default {
-        VoiceQuality::Default
+        Quality::Default
     } else {
-        VoiceQuality::Unknown
+        Quality::Unknown
     }
 }
 
 /// All installed `AVSpeechSynthesisVoice`s.
-pub fn voices() -> Vec<VoiceInfo> {
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:232
+pub fn voices() -> Vec<Voice> {
+    // SAFETY: a class method with no preconditions
+    // (objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:232).
     let array = unsafe { AVSpeechSynthesisVoice::speechVoices() };
     // verified against objc2-foundation-0.3.2/src/generated/NSArray.rs:93
     let count = array.count();
-    let mut out: Vec<VoiceInfo> = Vec::with_capacity(count);
+    let mut out: Vec<Voice> = Vec::with_capacity(count);
     for index in 0..count {
         // verified against objc2-foundation-0.3.2/src/generated/NSArray.rs:97
         let voice = array.objectAtIndex(index);
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:281
-        let id = unsafe { voice.identifier() }.to_string();
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:290
-        let name = unsafe { voice.name() }.to_string();
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:272
-        let language = unsafe { voice.language() }.to_string();
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:299
-        let quality = quality_of(unsafe { voice.quality() });
-        out.push(VoiceInfo {
+        // SAFETY: plain property getters on a live voice object
+        // (AVSpeechSynthesis.rs:281, :290, :272, :299).
+        let (id, name, language, quality) = unsafe {
+            (
+                voice.identifier().to_string(),
+                voice.name().to_string(),
+                voice.language().to_string(),
+                quality_of(voice.quality()),
+            )
+        };
+        out.push(Voice {
             id,
             name,
             language,
@@ -90,23 +134,23 @@ fn append_buffer(state: &mut Capture, buffer: &AVAudioBuffer) {
         state.finished = true;
         return;
     };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioBuffer.rs:187
+    // SAFETY: a property getter on a live buffer (AVAudioBuffer.rs:187).
     let frames = unsafe { pcm.frameLength() } as usize;
     if frames == 0 {
         // A zero-length buffer marks the end of the utterance.
         state.finished = true;
         return;
     }
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioBuffer.rs:41
-    let format = unsafe { buffer.format() };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioFormat.rs:289
-    let rate = unsafe { format.sampleRate() };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioFormat.rs:278
-    let channels = unsafe { format.channelCount() } as usize;
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioFormat.rs:266
-    let common = unsafe { format.commonFormat() };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioBuffer.rs:200
-    let stride = unsafe { pcm.stride() };
+    // SAFETY: property getters on the live buffer and its format object
+    // (AVAudioBuffer.rs:41, AVAudioFormat.rs:289, :278, :266, AVAudioBuffer.rs:200).
+    let (format, rate, channels, common, stride) = unsafe {
+        let format = buffer.format();
+        let rate = format.sampleRate();
+        let channels = format.channelCount() as usize;
+        let common = format.commonFormat();
+        (format, rate, channels, common, pcm.stride())
+    };
+    drop(format);
     if channels == 0 || stride == 0 || rate.is_nan() || rate <= 0.0 {
         state.error = Some(format!(
             "unusable buffer format: {channels} channels, stride {stride}, {rate} Hz"
@@ -125,7 +169,7 @@ fn append_buffer(state: &mut Capture, buffer: &AVAudioBuffer) {
     }
     let scale = 1.0 / channels as f32;
     if common == AVAudioCommonFormat::PCMFormatFloat32 {
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioBuffer.rs:217
+        // SAFETY: a property getter on the live buffer (AVAudioBuffer.rs:217).
         let data = unsafe { pcm.floatChannelData() };
         if data.is_null() {
             state.error = Some("float buffer without channel data".to_string());
@@ -144,7 +188,7 @@ fn append_buffer(state: &mut Capture, buffer: &AVAudioBuffer) {
             state.samples.push(sum * scale);
         }
     } else if common == AVAudioCommonFormat::PCMFormatInt16 {
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioBuffer.rs:227
+        // SAFETY: a property getter on the live buffer (AVAudioBuffer.rs:227).
         let data = unsafe { pcm.int16ChannelData() };
         if data.is_null() {
             state.error = Some("int16 buffer without channel data".to_string());
@@ -176,8 +220,9 @@ fn pump_run_loop() {
     run_loop.runUntilDate(&until);
 }
 
-/// Synthesize `text` into PCM with `writeUtterance:toBufferCallback:`.
-pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, SpeechError> {
+/// Synthesize `text` into PCM with `writeUtterance:toBufferCallback:`. An
+/// empty `voice` uses the system default voice.
+pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Pcm, SynthesisError> {
     let shared: Arc<Mutex<Capture>> = Arc::new(Mutex::new(Capture::default()));
     let for_block = Arc::clone(&shared);
     // Block type: objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:129
@@ -192,22 +237,24 @@ pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, S
             }
         });
 
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:379
+    // SAFETY: a class constructor taking an owned NSString
+    // (AVSpeechSynthesis.rs:379).
     let utterance =
         unsafe { AVSpeechUtterance::speechUtteranceWithString(&NSString::from_str(text)) };
     if !voice.is_empty() {
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:261
+        // SAFETY: a class lookup taking an owned NSString (AVSpeechSynthesis.rs:261).
         let chosen =
             unsafe { AVSpeechSynthesisVoice::voiceWithIdentifier(&NSString::from_str(voice)) }
-                .ok_or_else(|| SpeechError::VoiceNotFound(voice.to_string()))?;
+                .ok_or_else(|| SynthesisError::VoiceNotFound(voice.to_string()))?;
         let chosen_ref: &AVSpeechSynthesisVoice = &chosen;
-        // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:433
+        // SAFETY: a property setter on the live utterance (AVSpeechSynthesis.rs:433).
         unsafe { utterance.setVoice(Some(chosen_ref)) };
     }
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:671
+    // SAFETY: a plain class constructor (AVSpeechSynthesis.rs:671).
     let synthesizer = unsafe { AVSpeechSynthesizer::new() };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVSpeechSynthesis.rs:567
-    // `RcBlock::as_ptr` is block2-0.6.2/src/rc_block.rs:51.
+    // SAFETY: the block and utterance outlive the call and every callback
+    // (both are dropped only after capture ends, below);
+    // AVSpeechSynthesis.rs:567, `RcBlock::as_ptr` is block2-0.6.2/src/rc_block.rs:51.
     unsafe { synthesizer.writeUtterance_toBufferCallback(&utterance, RcBlock::as_ptr(&block)) };
 
     let started = Instant::now();
@@ -216,7 +263,7 @@ pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, S
         {
             let state = shared
                 .lock()
-                .map_err(|_| SpeechError::Engine("capture state poisoned".to_string()))?;
+                .map_err(|_| SynthesisError::Engine("capture state poisoned".to_string()))?;
             if state.finished {
                 break;
             }
@@ -231,7 +278,7 @@ pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, S
             // A timeout is a failure even when some buffers arrived: returning
             // the partial samples would pass truncated audio off as complete.
             let received = shared.lock().map_or(0, |state| state.samples.len());
-            return Err(SpeechError::Timeout(format!(
+            return Err(SynthesisError::Timeout(format!(
                 "AVSpeechSynthesizer did not finish within {} s ({received} samples received)",
                 timeout.as_secs()
             )));
@@ -244,49 +291,53 @@ pub fn synthesize(text: &str, voice: &str, timeout: Duration) -> Result<Audio, S
 
     let mut state = shared
         .lock()
-        .map_err(|_| SpeechError::Engine("capture state poisoned".to_string()))?;
+        .map_err(|_| SynthesisError::Engine("capture state poisoned".to_string()))?;
     if let Some(error) = state.error.take() {
-        return Err(SpeechError::Engine(error));
+        return Err(SynthesisError::Engine(error));
     }
     let sample_rate = state.sample_rate.unwrap_or(0.0).round();
     let samples = std::mem::take(&mut state.samples);
     if samples.is_empty() || sample_rate < 1.0 {
-        return Err(SpeechError::SilentOutput);
+        return Err(SynthesisError::SilentOutput);
     }
-    Ok(Audio {
+    Ok(Pcm {
         sample_rate: sample_rate as u32,
         samples,
     })
 }
 
 /// Play a WAV file through `AVAudioPlayer`, blocking until it ends.
-pub fn play_file(path: &Path) -> Result<(), SpeechError> {
+pub fn play_file(path: &Path) -> Result<(), PlaybackError> {
     let path_text = path
         .to_str()
-        .ok_or_else(|| SpeechError::InvalidInput("path is not UTF-8".to_string()))?;
+        .ok_or_else(|| PlaybackError::InvalidPath("path is not UTF-8".to_string()))?;
     // verified against objc2-foundation-0.3.2/src/generated/NSURL.rs:1136
     let url = NSURL::fileURLWithPath(&NSString::from_str(path_text));
-    // `alloc` is objc2-0.6.4/src/top_level_traits.rs:437;
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioPlayer.rs:25
+    // SAFETY: `alloc` then the designated initializer with a live NSURL
+    // (objc2-0.6.4/src/top_level_traits.rs:437, AVAudioPlayer.rs:25).
     let player =
         unsafe { AVAudioPlayer::initWithContentsOfURL_error(AVAudioPlayer::alloc(), &url) }
-            .map_err(|error| SpeechError::Engine(format!("AVAudioPlayer: {error:?}")))?;
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioPlayer.rs:55
-    let _prepared = unsafe { player.prepareToPlay() };
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioPlayer.rs:59
-    if !unsafe { player.play() } {
-        return Err(SpeechError::Engine(
+            .map_err(|error| PlaybackError::Engine(format!("AVAudioPlayer: {error:?}")))?;
+    // SAFETY: instance methods on the live player (AVAudioPlayer.rs:55, :59).
+    let playing = unsafe {
+        let _prepared = player.prepareToPlay();
+        player.play()
+    };
+    if !playing {
+        return Err(PlaybackError::Engine(
             "AVAudioPlayer refused to play".to_string(),
         ));
     }
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioPlayer.rs:83
+    // SAFETY: a property getter on the live player (AVAudioPlayer.rs:83).
     let duration = unsafe { player.duration() };
     let limit = Duration::from_secs_f64(duration.max(0.0) + 5.0);
     let started = Instant::now();
-    // verified against objc2-avf-audio-0.3.2/src/generated/AVAudioPlayer.rs:75
+    // SAFETY: a property getter on the live player (AVAudioPlayer.rs:75).
     while unsafe { player.isPlaying() } {
         if started.elapsed() > limit {
-            return Err(SpeechError::Timeout("playback did not finish".to_string()));
+            return Err(PlaybackError::Timeout(
+                "playback did not finish".to_string(),
+            ));
         }
         pump_run_loop();
     }

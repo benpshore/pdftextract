@@ -28,6 +28,8 @@ pub mod native_provider;
 pub mod pdf_oxide_backend;
 #[cfg(feature = "pdfium")]
 pub mod pdfium_backend;
+#[cfg(all(feature = "pdf-oxide", feature = "pdfium"))]
+pub mod routed_backend;
 
 #[derive(Debug, Error)]
 pub enum BackendError {
@@ -112,6 +114,8 @@ pub fn by_name(name: &str) -> Option<Box<dyn Extractor>> {
         "pdf-oxide" => Some(Box::new(pdf_oxide_backend::PdfOxideBackend)),
         #[cfg(feature = "pdfium")]
         "pdfium" => Some(Box::new(pdfium_backend::PdfiumBackend::default())),
+        #[cfg(all(feature = "pdf-oxide", feature = "pdfium"))]
+        "routed" => Some(Box::new(routed_backend::RoutedBackend::default())),
         #[cfg(feature = "liteparse-layout")]
         "liteparse-layout" => Some(Box::new(
             liteparse_layout_backend::LiteParseLayoutBackend::default(),
@@ -135,6 +139,8 @@ pub const NAMES: &[&str] = &[
     "pdfium",
     #[cfg(feature = "pdf-oxide")]
     "pdf-oxide",
+    #[cfg(all(feature = "pdf-oxide", feature = "pdfium"))]
+    "routed",
     #[cfg(feature = "docling-text")]
     "docling-text",
     #[cfg(feature = "docling")]
@@ -150,6 +156,7 @@ pub const ALL_KNOWN: &[&str] = &[
     "poppler",
     "pdfium",
     "pdf-oxide",
+    "routed",
     "docling-text",
     "docling",
     "liteparse-layout",
@@ -172,6 +179,7 @@ pub fn feature_for(name: &str) -> Option<&'static str> {
         "mupdf" => Some("mupdf"),
         "poppler" => Some("poppler"),
         "pdf-oxide" => Some("pdf-oxide"),
+        "routed" => Some("pdf-oxide,pdfium"),
         "docling-text" => Some("docling-text"),
         "docling" => Some("docling"),
         "liteparse-layout" => Some("liteparse-layout"),

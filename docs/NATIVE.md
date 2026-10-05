@@ -89,7 +89,11 @@ Check the build log of the first Native run for these. Pinning ONNX Runtime
 Relative PDFium paths are rejected. In particular, the runtime never loads
 `.pdfium/lib` relative to the working directory; pass the absolute path to a
 provisioned library instead (for example,
-`PDFIUM_DYNAMIC_LIB_PATH="$(pwd)/.pdfium/lib"`).
+`PDFIUM_DYNAMIC_LIB_PATH="$(pwd)/.pdfium/lib"`). Until that variable is set,
+every `pdfium` open fails with `pdfium library not found`, and `tpe backends`
+reports the same; the binding itself (pdfium-render 0.8, dynamic loading) needs
+nothing else. The `pdfium` feature alone does not need the models: provision
+just the library with `sh native/fetch.sh --pdfium-only` (about 8 MB).
 
 The resolution order comes from docling-core 1.69.2 (`assets.rs`) and
 docling-pdf 1.69.2 (`pdfium_backend.rs`, `layout.rs`). Running `tpe` from the
@@ -116,6 +120,7 @@ None of these artifacts is committed to the repository. The `.models/` and
 
 ```sh
 sh native/fetch.sh                                   # about 82 MB of models plus PDFium; prints a table
+# (or `sh native/fetch.sh --pdfium-only` for the `pdfium` feature without docling)
 export PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"    # required: relative library paths are rejected
 cargo build --release --features docling,pdfium      # the first build downloads ONNX Runtime
 cargo test --features docling,pdfium -- --nocapture  # native smoke tests must not print "skipped:"
@@ -133,8 +138,8 @@ error. To run the docling evaluation, follow [EVAL.md](EVAL.md) and add
 
 `fetch.sh` is idempotent. Files that are already present are not downloaded
 again, but they are re-hashed on every run. Use `--force` to re-download
-everything, and `--print-hashes` to hash what is on disk without touching the
-network.
+everything, `--pdfium-only` to skip the model entries, and `--print-hashes` to
+hash what is on disk without touching the network.
 
 ## How hashes get pinned
 
