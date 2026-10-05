@@ -40,6 +40,7 @@ pub mod audio;
 pub mod delimited;
 pub mod docx;
 pub mod html;
+pub mod iwa;
 pub mod iwork;
 pub mod markdown;
 pub mod ooxml;

@@ -2,6 +2,8 @@
 //! hand-written XML, inline csv/html/md/txt, a synthetic Pages package, and
 //! the audio path with no engine on PATH.
 
+#![allow(clippy::cast_possible_truncation)]
+
 use std::fs;
 use std::io::{Cursor, Write};
 use std::path::Path;
@@ -9,14 +11,19 @@ use std::path::Path;
 use tpe_formats::{Format, FormatsError, Options, Status, audio, extract_path, write_outputs};
 use zip::write::SimpleFileOptions;
 
-fn zip_bytes(entries: &[(&str, &str)]) -> Vec<u8> {
+fn zip_raw(entries: &[(&str, &[u8])]) -> Vec<u8> {
     let mut writer = zip::ZipWriter::new(Cursor::new(Vec::new()));
     let options = SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
     for (name, body) in entries {
         writer.start_file(*name, options).unwrap();
-        writer.write_all(body.as_bytes()).unwrap();
+        writer.write_all(body).unwrap();
     }
     writer.finish().unwrap().into_inner()
+}
+
+fn zip_bytes(entries: &[(&str, &str)]) -> Vec<u8> {
+    let raw: Vec<(&str, &[u8])> = entries.iter().map(|(n, b)| (*n, b.as_bytes())).collect();
+    zip_raw(&raw)
 }
 
 fn write_fixture(dir: &Path, name: &str, bytes: &[u8]) -> std::path::PathBuf {
@@ -401,6 +408,151 @@ fn plain_text_paragraphs() {
     assert_eq!(empty.status, Status::Partial);
 }
 
+fn varint(mut v: u64) -> Vec<u8> {
+    let mut out = Vec::new();
+    loop {
+        let byte = (v & 0x7f) as u8;
+        v >>= 7;
+        if v == 0 {
+            out.push(byte);
+            return out;
+        }
+        out.push(byte | 0x80);
+    }
+}
+
+fn pb_varint(field: u32, v: u64) -> Vec<u8> {
+    let mut out = varint(u64::from(field) << 3);
+    out.extend(varint(v));
+    out
+}
+
+fn pb_bytes(field: u32, b: &[u8]) -> Vec<u8> {
+    let mut out = varint((u64::from(field) << 3) | 2);
+    out.extend(varint(b.len() as u64));
+    out.extend_from_slice(b);
+    out
+}
+
+/// Raw Snappy made only of literals.
+fn snappy_literals(data: &[u8]) -> Vec<u8> {
+    let mut out = varint(data.len() as u64);
+    for piece in data.chunks(60) {
+        out.push(((piece.len() - 1) as u8) << 2);
+        out.extend_from_slice(piece);
+    }
+    out
+}
+
+/// An `.iwa` file: one `ArchiveInfo` per message, one chunk.
+fn iwa_file(messages: &[(u32, Vec<u8>)]) -> Vec<u8> {
+    let mut stream = Vec::new();
+    for (i, (type_id, payload)) in messages.iter().enumerate() {
+        let mut message_info = pb_varint(1, u64::from(*type_id));
+        message_info.extend(pb_varint(3, payload.len() as u64));
+        let mut archive = pb_varint(1, i as u64 + 1);
+        archive.extend(pb_bytes(2, &message_info));
+        stream.extend(varint(archive.len() as u64));
+        stream.extend(archive);
+        stream.extend_from_slice(payload);
+    }
+    let body = snappy_literals(&stream);
+    let mut file = vec![
+        0u8,
+        (body.len() & 0xff) as u8,
+        ((body.len() >> 8) & 0xff) as u8,
+        ((body.len() >> 16) & 0xff) as u8,
+    ];
+    file.extend(body);
+    file
+}
+
+#[test]
+fn pages_text_storages_are_decoded_and_labelled_partial() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut storage = pb_varint(1, 0);
+    storage.extend(pb_bytes(
+        3,
+        "Dear reader,\nSecond paragraph\u{fffc} ends.\n\n".as_bytes(),
+    ));
+    let mut other = pb_varint(1, 7);
+    other.extend(pb_bytes(4, b"not text"));
+    let document = iwa_file(&[
+        (10000, other),
+        (tpe_formats::iwork::TYPE_STORAGE_ARCHIVE, storage),
+    ]);
+    let pages = zip_raw(&[
+        ("Index/Document.iwa", &document),
+        ("Metadata/DocumentIdentifier", b"ID-1"),
+    ]);
+    let result = extract(dir.path(), "letter.pages", &pages);
+    assert_eq!(result.format, Format::Pages);
+    assert_eq!(result.status, Status::Partial, "{:?}", result.warnings);
+    assert!(
+        result.warnings[0].starts_with("partial: Pages IWA decoded without Apple's schema"),
+        "{:?}",
+        result.warnings
+    );
+    assert_eq!(result.sections.len(), 1);
+    assert_eq!(result.sections[0].kind, "text_storage");
+    let texts: Vec<&str> = result.sections[0]
+        .blocks
+        .iter()
+        .map(|b| b.text.as_str())
+        .collect();
+    assert_eq!(texts, vec!["Dear reader,", "Second paragraph ends."]);
+    assert_eq!(
+        result.metadata.get("iwa.messages").map(String::as_str),
+        Some("2")
+    );
+    assert_eq!(result.text, "Dear reader,\n\nSecond paragraph ends.\n");
+
+    // Numbers: string lists are decoded, other list types are not.
+    let mut entry1 = pb_varint(1, 1);
+    entry1.extend(pb_varint(2, 1));
+    entry1.extend(pb_bytes(3, b"Revenue"));
+    let mut entry2 = pb_varint(1, 2);
+    entry2.extend(pb_bytes(3, b"Q1"));
+    let mut strings = pb_varint(1, 1);
+    strings.extend(pb_bytes(3, &entry1));
+    strings.extend(pb_bytes(3, &entry2));
+    let mut formats = pb_varint(1, 3);
+    formats.extend(pb_bytes(3, &pb_bytes(3, b"0.00%")));
+    let data = iwa_file(&[
+        (tpe_formats::iwork::TYPE_TABLE_DATA_LIST, formats),
+        (tpe_formats::iwork::TYPE_TABLE_DATA_LIST, strings),
+    ]);
+    let numbers = zip_raw(&[
+        ("Index/Document.iwa", &iwa_file(&[])),
+        ("Index/Tables/DataList-1.iwa", &data),
+    ]);
+    let result = extract(dir.path(), "sheet.numbers", &numbers);
+    assert_eq!(result.status, Status::Partial, "{:?}", result.warnings);
+    assert_eq!(result.sections[0].kind, "cell_strings");
+    let texts: Vec<&str> = result.sections[0]
+        .blocks
+        .iter()
+        .map(|b| b.text.as_str())
+        .collect();
+    assert_eq!(texts, vec!["Revenue", "Q1"]);
+    assert!(
+        result.warnings[0]
+            .contains("grid positions, numbers, dates and formula results are not decoded")
+    );
+
+    // Decodable container with no known text messages: unsupported, says so.
+    let empty = zip_raw(&[("Index/Document.iwa", &iwa_file(&[(10000, pb_varint(1, 1))]))]);
+    let result = extract(dir.path(), "none.pages", &empty);
+    assert_eq!(result.status, Status::Unsupported);
+    assert!(
+        result.warnings[0].contains(
+            "decoded 1 messages in Index/*.iwa but found no TSWP.StorageArchive (2001) text"
+        ),
+        "{:?}",
+        result.warnings
+    );
+}
+
 #[test]
 fn pages_package_is_reported_unsupported_with_reason_and_preview_copied() {
     let dir = tempfile::tempdir().unwrap();
@@ -421,7 +573,9 @@ fn pages_package_is_reported_unsupported_with_reason_and_preview_copied() {
     assert_eq!(result.format, Format::Pages);
     assert_eq!(result.status, Status::Unsupported);
     assert!(
-        result.warnings[0].starts_with("unsupported: Pages text is stored in Index/*.iwa"),
+        result.warnings[0].starts_with(
+            "unsupported: Pages Index/*.iwa could not be decoded: Index/Document.iwa:"
+        ),
         "{:?}",
         result.warnings
     );
@@ -467,7 +621,11 @@ fn pages_package_is_reported_unsupported_with_reason_and_preview_copied() {
     let result = extract_path(&bundle, &Options::default()).unwrap();
     assert_eq!(result.format, Format::Numbers);
     assert_eq!(result.status, Status::Unsupported);
-    assert!(result.warnings[0].contains("Numbers text is stored in Index/*.iwa"));
+    assert!(
+        result.warnings[0].contains("Numbers Index/*.iwa could not be decoded"),
+        "{:?}",
+        result.warnings
+    );
     assert_eq!(
         result.metadata.get("preview_pdf").map(String::as_str),
         Some("absent")

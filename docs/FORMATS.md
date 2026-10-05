@@ -105,22 +105,34 @@ split on blank lines.
 
 A `.pages`/`.numbers` document is a zip (or a directory bundle) whose content
 lives in `Index/*.iwa`. Each IWA file is a sequence of Snappy-compressed
-chunks of protobuf messages whose schema Apple does not publish; decoding it
-faithfully needs the per-version message definitions and, for Numbers, the
-packed tile layout of cell storage. This crate does **not** decode IWA, and
-it does not guess text from the bytes. What it does:
+chunks holding protobuf messages; Apple publishes no schema for them. The
+crate decodes the container (`src/iwa.rs`: chunk framing, raw Snappy, the
+`ArchiveInfo`/`MessageInfo` headers and the protobuf wire format) and reads
+exactly two message kinds whose text fields are stable across versions:
 
-- opens the package (zip or bundle), counts entries and `.iwa` files, records
-  `Metadata/DocumentIdentifier`, the template and build versions from
-  `Metadata/BuildVersionHistory.plist`, and whether `preview.pdf` exists;
-- when the author saved a preview (`preview.pdf` begins with `%PDF`), copies
-  it to `DIR/<stem>.preview.pdf` so the PDF engine can read it. The preview is
-  whatever Pages/Numbers rendered at save time, which is not guaranteed to be
-  the whole document, and the result says so;
-- returns `status: unsupported` with the exact reason (`Pages text is stored
-  in Index/*.iwa as Snappy-framed protobuf messages without a published
-  schema; tpe-formats does not decode IWA ...`), or `... has no
-  Index/Document.iwa` for the pre-2013 `index.xml.gz` format. Exit code 3.
+- `TSWP.StorageArchive` (type 2001), field 3 `text`: every text storage of a
+  Pages document (body, headers, footers, footnotes, text boxes) becomes a
+  `text_storage` section of paragraphs, in archive order. The kinds are not
+  told apart, and styles, lists and tables are not decoded.
+- `TST.TableDataList` (type 6005) with list type 1: the string list of a
+  Numbers table becomes a `cell_strings` section, in storage order. Grid
+  positions, numbers, dates and formula results are not decoded.
+
+Such a result is `status: partial` and its first warning says precisely this,
+including that the decoder was checked on synthetic fixtures (built in the
+tests from the published wire layout), not on documents saved by Pages or
+Numbers. If a container does not decode, or decodes but holds neither
+message kind, the result is `status: unsupported` with the reason (`Pages
+Index/*.iwa could not be decoded: ...`, `decoded N messages ... but found no
+TSWP.StorageArchive (2001) text`, or `has no Index/Document.iwa` for the
+pre-2013 `index.xml.gz` format). Nothing is guessed from undecoded bytes.
+
+In every case the crate also records the package inventory (entry and `.iwa`
+counts, `Metadata/DocumentIdentifier`, template and build versions from
+`Metadata/BuildVersionHistory.plist`) and, when the author saved a preview
+(`preview.pdf` starting with `%PDF`), copies it to `DIR/<stem>.preview.pdf`
+so the PDF engine can read it; the preview is whatever the app rendered at
+save time, not necessarily the whole document, and the result says so.
 
 Keynote (`.key`) is not handled.
 
@@ -154,8 +166,9 @@ cargo test -p tpe-formats
 ```
 
 The tests build `docx`/`pptx`/`xlsx` fixtures by zipping hand-written XML,
-use inline CSV/HTML/Markdown/text, a synthetic Pages package with a stub
-`preview.pdf` and a Numbers directory bundle, and exercise the audio path with
+use inline CSV/HTML/Markdown/text, synthetic Pages/Numbers packages (IWA
+chunks built from the wire layout, a stub `preview.pdf`, an undecodable
+container, a directory bundle), and exercise the audio path with
 an empty `PATH` (engine absent) plus a fake `whisper-cli` with and without a
 model. If a real engine is installed, the test prints that it skipped live
 transcription; it never runs it. The CLI test checks every exit code.
