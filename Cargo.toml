@@ -53,7 +53,7 @@ pdf-extract = ["dep:pdf-extract", "dep:cff-parser"]
 
 [dependencies]
 anyhow = "1"
-roxmltree = { version = "=0.20.0", optional = true }
+roxmltree = { version = "=0.21.1", optional = true }
 tpe-biblio = { path = "crates/tpe-biblio" }
 clap = { version = "4.5", features = ["derive"] }
 docling-core = { version = "=1.69.2", optional = true }
@@ -64,20 +64,20 @@ docling-pdf = { version = "=1.69.2", optional = true, default-features = false }
 flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
 hex = "0.4"
 lopdf = "0.45"
-libloading = { version = "0.8.9", optional = true }
+libloading = { version = "0.9.0", optional = true }
 liteparse = { version = "=2.15.1", optional = true, default-features = false }
 # Same major as docling-pdf (0.8) so one pdfium-render instance links libpdfium.
 # No `image` feature here; docling-pdf turns it on for itself under `docling`.
-pdfium-render = { version = "0.8", optional = true, default-features = false, features = ["pdfium_latest", "thread_safe"] }
+pdfium-render = { version = "0.9", optional = true, default-features = false, features = ["pdfium_latest", "thread_safe"] }
 pdf_oxide = { version = "=0.3.78", optional = true, default-features = false }
 # pdf_oxide 0.3.78 constructs DocumentIR directly; office_oxide 0.1.13
 # added a required field and breaks that upstream constructor (E0063).
-office_oxide = { version = "=0.1.9", optional = true, default-features = false }
+office_oxide = { version = "=0.1.12", optional = true, default-features = false }
 regex = "1"
 rusqlite = { version = "0.40", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
-signal-hook = "0.3"
+signal-hook = "0.4"
 # 0.11 (already built for lopdf) picks the ARMv8 / x86 SHA extensions at run
 # time by default; 0.10 used them on aarch64 only behind its `asm` feature.
 sha2 = "0.11"
