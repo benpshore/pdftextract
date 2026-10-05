@@ -6,7 +6,84 @@ use std::sync::{Mutex, PoisonError};
 use std::time::{Duration, Instant};
 
 use crate::error::BiblioError;
+use crate::retry::parse_retry_after;
 use crate::util::host_of;
+
+/// Environment variable holding the contact address for polite pools
+/// (Crossref, `OpenAlex`, Unpaywall, NCBI). Never hard-code an address: the
+/// person running the tool supplies it.
+pub const MAILTO_ENV: &str = "TPE_MAILTO";
+/// Environment variable holding the on-disk cache directory for registry
+/// responses; unset means no cache.
+pub const CACHE_DIR_ENV: &str = "TPE_BIBLIO_CACHE_DIR";
+
+/// The contact address from [`MAILTO_ENV`], trimmed; `None` when unset or empty.
+pub fn mailto_from_env() -> Option<String> {
+    std::env::var(MAILTO_ENV)
+        .ok()
+        .and_then(|v| crate::util::non_empty(&v))
+}
+
+/// The cache directory from [`CACHE_DIR_ENV`]; `None` when unset or empty.
+pub fn cache_dir_from_env() -> Option<std::path::PathBuf> {
+    std::env::var(CACHE_DIR_ENV)
+        .ok()
+        .and_then(|v| crate::util::non_empty(&v))
+        .map(std::path::PathBuf::from)
+}
+
+/// A polite-pool `User-Agent`: `product/version (mailto:address)` when an
+/// address is known, else `product/version`. Crossref and `OpenAlex` route
+/// requests carrying a `mailto:` to their steadier polite pools.
+pub fn polite_user_agent(product: &str, version: &str, mailto: Option<&str>) -> String {
+    match mailto.and_then(crate::util::non_empty) {
+        Some(m) => format!("{product}/{version} (mailto:{m})"),
+        None => format!("{product}/{version}"),
+    }
+}
+
+/// One HTTP response as the sources see it: the status, the `Retry-After`
+/// header when present, and the body as text.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Response {
+    /// HTTP status code.
+    pub status: u16,
+    /// Raw `Retry-After` header value, if any.
+    pub retry_after: Option<String>,
+    /// Response body as text.
+    pub body: String,
+}
+
+impl Response {
+    /// `Ok(body)` for a 2xx status; otherwise the same errors [`Client::get_text`]
+    /// reports (404 is `NotFound`, 429 is `RateLimited` or, with a usable
+    /// `Retry-After`, `RetryAfter`; 503 with `Retry-After` is `RetryAfter`).
+    pub fn into_text(self, now_unix: u64) -> Result<String, BiblioError> {
+        match self.status {
+            200..=299 => Ok(self.body),
+            404 => Err(BiblioError::NotFound),
+            status @ (429 | 503) => {
+                let after = self
+                    .retry_after
+                    .as_deref()
+                    .and_then(|v| parse_retry_after(v, now_unix));
+                match (status, after) {
+                    (_, Some(after)) => Err(BiblioError::RetryAfter { status, after }),
+                    (429, None) => Err(BiblioError::RateLimited),
+                    (status, None) => Err(BiblioError::Status(status)),
+                }
+            }
+            status => Err(BiblioError::Status(status)),
+        }
+    }
+}
+
+/// Seconds since the Unix epoch, or 0 before it.
+pub fn unix_now() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs())
+}
 
 /// Key name for the `OpenAlex` API key (sent as the `api_key` query parameter).
 pub const KEY_OPENALEX: &str = "openalex";
@@ -96,6 +173,8 @@ impl Client {
         let config = ureq::Agent::config_builder()
             .user_agent(user_agent)
             .timeout_global(Some(Duration::from_secs(30)))
+            // Statuses are read by `Response::into_text`, so `Retry-After` survives.
+            .http_status_as_error(false)
             .build();
         let agent: ureq::Agent = config.into();
         let mut limiter = RateLimiter::new(DEFAULT_MIN_INTERVAL);
@@ -112,6 +191,22 @@ impl Client {
             limiter: Mutex::new(limiter),
             now: Instant::now,
         }
+    }
+
+    /// A polite client for `product`/`version`: the `User-Agent` carries
+    /// `mailto:` when an address is given and the same address is sent as
+    /// the `mailto` query parameter. Read the address with [`mailto_from_env`].
+    pub fn polite(product: &str, version: &str, mailto: Option<&str>) -> Self {
+        let mut client = Self::new(&polite_user_agent(product, version, mailto));
+        if let Some(m) = mailto {
+            client = client.with_mailto(m);
+        }
+        client
+    }
+
+    /// The configured `User-Agent`.
+    pub fn user_agent(&self) -> &str {
+        &self.user_agent
     }
 
     /// Set the contact e-mail sent as `mailto` / `email` (polite pools, Unpaywall).
@@ -191,6 +286,12 @@ impl Client {
     /// GET `url` with extra `headers` and return the body as text. Respects
     /// offline mode and the per-host rate limit. Errors never contain the URL.
     pub fn get_text(&self, url: &str, headers: &[(&str, &str)]) -> Result<String, BiblioError> {
+        self.get(url, headers)?.into_text(unix_now())
+    }
+
+    /// GET `url` and return the status, `Retry-After` and body, so a caller
+    /// can honour the server's delay. Transport failures are still errors.
+    pub fn get(&self, url: &str, headers: &[(&str, &str)]) -> Result<Response, BiblioError> {
         if self.offline {
             return Err(BiblioError::Offline);
         }
@@ -203,10 +304,21 @@ impl Client {
             request = request.header(*name, *value);
         }
         let mut response = request.call().map_err(|e| BiblioError::from_ureq(&e))?;
-        response
+        let status = response.status().as_u16();
+        let retry_after = response
+            .headers()
+            .get("retry-after")
+            .and_then(|v| v.to_str().ok())
+            .map(str::to_string);
+        let body = response
             .body_mut()
             .read_to_string()
-            .map_err(|e| BiblioError::from_ureq(&e))
+            .map_err(|e| BiblioError::from_ureq(&e))?;
+        Ok(Response {
+            status,
+            retry_after,
+            body,
+        })
     }
 }
 
@@ -266,6 +378,66 @@ mod tests {
         let client = Client::new("tpe-biblio-test").with_offline(true);
         let result = client.get_text("https://api.openalex.org/works", &[]);
         assert!(matches!(result, Err(BiblioError::Offline)));
+    }
+
+    #[test]
+    fn polite_user_agent_and_env_placeholder() {
+        assert_eq!(
+            polite_user_agent("tpe", "1.0", Some("someone@example.org")),
+            "tpe/1.0 (mailto:someone@example.org)"
+        );
+        assert_eq!(polite_user_agent("tpe", "1.0", None), "tpe/1.0");
+        assert_eq!(polite_user_agent("tpe", "1.0", Some("  ")), "tpe/1.0");
+        let client = Client::polite("tpe", "1.0", Some("someone@example.org"));
+        assert_eq!(client.user_agent(), "tpe/1.0 (mailto:someone@example.org)");
+        assert_eq!(client.mailto(), Some("someone@example.org"));
+        assert_eq!(MAILTO_ENV, "TPE_MAILTO");
+    }
+
+    #[test]
+    fn response_status_mapping_honours_retry_after() {
+        let ok = Response {
+            status: 200,
+            retry_after: None,
+            body: "x".into(),
+        };
+        assert_eq!(ok.into_text(0).unwrap(), "x");
+        let missing = Response {
+            status: 404,
+            retry_after: None,
+            body: String::new(),
+        };
+        assert!(matches!(missing.into_text(0), Err(BiblioError::NotFound)));
+        let limited = Response {
+            status: 429,
+            retry_after: None,
+            body: String::new(),
+        };
+        assert!(matches!(
+            limited.into_text(0),
+            Err(BiblioError::RateLimited)
+        ));
+        let later = Response {
+            status: 429,
+            retry_after: Some("7".into()),
+            body: String::new(),
+        };
+        assert!(matches!(
+            later.into_text(0),
+            Err(BiblioError::RetryAfter { status: 429, after }) if after == Duration::from_secs(7)
+        ));
+        let busy = Response {
+            status: 503,
+            retry_after: Some("garbage".into()),
+            body: String::new(),
+        };
+        assert!(matches!(busy.into_text(0), Err(BiblioError::Status(503))));
+        let other = Response {
+            status: 500,
+            retry_after: None,
+            body: String::new(),
+        };
+        assert!(matches!(other.into_text(0), Err(BiblioError::Status(500))));
     }
 
     #[test]

@@ -21,20 +21,36 @@
     clippy::missing_errors_doc
 )]
 
+pub mod cache;
 pub mod client;
 pub mod crossref;
+pub mod datacite;
 pub mod dedupe;
+pub mod doi_metadata;
+pub mod doi_org;
 pub mod error;
+pub mod fetch;
+pub mod identifiers;
+pub mod lookup;
 pub mod openalex;
 pub mod openurl;
 pub mod pmc;
+pub mod pubmed;
 pub mod resolve;
+pub mod retry;
 pub mod semantic_scholar;
 pub mod util;
 
-pub use client::{Client, KEY_NCBI, KEY_OPENALEX, KEY_SEMANTIC_SCHOLAR, RateLimiter};
+pub use cache::DiskCache;
+pub use client::{
+    CACHE_DIR_ENV, Client, KEY_NCBI, KEY_OPENALEX, KEY_SEMANTIC_SCHOLAR, MAILTO_ENV, RateLimiter,
+    cache_dir_from_env, mailto_from_env, polite_user_agent,
+};
 pub use dedupe::merge_records;
 pub use error::BiblioError;
+pub use fetch::Fetcher;
+pub use lookup::Lookup;
+pub use retry::RetryPolicy;
 pub use tpe_common::{PaperRecord, normalize_doi};
 
 /// Whether a full-text candidate points at a PDF or at an HTML landing page.
