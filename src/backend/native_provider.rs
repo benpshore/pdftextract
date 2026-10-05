@@ -20,6 +20,7 @@ use sha2::{Digest, Sha256};
 use tpe_ffi::provider::{OpenError, ProviderDocument, ProviderLibrary};
 use unicode_normalization::UnicodeNormalization;
 
+use super::lopdf_backend::expand_ligatures;
 use super::{BackendError, DocumentSession, EncryptionProblem, Extractor};
 use crate::schema::{BBox, BackendIdentity, Figure, Link, PageText, Span, config_digest};
 
@@ -132,6 +133,7 @@ impl Extractor for NativeProviderBackend {
     fn identity(&self) -> BackendIdentity {
         let mut config = BTreeMap::new();
         config.insert("abi".to_string(), ABI.to_string());
+        config.insert("ligatures".to_string(), "expand".to_string());
         config.insert("page_output_limit".to_string(), MAX_OUTPUT.to_string());
         match &self.configuration {
             Ok(c) => {
@@ -348,6 +350,7 @@ fn parse_page(bytes: &[u8], requested: u32) -> Result<PageText, String> {
     let mut page = PageText::new(requested, size[0], size[1], raw.rotation);
     let mut characters = 0;
     let mut replacements = 0;
+    let mut ligatures: u32 = 0;
     for block in raw.structured.blocks {
         let bbox = block.bbox.convert(raw.to_pdf)?;
         match block.kind.as_str() {
@@ -369,8 +372,13 @@ fn parse_page(bytes: &[u8], requested: u32) -> Result<PageText, String> {
                     if characters > MAX_CHARACTERS || page.spans.len() >= MAX_CHARACTERS {
                         return Err("provider page exceeds character limit".to_string());
                     }
+                    // Coverage is counted on the provider's text; the
+                    // ligature letters below are the engine's normalisation,
+                    // shared with `lopdf` and `pdf-oxide`.
+                    let (expanded, count) = expand_ligatures(line.text);
+                    ligatures = ligatures.saturating_add(count);
                     page.spans.push(Span {
-                        text: line.text.nfc().collect(),
+                        text: expanded.nfc().collect(),
                         bbox: Some(bbox),
                         font: Some(line.font.name),
                         size: Some(line.font.size * font_scale),
@@ -394,6 +402,10 @@ fn parse_page(bytes: &[u8], requested: u32) -> Result<PageText, String> {
     }
     if characters != raw.characters {
         return Err("provider text coverage count differs from output".to_string());
+    }
+    if ligatures > 0 {
+        page.warnings
+            .push(format!("ligatures expanded: {ligatures}"));
     }
     if raw.unmapped > 0 || replacements > 0 {
         page.warnings.push(format!(
@@ -457,6 +469,18 @@ mod tests {
         let mut data = fixture();
         data.as_object_mut().unwrap().remove("links");
         assert!(parse_page(&serde_json::to_vec(&data).unwrap(), 2).is_err());
+    }
+    #[test]
+    fn ligatures_expand_to_letters_after_the_coverage_check() {
+        let mut data = fixture();
+        // Three provider characters: `ﬁ`, `ﬂ`, `c`; the coverage count stays
+        // the provider's count while the span text carries the letters.
+        data["structured"]["blocks"][0]["lines"][0]["text"] =
+            serde_json::json!("\u{FB01}\u{FB02}c");
+        let result = parse_page(&serde_json::to_vec(&data).unwrap(), 2).unwrap();
+        assert_eq!(result.spans[0].text, "fiflc");
+        assert_eq!(result.warnings, vec!["ligatures expanded: 2".to_string()]);
+        assert_eq!(result.extraction_status(), crate::schema::Status::Complete);
     }
     #[test]
     fn reports_unknown_characters_and_native_parser_warnings_as_partial() {
