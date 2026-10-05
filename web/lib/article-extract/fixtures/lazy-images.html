@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Lazy image gallery notes</title></head>
+<body>
+<main><article>
+<h1>Lazy image gallery notes</h1>
+<p>This page exercises every lazy-loading pattern the extractor resolves. The paragraphs are long enough for article scoring, and each image below uses a different attribute to hide its real source from a static fetch until a script would have run.</p>
+<figure><img src="/img/spacer.gif" data-src="/img/one-real.jpg" alt="One"><figcaption>Caption one.</figcaption></figure>
+<figure><img src="data:image/gif;base64,R0lGODlhAQAB" data-srcset="/img/two-small.jpg 300w, /img/two-large.jpg 1200w" alt="Two"><figcaption>Caption two.</figcaption></figure>
+<figure><picture><source data-srcset="/img/three-webp-large.webp 1600w, /img/three-webp-small.webp 400w" type="image/webp"><img src="/img/transparent.png" alt="Three"></picture><figcaption>Caption three.</figcaption></figure>
+<noscript><img src="/img/four-noscript.jpg" alt="Four"></noscript>
+<img src="/img/tracking-pixel.gif" width="1" height="1" alt="">
+<img src="/img/five-plain.jpg" alt="Five" loading="lazy" width="800" height="600">
+<img data-lazy="/img/six-lazy.jpg" src="/img/blank.gif" alt="Six">
+<p>The remaining paragraph keeps the article long enough that the scorer treats the block as prose rather than as a gallery of links, which matters because link density is part of the score for every candidate block.</p>
+</article></main>
+</body>
+</html>

@@ -13,10 +13,10 @@
       "sha256": "a4e5987d3b17dcf466b2c55b56a3ea314ca39f6366705243034efaed171a1899"
     },
     {
-      "bytes": 996,
+      "bytes": 2312,
       "mode": "0644",
       "path": "app/api/capture/route.ts",
-      "sha256": "62623348695027ccb0b86c028da0356e92b52b057f558fafd4ac7a107d89f4f8"
+      "sha256": "4349b0b70c584cbca137657aa334831346979562d1cda574b0808932eea9bf0a"
     },
     {
       "bytes": 744,
@@ -595,16 +595,136 @@
       "sha256": "7a2a7b86dcb16b6efe1bce966d1e1a6884ea8cd289f94330bd373cf84373a1b0"
     },
     {
+      "bytes": 8046,
+      "mode": "0644",
+      "path": "lib/article-extract/clean.ts",
+      "sha256": "492820d466645344fc6bb50698520e645fd02018e68ac10b75673c6252f2e706"
+    },
+    {
+      "bytes": 2511,
+      "mode": "0644",
+      "path": "lib/article-extract/dom.ts",
+      "sha256": "1bbcc01b449a52abbdc950c7b4689e90150ffa2b3745d7e0100a3e7d77bc9dc8"
+    },
+    {
+      "bytes": 2026,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/amp.html",
+      "sha256": "007debb8c74c99d006e62a28bd20c655f324fb7d7cb7c59000216d4a3f674895"
+    },
+    {
+      "bytes": 1709,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/garbled.html",
+      "sha256": "820a24eed3097f9f58c3e27dd491f0ae40c942e8aeba16a1f21380bb90547a0f"
+    },
+    {
+      "bytes": 1476,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/lazy-images.html",
+      "sha256": "5c5c76e63052fab4e36880e5d5ef469e3b3efbdfc6362d86f73561395d789f8c"
+    },
+    {
+      "bytes": 1246,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/multipage-1.html",
+      "sha256": "ac8d1f3cd300c20d9144136b17c1e88dda324e15579c6ceca781a17261e547b0"
+    },
+    {
+      "bytes": 1021,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/multipage-2.html",
+      "sha256": "6b071782caebf9700c066607cb8a266ab4774f98cca3e49f27c028b588339d81"
+    },
+    {
+      "bytes": 810,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/multipage-3.html",
+      "sha256": "ee239869e505a6eba779ec7a20c9694895633b1e98df47c9d64ee08714ccd05f"
+    },
+    {
+      "bytes": 5143,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/news-article.html",
+      "sha256": "4d4b28e4a99031af70eebbc22771916fbc331c8eebe77b3d94901e42af28ae7a"
+    },
+    {
+      "bytes": 1909,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/paywall.html",
+      "sha256": "41f86d720dffa64d6f3a313ab338c226d6423975494359b315cbe7437e821be0"
+    },
+    {
+      "bytes": 4545,
+      "mode": "0644",
+      "path": "lib/article-extract/fixtures/scholarly.html",
+      "sha256": "5e1d9522109d4e813490bd92eb219778d9a0eb09f2a140786877456a724d639a"
+    },
+    {
+      "bytes": 9266,
+      "mode": "0644",
+      "path": "lib/article-extract/index.ts",
+      "sha256": "d63abb62dd956ee245db98f946fe62193d8a44e274736a83a9e07b556b29130d"
+    },
+    {
+      "bytes": 19927,
+      "mode": "0644",
+      "path": "lib/article-extract/metadata.ts",
+      "sha256": "052ee33e9d9481c851c99c1f1e160eedbb85cb1c67e57bbbd7bc7701d5ac64cd"
+    },
+    {
+      "bytes": 6617,
+      "mode": "0644",
+      "path": "lib/article-extract/multipage.ts",
+      "sha256": "b1144b4de93eacfe94f2e2d3258a8b522d82cfb33026cd8e20d82b5b910d2e2b"
+    },
+    {
+      "bytes": 5898,
+      "mode": "0644",
+      "path": "lib/article-extract/render.ts",
+      "sha256": "6c917e357b6e6ecd7baf2d8453768362ba2cd504e5966bf644eb4c1f0f0b6dc3"
+    },
+    {
+      "bytes": 6533,
+      "mode": "0644",
+      "path": "lib/article-extract/select.ts",
+      "sha256": "82940a30cef0a86cce42ef2190ce14bbd957206571f93368011e496943d2f64e"
+    },
+    {
+      "bytes": 18655,
+      "mode": "0644",
+      "path": "lib/article-extract/tests/run.mjs",
+      "sha256": "c0ef1ae6f60ec7470b0da4ed5fd7582d3fda8f37cb3af7644f216b453b719f7f"
+    },
+    {
+      "bytes": 9641,
+      "mode": "0644",
+      "path": "lib/article-extract/tests/test-source-fetch.mjs",
+      "sha256": "2aab2b8dfb690a058c545bddb081b128e9ba0f70dad6a1ce87dd5f409d6d8e64"
+    },
+    {
+      "bytes": 2688,
+      "mode": "0644",
+      "path": "lib/article-extract/types.ts",
+      "sha256": "5dbb995d1ba7709aa10cb5484b91c9afa644ece00669b32ae1607d14cfbc7ae1"
+    },
+    {
+      "bytes": 1815,
+      "mode": "0644",
+      "path": "lib/article-extract/url.ts",
+      "sha256": "ecef2e6f6c52807be6815c49455d15e3cb0ad187db52e9b153deed67c5311a99"
+    },
+    {
       "bytes": 1103,
       "mode": "0644",
       "path": "lib/asset-storage.ts",
       "sha256": "1692f6e3a838c919dd4b8019050692dd45b54b5138e105d10d112a56073470ef"
     },
     {
-      "bytes": 20905,
+      "bytes": 6432,
       "mode": "0644",
       "path": "lib/clip.ts",
-      "sha256": "136045b0df9249b22a1f36a4425651b64568f8df96e61926c81254ed123d7c50"
+      "sha256": "ca67a8ea73fc520b6f4ddc752ac0af74028a503bbbf46dbe2f31011c855b22e3"
     },
     {
       "bytes": 612,
@@ -667,10 +787,10 @@
       "sha256": "2e017bd5ce8d8d7f69eaa5f61b099a391f0ecfaacd2e34b064350e0877de3065"
     },
     {
-      "bytes": 2204,
+      "bytes": 11094,
       "mode": "0644",
       "path": "lib/source-fetch.ts",
-      "sha256": "f9819b6cdfa58267d2d8e697798f20ec71fe4271bed7d47eb3b121ec9b096bbd"
+      "sha256": "f343a6f822855ebf05eb528c87902eb2c1aec2c6203f5e7c4c2908d29318df31"
     },
     {
       "bytes": 132,
