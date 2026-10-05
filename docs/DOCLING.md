@@ -55,3 +55,94 @@ explicit language/mode, fixed worker thread limits, no CWD asset fallback, and
 verified page/output coverage. These assets are not included in standard releases.
 The upstream model resolver checks the working directory, and missing recognition
 models can degrade to warnings, so merely setting a model directory is not enough.
+
+## Scan service for the browser alpha
+
+`crates/tpe-scan-service` is a loopback-only HTTP service that the web alpha
+can hand a scanned PDF, PNG or JPEG to and get page text back through the
+docling backends above. `web/lib/scan-service.ts` is its browser client. The
+service is the only way the browser reaches docling: the web app itself never
+compiles or downloads models, and the workspace decides between this service
+and the in-browser OCR; the client never falls back on its own.
+
+```sh
+cargo build -p tpe-scan-service --features docling-text   # mode=text, no models
+cargo build -p tpe-scan-service --features docling        # mode=ocr: PDFium + models
+./target/debug/tpe-scan-service --port 5209 --origin http://localhost:3000 \
+    --models-dir .models
+```
+
+Start-up prints the bound address, the allowed origins, whether the models and
+PDFium are provisioned, the limits, and the per-launch bearer token exactly
+once. The person pastes the port and the token into the web app's scan-service
+dialog; the client keeps them in `sessionStorage` for that tab only. Without
+the `docling-text` or `docling` feature the binary still runs and answers
+`/capabilities`, and every scan fails with `not_compiled`.
+
+Security model, enforced and tested in `tests/service.rs`:
+
+- Binds `127.0.0.1` (or `::1`) only; any other `--bind` is refused.
+- Every request needs `Authorization: Bearer <token>`; the token is 64 random
+  hex characters generated per launch and never written to disk.
+- `Host` must name the bound address; a browser `Origin` must be one of the
+  `--origin` values (`scheme://host[:port]`, normalised). CORS preflight and
+  `Access-Control-Allow-Origin` are scoped to exactly those origins, and
+  `Retry-After` is the only exposed header.
+- Bounded: `--max-body-mib` (64), `--max-pages` (50), `--max-concurrent` (1),
+  `--scan-timeout-s` (120). Oversize bodies are `413 limit`, a busy service is
+  `429 busy` with `Retry-After`.
+- Each scan runs in a disposable worker process of the same binary (hidden
+  `worker` subcommand) with an address-space growth limit
+  (`--worker-memory-mib`, 4096) and the deadline; a hung or crashed conversion
+  is killed and reported as `504 timeout` or `500 internal`, and the service
+  stays up. The worker boundary exists on Linux and macOS (`rustix`).
+- No outbound connections, no telemetry, nothing on disk. Model files are
+  probed (and hashed unless `--no-hash`) at start and re-probed on each
+  `/capabilities` call, so provisioning while the service runs is noticed.
+
+HTTP contract (all responses are JSON):
+
+- `GET /capabilities`: `service` (name, version, pinned docling version,
+  pid), `build` (`ocr_compiled`, `text_layer_compiled`), `ocr` (`available`,
+  engine `ppocr`, `languages`, `reason` when unavailable, what `confidence`
+  means), `text_layer`, `models` (`provisioned`, `missing`, `searched`,
+  per-file path, bytes and sha256), `pdfium` (configured path, library,
+  present), `limits`, `accepts`, `modes`, `origins`.
+- `POST /scan?mode=ocr|text&pages=first-last`: the body is the raw PDF, PNG
+  or JPEG bytes, or a multipart form whose file part carries them. The kind
+  is sniffed from the bytes, not the declared type (`415
+  unsupported_media_type` otherwise). A still image is embedded losslessly in
+  a one-page PDF at an assumed 300 dpi and goes through the same backend; the
+  result's `warnings` record the pixel size and that assumption. `pages` is
+  an inclusive 1-based window (`1-20`, or a single page); omitted means from
+  page 1 up to `max_pages`, and clients window longer documents. The reply:
+  `backend` (name, version, config digest), `mode`, `input`, `pages_total`,
+  `pages_scanned`, `pages[]` (number, size, rotation, `status`
+  `complete`/`partial`, `text`, `confidence`, `blocks`, `spans`, `figures`,
+  per-page `warnings`), `warnings`, `elapsed_ms`.
+- Errors are `{ "error": <code>, "message": <text> }`. Request errors:
+  `bad_mode`, `bad_pages`, `no_file`, `bad_multipart`, `empty_body` (400),
+  `unsupported_media_type` (415). Scan errors: `models_not_provisioned`,
+  `not_compiled` (503), `malformed`, `page_range` (400), `encrypted`,
+  `unsupported` (422), `limit` (413), `timeout` (504), `busy` (429),
+  `internal` (500). The client maps each to a plain message.
+
+`mode=text` uses the pure-Rust page parser (`docling-text`): it reads an
+existing text layer and reports no confidence; a scan or an image yields empty
+text with a warning rather than a guess. `mode=ocr` needs the `docling`
+feature, the hash-verified PDFium library (`PDFIUM_DYNAMIC_LIB_PATH`, see
+`docs/NATIVE.md`) and the docling.rs 1.69.2 model files in `.models`
+(`--models-dir` or `DOCLING_RS_MODELS_DIR`); `/capabilities` lists exactly
+which files are missing and where it looked, and the service refuses OCR with
+`models_not_provisioned` until they are all present. OCR confidence is the
+backend's per-page mean score when it reports one; there is no per-word
+confidence. Pages the backend could not fully reconstruct are `partial` and
+the client surfaces them, following the Partial rules above.
+
+Verification without models or PDFium: `cargo test -p tpe-scan-service`
+(token, `Host`/`Origin`, CORS, limits, routing, worker boundary and
+deadline, shutdown) and, from `web/`, `node tests/scan-service.test.mjs` (a
+fake service: connection parsing, session-only storage, capability
+detection, progress, page windows, error mapping, the fallback message).
+`cargo test -p tpe-scan-service --features docling-text` adds the real
+`mode=text` scan of the engine's probe PDF and the PNG wrapper.
