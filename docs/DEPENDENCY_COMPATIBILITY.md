@@ -43,5 +43,7 @@ bytes without changing pointer bounds or library ownership.
 The macOS GROBID mock also explicitly clears inherited nonblocking mode on
 accepted sockets before applying its read timeout. This fixes `WouldBlock`
 failures in the test server without changing production network or XML policy.
+The deadline regression delays the first request, keeping its 40 ms budget;
+it does not require a second request after the global deadline has expired.
 GROBID remains non-resolving with `allow_dtd: false`;
 no changed path connects these pins to #215 or #216.

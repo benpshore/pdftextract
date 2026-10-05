@@ -197,9 +197,11 @@ fn byte_and_time_limits_fail_closed() {
         Err(GrobidError::Limit(_))
     ));
     server.join().unwrap();
-    let mut slow = Reply::new(200, TEI);
+    // Time out the first request: the global budget may expire before a
+    // second request is sent, which must not make the mock wait for one.
+    let mut slow = Reply::new(200, "0.9.1");
     slow.delay = Duration::from_millis(250);
-    let (endpoint, server) = mock_server(vec![Reply::new(200, "0.9.1"), slow]);
+    let (endpoint, server) = mock_server(vec![slow]);
     let options = Options {
         timeout_ms: 40,
         ..Options::default()
