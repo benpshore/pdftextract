@@ -20,7 +20,8 @@ version). Publishing a run is one transaction and idempotent: re-running replace
 | `pdfium` | implemented behind feature `pdfium` | `pdfium-render` 0.8 (same major as `docling-pdf`, so one instance links `libpdfium`); needs the PDFium shared library at run time; spans ordered by the engine's XY-cut; image objects become `raster` figures |
 | `docling-text` | implemented behind feature `docling` | `docling-pdf` text layer; no models, no PDFium; docling's own reading order is kept |
 | `docling` | implemented behind feature `docling` (implies `pdfium`) | full docling pipeline: layout, OCR (scanned pages), pictures as `layout` figures; needs PDFium, the ONNX models and ONNX Runtime |
-| `poppler` | planned | comparator; GPL, subprocess or separately licensed adapter |
+| `pdf-oxide` | implemented behind feature `pdf-oxide` | independent pure-Rust character parser (`pdf_oxide` 0.3.78); per-character spans ordered by the engine's XY-cut; every page stays Partial by policy ([PDF_OXIDE.md](PDF_OXIDE.md)) |
+| `poppler`, `mupdf` | implemented behind features `poppler` / `mupdf` | user-built providers behind the C ABI in `native/provider.h`, loaded only from explicitly configured absolute library paths; GPL/AGPL obligations stay with the user ([NATIVE_FALLBACK.md](NATIVE_FALLBACK.md)) |
 
 The default build has only `lopdf`. Build the native ones with
 `cargo build --release --features docling` (or `--features pdfium`); provisioning of the
@@ -60,6 +61,60 @@ with body alignment 0.714 at p50 109 ms, about 6x slower than `lopdf`; `docling-
 0.785 at p50 4892 ms (about 4.9 s per chunk), a routed exception. `lopdf` remains the fast
 path. Accuracy reports for `pdfium`, `docling-text` and `docling` come from the Native workflow
 (first docling comparison on issue #15).
+
+## Cross-backend comparison harness
+
+`tests/engine_compare.rs` is an offline harness for tuning text quality
+across the parsers. It runs every backend compiled into the build (`lopdf`
+always; `pdf-oxide` under `--features pdf-oxide`; `poppler`/`mupdf` when
+their provider and runtime libraries are configured, otherwise the table
+names the missing configuration) over the committed fixture PDFs
+(`tests/fixtures/native-worker`, `tests/fixtures/pdfium-unicode`) and a set
+of synthetic layout fixtures built in-test: the shared two-column paper,
+ligatures through glyph names and through `ToUnicode` presentation forms,
+line-end hyphenation, superscript citation markers, a three-page running
+head with page numbers, and two columns with an interleaved caption. For
+each fixture it prints every backend's status, line and word counts, the
+word-level similarity of each backend pair (`2 * LCS / (words_a + words_b)`
+over the whitespace-normalised page text) and a line diff where the pages
+differ. `TPE_ENGINE_COMPARE_DIR=/dir/of/pdfs` adds uncommitted PDFs to the
+printout without adding assertions.
+
+```sh
+cargo test --test engine_compare --features pdf-oxide,pdf-extract -- --nocapture
+```
+
+The harness asserts the behaviours the engine guarantees on those fixtures
+on *every* backend (ligature expansion, `pipe-`/`line` joined while
+`state-of-`/`the-art` and the attested `self-`/`contained` keep their
+hyphens, `literature⁵` and `work²,³`, running heads and page numbers out of
+the text, left column before right column with the caption in place) and
+that the synthetic fixtures produce identical normalised text across
+backends.
+
+Measured 2026-10-05 on this branch, `lopdf` versus `pdf-oxide` 0.3.78
+(debug build, Linux x86_64; diagnostic, not a corpus result):
+
+| Fixture | Before | After | Change |
+| --- | ---: | ---: | --- |
+| synthetic/ligatures-tounicode | 0.727 | 1.000 | `pdf-oxide` handed on `ﬁ`/`ﬂ` from `ToUnicode` unexpanded (`ﬁnite ﬂow of the ofﬁce`); it now applies the same ligature expansion and NFC as `lopdf`, and the native providers do too |
+| synthetic/ligatures (glyph names) | 1.000 | 1.000 | both parsers already resolve `/fi`-style glyph names to letters |
+| synthetic/paper, hyphens, superscripts, running-heads, two-columns, shared-baseline-columns | 1.000 | 1.000 | per-character `pdf-oxide` spans and per-string `lopdf` spans reach the same lines, spaces, joins and markers through the shared reading-order and cleanup passes |
+| fixtures/native-worker/*.pdf, pdfium-unicode/native.pdf, existing-ocr.pdf | 1.000 | 1.000 | ReportLab Helvetica controls, including the invisible existing-OCR text |
+| fixtures/pdfium-unicode/partial-cmap.pdf | 0.000 | 0.000 | intended divergence: the `ToUnicode` map covers one code, so `lopdf` keeps U+FFFD at every unmapped position (`A���A����A��A��A`, Partial) while `pdf-oxide` recovers the letters from the embedded font instead (`ALPHA BETA GAMMA`, Partial by policy). Neither result is certified; the `auto` router's mapping guards decide, not output length |
+
+The expansion is part of the backend identity: `pdf-oxide` records
+`ligatures=expand` (adapter revision 2) and the providers add
+`ligatures=expand` to their configuration digest, so runs cached before
+this change are not confused with runs after it. The ligature count appears
+as `ligatures expanded: N` on the page, as it does for `lopdf`; the provider
+coverage check still counts the provider's own characters. Word spacing
+(`SPACE_GAP`, 0.15 em), paragraph breaks (1.5 median line heights), column
+cuts and the hyphen and superscript rules were not retuned: on these
+fixtures they already agree across backends, and the licensed real-paper
+corpus is not committed, so a threshold change would have no measured
+evidence behind it. The harness is the place to add a fixture that shows
+such a disagreement before changing a constant.
 
 ## Figures
 
