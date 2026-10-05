@@ -58,7 +58,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - run: rustup show active-toolchain
+      # rust-toolchain.toml pins the compiler; install it explicitly when the
+      # runner's rustup does not auto-install (RUSTUP_AUTO_INSTALL=0, rustup 1.28.0).
+      - run: rustup show active-toolchain || rustup toolchain install
       - run: rustc --version --verbose && uname -m
       - name: Runner architecture matches the target
         run: |
