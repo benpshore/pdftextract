@@ -81,7 +81,7 @@ Check the build log of the first Native run for these. Pinning ONNX Runtime
 
 | variable | meaning | default when unset |
 | --- | --- | --- |
-| `PDFIUM_DYNAMIC_LIB_PATH` | absolute directory containing `libpdfium.{so,dylib}`, or the absolute library file itself | `pdfium`: the verified per-user install from `tpe-pdfium fetch`; full `docling`: required |
+| `PDFIUM_DYNAMIC_LIB_PATH` | absolute directory containing `libpdfium.{so,dylib}`, or the absolute library file itself | `pdfium`: the verified per-user install from `tpe pdfium fetch`; full `docling`: required |
 | `DOCLING_RS_MODELS_DIR` | the `.models` directory **itself** (not its parent). It is consulted for a `.models/<file>` path only when that path does not exist under the CWD | `.models/` under the CWD, then next to the executable and one level above it |
 | `DOCLING_LAYOUT_ONNX`, `DOCLING_OCR_DET_ONNX`, … | per-file overrides from docling.rs; they bypass the resolver entirely | unset |
 | `DOCLING_RS_FP32` | `1` forces the fp32 layout model, which is not provisioned here | unset |
@@ -91,7 +91,7 @@ the working directory:
 
 1. `PDFIUM_DYNAMIC_LIB_PATH`, when set: an absolute directory or file, loaded as
    configured (relative paths are rejected).
-2. The per-user install written by `tpe-pdfium fetch`
+2. The per-user install written by `tpe pdfium fetch`
    (`$XDG_DATA_HOME/tpe/pdfium/<release>/<platform>/`, default
    `~/.local/share/...`; macOS `~/Library/Application Support/tpe/pdfium/...`;
    Windows `%LOCALAPPDATA%\tpe\pdfium\...`; `TPE_DATA_DIR` overrides the base).
@@ -100,13 +100,13 @@ the working directory:
    corrupted file is ignored, not loaded.
 
 ```sh
-cargo run --release --bin tpe-pdfium -- fetch   # ~3 MB download; verifies the archive and library digests
-tpe-pdfium status                                # platform, pin, install path, what the backend would load
+tpe pdfium fetch     # ~3 MB download; verifies the archive and library digests (also: the stand-alone `tpe-pdfium` binary)
+tpe pdfium status    # platform, pin, install path, what the backend would load
 tpe extract paper.pdf --backend pdfium --db local.sqlite --out out/   # no environment variable needed
-export PDFIUM_DYNAMIC_LIB_PATH="$(tpe-pdfium path)"   # only for tools that read the variable themselves (full docling)
+export PDFIUM_DYNAMIC_LIB_PATH="$(tpe pdfium path)"   # only for tools that read the variable themselves (full docling)
 ```
 
-`tpe-pdfium fetch` downloads the pinned bblanchon/pdfium-binaries archive over
+`tpe pdfium fetch` downloads the pinned bblanchon/pdfium-binaries archive over
 HTTPS, refuses anything over 64 MB, checks the archive digest, extracts the
 single pinned member in memory, checks the library digest, and installs it by
 an atomic rename; on any mismatch nothing is installed. Until one of the two
@@ -134,7 +134,7 @@ private-use characters. Each page records its supplier
 page.
 
 A page that PDF Oxide mapped cleanly is additionally cross-read by `PDFium`
-when the library is available (environment variable or `tpe-pdfium fetch`
+when the library is available (environment variable or `tpe pdfium fetch`
 install). When the two independent parsers agree (whitespace ignored, Dice
 similarity of character 4-grams at or above 0.98), the page drops PDF Oxide's
 standing `extraction_incomplete: ... completeness not independently verified`
@@ -166,7 +166,7 @@ None of these artifacts is committed to the repository. The `.models/` and
 ```sh
 sh native/fetch.sh                                   # about 82 MB of models plus PDFium; prints a table
 # (or `sh native/fetch.sh --pdfium-only` for the `pdfium` feature without docling)
-export PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"    # for docling; `pdfium` alone also works after `tpe-pdfium fetch`
+export PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"    # for docling; `pdfium` alone also works after `tpe pdfium fetch`
 cargo build --release --features docling,pdfium      # the first build downloads ONNX Runtime
 cargo test --features docling,pdfium -- --nocapture  # native smoke tests must not print "skipped:"
 # Full model-backed docling remains restricted to explicitly provisioned library/eval use.

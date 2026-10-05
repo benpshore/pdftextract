@@ -129,7 +129,7 @@ pub struct PdfiumBackend {
     /// Directory holding `libpdfium.so` / `libpdfium.dylib` / `pdfium.dll`.
     /// Search order when `None`: `$PDFIUM_DYNAMIC_LIB_PATH` (an absolute
     /// directory or file, taken as configured), then the per-user install
-    /// written by `tpe-pdfium fetch`, which is used only while its SHA-256
+    /// written by `tpe pdfium fetch`, which is used only while its SHA-256
     /// equals the pin compiled in from `native/manifest.json`
     /// (`crate::pdfium_provision`). Relative paths and implicit loader
     /// searches are rejected so an attacker-controlled working directory
@@ -376,14 +376,14 @@ fn bind(library_dir: Option<&str>) -> Result<Pdfium, BackendError> {
     }
     let detail = failures.join("; ");
     let hint = format!(
-        "run `tpe-pdfium fetch` to install the pinned, hash-verified library for this user, or set {ENV_LIBRARY_PATH} to an absolute trusted path (e.g. after `sh native/fetch.sh --pdfium-only`, export {ENV_LIBRARY_PATH}=\"$PWD/.pdfium/lib\")"
+        "run `tpe pdfium fetch` to install the pinned, hash-verified library for this user, or set {ENV_LIBRARY_PATH} to an absolute trusted path (e.g. after `sh native/fetch.sh --pdfium-only`, export {ENV_LIBRARY_PATH}=\"$PWD/.pdfium/lib\")"
     );
     Err(BackendError::Unsupported(format!(
         "pdfium library not found: {hint} ({detail})"
     )))
 }
 
-/// The per-user install from `tpe-pdfium fetch`, only while it still hashes
+/// The per-user install from `tpe pdfium fetch`, only while it still hashes
 /// to the compiled-in pin (`crate::pdfium_provision::installed_library`).
 fn installed_library_path() -> Option<String> {
     crate::pdfium_provision::installed_library()
@@ -1082,7 +1082,7 @@ mod tests {
         let error = bind(missing.to_str()).err().unwrap();
         let text = error.to_string();
         assert!(text.contains("pdfium library not found"), "{text}");
-        assert!(text.contains("tpe-pdfium fetch"), "{text}");
+        assert!(text.contains("tpe pdfium fetch"), "{text}");
         assert!(text.contains(ENV_LIBRARY_PATH), "{text}");
     }
 

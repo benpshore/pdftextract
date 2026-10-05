@@ -1,7 +1,7 @@
 //! Pinned, hash-verified provisioning and discovery of the `PDFium` shared
 //! library. This module does not need the `pdfium` feature: it is plain
-//! download, digest and archive handling, so the `tpe-pdfium` binary can
-//! provision the library for any build.
+//! download, digest and archive handling, exposed as `tpe pdfium fetch|status|path`
+//! (and the stand-alone `tpe-pdfium` binary) for any build.
 //!
 //! `native/manifest.json` is compiled into the binary. [`fetch`] downloads the
 //! pinned `bblanchon/pdfium-binaries` archive for the host platform, verifies
@@ -690,7 +690,7 @@ impl Status {
             &mut out,
             "installed",
             self.installed.as_ref().map_or_else(
-                || "no (run `tpe-pdfium fetch`)".to_string(),
+                || "no (run `tpe pdfium fetch`)".to_string(),
                 |l| format!("yes, sha256 {} verified", l.sha256),
             ),
         );
@@ -712,6 +712,88 @@ impl Status {
         };
         line(&mut out, "effective", effective);
         out
+    }
+}
+
+/// The `tpe pdfium ...` / `tpe-pdfium ...` command line, shared by both
+/// entry points so release archives (which ship only `tpe`) carry it.
+pub mod cli {
+    use std::process::ExitCode;
+
+    use clap::Subcommand;
+
+    use super::{Effective, FetchAction, Status, fetch, installed_library};
+
+    const USER_AGENT: &str =
+        "text-processing-engine tpe-pdfium (+https://github.com/benpshore/pdftextract)";
+
+    /// Provisioning subcommands.
+    #[derive(Clone, Debug, Subcommand)]
+    pub enum Command {
+        /// Download, verify (SHA-256 of archive and library) and install the
+        /// pinned library for this platform under the per-user data directory.
+        Fetch {
+            /// Re-download even when a verified copy is installed.
+            #[arg(long)]
+            force: bool,
+        },
+        /// Show the pin, the install location, and what the backend would load
+        /// (exit 1 when nothing is loadable).
+        Status,
+        /// Print the directory holding the verified library (exit 1 when absent),
+        /// for `export PDFIUM_DYNAMIC_LIB_PATH="$(tpe pdfium path)"`.
+        Path,
+    }
+
+    /// Run one subcommand, printing to stdout/stderr like a CLI.
+    #[must_use]
+    pub fn run(command: &Command) -> ExitCode {
+        match command {
+            Command::Fetch { force } => match fetch(USER_AGENT, *force) {
+                Ok(outcome) => {
+                    let verb = match outcome.action {
+                        FetchAction::AlreadyInstalled => "already installed",
+                        FetchAction::Installed => "installed",
+                    };
+                    println!(
+                        "{verb}: {} ({} {}, sha256 {} verified)",
+                        outcome.library.path.display(),
+                        outcome.library.release,
+                        outcome.library.platform,
+                        outcome.library.sha256
+                    );
+                    ExitCode::SUCCESS
+                }
+                Err(err) => {
+                    eprintln!("tpe pdfium fetch: {err}");
+                    ExitCode::from(2)
+                }
+            },
+            Command::Status => {
+                let status = Status::inspect();
+                print!("{}", status.render());
+                if matches!(status.effective, Effective::None) {
+                    ExitCode::from(1)
+                } else {
+                    ExitCode::SUCCESS
+                }
+            }
+            Command::Path => {
+                if let Some(library) = installed_library() {
+                    let dir = library.path.parent().map_or_else(
+                        || library.path.display().to_string(),
+                        |dir| dir.display().to_string(),
+                    );
+                    println!("{dir}");
+                    ExitCode::SUCCESS
+                } else {
+                    eprintln!(
+                        "tpe pdfium path: no verified library installed; run `tpe pdfium fetch`"
+                    );
+                    ExitCode::from(1)
+                }
+            }
+        }
     }
 }
 
