@@ -1,7 +1,7 @@
 'use client';
 
 import {useCallback, useEffect, useRef, useState} from 'react';
-import type {ClipboardEvent, DragEvent, ReactNode} from 'react';
+import type {ClipboardEvent, DragEvent, MouseEvent as ReactMouseEvent, ReactNode} from 'react';
 import {AlertCircle, ArrowUp, ChevronDown, Download, FileText, Files, FolderOpen, ImagePlus, LockKeyhole, Search, Upload, X} from 'lucide-react';
 import DOMPurify from 'dompurify';
 import {Button} from '@/components/ui/button';
@@ -63,18 +63,19 @@ function readableHtml(html:string,documentId?:string):string {
   return document.body.innerHTML;
 }
 
+const savedAt=(value:string)=>{const date=new Date(value);return Number.isNaN(date.getTime())?'':date.toLocaleString([],{dateStyle:'medium',timeStyle:'short'});};
 // Two-line menu glyph (long line over short line), decorative: the button carries the name.
 const MenuLines=()=><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" focusable="false"><path d="M4 9h16M4 15h10"/></svg>;
 // Visual label for an icon-only control. Its accessible name lives on the control itself, so the
 // bubble is aria-hidden. Hover and keyboard focus show it; Escape dismisses it without moving the
 // pointer or focus, and entering or focusing the control again re-arms it.
-function Tip({label,below=false,suppress=false,children}:{label:string;below?:boolean;suppress?:boolean;children:ReactNode}) {
+function Tip({label,suppress=false,children}:{label:string;suppress?:boolean;children:ReactNode}) {
   const [off,setOff]=useState(false);
   useEffect(()=>{
     const escape=(event:KeyboardEvent)=>{if(event.key==='Escape')setOff(true);};
     document.addEventListener('keydown',escape);return()=>document.removeEventListener('keydown',escape);
   },[]);
-  return <span className={'tip-wrap'+(below?' tip-below':'')} data-tip-off={off||suppress||undefined} onPointerEnter={()=>setOff(false)} onFocus={()=>setOff(false)} onPointerLeave={()=>setOff(false)} onBlur={()=>setOff(false)}>{children}<span className="tip" aria-hidden="true">{label}</span></span>;
+  return <span className="tip-wrap" data-tip-off={off||suppress||undefined} onPointerEnter={()=>setOff(false)} onFocus={()=>setOff(false)} onPointerLeave={()=>setOff(false)} onBlur={()=>setOff(false)}>{children}<span className="tip" aria-hidden="true">{label}</span></span>;
 }
 
 export default function Workspace({userId}:{userId:string}) {
@@ -88,7 +89,7 @@ export default function Workspace({userId}:{userId:string}) {
   const pumpRef=useRef<()=>Promise<void>>(async()=>{}),checkpointRef=useRef<()=>Promise<void>>(async()=>{}),openSavedRef=useRef<(id:string,tab?:string,scroll?:number)=>Promise<void>>(async()=>{});
   const captureRef=useRef<(url:string,feed:boolean)=>Promise<unknown>>(async()=>{});
   const fileInput=useRef<HTMLInputElement>(null),folderInput=useRef<HTMLInputElement>(null),photoInput=useRef<HTMLInputElement>(null),resultHeading=useRef<HTMLHeadingElement>(null);
-  const uploadTrigger=useRef<HTMLButtonElement>(null),uploadWrap=useRef<HTMLDivElement>(null),uploadPanel=useRef<HTMLDivElement>(null),savedTrigger=useRef<HTMLButtonElement>(null),savedClose=useRef<HTMLButtonElement>(null),afterSaved=useRef<'trigger'|'reader'|null>(null),focusReader=useRef(false),uploadPointer=useRef(false);
+  const uploadTrigger=useRef<HTMLButtonElement>(null),uploadWrap=useRef<HTMLDivElement>(null),uploadPanel=useRef<HTMLDivElement>(null),savedTrigger=useRef<HTMLButtonElement>(null),savedClose=useRef<HTMLButtonElement>(null),afterSaved=useRef<'trigger'|'reader'|null>(null),focusReader=useRef(false),uploadPointer=useRef(false),swallowClicks=useRef(false),savedOpenRef=useRef(false);
   const selectedItem=selection && 'queueId' in selection ? queue.find(item=>item.id===selection.queueId) : undefined;
   const selected=selectedItem?.record || (selection && 'record' in selection?selection.record:null);
   const result=selectedItem?.result || (selection && 'record' in selection?selection.result:null);
@@ -127,7 +128,7 @@ export default function Workspace({userId}:{userId:string}) {
     finally{if(request===generation.current)setLoading(false);}
   }
   openSavedRef.current=openSaved;
-  function openRecord(record:DocumentRow) {historySelection(record.id);void openSaved(record.id);}
+  function openRecord(record:DocumentRow,scroll=0) {historySelection(record.id);void openSaved(record.id,'text',scroll);}
 
   function add(sources:{source:Source;name:string;parentId?:string}[],start=true):string[] {
     const items=sources.map(input=>({...input,id:crypto.randomUUID(),phase:'waiting' as const,progress:null,message:'Waiting to import.'}));
@@ -255,12 +256,13 @@ export default function Workspace({userId}:{userId:string}) {
     addFiles([new File([html||text],html?'Pasted page.html':'Pasted text.txt',{type:html?'text/html':'text/plain'})]);
   }
   function onPaste(event:ClipboardEvent) {
+    if(savedOpenRef.current)return;
     const files=Array.from(event.clipboardData.files);if(files.length){event.preventDefault();addFiles(files);return;}
     if((event.target as HTMLElement).closest('input,textarea,[contenteditable=true]'))return;
     const text=event.clipboardData.getData('text/plain'),html=event.clipboardData.getData('text/html');if(text||html){event.preventDefault();addText(text,html);}
   }
   async function drop(event:DragEvent) {
-    event.preventDefault();setDragging(false);
+    event.preventDefault();setDragging(false);if(savedOpenRef.current)return;
     const entries=Array.from(event.dataTransfer.items).map(item=>(item as unknown as {webkitGetAsEntry?:()=>DropEntry|null}).webkitGetAsEntry?.()).filter((entry):entry is DropEntry=>!!entry);
     if(entries.some(entry=>entry.isDirectory)){
       const stack=entries.map(entry=>({entry,path:entry.name}));
@@ -275,7 +277,7 @@ export default function Workspace({userId}:{userId:string}) {
   checkpointRef.current=async()=>{
     if(!recoveryReady.current)return;
     try{await writeWorkspace(userId,snapshot());if(mounted.current)setRecoveryWarning('');}
-    catch(reason){if(mounted.current)setRecoveryWarning('This browser could not save a recovery copy: '+messageOf(reason)+'. Originals already saved remain in Saved documents.');}
+    catch(reason){if(mounted.current)setRecoveryWarning('This browser could not save a recovery copy: '+messageOf(reason)+'. Originals already saved remain in Saved articles.');}
   };
   useEffect(()=>{
     mounted.current=true;void refresh().catch(reason=>setError(messageOf(reason)));
@@ -286,14 +288,14 @@ export default function Workspace({userId}:{userId:string}) {
       else if(queueId&&queueRef.current.some(item=>item.id===queueId)){selectQueue(queueId,false);setView(tab);requestAnimationFrame(()=>window.scrollTo({top:scroll}));}
       else if(fallback?.selection?.documentId){historySelection(fallback.selection.documentId,undefined,tab,true);void openSavedRef.current(fallback.selection.documentId,tab,scroll);}
       else if(fallback?.selection?.queueId&&queueRef.current.some(item=>item.id===fallback.selection!.queueId)){const item=queueRef.current.find(item=>item.id===fallback.selection!.queueId)!;historySelection(item.record?.id,item.id,tab,true);selectQueue(item.id,false);setView(tab);}
-      else {generation.current++;choose(null);setView(tab);}
+      else {generation.current++;setLoading(false);choose(null);setView(tab);}
     };
     void readWorkspace<Snapshot>(userId).then(saved=>{
       if(!mounted.current)return;
       if(saved?.version===1){const interrupted=saved.items.map(item=>activePhases.has(item.phase)?{...item,phase:'interrupted' as const,progress:null,message:'Interrupted when this page closed. Retry to continue.'}:item);const existing=new Set(queueRef.current.map(item=>item.id));queueRef.current=[...interrupted.filter(item=>!existing.has(item.id)),...queueRef.current];setQueue(queueRef.current);if(!dirtyDraft.current){setUrl(saved.draft.url);setKind(saved.draft.kind);setPaste(saved.draft.paste);setQuery(saved.draft.query);if(saved.draft.query)void refresh(saved.draft.query).catch(reason=>setError(messageOf(reason)));}if(!selectionRef.current)restoreLocation(saved);}
       else if(!selectionRef.current)restoreLocation();
     }).catch(reason=>{setRecoveryWarning('Local recovery is unavailable: '+messageOf(reason));restoreLocation();}).finally(()=>{recoveryReady.current=true;if(mounted.current)setRestored(true);});
-    const pop=()=>{setSavedOpen(false);restoreLocation();};const checkpoint=()=>{history.replaceState({...history.state,tpe:{scroll:window.scrollY}},'');void checkpointRef.current();};
+    const pop=()=>{focusReader.current=false;if(savedOpenRef.current){afterSaved.current='trigger';setSavedOpen(false);}restoreLocation();};const checkpoint=()=>{history.replaceState({...history.state,tpe:{scroll:window.scrollY}},'');void checkpointRef.current();};
     const visibility=()=>{if(document.visibilityState==='hidden')checkpoint();};
     let scrollTimer:ReturnType<typeof setTimeout>|undefined;
     const scroll=()=>{clearTimeout(scrollTimer);scrollTimer=setTimeout(()=>history.replaceState({...history.state,tpe:{scroll:window.scrollY}},''),150);};
@@ -314,24 +316,39 @@ export default function Workspace({userId}:{userId:string}) {
     try {const value=(await navigator.clipboard.readText()).trim();if(/^https?:\/\//i.test(value)&&safeUrl(value)&&!composerValue.current.trim()){dirtyDraft.current=true;setPaste(value);setAnnouncement('Link found on your clipboard. Send to import it.');}}catch { /* Clipboard access is optional; normal paste always works. */ }
   }
   function submitComposer() {if(paste.trim()){addText(paste);dirtyDraft.current=true;setPaste('');}}
+  // A press inside the Upload control keeps focus-out from closing it (Safari never focuses buttons on click).
+  function holdUploadPointer() {
+    uploadPointer.current=true;
+    const release=()=>{uploadPointer.current=false;window.removeEventListener('pointerup',release);window.removeEventListener('pointercancel',release);};
+    window.addEventListener('pointerup',release);window.addEventListener('pointercancel',release);
+  }
+  // The dialog vanishes on the first click of a double-click; the repeat press must not land on (or focus) what was under it.
+  function shieldRepeat(event:ReactMouseEvent) {
+    if(event.detail<=1)swallowClicks.current=false;
+    else if(swallowClicks.current){event.preventDefault();event.stopPropagation();}
+  }
   function chooseUpload(input:HTMLInputElement|null) {setUploadOpen(false);uploadTrigger.current?.focus({preventScroll:true});input?.click();}
   function closeSaved(target:'trigger'|'reader'='trigger') {afterSaved.current=target;setSavedOpen(false);}
-  function openSavedArticle(record:DocumentRow) {focusReader.current=true;closeSaved('reader');openRecord(record);}
+  function openSavedArticle(record:DocumentRow) {
+    // Where the reader sits below the intake (phones), show its start instead of resetting to the top of the page.
+    const reader=document.getElementById('reader'),top=reader?reader.getBoundingClientRect().top+window.scrollY:0;
+    swallowClicks.current=true;focusReader.current=true;closeSaved('reader');openRecord(record,top>window.innerHeight*.4?Math.max(0,top-8):0);
+  }
   useEffect(()=>{
     if(!uploadOpen)return;
     uploadPanel.current?.scrollIntoView?.({block:'nearest'});
     const outside=(event:Event)=>{if(!uploadWrap.current?.contains(event.target as Node))setUploadOpen(false);};
-    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){event.preventDefault();setUploadOpen(false);uploadTrigger.current?.focus({preventScroll:true});}};
-    const release=()=>{uploadPointer.current=false;};
-    document.addEventListener('pointerdown',outside);document.addEventListener('keydown',escape);document.addEventListener('pointerup',release);document.addEventListener('pointercancel',release);
-    return()=>{release();document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape);document.removeEventListener('pointerup',release);document.removeEventListener('pointercancel',release);};
+    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();setUploadOpen(false);uploadTrigger.current?.focus({preventScroll:true});}};
+    document.addEventListener('pointerdown',outside);document.addEventListener('keydown',escape);
+    return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape);};
   },[uploadOpen]);
   // The saved-articles dialog makes the page inert behind it, so focus moves in on open and
   // returns to the menu button (or lands on the chosen article) once the page is interactive again.
   useEffect(()=>{
+    savedOpenRef.current=savedOpen;
     if(savedOpen){
       savedClose.current?.focus({preventScroll:true});
-      const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){event.preventDefault();afterSaved.current='trigger';setSavedOpen(false);}};
+      const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();afterSaved.current='trigger';setSavedOpen(false);}};
       document.addEventListener('keydown',escape);return()=>document.removeEventListener('keydown',escape);
     }
     const target=afterSaved.current;afterSaved.current=null;
@@ -339,28 +356,32 @@ export default function Workspace({userId}:{userId:string}) {
   },[savedOpen]);
   useEffect(()=>{
     if(!focusReader.current||loading)return;
-    focusReader.current=false;(resultHeading.current||document.getElementById('reader'))?.focus({preventScroll:true});
+    focusReader.current=false;
+    // Claim focus only if the user has not moved it elsewhere while the article loaded.
+    const active=document.activeElement;if(active&&active!==document.body&&active!==document.documentElement&&!active.closest('.saved-layer'))return;
+    (resultHeading.current||document.getElementById('reader'))?.focus({preventScroll:true});
   },[selection,loading]);
 
-  return <main onPaste={onPaste} onDragOver={event=>{event.preventDefault();setDragging(true);}} onDragLeave={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))setDragging(false);}} onDrop={event=>void drop(event)} className={dragging?'drop-active':''}>
+  const errorNotice=error&&<div className="notice error" role="alert"><AlertCircle/><p>{error}</p><button className="icon-button" onClick={()=>setError('')} aria-label="Dismiss message"><X/></button></div>;
+  return <main onPaste={onPaste} onMouseDownCapture={shieldRepeat} onClickCapture={shieldRepeat} onDragOver={event=>{event.preventDefault();setDragging(true);}} onDragLeave={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))setDragging(false);}} onDrop={event=>void drop(event)} className={dragging?'drop-active':''}>
     <a className="skip-link" href="#reader" inert={savedOpen||undefined}>Skip to reader</a>
-    <header className="app-header" inert={savedOpen||undefined}><div className="header-start"><Tip label="Saved articles" below><button ref={savedTrigger} type="button" className="icon-button menu-button" aria-label="Saved articles" aria-haspopup="dialog" aria-expanded={savedOpen} aria-controls="saved-panel" onClick={()=>setSavedOpen(true)}><MenuLines/></button></Tip><div className="brand"><FileText aria-hidden="true"/><h1>TPE</h1></div></div><span className="privacy"><LockKeyhole size={16} aria-hidden="true"/>Private</span></header>
+    <header className="app-header" inert={savedOpen||undefined}><div className="header-start"><Tip label="Saved articles"><button ref={savedTrigger} type="button" className="icon-button menu-button" aria-label="Saved articles" aria-haspopup="dialog" aria-expanded={savedOpen} aria-controls="saved-panel" onClick={()=>setSavedOpen(true)}><MenuLines/></button></Tip><div className="brand"><FileText aria-hidden="true"/><h1>TPE</h1></div></div><span className="privacy"><LockKeyhole size={16} aria-hidden="true"/>Private</span></header>
     <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
     <div className="workspace-grid" inert={savedOpen||undefined}><aside className="intake" aria-label="Add sources">
       <form className="composer" onSubmit={event=>{event.preventDefault();submitComposer();}}>
         <label htmlFor="source-paste" className="sr-only">Paste a link or text</label>
         <textarea id="source-paste" rows={2} value={paste} onFocus={()=>void detectClipboardUrl()} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
-        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={()=>{uploadPointer.current=true;}} onPointerUp={()=>{uploadPointer.current=false;}} onPointerCancel={()=>{uploadPointer.current=false;}} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button></div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
-        <input ref={fileInput} className="sr-only" tabIndex={-1} type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
-        <input ref={element=>{folderInput.current=element;element?.setAttribute('webkitdirectory','');}} className="sr-only" tabIndex={-1} type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
-        <input ref={photoInput} className="sr-only" tabIndex={-1} type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
+        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={holdUploadPointer} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button></div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
+        <input ref={fileInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
+        <input ref={element=>{folderInput.current=element;element?.setAttribute('webkitdirectory','');}} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
+        <input ref={photoInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
       </form>
-      {error&&<div className="notice error" role="alert"><AlertCircle/><p>{error}</p><button className="icon-button" onClick={()=>setError('')} aria-label="Dismiss message"><X/></button></div>}
+      {errorNotice}
       {recoveryWarning&&<div className="notice" role="status"><AlertCircle/><p>{recoveryWarning}</p></div>}
       {!!queue.length&&<section className="queue-panel" aria-label="Imports"><button className="section-toggle" aria-expanded={queueOpen} onClick={()=>setQueueOpen(!queueOpen)}><span>{pending?'Importing…':'Recent imports'}</span><ChevronDown/></button>{queueOpen&&<ol className="queue-list">{queue.map(item=><li key={item.id} className={'queue-item '+(selectedItem?.id===item.id?'selected':'')}><div className="queue-row"><button className="queue-open" onClick={()=>selectQueue(item.id)} aria-current={selectedItem?.id===item.id?true:undefined}><strong>{item.name}</strong><span className={'queue-phase phase-'+item.phase}>{phaseLabel(item.phase)}</span></button>{activePhases.has(item.phase)&&<button className="icon-button" onClick={()=>cancelItem(item.id)} aria-label={'Cancel '+item.name}><X/></button>}{['failed','cancelled','interrupted'].includes(item.phase)&&(item.source.type!=='stored'||!!item.record)&&<Button variant="outline" onClick={()=>retry(item.id,!!item.savePending)}>{item.savePending?'Save again':'Retry'}</Button>}</div>{activePhases.has(item.phase)&&<><progress max={100} value={item.progress??undefined} aria-label={item.name+' progress'}/><p className="help">{item.message}</p></>}{item.error&&<p className="queue-error">{item.error}</p>}</li>)}</ol>}</section>}
     </aside><section id="reader" className="result-pane" aria-label="Document reader" aria-busy={loading} tabIndex={-1}>
       {loading&&<p role="status">Opening document…</p>}
-      {!selection?<p className="empty-hint">Paste a link or text, or use Upload. Originals stay saved; reopen them from the menu.</p>:<>
+      {!selection?<p className="empty-hint">Paste a link or text, or use Upload. Reopen saved originals with the Saved articles button.</p>:<>
         <div className="reader-heading"><div><p className="help" role="status" aria-live="polite">{saveState}</p><h2 ref={resultHeading} tabIndex={-1}>{result?.title||selected?.title||selectedItem?.name||'Document'}</h2></div></div>
         {selectedItem?.savePending&&<div className="notice"><p>Your result is ready here but has not been saved.</p><Button disabled={activePhases.has(selectedItem.phase)} onClick={()=>retry(selectedItem.id,true)}>Retry save</Button></div>}
         {selected?.kind==='image'&&<img className="original-image" src={'/api/documents/'+selected.id+'/media'} alt={selected.title} loading="lazy"/>}
@@ -374,6 +395,6 @@ export default function Workspace({userId}:{userId:string}) {
         </>:<div className="notice"><p>{selectedItem?.message||'The original is saved. No extraction result is available yet.'}</p>{selected&&<><Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}>Open original</a></Button>{!pending&&<Button variant="outline" onClick={rereadOriginal}>Re-read original</Button>}</>}</div>}
       </>}
     </section></div>
-    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div><form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><div className="document-list">{documents.length?documents.map(record=><button key={record.id} aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong>{record.title}</strong><span className="help">{record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved'}</span></button>):<p className="help">Your saved sources appear here.</p>}</div></div></div>
+    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div>{errorNotice}<form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><ul className="document-list">{documents.length?documents.map(record=><li key={record.id}><button aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong dir="auto">{record.title}</strong><span className="help">{[record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved',savedAt(record.created_at)].filter(Boolean).join(' · ')}</span></button></li>):<li className="help">Your saved sources appear here.</li>}</ul></div></div>
   </main>;
 }

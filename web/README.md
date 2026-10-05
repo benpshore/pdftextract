@@ -51,7 +51,7 @@ pnpm run build
 
 Before local type checking/building, create the local binding configuration as described in `../docs/WEB_ALPHA.md`. An external host must implement a verified identity boundary rather than trusting caller-supplied authentication headers. Do not disable authorization to make deployment work.
 
-The focused tests use JSDOM, mocks, Node/WASM and real local Workers D1/R2 bindings as identified in each script. They are **not** proof of iPhone/iPad browser behavior or 50 GB capacity. `scripts/test-browser-imports.mjs` is a separate browser harness; its execution has not been verified in this workspace.
+The focused tests use JSDOM, mocks, Node/WASM and real local Workers D1/R2 bindings as identified in each script. They are **not** proof of iPhone/iPad browser behavior or 50 GB capacity. `scripts/test-browser-imports.mjs` is a separate browser harness; its execution has not been verified in this workspace. `scripts/test-browser-ui.mjs` is a second, manual browser harness for the Upload symbol, tooltips and saved-articles dialog (Chromium against a running `pnpm dev`; device emulation only, not Safari or a real iPhone, and not part of CI).
 
 ## Source completeness and deployment
 

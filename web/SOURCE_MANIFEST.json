@@ -7,10 +7,10 @@
       "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
     },
     {
-      "bytes": 5199,
+      "bytes": 5436,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "536dc01742985dd2c8195fe3e293a67d884d7ad52945addb06791eee6f0beb1c"
+      "sha256": "a4e5987d3b17dcf466b2c55b56a3ea314ca39f6366705243034efaed171a1899"
     },
     {
       "bytes": 996,
@@ -73,10 +73,10 @@
       "sha256": "4265a2e7c2dcb3a6f4b7026f762bf5b6e4caec76cc13c0a45987ee9a9f2e42cc"
     },
     {
-      "bytes": 14543,
+      "bytes": 15190,
       "mode": "0644",
       "path": "app/globals.css",
-      "sha256": "1db7c3eaa7719b552ce9402a395e9ee7e63a5aa12b6a22aa2abd4d78de79ba6b"
+      "sha256": "ac188d6436651149a5279970b233f685db34c4a8e7827e9e07ef545ffe2cfe39"
     },
     {
       "bytes": 524,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 48214,
+      "bytes": 49851,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "f8f1b1a3583591c89a98ef1efbfedbb0f56f6dd66a5d5fdd3ffd09c90fcbb2d5"
+      "sha256": "df710c9d76069a68f232cf0401cda08466141b702bf76fda0bc003a79576353c"
     },
     {
       "bytes": 7211,
@@ -863,6 +863,12 @@
       "mode": "0644",
       "path": "scripts/test-browser-imports.mjs",
       "sha256": "cb725294534dc9dd16b529d5f9e267ef956704d7c88a1e1f140de454cbe0f811"
+    },
+    {
+      "bytes": 23835,
+      "mode": "0644",
+      "path": "scripts/test-browser-ui.mjs",
+      "sha256": "bca251032905add47e8db6a6e70a9273e318cacc8fa3706b737c0167d3e25a23"
     },
     {
       "bytes": 8235,
