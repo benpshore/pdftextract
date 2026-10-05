@@ -41,10 +41,18 @@ case "$#" in
 esac
 
 verify() {
-  if command -v sha256sum >/dev/null 2>&1; then
-    printf '%s  %s\n' "$1" "$2" | sha256sum --check
-  else
+  if command -v shasum >/dev/null 2>&1; then
+    # The same macOS job already verifies the archive/library with shasum before
+    # this script runs. Prefer that known SHA-256 checksum-file interface: its
+    # sha256sum command rejected both --check and -c, despite advertising -c.
+    # A modeled short-option wrapper passing locally did not qualify that runner.
     printf '%s  %s\n' "$1" "$2" | shasum -a 256 --check
+  else
+    # GNU sha256sum remains the fallback for hosts without Perl shasum. This
+    # branch is qualified with real GNU mismatch checks in synthetic fixtures;
+    # presence alone does not promise every other sha256sum alias is compatible.
+    # Any unsupported option/mismatch must fail; never extract unchecked bytes.
+    printf '%s  %s\n' "$1" "$2" | sha256sum -c
   fi
 }
 verify "$archive_pin" "$archive"

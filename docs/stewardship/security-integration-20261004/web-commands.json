@@ -1,0 +1,114 @@
+[
+  {
+    "name": "copy-pdf",
+    "started": "2026-10-04T14:45:51.561Z",
+    "elapsed_ms": 59,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "copy-ocr",
+    "started": "2026-10-04T14:45:51.624Z",
+    "elapsed_ms": 146,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "typescript",
+    "started": "2026-10-04T14:45:51.770Z",
+    "elapsed_ms": 7526,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-network-capabilities",
+    "started": "2026-10-04T14:45:59.297Z",
+    "elapsed_ms": 895,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-clip",
+    "started": "2026-10-04T14:46:00.192Z",
+    "elapsed_ms": 5782,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-extraction-review",
+    "started": "2026-10-04T14:46:05.975Z",
+    "elapsed_ms": 1091,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-flow",
+    "started": "2026-10-04T14:46:07.067Z",
+    "elapsed_ms": 137,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-office",
+    "started": "2026-10-04T14:46:07.204Z",
+    "elapsed_ms": 1023,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-node-imports",
+    "started": "2026-10-04T14:46:08.227Z",
+    "elapsed_ms": 2716,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-workspace",
+    "started": "2026-10-04T14:46:10.943Z",
+    "elapsed_ms": 2480,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-mcp",
+    "started": "2026-10-04T14:46:13.423Z",
+    "elapsed_ms": 462,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-uploads-workers",
+    "started": "2026-10-04T14:46:13.885Z",
+    "elapsed_ms": 1048,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "build",
+    "started": "2026-10-04T14:46:14.933Z",
+    "elapsed_ms": 8215,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "source-fetch",
+    "started": "2026-10-04T14:46:23.148Z",
+    "elapsed_ms": 190,
+    "status": 0,
+    "signal": null,
+    "error": null
+  }
+]

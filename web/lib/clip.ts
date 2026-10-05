@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
 import type { Extracted, LinkEvidence } from './types';
+import { passiveHtmlSnapshot } from './passive-html';
 
 export function safeUrl(value: string, base?: string) {
   if (!value.trim()) return null;
@@ -27,69 +28,25 @@ const cleanText = (value: string) => value.replace(/[\u0000-\u0008\u000b\u000c\u
 const escapeHtml = (value: string) => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
 const textContent = (element: Element | null | undefined) => cleanText(element?.textContent || '').trim();
 
-function imageSource(image: HTMLImageElement, base: string): string | null {
-  const usable = (value: string | null) => {
-    const url = safeUrl(value || '', base);
-    if (!url) return null;
-    const path = new URL(url).pathname;
-    return /(?:^|\/)(?:transparent|spacer|blank|tracking[-_]?pixel|pixel)(?:[._-]|$)/i.test(path) ? null : url;
-  };
-  // Lazy sources hold the real image when src is a transparent or blurred placeholder.
-  for (const attr of ['data-src', 'data-original', 'data-lazy-src', 'data-url']) {
-    const url = usable(image.getAttribute(attr));
-    if (url) return url;
-  }
-  const sets = [image.getAttribute('data-srcset'), image.getAttribute('srcset')];
-  for (const source of Array.from(image.closest('picture')?.querySelectorAll('source') || [])) {
-    sets.push(source.getAttribute('data-srcset'), source.getAttribute('srcset'));
-  }
-  for (const set of sets) {
-    if (!set) continue;
-    const candidates = set.split(',').map(part => {
-      const [value, descriptor] = part.trim().split(/\s+/);
-      return { url: usable(value), size: Number.parseFloat(descriptor || '1') || 1 };
-    }).filter(candidate => candidate.url).sort((a, b) => b.size - a.size);
-    if (candidates[0]) return candidates[0].url;
-  }
-  return usable(image.getAttribute('src'));
-}
-
+/** Article selection follows the passive boundary; acquisition has already gone.
+ * Keep editorial cleanup here: page chrome, text controls and navigation URLs.
+ * Do not restore noscript/lazy images: that former path contradicted local-only
+ * intake and could confuse a future maintainer into reopening resource loading.
+ */
 function cleanDocument(document: Document, base: string, fragment = false) {
-  // Promote inert noscript image fallbacks before deleting scripting/hydration containers.
-  for (const node of Array.from(document.querySelectorAll('noscript'))) {
-    const fallback = node.querySelector('img') ? node : new DOMParser().parseFromString(node.textContent || '', 'text/html');
-    for (const image of Array.from(fallback.querySelectorAll('img'))) node.parentNode?.insertBefore(document.importNode(image, true), node);
-    node.remove();
-  }
-  for (const node of Array.from(document.querySelectorAll('script,style,template,iframe,object,embed,svg,canvas,form,input,button,select,textarea'))) node.remove();
-  for (const node of Array.from(document.querySelectorAll('[hidden],[aria-hidden="true"],[inert],[style]'))) {
-    const style = (node.getAttribute('style') || '').replace(/\s+/g, '').toLowerCase();
-    if (node.hasAttribute('hidden') || node.getAttribute('aria-hidden') === 'true' || node.hasAttribute('inert') || /(?:^|;)display:none(?:!important)?(?:;|$)|(?:^|;)visibility:hidden(?:!important)?(?:;|$)/.test(style)) node.remove();
-  }
+  for (const node of Array.from(document.querySelectorAll('script,template,canvas'))) node.remove();
   if (!fragment) {
     for (const node of Array.from(document.querySelectorAll('nav,[role="navigation"],[role="banner"],[role="complementary"],aside,footer'))) {
       if (!node.matches('[role="doc-footnote"],[role="doc-endnote"]') && !node.querySelector('[role="doc-footnote"],[role="doc-endnote"]')) node.remove();
     }
-  for (const node of Array.from(document.querySelectorAll('header'))) {
-    if (!node.closest('article,main,[role="main"]')) node.remove();
-  }
-  // Explicit chrome markers only: broad substring rules can delete real article sections.
-  for (const node of Array.from(document.querySelectorAll('[role="dialog"],[aria-modal="true"],[data-ad-slot],[data-ad-unit],.advertisement,.ad-container,.cookie-banner,.cookie-consent,.newsletter-signup,.social-share,.related-articles,.related-posts'))) node.remove();
+    for (const node of Array.from(document.querySelectorAll('header'))) {
+      if (!node.closest('article,main,[role="main"]')) node.remove();
+    }
+    // Explicit chrome markers only: broad substring rules can delete real article sections.
+    for (const node of Array.from(document.querySelectorAll('[role="dialog"],[aria-modal="true"],[data-ad-slot],[data-ad-unit],.advertisement,.ad-container,.cookie-banner,.cookie-consent,.newsletter-signup,.social-share,.related-articles,.related-posts'))) node.remove();
   }
   const textNodes = document.createTreeWalker(document.body, 4); // NodeFilter.SHOW_TEXT
   while (textNodes.nextNode()) textNodes.currentNode.nodeValue = cleanText(textNodes.currentNode.nodeValue || '');
-  for (const image of Array.from(document.querySelectorAll('img'))) {
-    const src = imageSource(image, base);
-    const width = Number(image.getAttribute('width')), height = Number(image.getAttribute('height'));
-    if (!src || (width > 0 && width <= 2 && height > 0 && height <= 2)) { image.remove(); continue; }
-    image.setAttribute('src', src);
-    for (const attr of ['alt', 'title']) if (image.hasAttribute(attr)) image.setAttribute(attr, cleanText(image.getAttribute(attr)!));
-    for (const attr of Array.from(image.attributes)) {
-      if (!['src', 'alt', 'title', 'width', 'height'].includes(attr.name)) image.removeAttribute(attr.name);
-    }
-  }
-  // A resolved img remains; source elements no longer trigger uncontrolled alternate fetches.
-  for (const source of Array.from(document.querySelectorAll('source'))) source.remove();
   for (const anchor of Array.from(document.querySelectorAll('a[href]'))) {
     const href = safeUrl(anchor.getAttribute('href') || '', base);
     if (href) anchor.setAttribute('href', href); else anchor.removeAttribute('href');
@@ -149,19 +106,22 @@ function htmlText(document: Document): string {
 }
 
 export function clipHtml(source: string, url: string, title = 'Saved page', options: { fragment?: boolean } = {}): Extracted {
-  const document = new DOMParser().parseFromString(source, 'text/html');
+  // One inert boundary retains provenance before removing acquisition-bearing
+  // structure. Readability sees sanitized content with the original root lang;
+  // canonical/feed strings remain evidence and are resolved only as URLs below.
+  const { document, canonicalHref, feeds } = passiveHtmlSnapshot(source);
   const base = safeUrl(document.querySelector('base[href]')?.getAttribute('href') || '', url) || url;
   const structured = structuredMetadata(document, base);
-  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Fetched HTML snapshot; scripts were not executed' };
+  const metadata: Record<string, unknown> = { sourceUrl: url, capturedAt: new Date().toISOString(), capture: 'Local HTML snapshot; external resources disabled',remoteResources:'disabled' };
   const metas: Record<string, string> = {};
   for (const element of Array.from(document.querySelectorAll('meta[name],meta[property]'))) {
     const key = element.getAttribute('name') || element.getAttribute('property') || '';
     metas[key] = cleanText(element.getAttribute('content') || '');
   }
   metadata.meta = metas;
-  metadata.canonical = safeUrl(document.querySelector('link[rel="canonical"]')?.getAttribute('href') || '', base);
+  metadata.canonical = safeUrl(canonicalHref, base);
   metadata.structuredData = structured.articles;
-  metadata.feeds = Array.from(document.querySelectorAll('link[rel="alternate"]')).filter(element => /rss|atom/i.test(element.getAttribute('type') || '')).map(element => ({ type: element.getAttribute('type'), url: safeUrl(element.getAttribute('href') || '', base) })).filter(feed => feed.url);
+  metadata.feeds = feeds.map(feed => ({ type: feed.type, url: safeUrl(feed.href, base) })).filter(feed => feed.url);
   const pageTitle = textContent(document.querySelector('title'));
   cleanDocument(document, base, options.fragment);
   const warnings = ['Captured the available HTML without running scripts. Content requiring client-side rendering or authentication may be absent.'];
@@ -202,13 +162,9 @@ export function clipHtml(source: string, url: string, title = 'Saved page', opti
   const html = DOMPurify.sanitize(selected, { FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'svg', 'audio', 'video', 'source', 'track', 'link'], FORBID_ATTR: ['style', 'srcset'] });
   const visible = new DOMParser().parseFromString(html, 'text/html');
   cleanDocument(visible, base, options.fragment);
-  const images = Array.from(visible.querySelectorAll('img')).map((image, index) => {
-    const id = `image-${index + 1}`;
-    image.setAttribute('data-image-id', id);
-    const figure = image.closest('figure');
-    return { id, url: image.getAttribute('src')!, alt: cleanText(image.getAttribute('alt') || ''), caption: textContent(figure?.querySelector('figcaption')), width: image.getAttribute('width') || undefined, height: image.getAttribute('height') || undefined, source: 'article' };
-  });
-  metadata.images = images;
+  // Source images are deliberately absent; retain the metadata shape expected
+  // by storage/reader clients without claiming that captions imply image bytes.
+  metadata.images = [];
   metadata.headings = Array.from(visible.querySelectorAll('h1,h2,h3,h4,h5,h6')).map((heading, index) => {
     const id = heading.id || `section-${index + 1}`;
     heading.id = id;

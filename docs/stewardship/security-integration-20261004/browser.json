@@ -1,0 +1,101 @@
+{
+  "checks": [
+    "Signed-out and spoofed capture requests remain unauthorized",
+    "Disabled URL intake preserves its draft; authenticated direct capture returns 503",
+    "Local HTML saves exact originals and readable text, captions, links and canonical/feed metadata; remote assets remain disabled",
+    "Paste, save, read and reload use the real authenticated local app/storage",
+    "No browser external-resource requests or runtime errors"
+  ],
+  "chromiumVersion": "151.0.7922.173",
+  "baseUrl": "http://127.0.0.1:35695",
+  "browserErrors": [],
+  "externalRequests": [],
+  "responses": [
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/6f99e577-04ea-4f5c-82c7-5922ba99ecb9",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/6f99e577-04ea-4f5c-82c7-5922ba99ecb9",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/d66f4b51-704f-48ca-9eaf-e0a15e5eae46",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/d66f4b51-704f-48ca-9eaf-e0a15e5eae46",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/8b9bc70b-ebb0-4b70-97e3-0c23941beee4",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/8b9bc70b-ebb0-4b70-97e3-0c23941beee4",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads",
+      "status": 201
+    },
+    {
+      "method": "PUT",
+      "path": "/api/uploads/8cc7b52a-0568-41c9-8db8-4b56e0e423f2",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/uploads/8cc7b52a-0568-41c9-8db8-4b56e0e423f2",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/documents/43c173ba-83f8-466f-8312-ac878f567825",
+      "status": 200
+    }
+  ],
+  "scope": "Engineering synthetic local-app interactions only; local sign-in middleware, no deployed identity/own-zone/rebinding/accuracy or formal audit qualification."
+}

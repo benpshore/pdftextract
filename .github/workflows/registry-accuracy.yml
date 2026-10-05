@@ -31,4 +31,4 @@ jobs:
             target
           key: cargo-ubuntu-latest-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
           restore-keys: cargo-ubuntu-latest-
-      - run: cargo test --locked --lib resolve::tests::live_ -- --ignored --nocapture --test-threads=1
+      - run: cargo test --locked --features network --lib resolve::tests::live_ -- --ignored --nocapture --test-threads=1

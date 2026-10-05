@@ -548,7 +548,7 @@ fn supervise_limits(
 
 /// GROBID's server is external; local client/parsing/output use the same hard
 /// memory, cancellation, capture, deadline, and kill/reap boundary as extraction.
-#[cfg(feature = "grobid")]
+#[cfg(all(feature = "grobid", feature = "network"))]
 pub(super) fn run_grobid(args: &super::grobid_cli::Args) -> anyhow::Result<ExitCode> {
     let budget = WorkerBudget {
         memory_growth_mib: args.max_memory_growth_mib,
@@ -765,7 +765,7 @@ pub(super) fn run_worker(
     super::worker_allocator::enforce();
     let encoded = read_limited(request_path, REQUEST_BYTES, true)?;
     match phase {
-        #[cfg(feature = "grobid")]
+        #[cfg(all(feature = "grobid", feature = "network"))]
         "grobid" => super::grobid_cli::worker(&encoded)?,
         "extract" => extract_worker(&serde_json::from_slice(&encoded)?, limits)?,
         "publish" => publish_worker(&serde_json::from_slice(&encoded)?, &limits)?,

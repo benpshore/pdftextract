@@ -1,0 +1,22 @@
+{
+  "head": "684d5588d9c6471d8f4996dc405ceea66456b316",
+  "pdfium_workflow": {
+    "conclusion": "failure",
+    "event": "push",
+    "reason": "Unchanged current-main YAML plain scalar containing backend:: plus a space fails parsing at line 87. Local syntax-only block scalar correction preserves the exact intended command. Annotation endpoint unavailable through connector allowlist; no workaround attempted.",
+    "run": 37211161999
+  },
+  "registry": {
+    "conclusion": "failure",
+    "reason": "Two live resolver checks compiled without network; recorded offline errors. Explicit feature correction pending new-head runtime qualification.",
+    "run": 37211225632
+  },
+  "required_ci": {
+    "run": 37211225567,
+    "state_at_observation": "Python/Swift/repo/Rust x64 successful; ARM job still active. Not a final combined or fresh-head qualification."
+  },
+  "web": {
+    "conclusion": "success",
+    "run": 37211225661
+  }
+}

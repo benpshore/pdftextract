@@ -42,8 +42,15 @@ const blank = (title, text) => ({ title, text, html: '<p>' + text + '</p><img sr
 const uploadPath = path.join(webRoot, 'lib', 'upload-client.ts');
 const uploadModule = new Module(uploadPath);
 uploadModule.filename = uploadPath;
+const capabilityPath=path.join(webRoot,'lib','network-capabilities.ts'),capabilityModule=new Module(capabilityPath);
+capabilityModule._compile(ts.transpileModule(fs.readFileSync(capabilityPath,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,capabilityPath);
+uploadModule.require=value=>value==='./network-capabilities'?capabilityModule.exports:req(value);
 uploadModule._compile(ts.transpileModule(fs.readFileSync(uploadPath, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, uploadPath);
+const passivePath=path.join(webRoot,'lib','passive-html.ts'),passiveModule=new Module(passivePath);
+passiveModule._compile(ts.transpileModule(fs.readFileSync(passivePath,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,passivePath);
 const helpers = {
+    '@/lib/network-capabilities': capabilityModule.exports,
+    '@/lib/passive-html': passiveModule.exports,
     '@/components/ui/button': { Button: ({ asChild, children, variant, ...props }) => asChild ? React.cloneElement(children, props) : React.createElement('button', props, children) },
     '@/lib/clip': { clipHtml: (text, url, name) => { if (failParse === 'result')
             return { ...blank(name, ''), status: 'failed', warnings: ['Parser returned Failed'] }; if (failParse)

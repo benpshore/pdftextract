@@ -42,10 +42,10 @@ const cases = [
     assert.equal(result.status, 'partial');
     assert(result.warnings.some(value => /script|render/i.test(value)));
   }],
-  ['Selected article retains lazy images and their caption without page chrome evidence', () => {
+  ['Local article omits remote images and retains captions without page chrome evidence', () => {
     const source = '<title>Camera report</title><nav><a href="/account">Account</a><img src="/nav.png"></nav><article><h1>Camera report</h1><p>' + 'The camera records detailed photographs in natural light. '.repeat(12) + '</p><figure><img src="/spacer.gif" data-src="/real.jpg" alt="Test scene"><figcaption>Observed light.</figcaption></figure><p>Study <a href="https://doi.org/10.1234/example">supporting evidence</a>.</p></article>';
     const result = clipHtml(source, 'https://example.test/report');
-    assert.match(result.html, /<img[^>]+https:\/\/example\.test\/real\.jpg/);
+    assert.doesNotMatch(result.html, /<img/);
     assert.match(result.html, /Observed light/);
     assert(!result.links.some(link => /\/account$/.test(link.url)));
     assert(!result.metadata.images.some(image => /nav\.png/.test(image.url)));
@@ -101,7 +101,7 @@ if (fixtureOption >= 0) {
       const text = norm(output.body.textContent);
       scores[engine] = { ...timing, textCharacters: text.length, paragraphs: paragraphs.filter(p => text.includes(p)).length, headings: headings.filter(p => text.includes(p)).length, tableCells: cells.filter(p => text.includes(p)).length, codeBlocks: code.filter(p => text.includes(p)).length, images: output.querySelectorAll('img').length, uniqueImages: new Set([...output.querySelectorAll('img')].map(e=>e.src)).size, links: output.querySelectorAll('a[href]').length, tables: output.querySelectorAll('table').length, noise: rule.noise.filter(p => text.includes(p)), warnings: result?.warnings || [] };
       if (item.name === 'wikipedia' && engine === 'fixed') assert.equal(scores[engine].tableCells, cells.length, 'Wikipedia comparison tables must survive article scoring');
-      if (item.name === 'howtogeek' && engine === 'fixed') { assert.equal(scores[engine].paragraphs, 24); assert.equal(scores[engine].headings, 10); assert(scores[engine].images > 0); assert.equal(scores[engine].noise.length, 0); }
+      if (item.name === 'howtogeek' && engine === 'fixed') { assert.equal(scores[engine].paragraphs, 24); assert.equal(scores[engine].headings, 10); assert.equal(scores[engine].images, 0); assert.equal(scores[engine].noise.length, 0); }
     }
     measures.push({ ...item, bytes: bytes.length, reference: { selector: rule.root, paragraphs: paragraphs.length, headings: headings.length, tableCells: cells.length, codeBlocks: code.length }, scores });
   }

@@ -1,0 +1,34 @@
+{
+  "observed_at": "2026-10-04T16:26:06Z",
+  "candidate_code_head": "b6fdc1b834966d543896feb94dc4784651ccd610",
+  "previous_published_head": "721dec3f248a9e449b339d96b9456e60e0579c41",
+  "changed_code_paths": [
+    "native/fetch-liteparse.sh",
+    "src/backend/native_provider.rs",
+    "tests/test_liteparse_provisioning.py"
+  ],
+  "sha256": {
+    "native/fetch-liteparse.sh": "1f358e2f3dd8b6a944c7b4b0752ddfcb26777239adbde17b9788dc63f11acd19",
+    "src/backend/native_provider.rs": "8955da8b85fed26497de8aa9ba1bd2bcb18f3b6e65b33ef7cd2b248d2a585d80",
+    "tests/test_liteparse_provisioning.py": "ce3d93f2e8dd8a7527db342b730cda139006c2efbf78e42524a29173faf6f13a"
+  },
+  "changes": [
+    "Apply exact hosted Rustfmt multiline assertion; local Rustfmt remains unavailable",
+    "Prefer same-job known-working shasum SHA256 verification; keep GNU fallback and both reviewed pins",
+    "Replace inadequate accepting-short-option model with refusing alias beside real shasum"
+  ],
+  "verification": {
+    "ruff": "pass",
+    "checksum_export_synthetic_cases": 24,
+    "web_parsed_source": "3d122ac vs c308680 identical without comments; later native repair does not modify web",
+    "native_hosted": "New-head runtime still pending;721dec3 failed before native tests",
+    "poppler_previous_head": "Exported3development diagnostics;2Partial remain unqualified; exit1 preserved",
+    "original_native_gate": "82f95ad209Partial/zero exceptions; unwaived"
+  },
+  "limits": [
+    "No live Mac/tool execution by steward; hosted macOS is separate",
+    "No corpus artifacts downloaded",
+    "Prior evidence snapshots remain bound to their exact SHAs",
+    "Independent reviews of82f95ad do not transfer to later code"
+  ]
+}

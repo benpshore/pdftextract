@@ -52,7 +52,7 @@ jobs:
           path: .corpus-cache
           key: corpus-${{ hashFiles('corpus/manifest.json') }}
           restore-keys: corpus-
-      - run: cargo build --locked --release
+      - run: cargo build --locked --release --features network
       - name: Fetch the corpus (cached items are reused)
         run: ./target/release/tpe corpus fetch --manifest corpus/manifest.json --cache .corpus-cache --split "$SPLIT"
       - name: Evaluate

@@ -1,0 +1,111 @@
+{
+  "agent_fingerprint": "2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f",
+  "archives": [
+    {
+      "pr": 222,
+      "read_back_verified": true,
+      "ref": "archive/steward-20261004/pr-222-6fc3266e0860",
+      "sha": "6fc3266e0860de85b0bf5bd39a364d783a1a2796"
+    },
+    {
+      "pr": 223,
+      "read_back_verified": true,
+      "ref": "archive/steward-20261004/pr-223-7385a3bcd459",
+      "sha": "7385a3bcd4592a2071cd5eb93d566fe4ec472723"
+    },
+    {
+      "pr": 229,
+      "read_back_verified": true,
+      "ref": "archive/steward-20261004/pr-229-b752bae170ae",
+      "sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+    }
+  ],
+  "authority": "https://github.com/benpshore/pdftextract/issues/225#issuecomment-5981124716",
+  "base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "branch": "integration/security-hardening",
+  "commit_order": [
+    {
+      "method": "exact seven-file tree against same main; new current-steward attribution commit",
+      "order": 1,
+      "sha": "f1074856590f8c5c949a0fbce85c30ceb01b3b68",
+      "source_head": "6fc3266e0860de85b0bf5bd39a364d783a1a2796",
+      "source_pr": 222,
+      "tree": "10b1fd92c1743c72ffb1dc9a039106d23a33d31e"
+    },
+    {
+      "method": "apply focused 16-file patch; preserve unrelated current-main Cargo.toml and error.rs content",
+      "order": 2,
+      "sha": "bb0f15c015fa4b8719381391735518381a1a38db",
+      "source_base": "3b73e37101e0ad1a22372601152f81403b273c54",
+      "source_head": "7385a3bcd4592a2071cd5eb93d566fe4ec472723",
+      "source_pr": 223,
+      "tree": "f1a608c29cdc3737c6601f6cb89540a4c646c0b8"
+    },
+    {
+      "method": "adapt compatible web guards/parser/client/UI/tests; retain #222 contract comment, current-main asset route, omit old parent features; preserve canonical/feed metadata and explicitly fixture-only transport testing",
+      "order": 3,
+      "sha": "684d5588d9c6471d8f4996dc405ceea66456b316",
+      "source_base": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "source_head": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "source_pr": 229
+    },
+    {
+      "method": "Five existing network-dependent qualification workflows explicitly select network; fix pre-existing PDFium workflow YAML scalar without changing its command/settings. No production/default-binary enabling or check bypass.",
+      "order": 4,
+      "sha": "this commit"
+    }
+  ],
+  "config_sha256": "4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3",
+  "deferred_input": {
+    "agent": "Rusty Rick",
+    "canonical_registry_fingerprint": null,
+    "qualification": "No Rust/Cargo runtime qualification; no finding is an implemented fix or security-integration requirement",
+    "reported_external_task_digest": "36f3c0b0f94279681aca1e9e370a0a61a847b89eeeb7c912a175fce7b86105ab",
+    "reported_full_report_sha256": "f1e0cbe802ef3cc779dd7cbca3894a47d0575b0461c9f9395fe4a5156463e3f8",
+    "reported_manifest_sha256": "7da407eeda80abe72f546251faf163dd7d6b9bb3e136640e4679713fe50548f2",
+    "status": "parent supplied truncated source-linked report; observations/proposals and historical/runtime evidence separated; exact references require later independent verification for #227/#232 queue; legacy four-line task digest is not the policy canonical registry identity",
+    "task_id": "01a1074c-a688-76ad-9b8b-a8db77889017"
+  },
+  "done_criteria": [
+    "Exact branch/base/head/order and focused-source provenance independently verified",
+    "Combined engineering evidence and unresolved gates published on draft PR",
+    "Source heads/PRs preserved without changes",
+    "Hosted exact-head checks completed or honestly blocked; no main merge/release/deploy"
+  ],
+  "draft_pr": "https://github.com/benpshore/pdftextract/pull/234",
+  "historical_attribution": "Original responsible identities/configurations for #222/#223 and original #221 are uncertain; no retrospective fingerprints assigned. Bob owns integration/adaptation/tests/documentation only. GitHub commit account is transport identity.",
+  "independent_review": {
+    "requested": [
+      "Arch reviewer",
+      "Synthesis reviewer"
+    ],
+    "status": "Named callable tools absent from tool discovery; gap reported for parent-coordinated bounded read-only passes after checkpoint. Bob steward self-review is separate, not independent review."
+  },
+  "initial_published_head": "684d5588d9c6471d8f4996dc405ceea66456b316",
+  "main_promotion": "held",
+  "next_review": "2026-10-05 UTC or source/main head change",
+  "owner": "Busybody Bob",
+  "published_head": "external PR/#225 receipt avoids self-referential commit hash",
+  "registry": "https://github.com/benpshore/pdftextract/blob/aa51e4343853a4c41f723b6706889ea2fca820d5/docs/stewardship/agents.json",
+  "separate_repository_queue": {
+    "flags": [
+      "--no-ci",
+      "--no-pr"
+    ],
+    "name": "makeghrepo",
+    "owner_requested": "Rusty Rick",
+    "status": "Queued separate repository job; actual repository/issue/task assignment to be coordinated by parent. No Todoist changes or pdftextract CI/PR policy changes."
+  },
+  "source_patch_sha256": {
+    "pr222": "7f80df6528b7adbc8ffbe6f8b6ac89183587037e8518fa1b529274fc83ee19af",
+    "pr223": "5dd990cc55eaad2e3cfa40820c008826acdfb849e2a5b4499df72302902151d5",
+    "pr229": "018774e2b088d0ac67b2446bc90e8b3fb7cb09cc0f8f6df8e4d0e78085612108"
+  },
+  "task_id": "pdftextract/stewardship/2026-10-04/busybody-bob",
+  "usage": {
+    "amount": null,
+    "receipt": null,
+    "status": "unknown",
+    "unit": null
+  }
+}

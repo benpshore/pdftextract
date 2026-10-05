@@ -1,0 +1,66 @@
+[
+  {
+    "file": "app.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "auto-release.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "build-binaries.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "ci.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "codeql.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "eval.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "install-check.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "native-bibliography-evidence.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "native-repair-checks.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "native.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "pdfium-probe.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "pmc-bibliography.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "poppler-compare.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "registry-accuracy.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "release.yml",
+    "parse": "pass"
+  },
+  {
+    "file": "web.yml",
+    "parse": "pass"
+  }
+]

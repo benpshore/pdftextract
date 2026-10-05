@@ -1,0 +1,69 @@
+{
+  "candidate_code_head": "c308680f9d5b1aaabf0fdc202513e44a0f91a852",
+  "candidate_tree": "1dc89d8c4aca81b9db6ff8154de3ef233588deda",
+  "changed_code_paths": [
+    ".github/workflows/poppler-compare.yml",
+    "native/fetch-liteparse.sh",
+    "scripts/export_visual_audit.py",
+    "scripts/test-web-hardening-browser.mjs",
+    "src/backend/native_provider.rs",
+    "tests/test_liteparse_provisioning.py",
+    "tests/test_visual_audit_export.py",
+    "web/SOURCE_MANIFEST.json",
+    "web/lib/clip.ts",
+    "web/lib/passive-html.ts",
+    "web/scripts/test-network-capabilities.mjs"
+  ],
+  "changed_documentation_paths": [
+    "docs/HARDENING_WALKTHROUGH.md",
+    "docs/SECURITY_HARDENING_INTEGRATION_20261004.md",
+    "docs/stewardship/security-integration-20261004/RESUME.md",
+    "docs/stewardship/security-integration-20261004/actions.jsonl",
+    "docs/stewardship/security-integration-20261004/blockers.json",
+    "docs/stewardship/security-integration-20261004/checkpoint.json",
+    "docs/stewardship/security-integration-20261004/final-ci.json"
+  ],
+  "independent_review": "Archie and Sylvie reports cover only82f95ad; focused later delta requires rereview. Archie registry82904e972c170896adb0aecfffd7fb89be1d8cb3 supplied digest verified; Sylvie canonical bytes/original companions pending.",
+  "limits": [
+    "No main merge/release/deploy or quality/security clearance",
+    "Poppler export finishes diagnostics but preserves nonzero Partial gate",
+    "No reviewed-partials/pin/dependency/toolchain/permission changes",
+    "No corpus or held-out artifacts retrieved",
+    "No browser-native-GROBID combined qualification"
+  ],
+  "local_evidence": {
+    "browser_checks": 5,
+    "checksum_export_cases_included_in_python": 24,
+    "portable_source_manifest": "159 files verified",
+    "python_tests": 234,
+    "ruff": "pass",
+    "rust": "not executed: Cargo absent locally",
+    "source_tests": 28,
+    "swift_cmake": "absent locally; no new changes in those implementations",
+    "web_commands": 14
+  },
+  "reviewed_base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "reviewed_head": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+  "reviewed_tree": "cb2052eab4bca61231b9302f44feed061d81e7ad",
+  "sha256": {
+    ".github/workflows/poppler-compare.yml": "cccd25bde472422fd3580da51dff866bc3a1cb520592874ba5606deca2d419b1",
+    "docs/HARDENING_WALKTHROUGH.md": "67429fbb6cefb248231b0da3d476a8a147035bc6c73d7a0628ff0aea7bdc19ed",
+    "docs/SECURITY_HARDENING_INTEGRATION_20261004.md": "056cc2bc6aeb2f93064dc813ec52e31cbd080eb90d148456fb58265353c3bce8",
+    "docs/stewardship/security-integration-20261004/RESUME.md": "fcd41010589a823118a1b5df8f7efd25685d2ea82eb4099ecee1bbd63ed55426",
+    "docs/stewardship/security-integration-20261004/actions.jsonl": "b252203375ef85c596769c72ceba196caba599dc0d2c4808b299b005ebd93942",
+    "docs/stewardship/security-integration-20261004/blockers.json": "82f7f76b23b91204496413d6fd57cb181529033294bad709c25c751066776e52",
+    "docs/stewardship/security-integration-20261004/checkpoint.json": "91393d870eb4441ae5094bb952a60e0a476fd010864f1f2953a960adfc1a5b0e",
+    "docs/stewardship/security-integration-20261004/final-ci.json": "c01a58fab72e63aed34ff88299b3c52cb5555f4160caab8fbe62357f8883d947",
+    "native/fetch-liteparse.sh": "3f8fae079e87b2a96affff75c9a8aef22754337d70aa37453394601a391ebe4b",
+    "scripts/export_visual_audit.py": "81e3a9f5785fd5492ae9164a8c26c7edc08989d2c39f23ae0032a0e641d3030c",
+    "scripts/test-web-hardening-browser.mjs": "f849de12df78d863b4361b9c9c4f3c0839fa3cca480f70b4c9ee868b63e5cbae",
+    "src/backend/native_provider.rs": "5e5d9f1d82b0981b95783e2917248825bf54e2792f38ea251330920dcd97a913",
+    "tests/test_liteparse_provisioning.py": "236fea372c869997a05736ff875ec59389f949f668d9c7c2b731a73e2b3ffa5c",
+    "tests/test_visual_audit_export.py": "cac743c3e1fb1cf95152aadde4b5da6cb032b038237c0f0a659e320492cdb8f1",
+    "web/SOURCE_MANIFEST.json": "87546a09cf36f22356369b3e1f3c6e2428d9a5d48a62c8a6a0344cf8a9638a04",
+    "web/lib/clip.ts": "76978de5602469fe208f1ce8833a4ca5aa92297d1097ce90268511252dbb8b3b",
+    "web/lib/passive-html.ts": "6ddc453b716510ab28816132eceb4d6ff318fb41826e998eb7acf3f9bdaa9884",
+    "web/scripts/test-network-capabilities.mjs": "8bef9286166342c92e62b48fe52c5a5cf71043642e8ee2923b4d9a8c17661fea"
+  },
+  "test_boundary": "Web/browser and Python checks precede candidate by comment/indentation/documentation-only changes; code snapshot records exact candidate bytes, not a false claim all bytes executed. Native unit fixtures require hosted execution. Original245-file evidence remains a historical snapshot."
+}

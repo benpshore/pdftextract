@@ -1,6 +1,9 @@
 import type {DocumentRow,Extracted} from './types';
+import {passiveHtmlDocument} from './passive-html';
+import {remoteExtractionEnabled} from './network-capabilities';
 export async function retainArticleImages(record:DocumentRow,result:Extracted,signal?:AbortSignal,onProgress?:(done:number,total:number)=>void):Promise<Extracted>{
  if(!result.html)return result;
+ if(!remoteExtractionEnabled)return {...result,html:passiveHtmlDocument(result.html,source=>source.startsWith(`/api/documents/${record.id}/assets/`)).body.innerHTML,metadata:{...result.metadata,remoteResources:'disabled'}};
  const dom=new DOMParser().parseFromString(result.html,'text/html');
  const images=Array.from(dom.querySelectorAll('img'));let completed=0,next=0;
  const warnings=[...result.warnings],assets:Record<string,unknown>[]=[];

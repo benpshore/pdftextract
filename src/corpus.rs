@@ -9,6 +9,7 @@
 use std::fs;
 use std::io::Read;
 use std::path::{Component, Path, PathBuf};
+#[cfg(feature = "network")]
 use std::time::Duration;
 
 use serde::{Deserialize, Serialize};
@@ -20,12 +21,15 @@ use crate::schema::sha256_hex;
 const MAX_UNPACKED_BYTES: u64 = 200 * 1024 * 1024;
 
 /// Upper bound on one downloaded response body.
+#[cfg(feature = "network")]
 const MAX_DOWNLOAD_BYTES: u64 = 256 * 1024 * 1024;
 
 /// Per-phase network timeout.
+#[cfg(feature = "network")]
 const TIMEOUT: Duration = Duration::from_secs(60);
 
 /// Pause before the single retry of a failed download.
+#[cfg(feature = "network")]
 const RETRY_DELAY: Duration = Duration::from_secs(2);
 
 const GZIP_MAGIC: [u8; 2] = [0x1f, 0x8b];
@@ -167,6 +171,8 @@ pub fn cache_dir_name(id: &str) -> String {
 /// timeouts, follow redirects and are retried once after 2 s on a transport
 /// error. A manifest hash that is present and does not match the bytes is
 /// [`CorpusError::HashMismatch`]; a mismatching download is not cached.
+/// Downloads require the explicit `network` build feature. Without it,
+/// cached files remain usable even when `offline` is false.
 pub fn fetch_item(
     item: &ManifestItem,
     cache_dir: &Path,
@@ -297,6 +303,14 @@ fn unpack_fresh(bytes: &[u8], dest: &Path) -> Result<(), CorpusError> {
     Ok(())
 }
 
+#[cfg(not(feature = "network"))]
+fn download(_url: &str, _user_agent: &str) -> Result<Vec<u8>, CorpusError> {
+    Err(CorpusError::Http(
+        "network capability is disabled in this build".to_string(),
+    ))
+}
+
+#[cfg(feature = "network")]
 fn download(url: &str, user_agent: &str) -> Result<Vec<u8>, CorpusError> {
     let config = ureq::Agent::config_builder()
         .user_agent(user_agent)
@@ -319,6 +333,7 @@ fn download(url: &str, user_agent: &str) -> Result<Vec<u8>, CorpusError> {
     }
 }
 
+#[cfg(feature = "network")]
 fn download_once(agent: &ureq::Agent, url: &str) -> Result<Vec<u8>, ureq::Error> {
     let mut response = agent.get(url).call()?;
     response
@@ -328,11 +343,13 @@ fn download_once(agent: &ureq::Agent, url: &str) -> Result<Vec<u8>, ureq::Error>
         .read_to_vec()
 }
 
+#[cfg(feature = "network")]
 fn http_error(url: &str, err: &ureq::Error) -> CorpusError {
     CorpusError::Http(format!("{url}: {err}"))
 }
 
 /// Errors worth one retry: the transport failed or the server was busy.
+#[cfg(feature = "network")]
 fn is_transient(err: &ureq::Error) -> bool {
     match err {
         ureq::Error::StatusCode(code) => *code == 429 || *code >= 500,

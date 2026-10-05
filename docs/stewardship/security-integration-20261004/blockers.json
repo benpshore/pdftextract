@@ -1,0 +1,51 @@
+{
+  "integration_head": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+  "items": [
+    {
+      "reason": "Required shared config preflight/callable security-diff tooling and patch-risk shared storage/schema unavailable; no goal/scan/audit/risk rating created. Engineering tests are distinct.",
+      "state": "blocked resources",
+      "target": "formal security workflow"
+    },
+    {
+      "reason": "No named reviewer tools callable; Bob self-review is not independent. Exact candidate head 82f95ad99185b6641023169f8dd99d6f92438ac1 is checkpointed for bounded read-only reviewers with individual canonical identity/task/configuration/evidence required.",
+      "state": "parent coordination pending",
+      "target": "independent Arch/Synthesis review"
+    },
+    {
+      "job": 111465184750,
+      "reason": "Header provisioning: sha256sum --check prints short-option usage and exits 1. native/fetch-liteparse.sh unchanged from current main; no pin/verification bypass.",
+      "run": 37212097064,
+      "state": "failure",
+      "target": "PDFium macOS"
+    },
+    {
+      "job": 111465184918,
+      "reason": "src/backend/native_provider.rs lines 320/333 call cast_unsigned on c_char that is u8 on this target; E0599. File unchanged from current main. Linux x64 PDFium probe successful. No unrelated adapter repair added.",
+      "run": 37212097064,
+      "state": "failure",
+      "target": "PDFium Linux ARM64"
+    },
+    {
+      "job": 111465184217,
+      "reason": "Export three PDFs and complete extracted page text for visual audit step failed. No corpus/held-out material or artifact contents retrieved or republished; cause not investigated further in this staging scope.",
+      "run": 37212096993,
+      "state": "failure",
+      "target": "Poppler comparison"
+    },
+    {
+      "reason": "Heavy existing workflow lanes still active; completion/accuracy not claimed. Native 209 Partial quality gate persists and requires its own review.",
+      "runs": [
+        37212097012,
+        37212096981
+      ],
+      "state": "in_progress at checkpoint",
+      "target": "Native / binary builds"
+    },
+    {
+      "reason": "Cargo/Swift/CMake absent locally; OSV local tunnel blocked. Hosted required CI includes successful Rust x64/ARM, Swift and Python audit; no local audit success claim.",
+      "state": "limited",
+      "target": "local native/tooling audit"
+    }
+  ],
+  "observed_at": "2026-10-04T15:24:12Z"
+}
