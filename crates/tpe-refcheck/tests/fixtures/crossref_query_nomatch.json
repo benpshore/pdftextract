@@ -1,0 +1,25 @@
+{
+  "status": "ok",
+  "message-type": "work-list",
+  "message-version": "1.0.0",
+  "message": {
+    "facets": {},
+    "total-results": 1,
+    "items": [
+      {
+        "DOI": "10.1000/unrelated.1",
+        "type": "journal-article",
+        "title": ["Soil moisture retrieval from passive microwave observations"],
+        "author": [{"given": "Pat", "family": "Fielding", "sequence": "first", "affiliation": []}],
+        "container-title": ["Remote Sensing of Environment"],
+        "volume": "88",
+        "page": "1-12",
+        "issued": {"date-parts": [[2004]]},
+        "score": 15.1,
+        "URL": "https://doi.org/10.1000/unrelated.1"
+      }
+    ],
+    "items-per-page": 5,
+    "query": {"start-index": 0, "search-terms": null}
+  }
+}
