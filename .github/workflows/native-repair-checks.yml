@@ -105,12 +105,12 @@ jobs:
       - name: Rust formatting and strict lint
         run: |
           cargo fmt --all --check
-          cargo clippy --locked --workspace --all-targets --features pdfium -- -D warnings
+          cargo clippy --locked --workspace --all-targets --features pdfium,pdf-oxide,mupdf,poppler,grobid -- -D warnings
       - name: Rust workspace with PDFium
         shell: bash
         run: |
           set -euo pipefail
-          cargo test --locked --workspace --features pdfium -- --nocapture 2>&1 | tee out/native-repairs/rust.log
+          cargo test --locked --workspace --features pdfium,pdf-oxide,mupdf,poppler,grobid -- --nocapture 2>&1 | tee out/native-repairs/rust.log
       - name: Explicit public hyphen and paragraph regressions
         shell: bash
         run: |
