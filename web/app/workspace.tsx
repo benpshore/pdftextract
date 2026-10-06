@@ -188,9 +188,9 @@ export default function Workspace({userId}:{userId:string}) {
     catch(reason){setError('The folder picker is unavailable here: '+messageOf(reason)+' Use Add files instead.');}
   }
   function importFolderInput(files:FileList) {
-    const list=Array.from(files);if(!list.length)return;
-    const root=(list[0].webkitRelativePath||list[0].name).split('/')[0]||'folder';
-    void importFolder(root,async()=>enumerateFileList(list));
+    if(!files.length)return;
+    const root=(files[0].webkitRelativePath||files[0].name).split('/')[0]||'folder';
+    void importFolder(root,async()=>enumerateFileList(files,{signal:folderAbort.current?.signal}));
   }
   function rereadOriginal() {
     if(!selected||pending)return;

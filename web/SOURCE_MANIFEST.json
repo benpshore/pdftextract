@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 54816,
+      "bytes": 54828,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "9c6f33310525c20d66ada4426bf192c8ba58effd489ae0c26599f9489ee4e3df"
+      "sha256": "10a5a8d54b64e4edaf17dbb3bb17c7d254f099da419fcab987ed1b5f4f86c386"
     },
     {
       "bytes": 7211,
@@ -637,10 +637,10 @@
       "sha256": "1c93d747e384c8e17e3e3dd5361b24412babf5eba2a11d2ae7a75f4e0924112c"
     },
     {
-      "bytes": 19362,
+      "bytes": 21941,
       "mode": "0644",
       "path": "lib/folder-traversal.ts",
-      "sha256": "8d22a03d6b5e756d3aec87560135d52e3eef69def7ce6ff602bdd6c99f93fc7b"
+      "sha256": "8fab8821bdbbc4ca5fcb5f376051712064fe4be7832a49c3f23bbde7e0366994"
     },
     {
       "bytes": 13743,
@@ -823,6 +823,12 @@
       "sha256": "4154a9e6fd7faa98df6359a479e61d516608663ee13bb5af27d233b75775538f"
     },
     {
+      "bytes": 5236,
+      "mode": "0644",
+      "path": "scripts/folder-regression-cases.mjs",
+      "sha256": "c32cac568f847d05fdd221d3f69cec57b399e1e3f63ce5fae70bb84fb4789af9"
+    },
+    {
       "bytes": 1685,
       "mode": "0644",
       "path": "scripts/install-ci.mjs",
@@ -889,10 +895,22 @@
       "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
     },
     {
-      "bytes": 12196,
+      "bytes": 1541,
+      "mode": "0644",
+      "path": "scripts/test-folder-integrity-browser.mjs",
+      "sha256": "00a74b72e4c096a5a739732abbed1eca697155eebe9cf8d99ad0734264216ccf"
+    },
+    {
+      "bytes": 723,
+      "mode": "0644",
+      "path": "scripts/test-folder-integrity.mjs",
+      "sha256": "e7428ab2255d72bcf9af930964949e3c0652a6219c012954a4ce4eea9782659c"
+    },
+    {
+      "bytes": 12260,
       "mode": "0644",
       "path": "scripts/test-import-flow.mjs",
-      "sha256": "48cd83ff139b72593bb1d9c23b7a4f9536a7fb2393c94c02825d5f002f3faac5"
+      "sha256": "d1ca251cd3d12a17212f942007b5414ebee54a60ba0195b8d36a52f19eea7b2c"
     },
     {
       "bytes": 10873,
