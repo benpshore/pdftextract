@@ -10,13 +10,15 @@
 
 use std::collections::hash_map::Entry;
 use std::collections::{HashMap, HashSet};
-use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::fs::{self, File};
+use std::io;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use tpe::acquire;
+use tpe::publication::{StagedOutputs, rename_noreplace};
 use tpe::schema::sha256_hex;
 
 use crate::biblio::fold_ascii;
@@ -252,6 +254,8 @@ pub enum RenameError {
     NoDirectory,
     #[error("{0} is not a directory")]
     NotADirectory(String),
+    #[error("apply stopped: {reason}; recovery manifest: {manifest}")]
+    Recovery { manifest: String, reason: String },
 }
 
 /// One applied operation (or one that was skipped, with its reason).
@@ -262,6 +266,10 @@ pub struct ManifestEntry {
     pub op: Op,
     pub sha256: String,
     pub skipped: Option<String>,
+    /// No durable outcome was recorded. Undo must not guess which files belong
+    /// to this operation; preserve both paths for inspection.
+    #[serde(default)]
+    pub pending: bool,
 }
 
 /// Record of one `--apply`, enough to reverse it.
@@ -274,17 +282,25 @@ pub struct Manifest {
     pub entries: Vec<ManifestEntry>,
 }
 
-/// Carry out the plan inside `into`, then write the manifest there as
+/// Save and sync the complete recovery plan before any operation, then
+/// checkpoint each outcome. The manifest is written inside `into` as
 /// `tpe-identify-manifest.json` (or `-2`, `-3`, ... when one exists).
 /// Returns the manifest and its path.
 pub fn apply(plan: &RenamePlan, into: &Path) -> Result<(Manifest, PathBuf), RenameError> {
+    apply_with_checkpoint(plan, into, || Ok(()))
+}
+
+fn apply_with_checkpoint(
+    plan: &RenamePlan,
+    into: &Path,
+    mut after_operation: impl FnMut() -> io::Result<()>,
+) -> Result<(Manifest, PathBuf), RenameError> {
     fs::create_dir_all(into)?;
     let dir = into.canonicalize()?;
     if !dir.is_dir() {
         return Err(RenameError::NotADirectory(dir.display().to_string()));
     }
     let mut entries = Vec::new();
-    let mut written: HashSet<String> = HashSet::new();
     for entry in &plan.entries {
         let Some(from) = &entry.from else {
             continue;
@@ -292,18 +308,26 @@ pub fn apply(plan: &RenamePlan, into: &Path) -> Result<(Manifest, PathBuf), Rena
         if entry.op == Op::Skip {
             continue;
         }
+        // Public library callers can supply plans too. Never join an absolute
+        // path or traversal component onto the chosen output directory.
+        let mut components = Path::new(&entry.to).components();
+        if !matches!(components.next(), Some(std::path::Component::Normal(_)))
+            || components.next().is_some()
+        {
+            return Err(io::Error::new(io::ErrorKind::InvalidInput, "invalid target name").into());
+        }
         let target = dir.join(&entry.to);
-        let skipped = apply_one(entry, Path::new(from), &target, &mut written);
         entries.push(ManifestEntry {
-            from: from.clone(),
+            from: std::path::absolute(from)?.to_string_lossy().into_owned(),
             to: target.to_string_lossy().into_owned(),
             op: entry.op,
             sha256: entry.sha256.clone(),
-            skipped,
+            skipped: None,
+            pending: true,
         });
     }
-    let manifest = Manifest {
-        version: 1,
+    let mut manifest = Manifest {
+        version: 2,
         tool: "tpe-identify".to_string(),
         created_unix: SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -311,27 +335,59 @@ pub fn apply(plan: &RenamePlan, into: &Path) -> Result<(Manifest, PathBuf), Rena
         dir: dir.to_string_lossy().into_owned(),
         entries,
     };
-    let path = free_manifest_path(&dir);
-    let mut file = OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .open(&path)?;
-    file.write_all(serde_json::to_string_pretty(&manifest)?.as_bytes())?;
-    file.write_all(b"\n")?;
-    file.sync_all()?;
+    let path = free_manifest_path(&dir)?;
+    let mut staged = stage_manifest(&manifest, &path)?;
+    staged.publish_exact(&path).map_err(io::Error::other)?;
+    let mut owned_record = File::open(&path)?;
+    let mut written: HashSet<String> = HashSet::new();
+    for index in 0..manifest.entries.len() {
+        let entry = &manifest.entries[index];
+        let skipped = apply_one(entry, &mut written)
+            .map_err(|e| recovery_error(&path, e))?;
+        // On an interrupted or failed checkpoint, the durable record remains
+        // pending, with both paths and the expected hash available for recovery.
+        after_operation().map_err(|e| recovery_error(&path, e))?;
+        manifest.entries[index].skipped = skipped;
+        manifest.entries[index].pending = false;
+        let mut next = stage_manifest(&manifest, &path)
+            .map_err(|e| recovery_error(&path, e))?;
+        owned_record = next.replace_owned(&path, &owned_record)
+            .map_err(|e| recovery_error(&path, e))?;
+    }
     Ok((manifest, path))
 }
 
-fn free_manifest_path(dir: &Path) -> PathBuf {
+fn recovery_error(path: &Path, reason: impl std::fmt::Display) -> RenameError {
+    RenameError::Recovery {
+        manifest: path.display().to_string(),
+        reason: reason.to_string(),
+    }
+}
+
+fn stage_manifest(manifest: &Manifest, path: &Path) -> Result<StagedOutputs, RenameError> {
+    let mut bytes = serde_json::to_vec_pretty(manifest)?;
+    bytes.push(b'\n');
+    Ok(StagedOutputs::stage(path, &[("", bytes)])?)
+}
+
+fn occupied(path: &Path) -> io::Result<bool> {
+    match fs::symlink_metadata(path) {
+        Ok(_) => Ok(true),
+        Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(false),
+        Err(e) => Err(e),
+    }
+}
+
+fn free_manifest_path(dir: &Path) -> io::Result<PathBuf> {
     let first = dir.join("tpe-identify-manifest.json");
-    if !first.exists() {
-        return first;
+    if !occupied(&first)? {
+        return Ok(first);
     }
     let mut n = 2;
     loop {
         let candidate = dir.join(format!("tpe-identify-manifest-{n}.json"));
-        if !candidate.exists() {
-            return candidate;
+        if !occupied(&candidate)? {
+            return Ok(candidate);
         }
         n += 1;
     }
@@ -339,46 +395,67 @@ fn free_manifest_path(dir: &Path) -> PathBuf {
 
 /// Apply one entry; `Some(reason)` when it was skipped.
 fn apply_one(
-    entry: &PlanEntry,
-    from: &Path,
-    target: &Path,
+    entry: &ManifestEntry,
     written: &mut HashSet<String>,
-) -> Option<String> {
-    let bytes = match fs::read(from) {
-        Ok(b) => b,
-        Err(e) => return Some(format!("cannot read source: {e}")),
+) -> Result<Option<String>, String> {
+    let from = Path::new(&entry.from);
+    let target = Path::new(&entry.to);
+    let snapshot = match acquire::snapshot(from, None) {
+        Ok(s) => s,
+        Err(e) => return Ok(Some(format!("cannot read source: {e}"))),
     };
-    if sha256_hex(&bytes) != entry.sha256 {
-        return Some("source changed since the scan".to_string());
+    if snapshot.hash.0 != entry.sha256 {
+        return Ok(Some("source changed since the scan".to_string()));
     }
-    if target.exists() || written.contains(&target.to_string_lossy().to_lowercase()) {
-        return Some("target exists".to_string());
+    let exists = match occupied(target) {
+        Ok(exists) => exists,
+        Err(e) => return Ok(Some(format!("cannot inspect target: {e}"))),
+    };
+    if exists || written.contains(&target.to_string_lossy().to_lowercase()) {
+        return Ok(Some("target exists".to_string()));
     }
     match entry.op {
         Op::Rename => {
-            if let Err(e) = fs::rename(from, target) {
-                return Some(format!("rename failed: {e}"));
+            // A directory-entry rename preserves content; reject symlink sources
+            // whose relative target would change meaning after moving.
+            if fs::symlink_metadata(from).is_ok_and(|m| m.file_type().is_symlink()) {
+                return Ok(Some("symlink source cannot be renamed".into()));
+            }
+            if from.parent().and_then(|p| p.canonicalize().ok()).as_deref() != target.parent() {
+                return Ok(Some("rename source is outside the output directory".into()));
+            }
+            if let Err(e) = rename_noreplace(from, target) {
+                return Ok(Some(format!("rename failed: {e}")));
+            }
+            let moved = acquire::snapshot(target, None)
+                .map_err(|e| format!("rename completed but verification failed: {e}"))?;
+            if moved.hash.0 != entry.sha256 {
+                return Err("renamed source changed during apply; both paths need inspection".into());
+            }
+            if let Err(e) = File::open(target.parent().unwrap_or_else(|| Path::new(".")))
+                .and_then(|f| f.sync_all())
+            {
+                return Err(format!("rename completed but directory sync failed; inspect both paths: {e}"));
             }
         }
         Op::Copy => {
-            let mut file = match OpenOptions::new().write(true).create_new(true).open(target) {
-                Ok(f) => f,
-                Err(e) => return Some(format!("cannot create target: {e}")),
+            let mut staged = match StagedOutputs::stage(target, &[("", snapshot.bytes)]) {
+                Ok(s) => s,
+                Err(e) => return Ok(Some(format!("cannot stage target: {e}"))),
             };
-            if let Err(e) = file.write_all(&bytes).and_then(|()| file.sync_all()) {
-                return Some(format!("write failed: {e}"));
+            if let Err(e) = staged.publish_exact(target) {
+                return Err(format!("cannot publish target: {e}"));
             }
-            drop(file);
-            match fs::read(target) {
-                Ok(back) if sha256_hex(&back) == entry.sha256 => {}
-                Ok(_) => return Some("copy verification failed: hash differs".to_string()),
-                Err(e) => return Some(format!("copy verification failed: {e}")),
+            let copied = acquire::snapshot(target, None)
+                .map_err(|e| format!("copy published but verification failed: {e}"))?;
+            if copied.hash.0 != entry.sha256 {
+                return Err("copy published but verification hash differs; copy kept".into());
             }
         }
-        Op::Skip => return Some("skipped".to_string()),
+        Op::Skip => return Ok(Some("skipped".to_string())),
     }
     written.insert(target.to_string_lossy().to_lowercase());
-    None
+    Ok(None)
 }
 
 /// What undoing one manifest entry would do.
@@ -412,6 +489,11 @@ pub fn undo(manifest: &Manifest, dry_run: bool) -> Vec<UndoEntry> {
             action: "skip".to_string(),
             reason: None,
         };
+        if entry.pending {
+            report.reason = Some("outcome uncertain: inspect both paths against the recorded hash; files kept".into());
+            out.push(report);
+            continue;
+        }
         if let Some(reason) = &entry.skipped {
             report.reason = Some(format!("never applied: {reason}"));
             out.push(report);
@@ -427,11 +509,19 @@ pub fn undo(manifest: &Manifest, dry_run: bool) -> Vec<UndoEntry> {
         }
         match entry.op {
             Op::Rename => {
-                if from.exists() {
+                let exists = match occupied(from) {
+                    Ok(exists) => exists,
+                    Err(e) => {
+                        report.reason = Some(format!("cannot inspect original name: {e}"));
+                        out.push(report);
+                        continue;
+                    }
+                };
+                if exists {
                     report.reason = Some("original name is taken".to_string());
                 } else {
                     report.action = "restore".to_string();
-                    if !dry_run && let Err(e) = fs::rename(to, from) {
+                    if !dry_run && let Err(e) = rename_noreplace(to, from) {
                         report.action = "skip".to_string();
                         report.reason = Some(format!("rename failed: {e}"));
                     }
@@ -460,6 +550,44 @@ pub fn undo(manifest: &Manifest, dry_run: bool) -> Vec<UndoEntry> {
 mod tests {
     use super::*;
     use crate::biblio::BiblioKey;
+
+    #[test]
+    fn checkpoint_failure_keeps_a_readable_pending_recovery_plan() {
+        let dir = tempfile::tempdir().unwrap();
+        let from = dir.path().join("original.pdf");
+        let bytes = b"%PDF-1.4 immutable checkpoint canary";
+        fs::write(&from, bytes).unwrap();
+        let plan = RenamePlan {
+            into: Some(dir.path().display().to_string()),
+            max_name_len: DEFAULT_MAX_NAME_LEN,
+            entries: vec![PlanEntry {
+                index: 0,
+                group: 1,
+                role: Role::Canonical,
+                from: Some(from.display().to_string()),
+                to: "renamed.pdf".into(),
+                op: Op::Rename,
+                reason: None,
+                sha256: sha256_hex(bytes),
+            }],
+        };
+        let error = apply_with_checkpoint(&plan, dir.path(), || {
+            Err(io::Error::other("injected checkpoint failure"))
+        }).unwrap_err();
+        let RenameError::Recovery { manifest, reason } = error else {
+            panic!("missing recovery location");
+        };
+        assert!(reason.contains("injected checkpoint failure"));
+        let stored = read_manifest(Path::new(&manifest)).unwrap();
+        assert!(stored.entries[0].pending);
+        let target = dir.path().join("renamed.pdf");
+        assert_eq!(fs::read(&target).unwrap(), bytes);
+        assert!(!from.exists());
+        let result = undo(&stored, false);
+        assert_eq!(result[0].action, "skip");
+        assert!(result[0].reason.as_deref().unwrap().contains("outcome uncertain"));
+        assert_eq!(fs::read(&target).unwrap(), bytes);
+    }
 
     fn identity(
         index: usize,
