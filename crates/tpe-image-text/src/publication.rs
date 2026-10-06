@@ -205,7 +205,10 @@ impl Transaction {
                         Err(e) if e.kind() == io::ErrorKind::NotFound => {}
                         Err(e) => return Err(e),
                         Ok(_) => {
-                            return Err(io::Error::other(format!("{} is occupied", path.display())));
+                            return Err(io::Error::other(format!(
+                                "{} is occupied",
+                                path.display()
+                            )));
                         }
                     }
                     // Cooperating-writer boundary: the absence check and rename
