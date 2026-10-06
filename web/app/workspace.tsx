@@ -237,7 +237,7 @@ export default function Workspace({userId}:{userId:string}) {
       item=queueRef.current.find(value=>value.id===id)!;
       const cancelled=signal.aborted;const detail=cancelled?'Import cancelled.':messageOf(reason);
       if(item.record&&!item.savePending&&!reusingOriginal){
-        const failed:Extracted={title:item.name,text:'',links:[],warnings:[detail],engine:'Import stopped before an extraction result was available',status:'failed'};
+        const failed=applyCaptureEvidence({title:item.name,text:'',links:[],warnings:[detail],engine:'Import stopped before an extraction result was available',status:'failed'},item.source.type==='url'?undefined:item.source.capture);
         try {await persistItem(id,item.record,failed);}catch {update(id,{result:failed,savePending:true});}
       }
       update(id,{phase:cancelled?(mounted.current?'cancelled':'interrupted'):'failed',error:detail,progress:null,message:item.savePending?'The extracted result is retained here. Retry save or export it.':reusingOriginal?'The previously saved result is unchanged.':item.record?'The original remains saved.':cancelled?'Cancelled before an original was confirmed saved.':'The source could not be imported.'});

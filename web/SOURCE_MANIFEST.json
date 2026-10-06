@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 50592,
+      "bytes": 50659,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "26281a60f336eb9f34b9a839f57bcc5fa2b654ba226f000ff718043b10cd9879"
+      "sha256": "bc64aaa661b430f10b90384697a3c02f12ce6d6d3b859a3a96ca493e6857bc79"
     },
     {
       "bytes": 7211,
@@ -985,10 +985,10 @@
       "sha256": "df86ebfc27d2f00860036658e933ac0ddd7b5f6879aa5d51218f0863c7e1fb60"
     },
     {
-      "bytes": 6848,
+      "bytes": 8739,
       "mode": "0644",
       "path": "scripts/test-article-integrity-browser.mjs",
-      "sha256": "3ac1e0414abe4d14cd7f77b22bb71d95f13e14d321919a3ac8020db4590ff153"
+      "sha256": "97ebd0f0c55b94e6615f33b7584d780221ca29b1d8d87c6cde3ad2fb47bde1e2"
     },
     {
       "bytes": 4311,

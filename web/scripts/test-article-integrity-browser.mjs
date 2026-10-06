@@ -23,6 +23,8 @@ const errors = [], captures = [];
 page.on('pageerror', error => errors.push(String(error)));
 const run = Date.now();
 const partialUrl = `https://synthetic.test/partial-${run}`, completeUrl = `https://synthetic.test/complete-${run}`;
+const exceptionUrl = `https://synthetic.test/parser-exception-${run}`;
+const exceptionBytes = Buffer.from('<!DOCTYPE rss [<!ENTITY blocked "synthetic">]><rss><channel><title>Captured prefix</title></channel></rss>');
 const content = 'Synthetic source prefix: é, 日本語. The missing tail was not captured.';
 const bytes = Buffer.from(content);
 await page.route('**/*', async route => {
@@ -30,21 +32,22 @@ await page.route('**/*', async route => {
   if (url.origin !== new URL(base).origin) return route.abort();
   if (url.pathname !== '/api/capture') return route.continue();
   const source = request.postDataJSON().url;
-  assert.ok([partialUrl, completeUrl].includes(source)); captures.push(source);
+  assert.ok([partialUrl, completeUrl, exceptionUrl].includes(source)); captures.push(source);
+  const body = source === exceptionUrl ? exceptionBytes : bytes;
   await route.fulfill({ status: 200, headers: {
-    'Content-Type': 'text/plain;charset=utf-8', 'X-TPE-Source-URL': source,
-    'X-TPE-Source-Bytes': String(bytes.length), ...(source === partialUrl ? { 'X-TPE-Truncated': 'true' } : {}),
-  }, body: bytes });
+    'Content-Type': source === exceptionUrl ? 'application/rss+xml;charset=utf-8' : 'text/plain;charset=utf-8', 'X-TPE-Source-URL': source,
+    'X-TPE-Source-Bytes': String(body.length), ...(source !== completeUrl ? { 'X-TPE-Truncated': 'true' } : {}),
+  }, body });
 });
 const recordFor = url => page.evaluate(async source => {
   const { documents } = await (await fetch('/api/documents')).json();
   const record = documents.find(value => value.source_url === source);
   return record ? (await fetch('/api/documents/' + record.id)).json() : null;
 }, url);
-const openComposer = async url => {
+const openComposer = async (url, phase = 'saved') => {
   await page.fill('textarea#source-paste', url);
   await page.getByRole('button', { name: 'Import pasted source', exact: true }).click();
-  await page.waitForFunction(source => [...document.querySelectorAll('.queue-item')].some(item => item.textContent.includes(source) && item.querySelector('.phase-saved')), url, { timeout: 60000 });
+  await page.waitForFunction(({ source, phase }) => [...document.querySelectorAll('.queue-item')].some(item => item.textContent.includes(source) && item.querySelector('.phase-' + phase)), { source: url, phase }, { timeout: 60000 });
 };
 try {
   await page.goto(base + '/signin-with-chatgpt?return_to=%2F');
@@ -93,4 +96,24 @@ try {
   assert.match(await page.locator('article.reading').innerText(), /Readable synthetic content/);
   assert.deepEqual(errors, []);
   console.log('PASS formerly looping HTML completes through actual browser workspace with no page errors');
+  await openComposer(exceptionUrl, 'failed');
+  const failed = await recordFor(exceptionUrl);
+  assert.equal(failed.record.status, 'failed'); assert.equal(failed.result.status, 'failed');
+  assert.match(failed.result.warnings.join(' '), /entity declarations/i);
+  assert.equal(failed.result.metadata.truncated, true);
+  assert.deepEqual(failed.result.metadata.sourceCapture, { truncated: true, capturedBytes: exceptionBytes.length });
+  await page.locator('.queue-item').filter({ hasText: exceptionUrl }).locator('.queue-open').click();
+  await page.waitForSelector('.capture-warning');
+  await page.reload();
+  await page.waitForSelector('#reader .notice.error');
+  assert.ok(await page.locator('.capture-warning').isVisible());
+  assert.match(await page.locator('#reader .notice.error').innerText(), /entity declarations/i);
+  const restored = await recordFor(exceptionUrl);
+  assert.equal(restored.result.status, 'failed');
+  assert.deepEqual(restored.result.metadata.sourceCapture, failed.result.metadata.sourceCapture);
+  assert.equal(captures.filter(url => url === exceptionUrl).length, 1);
+  const original = await page.evaluate(async id => [...new Uint8Array(await (await fetch('/api/documents/' + id + '/original')).arrayBuffer())], failed.record.id);
+  assert.deepEqual(Buffer.from(original), exceptionBytes);
+  assert.deepEqual(errors, []);
+  console.log('PASS parser exception stays Failed with durable capture evidence, visible warning and original bytes after reload');
 } finally { await context.close(); await browser.close(); }
