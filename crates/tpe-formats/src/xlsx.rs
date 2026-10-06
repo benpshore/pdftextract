@@ -41,6 +41,7 @@ pub fn extract(bytes: &[u8], identity: DocumentIdentity) -> Result<FormatsResult
         result.warn("partial: no sheets found");
     }
     let mut unrendered: BTreeSet<String> = BTreeSet::new();
+    let mut budget = GridBudget::default();
     for (index, (name, part, hidden)) in sheets.iter().enumerate() {
         let source = package.require_text(part)?;
         let doc = xml::parse(part, &source)?;
@@ -55,7 +56,7 @@ pub fn extract(bytes: &[u8], identity: DocumentIdentity) -> Result<FormatsResult
             unrendered: &mut unrendered,
             warnings: Vec::new(),
         };
-        let rows = sheet.rows(doc.root_element(), name);
+        let rows = sheet.rows(doc.root_element(), name, &mut budget)?;
         let count = rows.len();
         result
             .metadata
@@ -190,33 +191,72 @@ struct SheetReader<'a> {
     warnings: Vec<String>,
 }
 
+// Dense output has a cost even when almost every coordinate is empty. These
+// implementation limits apply to the entire workbook, without refunding work
+// for duplicate/trimmed rows or cells. They do not bound ZIP/XML/string memory.
+const MAX_ROW: usize = 1_048_576;
+const MAX_COLUMN: usize = 16_384;
+const MAX_ROW_SLOTS: usize = 100_000;
+const MAX_CELL_SLOTS: usize = 1_000_000;
+
+#[derive(Default)]
+struct GridBudget { rows: usize, cells: usize }
+
+impl GridBudget {
+    fn charge(used: &mut usize, amount: usize, limit: usize) -> Result<(), FormatsError> {
+        *used = used.checked_add(amount.max(1)).filter(|total| *total <= limit)
+            .ok_or_else(|| FormatsError::Invalid("XLSX dense grid resource limit exceeded".into()))?;
+        Ok(())
+    }
+}
+
+fn row_number(value: &str) -> Option<usize> {
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) { return None; }
+    value.parse::<usize>().ok().filter(|number| (1..=MAX_ROW).contains(number))
+}
+
+fn coordinate(reference: &str) -> Option<(usize, usize)> {
+    let split = reference.bytes().position(|byte| !byte.is_ascii_alphabetic())?;
+    if split == 0 { return None; }
+    let mut column = 0usize;
+    for byte in reference[..split].bytes() {
+        column = column.checked_mul(26)?.checked_add(usize::from(byte.to_ascii_uppercase() - b'A') + 1)?;
+        if column > MAX_COLUMN { return None; }
+    }
+    Some((column.checked_sub(1)?, row_number(&reference[split..])?))
+}
+
 impl SheetReader<'_> {
     /// Rows of `sheetData`, placed at their row numbers (gaps are empty rows).
-    fn rows(&mut self, root: Node<'_, '_>, sheet_name: &str) -> Vec<Vec<String>> {
+    fn rows(&mut self, root: Node<'_, '_>, sheet_name: &str, budget: &mut GridBudget) -> Result<Vec<Vec<String>>, FormatsError> {
         let mut rows: Vec<Vec<String>> = Vec::new();
         let Some(data) = xml::descendant(root, "sheetData") else {
-            return rows;
+            return Ok(rows);
         };
         for row in data.children().filter(|n| xml::is(*n, "row")) {
-            let number: usize = xml::attr(row, "r")
-                .and_then(|r| r.parse().ok())
-                .unwrap_or(rows.len() + 1);
-            while rows.len() < number {
-                rows.push(Vec::new());
-            }
+            let number = match xml::attr(row, "r") {
+                Some(value) => row_number(value),
+                None => rows.len().checked_add(1).filter(|number| *number <= MAX_ROW),
+            }.ok_or_else(|| FormatsError::Invalid(format!("XLSX sheet {sheet_name:?}: invalid row coordinate")))?;
+            let additional = number.saturating_sub(rows.len());
+            GridBudget::charge(&mut budget.rows, additional, MAX_ROW_SLOTS)?;
+            rows.try_reserve_exact(additional).map_err(|_| FormatsError::Invalid("XLSX row allocation failed".into()))?;
+            if additional > 0 { rows.resize_with(number, Vec::new); }
             let mut cells: Vec<String> = Vec::new();
             for cell in row.children().filter(|n| xml::is(*n, "c")) {
-                let reference = xml::attr(cell, "r").unwrap_or("");
-                let column = column_index(reference).unwrap_or(cells.len());
-                while cells.len() < column {
-                    cells.push(String::new());
-                }
+                let reference = xml::attr(cell, "r");
+                let column = match reference {
+                    Some(value) => coordinate(value).filter(|(_, row)| *row == number).map(|(column, _)| column),
+                    None => Some(cells.len()).filter(|column| *column < MAX_COLUMN),
+                }.ok_or_else(|| FormatsError::Invalid(format!("XLSX sheet {sheet_name:?}: invalid cell coordinate")))?;
+                let width = column.checked_add(1).ok_or_else(|| FormatsError::Invalid("XLSX column overflow".into()))?;
+                let additional = width.saturating_sub(cells.len());
+                GridBudget::charge(&mut budget.cells, additional, MAX_CELL_SLOTS)?;
+                cells.try_reserve_exact(additional).map_err(|_| FormatsError::Invalid("XLSX cell allocation failed".into()))?;
+                if additional > 0 { cells.resize_with(width, String::new); }
+                let reference = reference.unwrap_or("");
                 let value = self.cell_value(cell, sheet_name, reference);
-                if cells.len() == column {
-                    cells.push(value);
-                } else {
-                    cells[column] = value;
-                }
+                cells[column] = value;
             }
             while cells.last().is_some_and(String::is_empty) {
                 cells.pop();
@@ -226,7 +266,7 @@ impl SheetReader<'_> {
         while rows.last().is_some_and(Vec::is_empty) {
             rows.pop();
         }
-        rows
+        Ok(rows)
     }
 
     fn cell_value(&mut self, cell: Node<'_, '_>, sheet: &str, reference: &str) -> String {
@@ -281,18 +321,7 @@ impl SheetReader<'_> {
 
 /// 0-based column of a cell reference (`A1` -> 0, `AB12` -> 27).
 pub fn column_index(reference: &str) -> Option<usize> {
-    let letters: String = reference
-        .chars()
-        .take_while(char::is_ascii_alphabetic)
-        .collect();
-    if letters.is_empty() {
-        return None;
-    }
-    let mut index = 0usize;
-    for c in letters.chars() {
-        index = index * 26 + (c.to_ascii_uppercase() as usize - 'A' as usize + 1);
-    }
-    Some(index - 1)
+    coordinate(reference).map(|(column, _)| column)
 }
 
 /// What a format code asks for, from its first section with quoted text,

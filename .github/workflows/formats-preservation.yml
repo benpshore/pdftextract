@@ -1,0 +1,80 @@
+name: Formats preservation evidence
+
+on:
+  push:
+    branches: [fix/formats-preservation-xlsx-20261006]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formats-preservation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preservation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      CARGO_INCREMENTAL: '0'
+      CARGO_BUILD_JOBS: '2'
+      CARGO_TARGET_DIR: target-formats-corrected-${{ github.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          path: corrected
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: runner.os == 'Linux'
+        with:
+          ref: 76fda4fd16529ffd91b0ac289364a82b25cdeb4a
+          persist-credentials: false
+          path: original
+      - name: Verify exact source identities
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          test "$(git -C corrected rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git -C corrected rev-parse HEAD HEAD^{tree}
+          if [ -d original ]; then
+            test "$(git -C original rev-parse HEAD)" = 76fda4fd16529ffd91b0ac289364a82b25cdeb4a
+            test "$(git -C original rev-parse HEAD^{tree})" = b4221ceb0c802069852b63832f84520c0927bb65
+            cp corrected/crates/tpe-formats/tests/preservation_xlsx.rs original/crates/tpe-formats/tests/preservation_xlsx.rs
+            git -C original status --short
+          fi
+      - name: Corrected production paths and rollback
+        working-directory: corrected
+        run: cargo test --locked -p tpe-formats -- --nocapture
+      - name: Strict lint
+        if: always()
+        working-directory: corrected
+        run: cargo clippy --locked -p tpe-formats --all-targets -- -D warnings
+      - name: Original source failures and passing controls
+        if: always() && runner.os == 'Linux'
+        working-directory: original
+        env:
+          CARGO_TARGET_DIR: target-formats-original-76fda4fd
+        run: |
+          set +e
+          timeout 600 cargo test --locked -p tpe-formats --test preservation_xlsx -- --skip corrected_only_ --nocapture > "$RUNNER_TEMP/formats-original.log" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/formats-original.log"
+          test "$result" -eq 101
+          grep -F 'test result: FAILED. 3 passed; 17 failed; 0 ignored; 4 filtered out;' "$RUNNER_TEMP/formats-original.log"
+          for name in lone_json_is_preserved lone_text_is_preserved input_text_without_companion_is_preserved forced_input_path_is_rejected forced_hard_link_is_rejected forced_symlink_is_rejected cli_protects_another_batch_input dangling_output_blocks_unforced_pair force_replaces_dangling_entry_without_following failed_pair_leaves_new_json_absent failed_pair_preserves_old_json preview_alias_is_rejected_before_pair_publication package_inputs_reject_internal_outputs zero_row_returns_typed_error malformed_coordinates_return_typed_errors overflowing_column_returns_typed_error cli_continues_after_zero_row; do
+            grep -E "test $name \\.\\.\\. FAILED" "$RUNNER_TEMP/formats-original.log"
+          done
+      - name: Formatting and source cleanliness
+        if: always()
+        working-directory: corrected
+        run: |
+          cargo fmt --all
+          cargo fmt --all
+          git diff --exit-code
