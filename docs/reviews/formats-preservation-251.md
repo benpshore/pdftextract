@@ -56,6 +56,9 @@ expecting 18 regression failures and three passing controls. Four potentially
 expensive coordinate tests run only on the corrected reader; there is no
 deliberate original OOM reproduction. A unit fault injection exercises the actual
 publication routine after one/two links for both new and forced output sets.
+The non-UTF-8 path fixture runs on Linux only: the macOS runner filesystem rejects
+its filename with `EILSEQ` before extraction. macOS runs the other 24 regressions;
+this exclusion is not evidence that non-UTF-8 names were exercised there.
 
 Expected counts are assertions in the workflow, not claims of completed tests.
 The corrective PR records observed results and remaining platform limitations.

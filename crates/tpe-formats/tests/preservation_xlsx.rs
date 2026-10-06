@@ -113,7 +113,9 @@ fn forced_input_path_is_rejected() {
     assert!(!dir.path().join("source.json").exists());
 }
 
-#[cfg(unix)]
+// The macOS runner filesystem rejects this filename with EILSEQ before the
+// extractor can run. Linux permits it and exercises the exact-path guard.
+#[cfg(target_os = "linux")]
 #[test]
 fn non_utf8_input_path_is_protected() {
     use std::os::unix::ffi::OsStringExt;
