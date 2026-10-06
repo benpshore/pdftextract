@@ -69,3 +69,5 @@ if (process.env.HTML_REVIEW_FIXTURE) {
   console.log(JSON.stringify({ actualFixture: process.env.HTML_REVIEW_FIXTURE, textCharacters: actual.text.length, images: actual.metadata.images.length, tables: actual.tables.length, headings: actual.metadata.headings.length, links: actual.links.length }));
 }
 console.log('HTML cleanup, Unicode, DOI targets, lazy images/captions, tables, CSS, >4 MiB input, >1000 DOIs, and >500 feed entries passed.');
+
+await import('./test-article-integrity.mjs');

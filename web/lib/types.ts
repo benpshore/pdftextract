@@ -5,3 +5,6 @@ export type Extracted = {
   metadata?: Record<string, unknown>; pages?: unknown[]; tables?: unknown[]; entries?: unknown[];
 };
 export type DocumentRow = { mime?:string; id: string; title: string; kind: string; source_url: string | null; original_name: string; status: string; engine: string; created_at: string; sha256: string; bytes: number };
+
+/** Evidence about fetched source bytes, independent of parser truncation. */
+export type SourceCapture = { truncated: boolean; capturedBytes: number };

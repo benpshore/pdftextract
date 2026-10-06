@@ -9,13 +9,13 @@ import {clipHtml, parseFeed, safeUrl, textDois, doiFrom} from '@/lib/clip';
 import {expandUploads} from '@/lib/imports';
 import {recognizeImage} from '@/lib/image-ocr';
 import {extractOffice} from '@/lib/office';
-import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource} from '@/lib/upload-client';
+import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource, readCaptureEvidence, applyCaptureEvidence, captureWarning} from '@/lib/upload-client';
 import {retainArticleImages} from '@/lib/article-assets';
 import {readWorkspace, writeWorkspace} from '@/lib/workspace-storage';
-import type {DocumentRow, Extracted} from '@/lib/types';
+import type {DocumentRow, Extracted, SourceCapture} from '@/lib/types';
 
 type Phase = 'waiting'|'fetching'|'uploading'|'extracting'|'saving'|'saved'|'failed'|'cancelled'|'interrupted';
-type Source = {type:'file';file:File;url?:string;decoded?:string;member?:boolean}|{type:'url';url:string;feed:boolean}|{type:'stored';name:string;url?:string;decoded?:string;member?:boolean};
+type Source = {type:'file';file:File;url?:string;decoded?:string;capture?:SourceCapture;member?:boolean}|{type:'url';url:string;feed:boolean}|{type:'stored';name:string;url?:string;decoded?:string;capture?:SourceCapture;member?:boolean};
 type QueueItem = {id:string;name:string;source:Source;phase:Phase;progress:number|null;message:string;error?:string;record?:DocumentRow;result?:Extracted;savePending?:boolean;retrySave?:boolean;parentId?:string};
 type Selection = {queueId:string}|{record:DocumentRow;result:Extracted|null};
 type Snapshot = {version:1;items:QueueItem[];draft:{url:string;kind:string;paste:string;query:string};selection:{queueId?:string;documentId?:string}|null;view:string;scroll:number};
@@ -179,20 +179,20 @@ export default function Workspace({userId}:{userId:string}) {
         update(id,{record:saved.record,...(saved.result?{result:saved.result}:{})});item=queueRef.current.find(value=>value.id===id)!;
       }
       if(item.retrySave&&item.record&&item.result){await persistItem(id,item.record,item.result,signal);update(id,{phase:'saved',message:'Result saved.',retrySave:false});return;}
-      signal.throwIfAborted();let file:File,sourceUrl='',decoded:string|undefined;
+      signal.throwIfAborted();let file:File,sourceUrl='',decoded:string|undefined,capture:SourceCapture|undefined;
       if(item.source.type==='url'){
         update(id,{phase:'fetching',message:'Fetching the public source…',progress:null});
-        const captured=await captureSource(item.source.url,signal);file=captured.file;sourceUrl=captured.url;decoded=captured.decodedSource;
-        update(id,{source:{type:'file',file,url:sourceUrl,decoded}});
+        const captured=await captureSource(item.source.url,signal);file=captured.file;sourceUrl=captured.url;decoded=captured.decodedSource;capture=captured.capture;
+        update(id,{source:{type:'file',file,url:sourceUrl,decoded,capture}});
       }else if(item.source.type==='stored'){
         if(!item.record)throw new Error('Reselect this source file to continue.');
         update(id,{phase:'fetching',message:'Opening the saved original…',progress:null});
         const response=await fetch('/api/documents/'+item.record.id+'/original',{signal});if(!response.ok)throw new Error('The saved original could not be reopened.');
-        file=new File([await response.blob()],item.source.name,{type:response.headers.get('X-TPE-Original-Content-Type')||item.record.mime||''});sourceUrl=item.source.url||'';decoded=item.source.decoded;
-      }else {file=item.source.file;sourceUrl=item.source.url||'';decoded=item.source.decoded;}
+        file=new File([await response.blob()],item.source.name,{type:response.headers.get('X-TPE-Original-Content-Type')||item.record.mime||''});sourceUrl=item.source.url||'';decoded=item.source.decoded;capture=readCaptureEvidence(response.headers,file.size)||item.source.capture;
+      }else {file=item.source.file;sourceUrl=item.source.url||'';decoded=item.source.decoded;capture=item.source.capture;}
       signal.throwIfAborted();
       let record=item.record;
-      if(!record){update(id,{phase:'uploading',progress:0,message:'Saving the original…'});record=await uploadOriginal(file,{sourceUrl,signal,onProgress:fraction=>update(id,{progress:100*fraction})});update(id,{record});
+      if(!record){update(id,{phase:'uploading',progress:0,message:capture?.truncated?'Saving the captured source (incomplete)…':'Saving the original…'});record=await uploadOriginal(file,{sourceUrl,capture,signal,onProgress:fraction=>update(id,{progress:100*fraction})});update(id,{record});
         const current=selectionRef.current;if(current&&'queueId'in current&&current.queueId===id)historySelection(record.id,id,view,true);
       }
       signal.throwIfAborted();update(id,{phase:'extracting',progress:null,message:'Reading the saved source…'});
@@ -227,10 +227,11 @@ export default function Workspace({userId}:{userId:string}) {
       else if(record.kind==='text'||record.kind==='css'||record.kind==='xml'){
         const text=decoded??await file.text();extracted={title:file.name,text,markdown:text,links:textDois(text),warnings:[],metadata:{sourceUrl:sourceUrl||null,contentType:record.kind},engine:'Plain text decoder',status:'ready'};
       }else extracted={title:file.name,text:'',links:[],warnings:['The original is saved. Text extraction is not available for this file type.'],metadata:{extractionAvailable:false,contentType:record.kind},engine:'Original storage; no text extraction',status:'partial'};
+      extracted=applyCaptureEvidence(extracted,capture);
       if(reusingOriginal&&extracted.status==='failed')throw new Error(extracted.warnings.join(' ')||'Re-reading did not produce a usable result.');
       signal.throwIfAborted();update(id,{result:extracted,savePending:true});if(extracted.html){update(id,{message:'Saving article images…',progress:null});extracted=await retainArticleImages(record,extracted,signal,(done,total)=>update(id,{message:'Saving image '+done+' of '+total+'.',progress:total?100*done/total:null}));}
       signal.throwIfAborted();await persistItem(id,record,extracted,signal);
-      update(id,{phase:'saved',message:'Original and result saved.',error:undefined});setAnnouncement(file.name+' saved.');
+      update(id,{phase:'saved',message:capture?.truncated?'Captured source and partial result saved.':'Original and result saved.',error:undefined});setAnnouncement(file.name+' saved.');
       completions.current.get(id)?.resolve({id:record.id,title:extracted.title,status:extracted.status,links:extracted.links.length});
     }catch(reason){
       item=queueRef.current.find(value=>value.id===id)!;
@@ -272,7 +273,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
 
   function snapshot():Snapshot {
-    return {version:1,items:queueRef.current.map(item=>({ ...item,source:item.record&&item.source.type==='file'?{type:'stored',name:item.source.file.name,url:item.source.url,decoded:item.source.decoded,member:item.source.member}:item.source,result:item.savePending?item.result:undefined})),draft:{url,kind,paste,query},selection:selectionRef.current?'queueId'in selectionRef.current?{queueId:selectionRef.current.queueId}:{documentId:selectionRef.current.record.id}:null,view,scroll:window.scrollY};
+    return {version:1,items:queueRef.current.map(item=>({ ...item,source:item.record&&item.source.type==='file'?{type:'stored',name:item.source.file.name,url:item.source.url,decoded:item.source.decoded,capture:item.source.capture,member:item.source.member}:item.source,result:item.savePending?item.result:undefined})),draft:{url,kind,paste,query},selection:selectionRef.current?'queueId'in selectionRef.current?{queueId:selectionRef.current.queueId}:{documentId:selectionRef.current.record.id}:null,view,scroll:window.scrollY};
   }
   checkpointRef.current=async()=>{
     if(!recoveryReady.current)return;
@@ -387,6 +388,7 @@ export default function Workspace({userId}:{userId:string}) {
         {selected?.kind==='image'&&<img className="original-image" src={'/api/documents/'+selected.id+'/media'} alt={selected.title} loading="lazy"/>}
         {selected&&['media','audio','video'].includes(selected.kind)&&(/\.(mp3|wav|m4a|aac|oga|flac|opus)$/i.test(selected.original_name)||selected.kind==='audio'?<audio className="original-media" controls preload="metadata" src={'/api/documents/'+selected.id+'/media'}/>:<video className="original-media" controls playsInline preload="metadata" src={'/api/documents/'+selected.id+'/media'}/>)}
         {result?<>
+          {(result.metadata?.sourceCapture as SourceCapture|undefined)?.truncated&&<div className="notice capture-warning" role="status"><AlertCircle/><p>{captureWarning(result.metadata!.sourceCapture as SourceCapture)}</p></div>}
           {result.status==='failed'?<div className="notice error"><AlertCircle/><p>{result.warnings.join(' ')}</p></div>:result.metadata?.extractionAvailable===false?<p>The original is saved. Text extraction is not available for this file type.</p>:result.html?<article className="reading" dangerouslySetInnerHTML={{__html:readableHtml(result.html,selected?.id)}}/>:<article className="reading plain-reading">{result.text||result.markdown||'No readable text was found. You can open the original below.'}</article>}
           <div className="reader-secondary"><details><summary>Download</summary><div className="export-actions">{selected&&<Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}><Download/>Original</a></Button>}<Button variant="outline" onClick={()=>download('extraction.md',result.markdown||result.text,'text/markdown')}>Markdown</Button><Button variant="outline" onClick={()=>download('extraction.json',JSON.stringify({source:selected,...result},null,2))}>JSON</Button></div></details>
             {!!result.links.length&&<details open={view==='links'} onToggle={event=>{if(event.currentTarget.open&&view!=='links')changeView('links');else if(!event.currentTarget.open&&view==='links')changeView('text');}}><summary>Source links</summary><div className="link-list">{result.links.map((link,index)=><div key={index} className="link-card">{link.label&&<p>{link.label}</p>}{safeUrl(link.url)?<a href={link.url} target="_blank" rel="noreferrer noopener">{link.url}</a>:<code>{link.url}</code>}</div>)}</div></details>}

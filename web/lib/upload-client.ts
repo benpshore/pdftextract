@@ -1,5 +1,5 @@
-import type {DocumentRow, Extracted} from './types';
-export type UploadOptions={kind?:string;sourceUrl?:string;signal?:AbortSignal;onProgress?:(fraction:number)=>void};
+import type {DocumentRow, Extracted, SourceCapture} from './types';
+export type UploadOptions={capture?:SourceCapture;kind?:string;sourceUrl?:string;signal?:AbortSignal;onProgress?:(fraction:number)=>void};
 type AssetReceipt={url:string;id:string};
 async function responseJson<T>(response:Response):Promise<T>{
  if(!response.ok){let message=await response.text();try{message=JSON.parse(message).error||message;}catch{}
@@ -53,7 +53,7 @@ async function multipart(file:Blob,metadata:Record<string,unknown>,options:Uploa
 }
 export async function uploadOriginal(file:File,options:UploadOptions={}):Promise<DocumentRow>{
  const kind=await detectFileKind(file);
- return await multipart(file,{target:'original',kind,name:file.name,sourceUrl:options.sourceUrl||null,mime:file.type},options) as DocumentRow;
+ return await multipart(file,{target:'original',kind,name:file.name,sourceUrl:options.sourceUrl||null,mime:file.type,...(options.capture?{capture:options.capture}:{})},options) as DocumentRow;
 }
 export async function saveExtracted(record:DocumentRow,result:Extracted,options:UploadOptions={}):Promise<void>{
  const bytes=new Blob([JSON.stringify(result)],{type:'application/json'});
@@ -62,7 +62,7 @@ export async function saveExtracted(record:DocumentRow,result:Extracted,options:
 export async function uploadAssetFile(record:DocumentRow,file:File,options:UploadOptions={}):Promise<AssetReceipt>{
  return await multipart(file,{target:'asset',documentId:record.id,mime:file.type,name:file.name},options) as AssetReceipt;
 }
-export async function captureSource(url:string,signal?:AbortSignal):Promise<{file:File;url:string;contentType:string;decodedSource:string}>{
+export async function captureSource(url:string,signal?:AbortSignal):Promise<{file:File;url:string;contentType:string;decodedSource:string;capture:SourceCapture}>{
  const response=await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url}),signal});
  if(!response.ok){await responseJson(response);throw new Error('Capture failed.');}
  const contentType=response.headers.get('content-type')||'text/html';
@@ -70,7 +70,23 @@ export async function captureSource(url:string,signal?:AbortSignal):Promise<{fil
  const blob=await response.blob();const decodedSource=await decodeSource(blob,contentType,signal);
  const feed=/rss|atom/i.test(contentType)||/<(?:\w+:)?(?:rss|feed|RDF)(?:\s|>)/i.test(decodedSource.slice(0,4096));
  const extension=feed?'xml':/text\/css/i.test(contentType)?'css':/text\/plain/i.test(contentType)?'txt':'html';
- return {file:new File([blob],`${new URL(finalUrl).hostname}.${extension}`,{type:contentType}),url:finalUrl,contentType,decodedSource};
+ return {file:new File([blob],`${new URL(finalUrl).hostname}.${extension}`,{type:contentType}),url:finalUrl,contentType,decodedSource,capture:{truncated:response.headers.get('x-tpe-truncated')==='true',capturedBytes:blob.size}};
+}
+
+/** Only stored/captured sources carry these headers; ordinary local originals do not. */
+export function readCaptureEvidence(headers:Headers,bytes:number):SourceCapture|undefined {
+ if(!headers.has('x-tpe-source-bytes')&&!headers.has('x-tpe-truncated'))return undefined;
+ return {truncated:headers.get('x-tpe-truncated')==='true',capturedBytes:bytes};
+}
+export function captureWarning(capture:SourceCapture):string {
+ return `The fetched source was cut after ${capture.capturedBytes} bytes. The saved source and extracted result are incomplete; add the complete original file to read the missing content.`;
+}
+export function applyCaptureEvidence(result:Extracted,capture?:SourceCapture):Extracted {
+ if(!capture)return result;
+ const warning=captureWarning(capture);
+ return {...result,metadata:{...result.metadata,sourceCapture:capture,...(capture.truncated?{truncated:true}:{})},
+  status:capture.truncated&&result.status!=='failed'?'partial':result.status,
+  warnings:capture.truncated&&!result.warnings.includes(warning)?[...result.warnings,warning]:result.warnings};
 }
 
 export async function decodeSource(blob:Blob,contentType=blob.type,signal?:AbortSignal):Promise<string>{
