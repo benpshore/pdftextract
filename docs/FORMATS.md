@@ -17,10 +17,17 @@ tpe-formats <inputs...> --out DIR [--recursive] [--force] [--json]
 - `--recursive` walks directories, taking files whose extension is listed
   below and treating `.pages`/`.numbers` directory bundles as single inputs.
   Without it, a directory argument is a usage error.
-- `--force` overwrites existing outputs; otherwise they are left alone and the
-  input is reported as `skipped`.
+- `--force` replaces existing outputs, but rejects input aliases (including
+  other batch inputs and package contents). Outputs cannot be created inside
+  an input package. Without force, any existing planned JSON, text or preview
+  output skips the whole set, including when only one companion exists.
 - `--json` prints one JSON array for the run (input, status, format, output
   paths, warnings) instead of one line per input.
+
+Files are staged before publication; handled failures restore previous outputs
+or remove new ones. Visibility across multiple filenames is not atomic. This
+assumes cooperating writers, not hostile concurrent directory changes, and is
+not a crash transaction. An incomplete rollback reports retained recovery files.
 
 Exit codes: `0` every input produced a complete or partial result (skipped
 inputs count as success); `1` at least one input failed (unreadable or
@@ -75,6 +82,11 @@ grouping, percentages, scientific notation and date/time formats (1900 and
 1904 systems, including the 1900 leap-year quirk). Fractions, conditional
 sections and other custom codes keep the raw stored value and are listed once
 in a warning. Rows sit at their sheet row numbers (gaps are empty rows).
+Malformed coordinates fail the input with a typed error. Dense expansion is
+limited across the workbook to 100,000 row slots/work records and 1,000,000
+cell slots/work records; duplicate/trimmed records still consume this budget.
+Excessive sparse coordinates also fail explicitly instead of allocating an
+unbounded grid. These limits do not bound ZIP/XML or shared-string allocations.
 
 **csv/tsv**: BOM and encoding detection (UTF-8, UTF-8 with BOM, UTF-16 LE/BE;
 invalid UTF-8 falls back to Windows-1252 with a warning); delimiter sniffing

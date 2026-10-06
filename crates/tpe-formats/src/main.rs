@@ -13,7 +13,10 @@ use std::process::ExitCode;
 
 use clap::Parser;
 use serde::Serialize;
-use tpe_formats::{Format, FormatsError, Options, Status, extract_path, write_outputs};
+use tpe_formats::{
+    Format, FormatsError, Options, Status, create_output_directory, extract_path,
+    write_outputs_with_inputs,
+};
 
 /// Extract text from docx, pptx, xlsx, csv/tsv, html, md, txt, Pages/Numbers
 /// packages and audio (through a local engine), one output pair per input.
@@ -65,7 +68,7 @@ fn main() -> ExitCode {
         eprintln!("tpe-formats: no inputs with a recognised extension");
         return ExitCode::from(2);
     }
-    if let Err(e) = std::fs::create_dir_all(&cli.out) {
+    if let Err(e) = create_output_directory(&cli.out, &inputs) {
         eprintln!("tpe-formats: cannot create {}: {e}", cli.out.display());
         return ExitCode::from(2);
     }
@@ -76,7 +79,7 @@ fn main() -> ExitCode {
     let mut unsupported = false;
     for input in &inputs {
         let stem = unique_stem(input, &mut used_stems);
-        let report = process_one(input, &stem, &cli, &options);
+        let report = process_one(input, &stem, &cli, &options, &inputs);
         match report.status.as_str() {
             "failed" => failed = true,
             "unsupported" => unsupported = true,
@@ -102,8 +105,14 @@ fn main() -> ExitCode {
     }
 }
 
-/// Extract one input and write its outputs; never panics on a bad input.
-fn process_one(input: &Path, stem: &str, cli: &Cli, options: &Options) -> Report {
+/// Extract one input and report typed failures without stopping the batch.
+fn process_one(
+    input: &Path,
+    stem: &str,
+    cli: &Cli,
+    options: &Options,
+    inputs: &[PathBuf],
+) -> Report {
     let mut report = Report {
         input: input.display().to_string(),
         status: "failed".to_string(),
@@ -127,7 +136,7 @@ fn process_one(input: &Path, stem: &str, cli: &Cli, options: &Options) -> Report
     };
     report.format = Some(result.format);
     report.warnings.clone_from(&result.warnings);
-    match write_outputs(&result, &cli.out, stem, cli.force) {
+    match write_outputs_with_inputs(&result, &cli.out, stem, cli.force, inputs) {
         Ok(Some(outputs)) => {
             report.status = result.status.to_string();
             report.json = Some(outputs.json.display().to_string());

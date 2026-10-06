@@ -45,6 +45,7 @@ pub mod iwork;
 pub mod markdown;
 pub mod ooxml;
 pub mod pptx;
+mod publication;
 pub mod text;
 pub mod xlsx;
 pub mod xml;
@@ -363,6 +364,10 @@ pub struct FormatsResult {
     /// Pages package's `preview.pdf`). Not serialised.
     #[serde(skip)]
     pub extra_files: Vec<ExtraFile>,
+    /// Exact filesystem paths retained by path-based extractors for publication
+    /// checks. Display strings in JSON can lose non-UTF-8 bytes.
+    #[serde(skip)]
+    pub(crate) input_paths: Vec<PathBuf>,
 }
 
 /// A file copied out of the input for another tool to read.
@@ -389,6 +394,7 @@ impl FormatsResult {
             warnings: Vec::new(),
             text: String::new(),
             extra_files: Vec::new(),
+            input_paths: Vec::new(),
         }
     }
 
@@ -559,6 +565,7 @@ pub fn extract_path(path: &Path, options: &Options) -> Result<FormatsResult, For
             audio::extract(path, &bytes, identity, &env)?
         }
     };
+    result.input_paths.push(fs::canonicalize(path)?);
     result.finish();
     Ok(result)
 }
@@ -576,41 +583,80 @@ pub struct Outputs {
 
 /// Write `<stem>.json` (and `<stem>.txt` when the status is complete or
 /// partial) into `out_dir`. Without `force`, outputs that already exist are
-/// left alone and `Ok(None)` says nothing was written.
+/// left alone and `Ok(None)` says nothing was written. Any existing planned
+/// output, including a preview, skips the entire set.
 pub fn write_outputs(
     result: &FormatsResult,
     out_dir: &Path,
     stem: &str,
     force: bool,
 ) -> Result<Option<Outputs>, FormatsError> {
-    fs::create_dir_all(out_dir)?;
+    write_outputs_with_inputs(result, out_dir, stem, force, &[])
+}
+
+/// As [`write_outputs`], additionally protecting every input in a CLI batch.
+/// Publication stages the whole set and rolls back handled failures. Multiple
+/// names are not visible atomically; this is not a crash transaction or a
+/// guarantee against concurrent hostile changes to the output directory.
+pub fn write_outputs_with_inputs(
+    result: &FormatsResult,
+    out_dir: &Path,
+    stem: &str,
+    force: bool,
+    inputs: &[PathBuf],
+) -> Result<Option<Outputs>, FormatsError> {
+    fn filename(value: &str) -> bool {
+        !value.is_empty() && !value.contains(['/', '\\']) && value != "." && value != ".."
+    }
+    if !filename(stem)
+        || result
+            .extra_files
+            .iter()
+            .any(|file| !filename(&file.suffix))
+    {
+        return Err(FormatsError::Invalid(
+            "output names must be single filename components".into(),
+        ));
+    }
+    let mut sources = inputs.to_vec();
+    sources.extend(result.input_paths.iter().cloned());
+    sources.extend(result.document.sources.iter().map(PathBuf::from));
+    create_output_directory(out_dir, &sources)?;
     let json_path = out_dir.join(format!("{stem}.json"));
     let txt_path = out_dir.join(format!("{stem}.txt"));
     let writes_txt = matches!(result.status, Status::Complete | Status::Partial);
-    if !force && json_path.exists() && (!writes_txt || txt_path.exists()) {
-        return Ok(None);
-    }
     let json = serde_json::to_string_pretty(result)
         .map_err(|e| FormatsError::Invalid(format!("serialising result: {e}")))?;
-    fs::write(&json_path, json)?;
-    let txt = if writes_txt {
-        fs::write(&txt_path, &result.text)?;
-        Some(txt_path)
-    } else {
-        None
-    };
+    let txt = writes_txt.then_some(txt_path);
+    let mut paths = vec![json_path.clone()];
+    let mut bytes: Vec<&[u8]> = vec![json.as_bytes()];
+    if let Some(path) = &txt {
+        paths.push(path.clone());
+        bytes.push(result.text.as_bytes());
+    }
     let mut extra = Vec::new();
     for file in &result.extra_files {
         let path = out_dir.join(format!("{stem}.{}", file.suffix));
-        if path.exists() && !force {
-            continue;
+        if paths.contains(&path) {
+            return Err(FormatsError::Invalid("duplicate output name".into()));
         }
-        fs::write(&path, &file.bytes)?;
+        paths.push(path.clone());
+        bytes.push(&file.bytes);
         extra.push(path);
+    }
+    if !publication::OutputSet::new(&sources, paths, force)?.publish(&bytes)? {
+        return Ok(None);
     }
     Ok(Some(Outputs {
         json: json_path,
         txt,
         extra,
     }))
+}
+
+/// Create an output directory after rejecting locations inside input packages.
+pub fn create_output_directory(out_dir: &Path, inputs: &[PathBuf]) -> Result<(), FormatsError> {
+    publication::check_directory(out_dir, inputs)?;
+    fs::create_dir_all(out_dir)?;
+    Ok(())
 }

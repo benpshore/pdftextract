@@ -101,7 +101,9 @@ pub fn extract_package(dir: &Path, format: Format) -> Result<FormatsResult, Form
         size,
         sources: vec![dir.display().to_string()],
     };
-    describe(&mut directory, identity, format)
+    let mut result = describe(&mut directory, identity, format)?;
+    result.input_paths.push(fs::canonicalize(dir)?);
+    Ok(result)
 }
 
 /// What the schema-less decode of `Index/*.iwa` produced.
