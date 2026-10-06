@@ -70,6 +70,58 @@ impl StagedOutputs {
         self.publish_with_paths(|from, to| fs::hard_link(from, to), commit)
     }
 
+    /// Publish a single staged file at exactly `target`, without choosing a
+    /// different generation on collision. The target must be a sibling of the
+    /// staged file. Existing files, including source aliases, are never opened
+    /// for writing. Handled failures use the same owned-link rollback as pairs.
+    pub fn publish_exact(&mut self, target: &Path) -> Result<(), String> {
+        let parent = target
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."));
+        if self.files.len() != 1 || parent != self.directory || !self.linked.is_empty() {
+            return Err("exact publication requires one staged sibling".into());
+        }
+        fs::hard_link(self.files[0].1.path(), target)
+            .map_err(|e| format!("publishing {}: {e}", target.display()))?;
+        self.linked.push((0, target.to_path_buf()));
+        if let Err(error) = sync_directory(&self.directory) {
+            return match self.rollback() {
+                Ok(()) => Err(format!("syncing output: {error}")),
+                Err(cleanup) => Err(format!("syncing output: {error}; {cleanup}")),
+            };
+        }
+        self.linked.clear();
+        Ok(())
+    }
+
+    /// Atomically checkpoint one owned record, retaining a complete old or new
+    /// file on failure. `previous` must be the still-open file from the last
+    /// checkpoint. Like rollback, the identity check protects cooperating
+    /// writers, not hostile replacement between the check and rename.
+    pub fn replace_owned(
+        &mut self,
+        target: &Path,
+        previous: &fs::File,
+    ) -> Result<fs::File, String> {
+        let parent = target
+            .parent()
+            .filter(|p| !p.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."));
+        if self.files.len() != 1 || parent != self.directory || !self.linked.is_empty() {
+            return Err("checkpoint requires one staged sibling".into());
+        }
+        let ours = previous.metadata().map_err(|e| e.to_string())?;
+        let current = fs::symlink_metadata(target).map_err(|e| e.to_string())?;
+        if !same_file(&ours, &current).map_err(|e| e.to_string())? {
+            return Err("checkpoint path was replaced; leaving it untouched".into());
+        }
+        let (_, staged) = self.files.pop().ok_or("missing staged checkpoint")?;
+        let next = staged.persist(target).map_err(|e| e.error.to_string())?;
+        sync_directory(&self.directory).map_err(|e| e.to_string())?;
+        Ok(next)
+    }
+
     #[cfg(test)]
     fn publish_with(
         &mut self,
@@ -195,9 +247,57 @@ fn sync_directory(path: &Path) -> io::Result<()> {
     fs::File::open(path)?.sync_all()
 }
 
+/// Rename without ever replacing a destination that appears concurrently.
+/// Unsupported platforms/filesystems fail explicitly; there is no clobbering
+/// fallback to `std::fs::rename`.
+pub fn rename_noreplace(from: &Path, to: &Path) -> io::Result<()> {
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        use rustix::fs::{CWD, RenameFlags, renameat_with};
+        renameat_with(CWD, from, CWD, to, RenameFlags::NOREPLACE).map_err(Into::into)
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
+    {
+        let _ = (from, to);
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "no-replace rename unsupported",
+        ))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn checkpoint_refuses_a_replaced_record() {
+        let dir = tempfile::tempdir().unwrap();
+        let record = dir.path().join("manifest.json");
+        fs::write(&record, b"old record").unwrap();
+        let previous = fs::File::open(&record).unwrap();
+        fs::remove_file(&record).unwrap();
+        fs::write(&record, b"other owner").unwrap();
+        let mut next = StagedOutputs::stage(&record, &[("", b"new record".to_vec())]).unwrap();
+        assert!(next.replace_owned(&record, &previous).is_err());
+        assert_eq!(fs::read(&record).unwrap(), b"other owner");
+    }
+
+    #[test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn no_replace_rename_keeps_both_files_on_collision() {
+        let dir = tempfile::tempdir().unwrap();
+        let source = dir.path().join("source.pdf");
+        let target = dir.path().join("target.pdf");
+        fs::write(&source, b"source").unwrap();
+        fs::write(&target, b"other owner").unwrap();
+        assert_eq!(
+            rename_noreplace(&source, &target).unwrap_err().kind(),
+            io::ErrorKind::AlreadyExists
+        );
+        assert_eq!(fs::read(&source).unwrap(), b"source");
+        assert_eq!(fs::read(&target).unwrap(), b"other owner");
+    }
 
     fn pair(source: &Path) -> StagedOutputs {
         StagedOutputs::stage(

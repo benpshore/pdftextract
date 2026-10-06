@@ -1,0 +1,75 @@
+name: Identify preservation evidence
+
+on:
+  pull_request:
+    paths:
+      - crates/tpe-identify/**
+      - src/acquire.rs
+      - src/pipeline.rs
+      - src/publication.rs
+      - src/ledger.rs
+      - scripts/identify_baseline_fixture.mjs
+      - .github/workflows/identify-preservation.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: identify-preservation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  original-regressions:
+    # Bounded evidence for this corrective stack, not another recurring corpus run.
+    if: github.event.pull_request.base.ref == 'claude/identify-dedup-20261005'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CARGO_TARGET_DIR: target-identify-original-c86846e3-default
+      CARGO_INCREMENTAL: '0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: corrected
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: c86846e3e696ca40675ef08018da9a5dbcd581be
+          path: original
+          persist-credentials: false
+      - name: Verify base identity and install only regression fixtures
+        run: |
+          test "$(git -C original rev-parse HEAD)" = c86846e3e696ca40675ef08018da9a5dbcd581be
+          node corrected/scripts/identify_baseline_fixture.mjs corrected original
+          git -C original diff --stat
+      - name: Original report and recovery regressions must fail as specified
+        working-directory: original
+        run: |
+          set +e
+          cargo test --locked -p tpe-identify --test preservation -- --nocapture > "$RUNNER_TEMP/identify-original.log" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/identify-original.log"
+          test "$result" -eq 101
+          grep -F 'test result: FAILED. 0 passed; 5 failed; 0 ignored;' "$RUNNER_TEMP/identify-original.log"
+          for name in json_report_refuses_input_path json_report_refuses_hard_link json_report_refuses_symlink report_collision_prevents_apply manifest_preflight_never_moves_without_recovery; do
+            grep -E "test $name \\.\\.\\. FAILED" "$RUNNER_TEMP/identify-original.log"
+          done
+      - name: Original pathname reopen must fail the deterministic identity fixture
+        working-directory: original
+        run: |
+          set +e
+          cargo test --locked -p tpe-identify --lib pathname_replacement_cannot_mix_snapshot_hash_and_text -- --nocapture > "$RUNNER_TEMP/identify-snapshot-original.log" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/identify-snapshot-original.log"
+          test "$result" -eq 101
+          grep -F 'test result: FAILED. 0 passed; 1 failed; 0 ignored;' "$RUNNER_TEMP/identify-snapshot-original.log"
+          grep -F 'source::tests::pathname_replacement_cannot_mix_snapshot_hash_and_text ... FAILED' "$RUNNER_TEMP/identify-snapshot-original.log"
+      - name: Show formatter patch when local Rust is unavailable
+        if: always()
+        working-directory: corrected
+        run: |
+          cargo fmt --all
+          git diff --exit-code

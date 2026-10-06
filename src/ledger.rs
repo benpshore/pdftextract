@@ -337,6 +337,20 @@ const SELECT_STATS: &str = "SELECT \
     (SELECT COUNT(*) FROM figures)";
 
 impl Ledger {
+    /// Open an existing ledger for reading, without WAL setup, schema creation
+    /// or migration. v4 and v5 have compatible stored-result readers.
+    pub fn open_read_only(path: &Path) -> Result<Self, LedgerError> {
+        let conn = Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+        let found = conn.query_row(SELECT_VERSION, [], |row| row.get::<_, u32>(0))?;
+        if found != SCHEMA_VERSION && !(found == 4 && SCHEMA_VERSION == 5) {
+            return Err(LedgerError::SchemaMismatch {
+                found,
+                expected: SCHEMA_VERSION,
+            });
+        }
+        Ok(Self { conn })
+    }
+
     /// Opens or creates the ledger file at `path` and verifies its schema
     /// version. Uses WAL journaling, `synchronous = NORMAL`, a 5 s busy
     /// timeout and enforced foreign keys.
@@ -1176,6 +1190,37 @@ mod tests {
     use super::*;
 
     use crate::schema::{Line, Span, config_digest, sha256_hex};
+
+    #[test]
+    fn read_only_open_preserves_v4_ledger_and_refuses_missing_files() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("source.sqlite");
+        let writer = Ledger::open(&path).unwrap();
+        writer
+            .conn
+            .execute("UPDATE schema_meta SET version = 4", [])
+            .unwrap();
+        drop(writer);
+        let before = std::fs::read(&path).unwrap();
+        let reader = Ledger::open_read_only(&path).unwrap();
+        assert!(reader.latest_run_for_prefix("abcd").unwrap().is_none());
+        assert!(
+            reader
+                .conn
+                .execute("UPDATE schema_meta SET version = 5", [])
+                .is_err()
+        );
+        let version: u32 = reader
+            .conn
+            .query_row(SELECT_VERSION, [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(version, 4);
+        drop(reader);
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        let missing = dir.path().join("missing.sqlite");
+        assert!(Ledger::open_read_only(&missing).is_err());
+        assert!(!missing.exists());
+    }
 
     fn at(x0: f32, y0: f32, x1: f32, y1: f32) -> BBox {
         BBox { x0, y0, x1, y1 }

@@ -16,6 +16,7 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{Args, Parser, Subcommand};
+use tpe::publication::StagedOutputs;
 use tpe_identify::rename::{self, DEFAULT_MAX_NAME_LEN};
 use tpe_identify::{LoadOptions, Params, ScanOptions, render_plan, render_table, scan};
 
@@ -43,7 +44,7 @@ struct ScanArgs {
     /// PDF files, directories (walked for *.pdf) or `tpe` result JSON files.
     #[arg(required = true)]
     paths: Vec<PathBuf>,
-    /// Write the full JSON report here.
+    /// Write the full JSON report to a new file (existing paths are refused).
     #[arg(long)]
     json: Option<PathBuf>,
     /// Directory of `tpe extract --out` results (`<hash>.json`), used before extracting.
@@ -131,24 +132,29 @@ fn run_scan(args: &ScanArgs) -> ExitCode {
     {
         print!("\n{}", render_plan(plan, args.rename_into.as_deref()));
     }
+    // Publish the report before applying any rename. An invalid/colliding report
+    // destination must fail before sources can move, even with --apply.
+    if let Some(path) = &args.json {
+        let written = serde_json::to_vec_pretty(&report)
+            .map_err(|e| e.to_string())
+            .and_then(|mut bytes| {
+                bytes.push(b'\n');
+                let mut staged =
+                    StagedOutputs::stage(path, &[("", bytes)]).map_err(|e| e.to_string())?;
+                staged.publish_exact(path)
+            });
+        if let Err(e) = written {
+            eprintln!("cannot write {}: {e}", path.display());
+            return ExitCode::from(1);
+        }
+        println!("report written to {}", path.display());
+    }
     if args.apply {
         if let (Some(dir), Some(plan)) = (&args.rename_into, &report.rename) {
             failed |= !apply_plan(plan, dir);
         }
     } else if args.rename_into.is_some() {
         println!("\ndry run: nothing was copied or renamed (add --apply)");
-    }
-    if let Some(path) = &args.json {
-        let written = serde_json::to_string_pretty(&report)
-            .map_err(std::io::Error::other)
-            .and_then(|s| std::fs::write(path, s + "\n"));
-        match written {
-            Ok(()) => println!("report written to {}", path.display()),
-            Err(e) => {
-                eprintln!("cannot write {}: {e}", path.display());
-                failed = true;
-            }
-        }
     }
     if failed {
         ExitCode::from(1)
@@ -179,7 +185,7 @@ fn apply_plan(plan: &rename::RenamePlan, dir: &std::path::Path) -> bool {
                     e.skipped.as_deref().unwrap_or("")
                 );
             }
-            true
+            skipped == 0
         }
         Err(e) => {
             eprintln!("apply failed: {e}");
@@ -216,5 +222,15 @@ fn run_undo(args: &UndoArgs) -> ExitCode {
     if !args.apply {
         println!("dry run: nothing was changed (add --apply)");
     }
-    ExitCode::SUCCESS
+    if args.apply
+        && entries.iter().any(|entry| {
+            entry.reason.as_deref().is_some_and(|reason| {
+                !reason.starts_with("never applied:") && reason != "nothing was done"
+            })
+        })
+    {
+        ExitCode::from(1)
+    } else {
+        ExitCode::SUCCESS
+    }
 }

@@ -796,13 +796,46 @@ pub fn run_job_with_observed(
     job: &Job,
     observe: &mut dyn FnMut(Progress),
 ) -> Result<ExtractionResult, PipelineError> {
-    let mut identity = extractor.identity();
-
-    let mut timings = StageTimings::default();
-
     let acquire_start = Instant::now();
     let read = acquire::read_verified(Path::new(&job.path), job.max_bytes)?;
-    timings.acquire_ms = elapsed_ms(acquire_start);
+    run_acquired_with(extractor, job, read, elapsed_ms(acquire_start), observe)
+}
+
+/// Extract an already acquired immutable snapshot with an explicit backend.
+/// The pathname is provenance only: it is never reopened. The pipeline hashes
+/// the supplied bytes itself, so the caller cannot substitute a claimed hash.
+/// Automatic routing is deliberately not added to this entry point.
+pub fn run_job_from_snapshot(
+    job: &Job,
+    snapshot: acquire::Snapshot,
+) -> Result<ExtractionResult, PipelineError> {
+    let size = snapshot.bytes.len() as u64;
+    if let Some(max) = job.max_bytes
+        && size > max
+    {
+        return Err(AcquireError::TooLarge { size, max }.into());
+    }
+    let extractor = backend::by_name(&job.backend)
+        .ok_or_else(|| PipelineError::UnknownBackend(job.backend.clone()))?;
+    let read = acquire::Unhashed {
+        bytes: snapshot.bytes,
+        source: snapshot.source,
+    };
+    run_acquired_with(extractor.as_ref(), job, read, 0.0, &mut |_| {})
+}
+
+fn run_acquired_with(
+    extractor: &dyn Extractor,
+    job: &Job,
+    read: acquire::Unhashed,
+    acquire_ms: f64,
+    observe: &mut dyn FnMut(Progress),
+) -> Result<ExtractionResult, PipelineError> {
+    let mut identity = extractor.identity();
+    let mut timings = StageTimings {
+        acquire_ms,
+        ..StageTimings::default()
+    };
 
     let parse_start = Instant::now();
     let Parsed {

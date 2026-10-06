@@ -166,6 +166,14 @@ fn load_result_file(path: &Path) -> Result<Loaded, LoadError> {
 
 fn load_pdf(path: &Path, options: &LoadOptions) -> Result<Loaded, LoadError> {
     let snapshot = acquire::snapshot(path, options.max_bytes)?;
+    load_pdf_snapshot(path, options, snapshot)
+}
+
+fn load_pdf_snapshot(
+    path: &Path,
+    options: &LoadOptions,
+    snapshot: acquire::Snapshot,
+) -> Result<Loaded, LoadError> {
     if !snapshot.bytes.starts_with(b"%PDF")
         && !snapshot.bytes[..snapshot.bytes.len().min(1024)]
             .windows(4)
@@ -175,7 +183,6 @@ fn load_pdf(path: &Path, options: &LoadOptions) -> Result<Loaded, LoadError> {
     }
     let sha256 = snapshot.hash.0.clone();
     let size = snapshot.source.size;
-    drop(snapshot);
     let mut warnings = Vec::new();
 
     if let Some(dir) = &options.results_dir {
@@ -238,8 +245,10 @@ fn load_pdf(path: &Path, options: &LoadOptions) -> Result<Loaded, LoadError> {
             max_bytes: options.max_bytes,
             figures_dir: None,
         };
-        let result = catch_unwind(AssertUnwindSafe(|| pipeline::run_job(&job)))
-            .map_err(|payload| LoadError::Panicked(panic_message(payload.as_ref())))??;
+        let result = catch_unwind(AssertUnwindSafe(|| {
+            pipeline::run_job_from_snapshot(&job, snapshot)
+        }))
+        .map_err(|payload| LoadError::Panicked(panic_message(payload.as_ref())))??;
         return Ok(Loaded {
             path: Some(path.to_path_buf()),
             size,
@@ -265,7 +274,7 @@ fn run_from_ledger(
     db: &Path,
     sha256: &str,
 ) -> Result<Option<(i64, ExtractionResult)>, LedgerError> {
-    let ledger = Ledger::open(db)?;
+    let ledger = Ledger::open_read_only(db)?;
     let Some(run) = ledger.latest_run_for_prefix(sha256)? else {
         return Ok(None);
     };
@@ -290,6 +299,68 @@ fn panic_message(payload: &(dyn std::any::Any + Send)) -> String {
 mod tests {
     use super::*;
     use tempfile::tempdir;
+
+    fn text_pdf(text: &str) -> Vec<u8> {
+        use lopdf::{Document, Object, Stream, dictionary};
+        let mut doc = Document::with_version("1.5");
+        let tree = doc.new_object_id();
+        let font = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+        });
+        let content = doc.add_object(Stream::new(
+            dictionary! {},
+            format!("BT /F1 12 Tf 72 700 Td ({text}) Tj ET").into_bytes(),
+        ));
+        let page = doc.add_object(dictionary! {
+            "Type" => "Page", "Parent" => tree, "Contents" => content,
+            "Resources" => dictionary! { "Font" => dictionary! { "F1" => font } },
+            "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
+        });
+        doc.objects.insert(
+            tree,
+            Object::Dictionary(dictionary! {
+                "Type" => "Pages", "Kids" => vec![Object::Reference(page)], "Count" => 1,
+            }),
+        );
+        let catalog = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => tree });
+        doc.trailer.set("Root", catalog);
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).unwrap();
+        bytes
+    }
+
+    #[test]
+    fn pathname_replacement_cannot_mix_snapshot_hash_and_text() {
+        let dir = tempdir().unwrap();
+        let path = dir.path().join("source.pdf");
+        let original = text_pdf("Original immutable snapshot words");
+        let replacement = text_pdf("Replacement unrelated pathname words");
+        fs::write(&path, &original).unwrap();
+        let snapshot = acquire::snapshot(&path, None).unwrap();
+        // Deterministic boundary injection: change the pathname after acquisition,
+        // before result lookup and extraction. No thread timing is involved.
+        fs::write(&path, &replacement).unwrap();
+        let loaded = load_pdf_snapshot(
+            &path,
+            &LoadOptions {
+                extract: true,
+                ..LoadOptions::default()
+            },
+            snapshot,
+        )
+        .unwrap();
+        let result = loaded.result.unwrap();
+        assert_eq!(loaded.sha256, tpe::schema::sha256_hex(&original));
+        assert_eq!(result.document.hash.0, loaded.sha256);
+        assert_eq!(result.document.size, original.len() as u64);
+        assert!(
+            result.pages[0]
+                .text
+                .contains("Original immutable snapshot words")
+        );
+        assert!(!result.pages[0].text.contains("Replacement"));
+        assert_eq!(fs::read(&path).unwrap(), replacement);
+    }
 
     #[test]
     fn collect_walks_directories_and_classifies_files() {

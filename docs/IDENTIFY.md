@@ -3,8 +3,9 @@
 `crates/tpe-identify` answers three questions about a pile of PDFs: which
 files are the same article, which of them are versions of one work, and what
 each file should be called. It is a library plus the `tpe-identify` command.
-It never modifies an input, never deletes anything and never touches the
-network.
+Scanning never modifies an input's contents and never touches the network.
+An explicit apply can move an input's directory entry; undo can remove a
+verified copy when its unchanged original still exists.
 
 ```sh
 cargo run -p tpe-identify -- scan papers/ --json report.json
@@ -17,7 +18,12 @@ cargo run -p tpe-identify -- undo renamed/tpe-identify-manifest.json --apply
 `tpe` result JSON files (`ExtractionResult`, as `tpe extract --out` writes
 them). It prints a table, then the evidence, warnings and errors, and writes
 the full report with `--json`. Exit status is 1 when any input failed to
-load; the report still covers the rest.
+load, a report cannot be published, or an apply operation fails; the report
+still covers loaded inputs. `--json` requires a new destination. Existing
+paths (including hard links, symlinks and dangling symlinks) are refused,
+without choosing another filename. The report is staged and published
+before any requested apply, so an invalid report destination cannot move
+sources first.
 
 ## Where the text comes from
 
@@ -36,6 +42,10 @@ Without any of these the input still has its byte identity
 (`none:extraction disabled`) and can only be matched as an exact copy.
 A result JSON whose recorded source path no longer exists is grouped but
 not renamed.
+
+Fresh extraction consumes those same acquired bytes; it never reopens the
+pathname after hashing. The ledger is opened read-only, without schema/WAL
+initialization or migration. Compatible v4 results remain readable as v4.
 
 ## Identities
 
@@ -138,16 +148,31 @@ after the canonical member; a different work landing on a taken name gets
 `scan` is a **dry run** unless `--apply` is given together with
 `--rename-into DIR`. Applying:
 
-- copies each input into `DIR` under its new name (`create_new`, so an
-  existing target is skipped with `target exists`), re-reads the copy and
-  checks its SHA-256 before recording it;
-- renames in place only inputs that already live inside `DIR`;
+- stages each complete copy from a verified immutable read, then publishes
+  with an exclusive hard link and verifies its SHA-256; an existing target
+  is skipped with `target exists`;
+- renames in place only regular inputs already inside `DIR`, using an
+  atomic no-replace rename on Linux/macOS; unsupported systems fail closed;
 - skips an input whose bytes changed since the scan (`source changed since
   the scan`);
 - never writes outside `DIR`, never changes contents, never deletes;
-- writes `DIR/tpe-identify-manifest.json` (`-2`, `-3`, … when one exists)
-  with `from`, `to`, `op` (`copy` | `rename`), `sha256` and `skipped` per
-  entry.
+- saves and syncs `DIR/tpe-identify-manifest.json` (`-2`, `-3`, … when a
+  directory entry, including a dangling symlink, exists) **before** any
+  operation. Manifest v2 records absolute `from`/`to`, `op`, `sha256`,
+  `skipped` and `pending` per entry. Each outcome is checkpointed using
+  a complete staged sibling and atomic replacement of the owned record.
+
+The manifest is always a complete old or new JSON record. Failure after
+an operation but before its durable checkpoint leaves `pending: true` and
+the error names the recovery manifest. Undo deliberately keeps both paths
+for these uncertain entries: inspect them against the recorded hash before
+manual recovery. It never guesses ownership and deletes a same-content
+file. Completed entries remain undoable, and legacy v1 manifests remain
+readable. This is recoverable evidence, not an all-or-nothing crash
+transaction across every document and the manifest. Cooperating writers
+are supported; hostile concurrent replacement between file-identity checks
+and filesystem operations is outside this boundary. Hard links and
+directory sync are required for publication, with no partial-write fallback.
 
 `tpe-identify undo MANIFEST` prints what reversing would do;
 `--apply` does it, newest entry first: a `rename` is reversed when the
