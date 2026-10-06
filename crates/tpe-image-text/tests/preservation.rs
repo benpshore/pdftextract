@@ -1,4 +1,4 @@
-//! Real filesystem tests through the same process_file entry point as the CLI.
+//! Real filesystem tests through the same `process_file` entry point as the CLI.
 //! The synthetic engine avoids requiring OCR executables, models or a network.
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -14,37 +14,68 @@ struct Synthetic {
 }
 
 impl Engine for Synthetic {
-    fn name(&self) -> &'static str { "synthetic-publication-test" }
-    fn version(&self) -> String { "fixture".into() }
+    fn name(&self) -> &'static str {
+        "synthetic-publication-test"
+    }
+    fn version(&self) -> String {
+        "fixture".into()
+    }
     fn recognize(&self, _: &GrayImage, _: &str) -> Result<Recognition, ImageTextError> {
-        if let Some(path) = &self.block_json { fs::create_dir(path).unwrap(); }
-        if let Some((input, output)) = &self.alias_json { fs::hard_link(input, output).unwrap(); }
+        if let Some(path) = &self.block_json {
+            fs::create_dir(path).unwrap();
+        }
+        if let Some((input, output)) = &self.alias_json {
+            fs::hard_link(input, output).unwrap();
+        }
         Ok(Recognition {
-            blocks: vec![Block { text: "synthetic text".into(), confidence: None, bbox: None }],
+            blocks: vec![Block {
+                text: "synthetic text".into(),
+                confidence: None,
+                bbox: None,
+            }],
             ..Recognition::default()
         })
     }
 }
 
-fn engine() -> Synthetic { Synthetic { block_json: None, alias_json: None } }
+fn engine() -> Synthetic {
+    Synthetic {
+        block_json: None,
+        alias_json: None,
+    }
+}
 
 fn image(path: &Path) -> Vec<u8> {
     GrayImage::from_pixel(8, 8, image::Luma([255]))
-        .save_with_format(path, image::ImageFormat::Png).unwrap();
+        .save_with_format(path, image::ImageFormat::Png)
+        .unwrap();
     fs::read(path).unwrap()
 }
 
 fn options(directory: &Path, force: bool) -> RunOptions {
     RunOptions {
-        out_dir: directory.to_path_buf(), force, lang: "eng".into(),
-        preprocess: PreprocessOptions { auto_contrast: false, upscale_small_text: false, deskew: false },
+        out_dir: directory.to_path_buf(),
+        force,
+        lang: "eng".into(),
+        preprocess: PreprocessOptions {
+            auto_contrast: false,
+            upscale_small_text: false,
+            deskew: false,
+        },
     }
 }
 
 fn no_staging(directory: &Path) {
-    assert!(fs::read_dir(directory).unwrap().all(|entry| {
-        !entry.unwrap().file_name().to_string_lossy().starts_with(".tpe-image-text-")
-    }), "staging/recovery debris left behind");
+    assert!(
+        fs::read_dir(directory).unwrap().all(|entry| {
+            !entry
+                .unwrap()
+                .file_name()
+                .to_string_lossy()
+                .starts_with(".tpe-image-text-")
+        }),
+        "staging/recovery debris left behind"
+    );
 }
 
 #[test]
@@ -99,7 +130,10 @@ fn rejects_alias_created_during_recognition() {
     let input = dir.path().join("scan.png");
     let before = image(&input);
     let output = dir.path().join("scan.json");
-    let engine = Synthetic { block_json: None, alias_json: Some((input.clone(), output)) };
+    let engine = Synthetic {
+        block_json: None,
+        alias_json: Some((input.clone(), output)),
+    };
     assert!(process_file(&input, &engine, &options(dir.path(), true)).is_err());
     assert_eq!(fs::read(&input).unwrap(), before);
     assert!(!dir.path().join("scan.txt").exists());
@@ -113,7 +147,11 @@ fn rejects_another_batch_input_as_output() {
     let second = dir.path().join("scan.txt");
     let first_bytes = image(&first);
     let second_bytes = image(&second);
-    let outcomes = tpe_image_text::run_batch(&[first.clone(), second.clone()], &engine(), &options(dir.path(), true));
+    let outcomes = tpe_image_text::run_batch(
+        &[first.clone(), second.clone()],
+        &engine(),
+        &options(dir.path(), true),
+    );
     assert!(outcomes.iter().all(|outcome| !outcome.ok));
     assert_eq!(fs::read(&first).unwrap(), first_bytes);
     assert_eq!(fs::read(&second).unwrap(), second_bytes);
@@ -131,7 +169,10 @@ fn no_force_dangling_second_output_keeps_pair_absent() {
     let output = dir.path().join("scan.json");
     std::os::unix::fs::symlink(&missing, &output).unwrap();
     assert!(process_file(&input, &engine(), &options(dir.path(), false)).is_err());
-    assert!(!dir.path().join("scan.txt").exists(), "no partial output pair");
+    assert!(
+        !dir.path().join("scan.txt").exists(),
+        "no partial output pair"
+    );
     assert!(!missing.exists());
     assert_eq!(fs::read_link(&output).unwrap(), missing);
     assert_eq!(fs::read(&input).unwrap(), before);
@@ -175,7 +216,8 @@ fn normal_new_output_publishes_complete_pair() {
     let before = image(&input);
     let report = process_file(&input, &engine(), &options(dir.path(), false)).unwrap();
     assert_eq!(fs::read(&report.outputs.text).unwrap(), b"synthetic text\n");
-    let saved: tpe_image_text::FileReport = serde_json::from_slice(&fs::read(&report.outputs.json).unwrap()).unwrap();
+    let saved: tpe_image_text::FileReport =
+        serde_json::from_slice(&fs::read(&report.outputs.json).unwrap()).unwrap();
     assert_eq!(saved.input_sha256, report.input_sha256);
     assert_eq!(saved.text_chars, report.text_chars);
     assert_eq!(fs::read(&input).unwrap(), before);
@@ -187,10 +229,13 @@ fn force_replaces_legitimate_outputs() {
     let dir = tempfile::tempdir().unwrap();
     let input = dir.path().join("scan.png");
     let before = image(&input);
-    for extension in ["txt", "json"] { fs::write(dir.path().join(format!("scan.{extension}")), b"old").unwrap(); }
+    for extension in ["txt", "json"] {
+        fs::write(dir.path().join(format!("scan.{extension}")), b"old").unwrap();
+    }
     let report = process_file(&input, &engine(), &options(dir.path(), true)).unwrap();
     assert_eq!(fs::read(&report.outputs.text).unwrap(), b"synthetic text\n");
-    let _: tpe_image_text::FileReport = serde_json::from_slice(&fs::read(&report.outputs.json).unwrap()).unwrap();
+    let _: tpe_image_text::FileReport =
+        serde_json::from_slice(&fs::read(&report.outputs.json).unwrap()).unwrap();
     assert_eq!(fs::read(&input).unwrap(), before);
     no_staging(dir.path());
 }
@@ -210,11 +255,22 @@ fn failed_pair(force: bool) {
     let input = dir.path().join("scan.png");
     let before = image(&input);
     let text = dir.path().join("scan.txt");
-    if force { fs::write(&text, b"old text").unwrap(); }
-    let engine = Synthetic { block_json: Some(dir.path().join("scan.json")), alias_json: None };
+    if force {
+        fs::write(&text, b"old text").unwrap();
+    }
+    let engine = Synthetic {
+        block_json: Some(dir.path().join("scan.json")),
+        alias_json: None,
+    };
     assert!(process_file(&input, &engine, &options(dir.path(), force)).is_err());
-    if force { assert_eq!(fs::read(&text).unwrap(), b"old text"); }
-    else { assert!(!text.exists(), "failed second output must not leave the first"); }
+    if force {
+        assert_eq!(fs::read(&text).unwrap(), b"old text");
+    } else {
+        assert!(
+            !text.exists(),
+            "failed second output must not leave the first"
+        );
+    }
     assert_eq!(fs::read(&input).unwrap(), before);
     no_staging(dir.path());
 }

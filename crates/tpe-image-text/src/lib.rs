@@ -292,7 +292,8 @@ fn process_file_with_inputs(
 ) -> Result<FileReport, ImageTextError> {
     let started = Instant::now();
     let (text_path, json_path) = output_paths(input, &opts.out_dir)?;
-    let outputs = publication::OutputPair::new(input, [&text_path, &json_path], opts.force, inputs)?;
+    let outputs =
+        publication::OutputPair::new(input, [&text_path, &json_path], opts.force, inputs)?;
     let bytes = fs::read(input).map_err(|e| ImageTextError::Io(input.display().to_string(), e))?;
     let input_sha256 = hex::encode(Sha256::digest(&bytes));
     let decoded = decode::decode(input)?;

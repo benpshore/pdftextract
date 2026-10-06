@@ -32,7 +32,10 @@ impl OutputPair {
             source: Handle::from_path(input).map_err(|e| io_error(input, e))?,
             // Unreadable/missing inputs still receive their own normal per-file
             // error. An unreadable output also fails its identity check below.
-            batch_sources: inputs.iter().filter_map(|path| Handle::from_path(path).ok()).collect(),
+            batch_sources: inputs
+                .iter()
+                .filter_map(|path| Handle::from_path(path).ok())
+                .collect(),
             paths: paths.map(Path::to_path_buf),
             force,
         };
@@ -111,9 +114,14 @@ impl OutputPair {
                 use std::os::unix::fs::PermissionsExt;
                 builder.permissions(fs::Permissions::from_mode(0o666));
             }
-            let mut file = builder.tempfile_in(directory).map_err(|e| io_error(directory, e))?;
-            file.write_all(contents).map_err(|e| io_error(directory, e))?;
-            file.as_file().sync_all().map_err(|e| io_error(directory, e))?;
+            let mut file = builder
+                .tempfile_in(directory)
+                .map_err(|e| io_error(directory, e))?;
+            file.write_all(contents)
+                .map_err(|e| io_error(directory, e))?;
+            file.as_file()
+                .sync_all()
+                .map_err(|e| io_error(directory, e))?;
             files.push(file);
         }
         let exists = self.check()?; // Recheck after OCR and staging.
@@ -171,7 +179,11 @@ struct Transaction {
 
 impl Transaction {
     fn backup(&self, index: usize) -> PathBuf {
-        self.backups.as_ref().expect("active transaction").path().join(index.to_string())
+        self.backups
+            .as_ref()
+            .expect("active transaction")
+            .path()
+            .join(index.to_string())
     }
 
     fn rollback(&mut self) -> io::Result<()> {
@@ -181,7 +193,8 @@ impl Transaction {
                 if self.published[index] {
                     // Do not unlink a replacement installed by another owner.
                     if fs::symlink_metadata(path).is_ok_and(|m| m.is_file())
-                        && Handle::from_path(path)? == Handle::from_file(self.files[index].as_file().try_clone()?)?
+                        && Handle::from_path(path)?
+                            == Handle::from_file(self.files[index].as_file().try_clone()?)?
                     {
                         fs::remove_file(path)?;
                     }
@@ -191,7 +204,9 @@ impl Transaction {
                     match fs::symlink_metadata(path) {
                         Err(e) if e.kind() == io::ErrorKind::NotFound => {}
                         Err(e) => return Err(e),
-                        Ok(_) => return Err(io::Error::other(format!("{} is occupied", path.display()))),
+                        Ok(_) => {
+                            return Err(io::Error::other(format!("{} is occupied", path.display())));
+                        }
                     }
                     // Cooperating-writer boundary: the absence check and rename
                     // are not a hostile-directory concurrency guarantee.
@@ -205,7 +220,10 @@ impl Transaction {
             let recovery = self.backups.take().expect("active transaction").keep();
             self.saved = [false; 2];
             self.published = [false; 2];
-            return Err(io::Error::other(format!("{error}; recovery: {} (0=text, 1=JSON)", recovery.display())));
+            return Err(io::Error::other(format!(
+                "{error}; recovery: {} (0=text, 1=JSON)",
+                recovery.display()
+            )));
         }
         Ok(())
     }
@@ -213,7 +231,9 @@ impl Transaction {
 
 impl Drop for Transaction {
     fn drop(&mut self) {
-        if self.saved.iter().any(|saved| *saved) || self.published.iter().any(|published| *published) {
+        if self.saved.iter().any(|saved| *saved)
+            || self.published.iter().any(|published| *published)
+        {
             let _ = self.rollback();
         }
     }
@@ -243,22 +263,34 @@ mod tests {
             fs::write(&input, b"source").unwrap();
             let paths = [dir.path().join("input.txt"), dir.path().join("input.json")];
             if force {
-                for path in &paths { fs::write(path, b"old output").unwrap(); }
+                for path in &paths {
+                    fs::write(path, b"old output").unwrap();
+                }
             }
             let pair = OutputPair::new(&input, [&paths[0], &paths[1]], force, &[]).unwrap();
             let mut calls = 0;
-            let error = pair.publish_with([b"new text", b"new JSON"], |from, to| {
-                calls += 1;
-                if calls == 2 { return Err(io::Error::other("injected second-link failure")); }
-                fs::hard_link(from, to)
-            }).unwrap_err();
+            let error = pair
+                .publish_with([b"new text", b"new JSON"], |from, to| {
+                    calls += 1;
+                    if calls == 2 {
+                        return Err(io::Error::other("injected second-link failure"));
+                    }
+                    fs::hard_link(from, to)
+                })
+                .unwrap_err();
             assert!(error.to_string().contains("injected second-link failure"));
             assert_eq!(fs::read(&input).unwrap(), b"source");
             for path in &paths {
-                if force { assert_eq!(fs::read(path).unwrap(), b"old output"); }
-                else { assert!(!path.exists()); }
+                if force {
+                    assert_eq!(fs::read(path).unwrap(), b"old output");
+                } else {
+                    assert!(!path.exists());
+                }
             }
-            assert_eq!(fs::read_dir(dir.path()).unwrap().count(), if force { 3 } else { 1 });
+            assert_eq!(
+                fs::read_dir(dir.path()).unwrap().count(),
+                if force { 3 } else { 1 }
+            );
         }
     }
 }
