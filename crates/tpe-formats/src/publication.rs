@@ -337,8 +337,8 @@ mod tests {
                         fs::write(path, b"old output").unwrap();
                     }
                 }
-                let outputs = OutputSet::new(std::slice::from_ref(&input), paths.clone(), force)
-                    .unwrap();
+                let outputs =
+                    OutputSet::new(std::slice::from_ref(&input), paths.clone(), force).unwrap();
                 let mut calls = 0;
                 let error = outputs
                     .publish_with(&[b"json", b"text", b"preview"], |from, to| {

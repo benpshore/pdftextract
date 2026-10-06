@@ -364,6 +364,10 @@ pub struct FormatsResult {
     /// Pages package's `preview.pdf`). Not serialised.
     #[serde(skip)]
     pub extra_files: Vec<ExtraFile>,
+    /// Exact filesystem paths retained by path-based extractors for publication
+    /// checks. Display strings in JSON can lose non-UTF-8 bytes.
+    #[serde(skip)]
+    pub(crate) input_paths: Vec<PathBuf>,
 }
 
 /// A file copied out of the input for another tool to read.
@@ -390,6 +394,7 @@ impl FormatsResult {
             warnings: Vec::new(),
             text: String::new(),
             extra_files: Vec::new(),
+            input_paths: Vec::new(),
         }
     }
 
@@ -560,6 +565,7 @@ pub fn extract_path(path: &Path, options: &Options) -> Result<FormatsResult, For
             audio::extract(path, &bytes, identity, &env)?
         }
     };
+    result.input_paths.push(fs::canonicalize(path)?);
     result.finish();
     Ok(result)
 }
@@ -613,6 +619,7 @@ pub fn write_outputs_with_inputs(
         ));
     }
     let mut sources = inputs.to_vec();
+    sources.extend(result.input_paths.iter().cloned());
     sources.extend(result.document.sources.iter().map(PathBuf::from));
     create_output_directory(out_dir, &sources)?;
     let json_path = out_dir.join(format!("{stem}.json"));

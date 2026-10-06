@@ -13,7 +13,10 @@ input path, symlink and hard-link aliases are rejected, including other CLI batc
 inputs and files in input packages. Creating outputs inside a package is rejected
 before creating the output directory. Public writer callers must supply all
 additional inputs through `write_outputs_with_inputs`; `write_outputs` protects
-the result's recorded sources.
+the result's recorded sources. Path-based extractors retain exact canonical
+filesystem paths privately as well as the existing JSON display strings, so
+non-UTF-8 directories cannot bypass the check. Deserialized or manually built
+results rely on their recorded display paths and the caller-supplied input list.
 
 The private publisher adapts #262's reviewed pattern without importing its crate:
 stage and sync every output, move old forced entries into a private recovery
@@ -49,7 +52,7 @@ the immutable #251 base/tree separately, and uses separate target directories.
 It runs the production extractor/writer/CLI regressions, the existing format
 fixtures, strict lint and source cleanliness on Linux and macOS. Linux also runs
 the same integration test file against unchanged original production code,
-expecting 17 regression failures and three passing controls. Four potentially
+expecting 18 regression failures and three passing controls. Four potentially
 expensive coordinate tests run only on the corrected reader; there is no
 deliberate original OOM reproduction. A unit fault injection exercises the actual
 publication routine after one/two links for both new and forced output sets.

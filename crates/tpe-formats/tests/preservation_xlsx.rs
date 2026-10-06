@@ -29,7 +29,11 @@ fn source(dir: &Path) -> FormatsResult {
 fn workbook(rows: &str, sheet_count: usize) -> Vec<u8> {
     let mut sheets = String::new();
     for i in 1..=sheet_count {
-        write!(sheets, "<sheet name=\"Sheet{i}\" sheetId=\"{i}\" r:id=\"rId1\"/>").unwrap();
+        write!(
+            sheets,
+            "<sheet name=\"Sheet{i}\" sheetId=\"{i}\" r:id=\"rId1\"/>"
+        )
+        .unwrap();
     }
     let workbook = format!(
         "<workbook xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><sheets>{sheets}</sheets></workbook>"
@@ -107,6 +111,23 @@ fn forced_input_path_is_rejected() {
     assert!(write_outputs(&result, dir.path(), "source", true).is_err());
     assert_eq!(fs::read(input).unwrap(), b"source");
     assert!(!dir.path().join("source.json").exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn non_utf8_input_path_is_protected() {
+    use std::os::unix::ffi::OsStringExt;
+
+    let dir = tempfile::tempdir().unwrap();
+    let name = std::ffi::OsString::from_vec(b"input-\xff".to_vec());
+    let directory = dir.path().join(name);
+    fs::create_dir(&directory).unwrap();
+    let input = directory.join("source.txt");
+    fs::write(&input, b"source").unwrap();
+    let result = extract_path(&input, &Options::default()).unwrap();
+    assert!(write_outputs(&result, &directory, "source", true).is_err());
+    assert_eq!(fs::read(input).unwrap(), b"source");
+    assert!(!directory.join("source.json").exists());
 }
 
 #[test]
