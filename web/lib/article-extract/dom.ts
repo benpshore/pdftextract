@@ -16,11 +16,19 @@ export function repairHtml(source: string): { html: string; repairs: string[] } 
   let html = source;
   if (html.includes('\u0000')) { html = html.replace(/\u0000/g, ''); repairs.push('Removed NUL bytes from the HTML.'); }
   const count = (pattern: RegExp) => (html.match(pattern) || []).length;
-  if (count(/<!--/g) > count(/-->/g)) {
-    // Neutralise the unmatched opener so the text after it is parsed instead of being swallowed.
-    let open = html.lastIndexOf('<!--');
-    while (open >= 0 && html.indexOf('-->', open) >= 0) open = html.lastIndexOf('<!--', open - 1);
-    if (open >= 0) { html = `${html.slice(0, open)}<!-- -->${html.slice(open + 4)}`; repairs.push('Neutralised an unterminated HTML comment.'); }
+  // Comments do not nest. Move past each closing delimiter, even when its body
+  // contains another opener; never search backwards with a negative offset.
+  let cursor = 0;
+  while (cursor < html.length) {
+    const open = html.indexOf('<!--', cursor);
+    if (open < 0) break;
+    const close = html.indexOf('-->', open + 4);
+    if (close < 0) {
+      html = html.slice(0, open) + html.slice(open).replaceAll('<!--', '<!-- -->');
+      repairs.push('Neutralised an unterminated HTML comment.');
+      break;
+    }
+    cursor = close + 3;
   }
   for (const tag of ['script', 'style', 'textarea', 'title', 'noscript', 'template', 'iframe']) {
     const opens = count(new RegExp(`<${tag}(?:\\s[^>]*)?>`, 'gi')), closes = count(new RegExp(`</${tag}\\s*>`, 'gi'));

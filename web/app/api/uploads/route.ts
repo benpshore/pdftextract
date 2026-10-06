@@ -18,7 +18,12 @@ export async function POST(request:Request){try{
  const sourceUrl=input.sourceUrl||null;if(sourceUrl&&!/^https?:\/\//i.test(sourceUrl))throw new Error('Invalid source URL.');
  const mime=input.target==='result'?'application/json':input.target==='asset'?input.mime:input.kind==='pdf'?'application/pdf':input.kind==='html'&&/^text\/html(?:;.*)?$/i.test(input.mime)?input.mime:input.kind==='html'?'text/html':input.kind==='feed'&&/^(?:text|application)\/(?:xml|rss\+xml|atom\+xml)(?:;.*)?$/i.test(input.mime)?input.mime:input.kind==='feed'?'application/xml':input.kind==='json'?'application/json':input.kind==='css'?'text/css':input.kind==='image'&&/^image\/(?:png|jpeg|webp|gif|bmp|tiff|avif)$/.test(input.mime)?input.mime:['audio','video'].includes(input.kind)&&/^(?:audio|video)\/[a-z0-9.+-]+$/i.test(input.mime)?input.mime:'application/octet-stream';
  if(input.target==='asset'&&!/^image\/(?:png|jpeg|webp|gif|bmp|tiff|avif)$/.test(input.mime))throw new Error('Unsupported embedded image type.');
- const upload=await storage().bucket.createMultipartUpload(key,{httpMetadata:{contentType:mime}});
+ let customMetadata:Record<string,string>|undefined;
+ if(input.target==='original'&&input.capture!==undefined){
+  if(!input.capture||typeof input.capture.truncated!=='boolean'||input.capture.capturedBytes!==input.bytes)throw new Error('Invalid captured-source evidence.');
+  customMetadata={'tpe-capture-truncated':String(input.capture.truncated),'tpe-capture-bytes':String(input.bytes)};
+ }
+ const upload=await storage().bucket.createMultipartUpload(key,{httpMetadata:{contentType:mime},...(customMetadata?{customMetadata}:{})});
  const session:UploadSession={id,owner:user,documentId,key,uploadId:upload.uploadId,target:input.target,bytes:input.bytes,createdAt:new Date().toISOString(),name,kind:input.kind||'json',sourceUrl,mime,...(input.target==='result'?{summary:input.summary,baseResultKey}:{})};
  try{await storage().bucket.put(`uploads/${id}`,JSON.stringify(session));}catch(error){await upload.abort();throw error;}
  // R2 allows 10,000 parts. This is transport sizing, not a file acceptance cap.

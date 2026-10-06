@@ -37,10 +37,10 @@
       "sha256": "58beffb801b4f29d582eda458b143eb2c9657fe460b0b2f6324d52f85dc4582a"
     },
     {
-      "bytes": 765,
+      "bytes": 936,
       "mode": "0644",
       "path": "app/api/documents/[id]/original/route.ts",
-      "sha256": "428b2bf56ebf5f24724bdd6567856098995b466c7417d195830b4e60e4d1db59"
+      "sha256": "b6934b564814a2dac116ba5884eb83916be7a9a5f5256d839615673a3ee9dea9"
     },
     {
       "bytes": 2158,
@@ -61,10 +61,10 @@
       "sha256": "a1f3b5361fb229bec71da3482128e0dcbcbe16268d09ec7d04dc4db4760f5139"
     },
     {
-      "bytes": 3218,
+      "bytes": 3650,
       "mode": "0644",
       "path": "app/api/uploads/route.ts",
-      "sha256": "7b7f715e9c7684cd3ecfd5d416de76b4dcc43212308133917aad14929b982413"
+      "sha256": "cc030f0390115bb7e48f63be9c940eefc47a5bd06980c156a52b6f318c61b73d"
     },
     {
       "bytes": 2550,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 49851,
+      "bytes": 50659,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "df710c9d76069a68f232cf0401cda08466141b702bf76fda0bc003a79576353c"
+      "sha256": "bc64aaa661b430f10b90384697a3c02f12ce6d6d3b859a3a96ca493e6857bc79"
     },
     {
       "bytes": 7211,
@@ -601,10 +601,10 @@
       "sha256": "492820d466645344fc6bb50698520e645fd02018e68ac10b75673c6252f2e706"
     },
     {
-      "bytes": 2511,
+      "bytes": 2629,
       "mode": "0644",
       "path": "lib/article-extract/dom.ts",
-      "sha256": "1bbcc01b449a52abbdc950c7b4689e90150ffa2b3745d7e0100a3e7d77bc9dc8"
+      "sha256": "d7b581679bd37c0eb21568217ee6cf981d56e3c20da0489e7a4e4aa2feefdae6"
     },
     {
       "bytes": 2026,
@@ -799,16 +799,16 @@
       "sha256": "e16d6233e10d55ed14326eb30be9534e36ad5ec2d58993fbcd78e13660ae7675"
     },
     {
-      "bytes": 627,
+      "bytes": 781,
       "mode": "0644",
       "path": "lib/types.ts",
-      "sha256": "bf82a0edd24c7a4659ab952b72fcefe336c4a33dc0c3d50cfbbca4d9904eeceb"
+      "sha256": "806966bd0f0ad3a46733496ae6140ae2767e61bd625e0264ef20baef5b4ec9ac"
     },
     {
-      "bytes": 7062,
+      "bytes": 8341,
       "mode": "0644",
       "path": "lib/upload-client.ts",
-      "sha256": "3a772b085d586480c7f4fe175c87a2638f7a1ad14d0d60395a8708cd77030af4"
+      "sha256": "6414ebd7f91af644f480b4c1d3740df30cc0a4a2c75f5692e2ba61b8174e9033"
     },
     {
       "bytes": 3860,
@@ -985,6 +985,18 @@
       "sha256": "df86ebfc27d2f00860036658e933ac0ddd7b5f6879aa5d51218f0863c7e1fb60"
     },
     {
+      "bytes": 8739,
+      "mode": "0644",
+      "path": "scripts/test-article-integrity-browser.mjs",
+      "sha256": "97ebd0f0c55b94e6615f33b7584d780221ca29b1d8d87c6cde3ad2fb47bde1e2"
+    },
+    {
+      "bytes": 4311,
+      "mode": "0644",
+      "path": "scripts/test-article-integrity.mjs",
+      "sha256": "2d953f0338d7fe6dec91864e090bb4b1afc74ec00586044418b5909b120d1b2a"
+    },
+    {
       "bytes": 10561,
       "mode": "0644",
       "path": "scripts/test-browser-imports.mjs",
@@ -997,10 +1009,10 @@
       "sha256": "bca251032905add47e8db6a6e70a9273e318cacc8fa3706b737c0167d3e25a23"
     },
     {
-      "bytes": 8235,
+      "bytes": 8282,
       "mode": "0644",
       "path": "scripts/test-clip.mjs",
-      "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
+      "sha256": "f80f1276f1b7e0c7c8b3d839066755c6a4340c8a85b4e2ad92704e5a711e54ff"
     },
     {
       "bytes": 3497,

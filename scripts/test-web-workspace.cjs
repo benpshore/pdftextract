@@ -64,7 +64,7 @@ const helpers = {
     '@/lib/office': { extractOffice: async () => { throw Error('Unexpected Office extraction'); } },
     '@/lib/article-assets': { retainArticleImages: async (record, result) => result, retainOfficeAssets: async (record, result) => result },
     '@/lib/workspace-storage': { readWorkspace: async () => stored, writeWorkspace: async (owner, snapshot) => { assert.equal(owner, 'owner-A'); stored = snapshot; } },
-    '@/lib/upload-client': { decodeSource: uploadModule.exports.decodeSource, uploadOriginal: async (file, { onProgress }) => {
+    '@/lib/upload-client': { readCaptureEvidence: uploadModule.exports.readCaptureEvidence, applyCaptureEvidence: uploadModule.exports.applyCaptureEvidence, captureWarning: uploadModule.exports.captureWarning, decodeSource: uploadModule.exports.decodeSource, uploadOriginal: async (file, { onProgress }) => {
             const text = await file.text(), id = 'doc' + (rows.size + 1), row = { id, title: file.name, kind: text.startsWith('<') ? 'html' : 'text', original_name: file.name, status: 'uploaded', engine: '', created_at: new Date().toISOString(), sha256: 'hash', bytes: file.size, source_url: null };
             rows.set(id, row);
             if (file.name === 'hold.txt')
@@ -292,5 +292,41 @@ const Workspace = mod.exports.default;
     assert.match(document.querySelector('.reading').textContent, /Café/);
     assert.match(document.querySelector('.queue-item:last-child').textContent, /Cancelled/);
     await act(async () => { recovered.unmount(); });
-    console.log(JSON.stringify({ multi_file_independent_failure: true, content_dispatch_over_extension: true, stable_selection: true, retry_owner_preserved: true, back_reader_and_scroll: true, indexeddb_snapshot_drops_saved_files: true, remount_reader_restored: true, private_asset_only_rendering: true, queued_cancel_skips_upload: true, interrupted_retry_reuses_owned_original: true, reader_css_and_active_inputs_removed: true, reread_reuses_owned_original: true, hero_removed_compact_hint: true, upload_symbol_named_tooltip_options_focus: true, saved_articles_menu_open_close_select_focus: true, saved_html_charset_recovered: true, failed_reread_keeps_valid_result: true, failed_status_reread_keeps_valid_result: true, cancelled_reread_keeps_valid_result: true }));
+    // A first-import parser exception must preserve capture evidence in the generated
+    // Failed result, not only in successful/partial extraction results. Reload uses
+    // the persisted result and stored-source snapshot, without capturing again.
+    for (const truncated of [true, false]) {
+        const url = `https://capture.test/parser-exception-${truncated}`;
+        const file = new File(['<html>Captured prefix</html>'], 'captured.html', { type: 'text/html' });
+        const capture = { truncated, capturedBytes: file.size };
+        let captureCalls = 0;
+        helpers['@/lib/upload-client'].captureSource = async source => {
+            assert.equal(source, url); captureCalls++;
+            return { file, url, contentType: file.type, decodedSource: await file.text(), capture };
+        };
+        failParse = true; legacyOriginal = false;
+        stored = { version: 1, items: [{ id: 'capture-exception', name: url, source: { type: 'url', url, feed: false }, phase: 'waiting', progress: null, message: 'Waiting' }], draft: { url: '', kind: '', paste: '', query: '' }, selection: { queueId: 'capture-exception' }, view: 'text', scroll: 0 };
+        history.replaceState({}, '', '/?queue=capture-exception');
+        const importing = createRoot(document.getElementById('root'));
+        await act(async () => { importing.render(React.createElement(Workspace, { userId: 'owner-A' })); await sleep(30); });
+        await act(async () => { [...document.querySelectorAll('.queue-item button')].find(button => button.textContent === 'Retry').click(); await sleep(40); });
+        const failedId = saveCalls.at(-1), failed = results.get(failedId);
+        assert.equal(failed.status, 'failed', 'parser exception must remain Failed');
+        assert.match(failed.warnings.join(' '), /Simulated parser failure/);
+        assert.deepEqual(failed.metadata?.sourceCapture, capture, 'generated Failed result retains source capture evidence');
+        assert.equal(!!failed.metadata.truncated, truncated);
+        assert.equal(!!document.querySelector('.capture-warning'), truncated);
+        await act(async () => { importing.unmount(); });
+        assert.equal(stored.items[0].source.type, 'stored');
+        assert.deepEqual(stored.items[0].source.capture, capture);
+        assert.equal(stored.items[0].result, undefined, 'reload must fetch the durable result');
+        const reloaded = createRoot(document.getElementById('root'));
+        await act(async () => { reloaded.render(React.createElement(Workspace, { userId: 'owner-A' })); await sleep(40); });
+        assert.match(document.querySelector('#reader .notice.error').textContent, /Simulated parser failure/);
+        assert.equal(!!document.querySelector('.capture-warning'), truncated, 'capture warning survives reload');
+        assert.equal(results.get(failedId).status, 'failed');
+        assert.equal(captureCalls, 1, 'reload does not re-fetch the source');
+        await act(async () => { reloaded.unmount(); });
+    }
+    console.log(JSON.stringify({ multi_file_independent_failure: true, content_dispatch_over_extension: true, stable_selection: true, retry_owner_preserved: true, back_reader_and_scroll: true, indexeddb_snapshot_drops_saved_files: true, remount_reader_restored: true, private_asset_only_rendering: true, queued_cancel_skips_upload: true, interrupted_retry_reuses_owned_original: true, reader_css_and_active_inputs_removed: true, reread_reuses_owned_original: true, hero_removed_compact_hint: true, upload_symbol_named_tooltip_options_focus: true, saved_articles_menu_open_close_select_focus: true, saved_html_charset_recovered: true, failed_reread_keeps_valid_result: true, failed_status_reread_keeps_valid_result: true, cancelled_reread_keeps_valid_result: true, parser_exception_retains_capture_evidence_after_reload: true, complete_capture_exception_has_no_truncation_warning: true }));
 })().catch(error => { console.error(error); process.exitCode = 1; });
