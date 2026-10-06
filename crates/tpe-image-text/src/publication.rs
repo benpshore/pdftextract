@@ -192,7 +192,12 @@ impl Transaction {
                 let path = &self.paths[index];
                 if self.published[index] {
                     // Do not unlink a replacement installed by another owner.
-                    if fs::symlink_metadata(path).is_ok_and(|m| m.is_file())
+                    let regular = match fs::symlink_metadata(path) {
+                        Ok(metadata) => metadata.is_file(),
+                        Err(e) if e.kind() == io::ErrorKind::NotFound => false,
+                        Err(e) => return Err(e),
+                    };
+                    if regular
                         && Handle::from_path(path)?
                             == Handle::from_file(self.files[index].as_file().try_clone()?)?
                     {
