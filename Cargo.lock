@@ -8843,6 +8843,7 @@ dependencies = [
  "rten",
  "rten-imageproc",
  "rustix 1.1.5",
+ "same-file",
  "serde",
  "serde_json",
  "sha2 0.11.0",

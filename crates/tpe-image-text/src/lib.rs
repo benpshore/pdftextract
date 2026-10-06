@@ -24,9 +24,9 @@ pub mod decode;
 pub mod engine;
 pub mod limits;
 pub mod preprocess;
+mod publication;
 
-use std::fs::{self, OpenOptions};
-use std::io::Write;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
@@ -126,7 +126,7 @@ pub struct Timing {
     pub preprocess: u64,
     /// Recognition.
     pub ocr: u64,
-    /// Writing both outputs.
+    /// Preparing the output report, measured before final publication.
     pub write: u64,
     /// Whole file.
     pub total: u64,
@@ -281,15 +281,18 @@ pub fn process_file(
     engine: &dyn Engine,
     opts: &RunOptions,
 ) -> Result<FileReport, ImageTextError> {
+    process_file_with_inputs(input, engine, opts, &[])
+}
+
+fn process_file_with_inputs(
+    input: &Path,
+    engine: &dyn Engine,
+    opts: &RunOptions,
+    inputs: &[PathBuf],
+) -> Result<FileReport, ImageTextError> {
     let started = Instant::now();
     let (text_path, json_path) = output_paths(input, &opts.out_dir)?;
-    if !opts.force {
-        for p in [&text_path, &json_path] {
-            if p.exists() {
-                return Err(ImageTextError::OutputExists(p.display().to_string()));
-            }
-        }
-    }
+    let outputs = publication::OutputPair::new(input, [&text_path, &json_path], opts.force, inputs)?;
     let bytes = fs::read(input).map_err(|e| ImageTextError::Io(input.display().to_string(), e))?;
     let input_sha256 = hex::encode(Sha256::digest(&bytes));
     let decoded = decode::decode(input)?;
@@ -312,7 +315,6 @@ pub fn process_file(
     let text = recognition.text();
     fs::create_dir_all(&opts.out_dir)
         .map_err(|e| ImageTextError::Io(opts.out_dir.display().to_string(), e))?;
-    write_output(&text_path, text.as_bytes(), opts.force)?;
     let mut report = FileReport {
         tool: ToolInfo {
             name: TOOL_NAME.to_string(),
@@ -363,29 +365,8 @@ pub fn process_file(
     report.timing_ms.total = ms(started.elapsed());
     let json = serde_json::to_vec_pretty(&report)
         .map_err(|e| ImageTextError::Engine(format!("serialising report: {e}")))?;
-    write_output(&json_path, &json, opts.force)?;
+    outputs.publish([text.as_bytes(), &json])?;
     Ok(report)
-}
-
-fn write_output(path: &Path, bytes: &[u8], force: bool) -> Result<(), ImageTextError> {
-    let mut options = OpenOptions::new();
-    options.write(true);
-    if force {
-        options.create(true).truncate(true);
-    } else {
-        options.create_new(true);
-    }
-    let result = options.open(path).and_then(|mut f| {
-        f.write_all(bytes)?;
-        f.flush()
-    });
-    match result {
-        Ok(()) => Ok(()),
-        Err(e) if e.kind() == std::io::ErrorKind::AlreadyExists => {
-            Err(ImageTextError::OutputExists(path.display().to_string()))
-        }
-        Err(e) => Err(ImageTextError::Io(path.display().to_string(), e)),
-    }
 }
 
 /// Process every input with one engine, never stopping at a failure.
@@ -394,7 +375,7 @@ pub fn run_batch(files: &[PathBuf], engine: &dyn Engine, opts: &RunOptions) -> V
         .iter()
         .map(|input| {
             let started = Instant::now();
-            match process_file(input, engine, opts) {
+            match process_file_with_inputs(input, engine, opts, files) {
                 Ok(report) => FileOutcome {
                     input: input.display().to_string(),
                     ok: true,
@@ -436,18 +417,6 @@ mod tests {
         assert_eq!(t, PathBuf::from("/out/scan 1.txt"));
         assert_eq!(j, PathBuf::from("/out/scan 1.json"));
         assert!(output_paths(Path::new("/in/.."), Path::new("/out")).is_err());
-    }
-
-    #[test]
-    fn write_output_refuses_to_overwrite_without_force() {
-        let dir = tempfile::tempdir().expect("tempdir");
-        let p = dir.path().join("x.txt");
-        write_output(&p, b"one", false).expect("first write");
-        let err = write_output(&p, b"two", false).expect_err("second write");
-        assert!(matches!(err, ImageTextError::OutputExists(_)), "{err}");
-        assert_eq!(fs::read(&p).expect("read"), b"one");
-        write_output(&p, b"two", true).expect("forced");
-        assert_eq!(fs::read(&p).expect("read"), b"two");
     }
 
     #[test]

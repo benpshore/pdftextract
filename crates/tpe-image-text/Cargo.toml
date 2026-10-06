@@ -18,6 +18,7 @@ image = { version = "0.25.10", default-features = false, features = ["png", "jpe
 ocrs = { version = "=0.13.1", default-features = false, features = ["rten"], optional = true }
 rten = { version = "=0.26.0", default-features = false, features = ["rten_format"], optional = true }
 rten-imageproc = { version = "=0.26.0", optional = true }
+same-file = "=1.0.6"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["float_roundtrip"] }
 sha2 = "0.11"
