@@ -200,35 +200,60 @@ const MAX_ROW_SLOTS: usize = 100_000;
 const MAX_CELL_SLOTS: usize = 1_000_000;
 
 #[derive(Default)]
-struct GridBudget { rows: usize, cells: usize }
+struct GridBudget {
+    rows: usize,
+    cells: usize,
+}
 
 impl GridBudget {
     fn charge(used: &mut usize, amount: usize, limit: usize) -> Result<(), FormatsError> {
-        *used = used.checked_add(amount.max(1)).filter(|total| *total <= limit)
-            .ok_or_else(|| FormatsError::Invalid("XLSX dense grid resource limit exceeded".into()))?;
+        *used = used
+            .checked_add(amount.max(1))
+            .filter(|total| *total <= limit)
+            .ok_or_else(|| {
+                FormatsError::Invalid("XLSX dense grid resource limit exceeded".into())
+            })?;
         Ok(())
     }
 }
 
 fn row_number(value: &str) -> Option<usize> {
-    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) { return None; }
-    value.parse::<usize>().ok().filter(|number| (1..=MAX_ROW).contains(number))
+    if value.is_empty() || !value.bytes().all(|byte| byte.is_ascii_digit()) {
+        return None;
+    }
+    value
+        .parse::<usize>()
+        .ok()
+        .filter(|number| (1..=MAX_ROW).contains(number))
 }
 
 fn coordinate(reference: &str) -> Option<(usize, usize)> {
-    let split = reference.bytes().position(|byte| !byte.is_ascii_alphabetic())?;
-    if split == 0 { return None; }
+    let split = reference
+        .bytes()
+        .position(|byte| !byte.is_ascii_alphabetic())?;
+    if split == 0 {
+        return None;
+    }
     let mut column = 0usize;
     for byte in reference[..split].bytes() {
-        column = column.checked_mul(26)?.checked_add(usize::from(byte.to_ascii_uppercase() - b'A') + 1)?;
-        if column > MAX_COLUMN { return None; }
+        column = column
+            .checked_mul(26)?
+            .checked_add(usize::from(byte.to_ascii_uppercase() - b'A') + 1)?;
+        if column > MAX_COLUMN {
+            return None;
+        }
     }
     Some((column.checked_sub(1)?, row_number(&reference[split..])?))
 }
 
 impl SheetReader<'_> {
     /// Rows of `sheetData`, placed at their row numbers (gaps are empty rows).
-    fn rows(&mut self, root: Node<'_, '_>, sheet_name: &str, budget: &mut GridBudget) -> Result<Vec<Vec<String>>, FormatsError> {
+    fn rows(
+        &mut self,
+        root: Node<'_, '_>,
+        sheet_name: &str,
+        budget: &mut GridBudget,
+    ) -> Result<Vec<Vec<String>>, FormatsError> {
         let mut rows: Vec<Vec<String>> = Vec::new();
         let Some(data) = xml::descendant(root, "sheetData") else {
             return Ok(rows);
@@ -236,24 +261,46 @@ impl SheetReader<'_> {
         for row in data.children().filter(|n| xml::is(*n, "row")) {
             let number = match xml::attr(row, "r") {
                 Some(value) => row_number(value),
-                None => rows.len().checked_add(1).filter(|number| *number <= MAX_ROW),
-            }.ok_or_else(|| FormatsError::Invalid(format!("XLSX sheet {sheet_name:?}: invalid row coordinate")))?;
+                None => rows
+                    .len()
+                    .checked_add(1)
+                    .filter(|number| *number <= MAX_ROW),
+            }
+            .ok_or_else(|| {
+                FormatsError::Invalid(format!("XLSX sheet {sheet_name:?}: invalid row coordinate"))
+            })?;
             let additional = number.saturating_sub(rows.len());
             GridBudget::charge(&mut budget.rows, additional, MAX_ROW_SLOTS)?;
-            rows.try_reserve_exact(additional).map_err(|_| FormatsError::Invalid("XLSX row allocation failed".into()))?;
-            if additional > 0 { rows.resize_with(number, Vec::new); }
+            rows.try_reserve_exact(additional)
+                .map_err(|_| FormatsError::Invalid("XLSX row allocation failed".into()))?;
+            if additional > 0 {
+                rows.resize_with(number, Vec::new);
+            }
             let mut cells: Vec<String> = Vec::new();
             for cell in row.children().filter(|n| xml::is(*n, "c")) {
                 let reference = xml::attr(cell, "r");
                 let column = match reference {
-                    Some(value) => coordinate(value).filter(|(_, row)| *row == number).map(|(column, _)| column),
+                    Some(value) => coordinate(value)
+                        .filter(|(_, row)| *row == number)
+                        .map(|(column, _)| column),
                     None => Some(cells.len()).filter(|column| *column < MAX_COLUMN),
-                }.ok_or_else(|| FormatsError::Invalid(format!("XLSX sheet {sheet_name:?}: invalid cell coordinate")))?;
-                let width = column.checked_add(1).ok_or_else(|| FormatsError::Invalid("XLSX column overflow".into()))?;
+                }
+                .ok_or_else(|| {
+                    FormatsError::Invalid(format!(
+                        "XLSX sheet {sheet_name:?}: invalid cell coordinate"
+                    ))
+                })?;
+                let width = column
+                    .checked_add(1)
+                    .ok_or_else(|| FormatsError::Invalid("XLSX column overflow".into()))?;
                 let additional = width.saturating_sub(cells.len());
                 GridBudget::charge(&mut budget.cells, additional, MAX_CELL_SLOTS)?;
-                cells.try_reserve_exact(additional).map_err(|_| FormatsError::Invalid("XLSX cell allocation failed".into()))?;
-                if additional > 0 { cells.resize_with(width, String::new); }
+                cells
+                    .try_reserve_exact(additional)
+                    .map_err(|_| FormatsError::Invalid("XLSX cell allocation failed".into()))?;
+                if additional > 0 {
+                    cells.resize_with(width, String::new);
+                }
                 let reference = reference.unwrap_or("");
                 let value = self.cell_value(cell, sheet_name, reference);
                 cells[column] = value;

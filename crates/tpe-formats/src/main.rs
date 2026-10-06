@@ -13,7 +13,10 @@ use std::process::ExitCode;
 
 use clap::Parser;
 use serde::Serialize;
-use tpe_formats::{Format, FormatsError, Options, Status, create_output_directory, extract_path, write_outputs_with_inputs};
+use tpe_formats::{
+    Format, FormatsError, Options, Status, create_output_directory, extract_path,
+    write_outputs_with_inputs,
+};
 
 /// Extract text from docx, pptx, xlsx, csv/tsv, html, md, txt, Pages/Numbers
 /// packages and audio (through a local engine), one output pair per input.
@@ -103,7 +106,13 @@ fn main() -> ExitCode {
 }
 
 /// Extract one input and report typed failures without stopping the batch.
-fn process_one(input: &Path, stem: &str, cli: &Cli, options: &Options, inputs: &[PathBuf]) -> Report {
+fn process_one(
+    input: &Path,
+    stem: &str,
+    cli: &Cli,
+    options: &Options,
+    inputs: &[PathBuf],
+) -> Report {
     let mut report = Report {
         input: input.display().to_string(),
         status: "failed".to_string(),

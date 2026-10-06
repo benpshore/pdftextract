@@ -602,8 +602,15 @@ pub fn write_outputs_with_inputs(
     fn filename(value: &str) -> bool {
         !value.is_empty() && !value.contains(['/', '\\']) && value != "." && value != ".."
     }
-    if !filename(stem) || result.extra_files.iter().any(|file| !filename(&file.suffix)) {
-        return Err(FormatsError::Invalid("output names must be single filename components".into()));
+    if !filename(stem)
+        || result
+            .extra_files
+            .iter()
+            .any(|file| !filename(&file.suffix))
+    {
+        return Err(FormatsError::Invalid(
+            "output names must be single filename components".into(),
+        ));
     }
     let mut sources = inputs.to_vec();
     sources.extend(result.document.sources.iter().map(PathBuf::from));

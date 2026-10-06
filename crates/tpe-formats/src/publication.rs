@@ -14,11 +14,17 @@ use crate::FormatsError;
 pub(crate) fn check_directory(directory: &Path, inputs: &[PathBuf]) -> Result<(), FormatsError> {
     // Resolve existing prefixes (including symlinks) before processing `..`.
     // No directories are created while checking an output that does not exist.
-    let mut resolved = if directory.is_absolute() { PathBuf::new() } else { std::env::current_dir()? };
+    let mut resolved = if directory.is_absolute() {
+        PathBuf::new()
+    } else {
+        std::env::current_dir()?
+    };
     for component in directory.components() {
         match component {
             Component::CurDir => {}
-            Component::ParentDir => { resolved.pop(); }
+            Component::ParentDir => {
+                resolved.pop();
+            }
             other => {
                 resolved.push(other.as_os_str());
                 match fs::canonicalize(&resolved) {
@@ -32,7 +38,9 @@ pub(crate) fn check_directory(directory: &Path, inputs: &[PathBuf]) -> Result<()
     for input in inputs {
         if input.is_dir() && resolved.starts_with(fs::canonicalize(input)?) {
             return Err(FormatsError::Invalid(format!(
-                "{}: output directory is inside input package {}", directory.display(), input.display()
+                "{}: output directory is inside input package {}",
+                directory.display(),
+                input.display()
             )));
         }
     }
@@ -63,7 +71,10 @@ impl OutputSet {
                     for entry in walkdir::WalkDir::new(path) {
                         let entry = entry.map_err(|e| FormatsError::Io(e.into()))?;
                         if entry.path().is_file() {
-                            sources.push((entry.path().to_path_buf(), Handle::from_path(entry.path())?));
+                            sources.push((
+                                entry.path().to_path_buf(),
+                                Handle::from_path(entry.path())?,
+                            ));
                         }
                     }
                 }
@@ -73,14 +84,20 @@ impl OutputSet {
                 Err(error) => return Err(error.into()),
             }
         }
-        Ok(Self { sources, packages, paths, force })
+        Ok(Self {
+            sources,
+            packages,
+            paths,
+            force,
+        })
     }
 
     fn check(&self) -> Result<Option<Vec<bool>>, FormatsError> {
         for (path, source) in &self.sources {
             if Handle::from_path(path)? != *source {
                 return Err(FormatsError::Invalid(format!(
-                    "{}: source identity changed during publication", path.display()
+                    "{}: source identity changed during publication",
+                    path.display()
                 )));
             }
         }
@@ -88,9 +105,14 @@ impl OutputSet {
         let mut collision = false;
         for (index, path) in self.paths.iter().enumerate() {
             let parent = fs::canonicalize(path.parent().unwrap_or_else(|| Path::new(".")))?;
-            if self.packages.iter().any(|package| parent.starts_with(package)) {
+            if self
+                .packages
+                .iter()
+                .any(|package| parent.starts_with(package))
+            {
                 return Err(FormatsError::Invalid(format!(
-                    "{}: output is inside an input package", path.display()
+                    "{}: output is inside an input package",
+                    path.display()
                 )));
             }
             let metadata = match fs::symlink_metadata(path) {
@@ -105,13 +127,17 @@ impl OutputSet {
             }
             if !metadata.is_file() && !metadata.file_type().is_symlink() {
                 return Err(FormatsError::Invalid(format!(
-                    "{}: output must be a file or symlink", path.display()
+                    "{}: output must be a file or symlink",
+                    path.display()
                 )));
             }
             match fs::metadata(path) {
-                Ok(target) if !target.is_file() => return Err(FormatsError::Invalid(format!(
-                    "{}: output resolves to a non-file", path.display()
-                ))),
+                Ok(target) if !target.is_file() => {
+                    return Err(FormatsError::Invalid(format!(
+                        "{}: output resolves to a non-file",
+                        path.display()
+                    )));
+                }
                 Ok(_) => {}
                 Err(error) if error.kind() == io::ErrorKind::NotFound => {}
                 Err(error) => return Err(error.into()),
@@ -119,7 +145,8 @@ impl OutputSet {
             match Handle::from_path(path) {
                 Ok(target) if self.sources.iter().any(|(_, source)| *source == target) => {
                     return Err(FormatsError::Invalid(format!(
-                        "{}: output aliases an input (even with --force)", path.display()
+                        "{}: output aliases an input (even with --force)",
+                        path.display()
                     )));
                 }
                 Ok(_) => {}
@@ -157,7 +184,9 @@ impl OutputSet {
             file.as_file().sync_all()?;
             files.push(file);
         }
-        let Some(exists) = self.check()? else { return Ok(false) };
+        let Some(exists) = self.check()? else {
+            return Ok(false);
+        };
         let backups = tempfile::Builder::new()
             .prefix(".tpe-formats-recovery-")
             .tempdir_in(directory)?;
@@ -186,9 +215,9 @@ impl OutputSet {
         if let Err(error) = result {
             return match transaction.rollback() {
                 Ok(()) => Err(error.into()),
-                Err(cleanup) => Err(io::Error::other(format!(
-                    "{error}; rollback incomplete: {cleanup}"
-                )).into()),
+                Err(cleanup) => {
+                    Err(io::Error::other(format!("{error}; rollback incomplete: {cleanup}")).into())
+                }
             };
         }
         transaction.saved.fill(false);
@@ -208,7 +237,11 @@ struct Transaction {
 
 impl Transaction {
     fn backup(&self, index: usize) -> PathBuf {
-        self.backups.as_ref().expect("active transaction").path().join(index.to_string())
+        self.backups
+            .as_ref()
+            .expect("active transaction")
+            .path()
+            .join(index.to_string())
     }
 
     fn rollback(&mut self) -> io::Result<()> {
@@ -221,8 +254,10 @@ impl Transaction {
                         Err(error) if error.kind() == io::ErrorKind::NotFound => false,
                         Err(error) => return Err(error),
                     };
-                    if regular && Handle::from_path(path)?
-                        == Handle::from_file(self.files[index].as_file().try_clone()?)? {
+                    if regular
+                        && Handle::from_path(path)?
+                            == Handle::from_file(self.files[index].as_file().try_clone()?)?
+                    {
                         fs::remove_file(path)?;
                     }
                     self.published[index] = false;
@@ -231,7 +266,12 @@ impl Transaction {
                     match fs::symlink_metadata(path) {
                         Err(error) if error.kind() == io::ErrorKind::NotFound => {}
                         Err(error) => return Err(error),
-                        Ok(_) => return Err(io::Error::other(format!("{} is occupied", path.display()))),
+                        Ok(_) => {
+                            return Err(io::Error::other(format!(
+                                "{} is occupied",
+                                path.display()
+                            )));
+                        }
                     }
                     // Cooperating writers: absence-check/rename is not a
                     // hostile-directory concurrency guarantee.
@@ -247,7 +287,8 @@ impl Transaction {
             self.published.fill(false);
             return Err(io::Error::other(format!(
                 "{error}; recovery: {} (numbered backups follow output order: {:?})",
-                recovery.display(), self.paths
+                recovery.display(),
+                self.paths
             )));
         }
         Ok(())
@@ -256,7 +297,9 @@ impl Transaction {
 
 impl Drop for Transaction {
     fn drop(&mut self) {
-        if self.saved.iter().any(|saved| *saved) || self.published.iter().any(|published| *published) {
+        if self.saved.iter().any(|saved| *saved)
+            || self.published.iter().any(|published| *published)
+        {
             let _ = self.rollback();
         }
     }
@@ -264,9 +307,14 @@ impl Drop for Transaction {
 
 fn sync_directory(path: &Path) -> io::Result<()> {
     #[cfg(unix)]
-    { fs::File::open(path)?.sync_all() }
+    {
+        fs::File::open(path)?.sync_all()
+    }
     #[cfg(not(unix))]
-    { let _ = path; Ok(()) }
+    {
+        let _ = path;
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -281,24 +329,39 @@ mod tests {
                 let input = dir.path().join("source.txt");
                 fs::write(&input, b"source").unwrap();
                 let paths: Vec<_> = ["out.json", "out.txt", "out.preview.pdf"]
-                    .iter().map(|name| dir.path().join(name)).collect();
+                    .iter()
+                    .map(|name| dir.path().join(name))
+                    .collect();
                 if force {
-                    for path in &paths { fs::write(path, b"old output").unwrap(); }
+                    for path in &paths {
+                        fs::write(path, b"old output").unwrap();
+                    }
                 }
-                let outputs = OutputSet::new(&[input.clone()], paths.clone(), force).unwrap();
+                let outputs = OutputSet::new(std::slice::from_ref(&input), paths.clone(), force)
+                    .unwrap();
                 let mut calls = 0;
-                let error = outputs.publish_with(&[b"json", b"text", b"preview"], |from, to| {
-                    calls += 1;
-                    if calls == failure { return Err(io::Error::other("injected link failure")); }
-                    fs::hard_link(from, to)
-                }).unwrap_err();
+                let error = outputs
+                    .publish_with(&[b"json", b"text", b"preview"], |from, to| {
+                        calls += 1;
+                        if calls == failure {
+                            return Err(io::Error::other("injected link failure"));
+                        }
+                        fs::hard_link(from, to)
+                    })
+                    .unwrap_err();
                 assert!(error.to_string().contains("injected link failure"));
                 assert_eq!(fs::read(&input).unwrap(), b"source");
                 for path in &paths {
-                    if force { assert_eq!(fs::read(path).unwrap(), b"old output"); }
-                    else { assert!(!path.exists()); }
+                    if force {
+                        assert_eq!(fs::read(path).unwrap(), b"old output");
+                    } else {
+                        assert!(!path.exists());
+                    }
                 }
-                assert_eq!(fs::read_dir(dir.path()).unwrap().count(), if force { 4 } else { 1 });
+                assert_eq!(
+                    fs::read_dir(dir.path()).unwrap().count(),
+                    if force { 4 } else { 1 }
+                );
             }
         }
     }
