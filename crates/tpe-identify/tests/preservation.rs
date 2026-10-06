@@ -20,7 +20,10 @@ fn report_must_refuse(source: &Path, output: &Path) {
         .unwrap();
     assert_eq!(fs::read(source).unwrap(), SOURCE, "source bytes changed");
     assert_eq!(fs::read(output).unwrap(), SOURCE, "alias bytes changed");
-    assert!(!result.status.success(), "existing report destination was accepted");
+    assert!(
+        !result.status.success(),
+        "existing report destination was accepted"
+    );
 }
 
 #[test]

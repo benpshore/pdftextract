@@ -810,7 +810,9 @@ pub fn run_job_from_snapshot(
     snapshot: acquire::Snapshot,
 ) -> Result<ExtractionResult, PipelineError> {
     let size = snapshot.bytes.len() as u64;
-    if let Some(max) = job.max_bytes && size > max {
+    if let Some(max) = job.max_bytes
+        && size > max
+    {
         return Err(AcquireError::TooLarge { size, max }.into());
     }
     let extractor = backend::by_name(&job.backend)

@@ -259,7 +259,10 @@ pub fn rename_noreplace(from: &Path, to: &Path) -> io::Result<()> {
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     {
         let _ = (from, to);
-        Err(io::Error::new(io::ErrorKind::Unsupported, "no-replace rename unsupported"))
+        Err(io::Error::new(
+            io::ErrorKind::Unsupported,
+            "no-replace rename unsupported",
+        ))
     }
 }
 
@@ -288,7 +291,10 @@ mod tests {
         let target = dir.path().join("target.pdf");
         fs::write(&source, b"source").unwrap();
         fs::write(&target, b"other owner").unwrap();
-        assert_eq!(rename_noreplace(&source, &target).unwrap_err().kind(), io::ErrorKind::AlreadyExists);
+        assert_eq!(
+            rename_noreplace(&source, &target).unwrap_err().kind(),
+            io::ErrorKind::AlreadyExists
+        );
         assert_eq!(fs::read(&source).unwrap(), b"source");
         assert_eq!(fs::read(&target).unwrap(), b"other owner");
     }

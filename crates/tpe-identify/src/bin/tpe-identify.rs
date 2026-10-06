@@ -139,8 +139,8 @@ fn run_scan(args: &ScanArgs) -> ExitCode {
             .map_err(|e| e.to_string())
             .and_then(|mut bytes| {
                 bytes.push(b'\n');
-                let mut staged = StagedOutputs::stage(path, &[("", bytes)])
-                    .map_err(|e| e.to_string())?;
+                let mut staged =
+                    StagedOutputs::stage(path, &[("", bytes)]).map_err(|e| e.to_string())?;
                 staged.publish_exact(path)
             });
         if let Err(e) = written {
@@ -222,11 +222,13 @@ fn run_undo(args: &UndoArgs) -> ExitCode {
     if !args.apply {
         println!("dry run: nothing was changed (add --apply)");
     }
-    if args.apply && entries.iter().any(|entry| {
-        entry.reason.as_deref().is_some_and(|reason| {
-            !reason.starts_with("never applied:") && reason != "nothing was done"
+    if args.apply
+        && entries.iter().any(|entry| {
+            entry.reason.as_deref().is_some_and(|reason| {
+                !reason.starts_with("never applied:") && reason != "nothing was done"
+            })
         })
-    }) {
+    {
         ExitCode::from(1)
     } else {
         ExitCode::SUCCESS

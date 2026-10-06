@@ -316,9 +316,12 @@ mod tests {
             "Resources" => dictionary! { "Font" => dictionary! { "F1" => font } },
             "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
         });
-        doc.objects.insert(tree, Object::Dictionary(dictionary! {
-            "Type" => "Pages", "Kids" => vec![Object::Reference(page)], "Count" => 1,
-        }));
+        doc.objects.insert(
+            tree,
+            Object::Dictionary(dictionary! {
+                "Type" => "Pages", "Kids" => vec![Object::Reference(page)], "Count" => 1,
+            }),
+        );
         let catalog = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => tree });
         doc.trailer.set("Root", catalog);
         let mut bytes = Vec::new();
@@ -337,15 +340,24 @@ mod tests {
         // Deterministic boundary injection: change the pathname after acquisition,
         // before result lookup and extraction. No thread timing is involved.
         fs::write(&path, &replacement).unwrap();
-        let loaded = load_pdf_snapshot(&path, &LoadOptions {
-            extract: true,
-            ..LoadOptions::default()
-        }, snapshot).unwrap();
+        let loaded = load_pdf_snapshot(
+            &path,
+            &LoadOptions {
+                extract: true,
+                ..LoadOptions::default()
+            },
+            snapshot,
+        )
+        .unwrap();
         let result = loaded.result.unwrap();
         assert_eq!(loaded.sha256, tpe::schema::sha256_hex(&original));
         assert_eq!(result.document.hash.0, loaded.sha256);
         assert_eq!(result.document.size, original.len() as u64);
-        assert!(result.pages[0].text.contains("Original immutable snapshot words"));
+        assert!(
+            result.pages[0]
+                .text
+                .contains("Original immutable snapshot words")
+        );
         assert!(!result.pages[0].text.contains("Replacement"));
         assert_eq!(fs::read(&path).unwrap(), replacement);
     }

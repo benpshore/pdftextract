@@ -342,16 +342,15 @@ fn apply_with_checkpoint(
     let mut written: HashSet<String> = HashSet::new();
     for index in 0..manifest.entries.len() {
         let entry = &manifest.entries[index];
-        let skipped = apply_one(entry, &mut written)
-            .map_err(|e| recovery_error(&path, e))?;
+        let skipped = apply_one(entry, &mut written).map_err(|e| recovery_error(&path, e))?;
         // On an interrupted or failed checkpoint, the durable record remains
         // pending, with both paths and the expected hash available for recovery.
         after_operation().map_err(|e| recovery_error(&path, e))?;
         manifest.entries[index].skipped = skipped;
         manifest.entries[index].pending = false;
-        let mut next = stage_manifest(&manifest, &path)
-            .map_err(|e| recovery_error(&path, e))?;
-        owned_record = next.replace_owned(&path, &owned_record)
+        let mut next = stage_manifest(&manifest, &path).map_err(|e| recovery_error(&path, e))?;
+        owned_record = next
+            .replace_owned(&path, &owned_record)
             .map_err(|e| recovery_error(&path, e))?;
     }
     Ok((manifest, path))
@@ -430,12 +429,16 @@ fn apply_one(
             let moved = acquire::snapshot(target, None)
                 .map_err(|e| format!("rename completed but verification failed: {e}"))?;
             if moved.hash.0 != entry.sha256 {
-                return Err("renamed source changed during apply; both paths need inspection".into());
+                return Err(
+                    "renamed source changed during apply; both paths need inspection".into(),
+                );
             }
             if let Err(e) = File::open(target.parent().unwrap_or_else(|| Path::new(".")))
                 .and_then(|f| f.sync_all())
             {
-                return Err(format!("rename completed but directory sync failed; inspect both paths: {e}"));
+                return Err(format!(
+                    "rename completed but directory sync failed; inspect both paths: {e}"
+                ));
             }
         }
         Op::Copy => {
@@ -490,7 +493,10 @@ pub fn undo(manifest: &Manifest, dry_run: bool) -> Vec<UndoEntry> {
             reason: None,
         };
         if entry.pending {
-            report.reason = Some("outcome uncertain: inspect both paths against the recorded hash; files kept".into());
+            report.reason = Some(
+                "outcome uncertain: inspect both paths against the recorded hash; files kept"
+                    .into(),
+            );
             out.push(report);
             continue;
         }
@@ -573,7 +579,8 @@ mod tests {
         };
         let error = apply_with_checkpoint(&plan, dir.path(), || {
             Err(io::Error::other("injected checkpoint failure"))
-        }).unwrap_err();
+        })
+        .unwrap_err();
         let RenameError::Recovery { manifest, reason } = error else {
             panic!("missing recovery location");
         };
@@ -585,7 +592,13 @@ mod tests {
         assert!(!from.exists());
         let result = undo(&stored, false);
         assert_eq!(result[0].action, "skip");
-        assert!(result[0].reason.as_deref().unwrap().contains("outcome uncertain"));
+        assert!(
+            result[0]
+                .reason
+                .as_deref()
+                .unwrap()
+                .contains("outcome uncertain")
+        );
         assert_eq!(fs::read(&target).unwrap(), bytes);
     }
 

@@ -1196,13 +1196,24 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("source.sqlite");
         let writer = Ledger::open(&path).unwrap();
-        writer.conn.execute("UPDATE schema_meta SET version = 4", []).unwrap();
+        writer
+            .conn
+            .execute("UPDATE schema_meta SET version = 4", [])
+            .unwrap();
         drop(writer);
         let before = std::fs::read(&path).unwrap();
         let reader = Ledger::open_read_only(&path).unwrap();
         assert!(reader.latest_run_for_prefix("abcd").unwrap().is_none());
-        assert!(reader.conn.execute("UPDATE schema_meta SET version = 5", []).is_err());
-        let version: u32 = reader.conn.query_row(SELECT_VERSION, [], |row| row.get(0)).unwrap();
+        assert!(
+            reader
+                .conn
+                .execute("UPDATE schema_meta SET version = 5", [])
+                .is_err()
+        );
+        let version: u32 = reader
+            .conn
+            .query_row(SELECT_VERSION, [], |row| row.get(0))
+            .unwrap();
         assert_eq!(version, 4);
         drop(reader);
         assert_eq!(std::fs::read(&path).unwrap(), before);
