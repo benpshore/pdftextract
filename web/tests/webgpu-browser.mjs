@@ -26,6 +26,7 @@ const server = createServer(async (request, response) => {
   if (url.pathname.includes('..')) { response.statusCode = 400; response.end(); return; }
   if (url.pathname === '/') { response.setHeader('Content-Type', 'text/html'); response.end('<!doctype html><title>WebGPU pre-processing regression</title>'); return; }
   const serve = (path, type) => { response.setHeader('Content-Type', type); const stream = createReadStream(path); stream.on('error', () => { response.statusCode = 404; response.end(); }); stream.pipe(response); };
+  if (url.pathname === '/tests/webgpu-faults.mjs') return serve(join(web, 'tests/webgpu-faults.mjs'), 'text/javascript');
   if (url.pathname.startsWith('/lib/')) return serve(join(temporary, url.pathname), 'text/javascript');
   if (url.pathname.startsWith('/fixtures/')) return serve(join(web, 'scripts', url.pathname), 'image/png');
   if (url.pathname.startsWith('/ocr/7.0.0/')) return serve(join(web, 'public', url.pathname), url.pathname.endsWith('.js') ? 'text/javascript' : 'application/octet-stream');
@@ -128,9 +129,18 @@ const body = async ({ ocrAssets }) => {
 let browser;
 try {
   browser = await chromium.launch({ headless: true, args: GPU_ARGS });
+  summary.browserVersion = browser.version();
   const { context, page, foreign, errors } = await open(browser);
+  summary.faultInjection = await page.evaluate(async () => {
+    const { runWebGpuFaults } = await import('/tests/webgpu-faults.mjs');
+    return runWebGpuFaults(await import('/lib/webgpu/index.js'));
+  });
   const report = await page.evaluate(body, { ocrAssets });
   summary.gpuTested = report.gpuTested; summary.checks.push(...report.checks); summary.status = report.status; summary.fixtures = report.fixtures; summary.verdict = report.verdict; summary.ocr = report.ocr; summary.statusLine = report.statusLine;
+  if (process.env.WEBGPU_REQUIRE_GPU === '1') {
+    assert.equal(summary.gpuTested, true, 'Required GPU gate: an unavailable adapter cannot count as GPU validation');
+    assert(summary.ocr, 'Required GPU gate: OCR assets and end-to-end OCR checks must run');
+  }
   assert.deepEqual(foreign, [], 'no foreign requests');
   assert.deepEqual(errors, [], 'no page errors');
   await context.close();

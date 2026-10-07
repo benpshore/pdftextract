@@ -3,9 +3,10 @@
  * integers. The first GPU run is cross-checked against the CPU path once per page load
  * and timed; a mismatch or a much slower (software) adapter demotes the session to CPU.
  * Processing stays on the device; the only output besides the result is one console line. */
-import { acquireWebGpuDevice, detectWebGpu, statusLineFor, type WebGpuStatus } from './capability';
+import { acquireWebGpuDevice, detectWebGpu, webGpuFailureReason, statusLineFor, type WebGpuStatus } from './capability';
 import { preprocessCpu, type CpuStages, type SkewOptions } from './cpu';
 import { preprocessGpu, type GpuStages } from './gpu';
+import { gpuWaitOptions } from './wait';
 
 export type { WebGpuStatus, WebGpuAdapterSummary, WebGpuLimits, BrowserHints } from './capability';
 export { detectWebGpu, acquireWebGpuDevice, releaseWebGpuDevice, resetWebGpuState, limitShortfall, requiredLimits } from './capability';
@@ -30,7 +31,7 @@ export type PreprocessResult = {
   status: WebGpuStatus;
   crossCheck: CrossCheck | null;
 };
-export type PreprocessOptions = { mode?: PreprocessMode; signal?: AbortSignal; skew?: SkewOptions; /** Defaults to true: compare GPU and CPU once per session. */ crossCheck?: boolean; log?: (line: string) => void };
+export type PreprocessOptions = { /** Total WebGPU wait budget, default/max 10 seconds. */ timeoutMs?: number; mode?: PreprocessMode; signal?: AbortSignal; skew?: SkewOptions; /** Defaults to true: compare GPU and CPU once per session. */ crossCheck?: boolean; log?: (line: string) => void };
 
 /** A software adapter slower than this many times the CPU path is not worth the readbacks. */
 const SLOWER_FACTOR = 2;
@@ -57,16 +58,19 @@ export async function preprocessForOcr(rgba: Uint8Array | Uint8ClampedArray, wid
   if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) throw new RangeError('Working image dimensions must be positive integers.');
   if (rgba.length < width * height * 4) throw new RangeError('RGBA buffer is shorter than width × height × 4.');
   signal?.throwIfAborted();
-  const status = await detectWebGpu({ workingPixels: width * height });
+  const wait = gpuWaitOptions({ signal, timeoutMs: options.timeoutMs });
+  const status = await detectWebGpu({ workingPixels: width * height, ...wait });
+  signal?.throwIfAborted();
   const cpuOnly = (reason: string | null, crossCheck: CrossCheck | null = verdict) => finish('cpu', preprocessCpu(rgba, width, height, options.skew), status, reason, crossCheck);
   if (mode === 'cpu') return cpuOnly(null);
   if (status.state !== 'available') return cpuOnly(status.reason ?? 'WebGPU unavailable');
   if (verdict && !verdict.identical) return cpuOnly(verdict.reason);
   if (mode === 'auto' && verdict?.decision === 'cpu') return cpuOnly(verdict.reason);
-  const acquired = await acquireWebGpuDevice({ workingPixels: width * height });
-  if (!acquired) return cpuOnly((await detectWebGpu()).reason ?? 'WebGPU device could not be created');
+  const acquired = await acquireWebGpuDevice({ workingPixels: width * height, ...wait });
+  signal?.throwIfAborted();
+  if (!acquired) return cpuOnly(webGpuFailureReason() ?? 'WebGPU device could not be created');
   let gpu: GpuStages;
-  try { gpu = await preprocessGpu(acquired.device, rgba, width, height, options.skew, signal); } catch (error) {
+  try { gpu = await preprocessGpu(acquired.device, rgba, width, height, options.skew, signal, wait); } catch (error) {
     if (signal?.aborted) throw signal.reason;
     return cpuOnly(`WebGPU stage failed: ${(error as Error).message}`);
   }

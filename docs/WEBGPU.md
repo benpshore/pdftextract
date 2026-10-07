@@ -49,7 +49,7 @@ reports `preprocessing.runtime: 'none'` with the reason.
 
 ## Capability detection (`capability.ts`)
 
-`detectWebGpu()` never throws. In order it checks:
+`detectWebGpu()` reports GPU failures as status; caller cancellation throws the signal reason. In order it checks:
 
 1. `navigator.gpu` exists. It is `[SecureContext]`: `about:blank` and plain `http://` pages other
    than localhost do not expose it, and the reason says so.
@@ -93,7 +93,7 @@ the UI and for the notes below; they are derived from the user agent and are inf
 | GPU slower than 2× CPU on the first image | CPU kernels in `auto`; `webgpu` mode keeps the GPU |
 | Canvas without `getImageData` (test shims, unusual embedders) | No pre-processing; `runtime: 'none'` |
 | Module `./webgpu/index` fails to load | No pre-processing; `runtime: 'none'` |
-| Abort signal | Rejects with the signal reason between stages; the OCR worker is terminated as before |
+| Abort signal | Rejects promptly with the exact signal reason during pending GPU waits; acquired buffers and abandoned devices are released |
 
 ## Measurements (headless Chromium 141, SwiftShader, 4-CPU shared machine, 2026-10-05)
 
@@ -131,6 +131,7 @@ recognized all five lines and the DOI.
 From `web/`:
 
 ```sh
+node tests/webgpu-cancellation.mjs # Node: pending-wait abort, deadline and resource cleanup
 node tests/webgpu-cpu.mjs        # Node: CPU kernels, shared maths, detection without WebGPU, flag/status line
 node scripts/copy-ocr-assets.mjs # once, for the end-to-end OCR check in the browser test
 PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers PLAYWRIGHT_MODULE=/opt/node22/lib/node_modules/playwright/index.mjs \
@@ -139,3 +140,43 @@ PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers PLAYWRIGHT_MODULE=/opt/node22/lib/node
 
 The browser test aborts every request that is not same-origin. If the headless build exposes no
 adapter it still verifies detection and the fallback and says so in `conclusion`.
+
+## PR #243 cancellation correction (2026-10-07)
+
+The full preprocessing call has one **10-second maximum WebGPU wait budget**. Callers may
+shorten it with `preprocessForOcr(..., { timeoutMs })`; they cannot disable it. Adapter discovery
+(including fallback and legacy adapter-info requests), device acquisition, asynchronous pipeline
+creation, each readback `mapAsync`, and error-scope completion all use the same deadline and
+abort signal. Timeout reports the stalled stage and returns CPU fallback; cancellation throws
+the caller's exact reason without running the CPU fallback.
+
+WebGPU does not natively cancel these requests. Every abandoned promise has a rejection handler.
+A late device is destroyed instead of cached; reset/teardown invalidates in-flight acquisitions,
+and an old device's loss callback cannot evict a newer device. Pending acquisition belongs to
+its caller, so one cancellation cannot cancel another caller. Concurrent successful acquisitions
+retain one cached session device and destroy duplicates. The normal cached device remains owned
+by the session until `releaseWebGpuDevice()`; cancellation of one image releases that image's
+buffers, including staging buffers, without destroying another caller's shared device. Pipeline
+cache entries abandoned by abort/timeout are evicted. Error scopes are popped before asynchronous
+cleanup, and a stalled cleanup cannot delay abort or deadline return. Allocations enter their
+cleanup registry immediately, including allocations preceding a later synchronous failure.
+
+`node tests/webgpu-cancellation.mjs` runs synthetic pending-promise and late-settlement lifecycle
+regressions in Node. The browser suite runs the same fault body **before** adapter detection so
+these checks cannot be skipped on a GPU-less browser. `WEBGPU_REQUIRE_GPU=1` additionally requires
+real GPU kernel execution and end-to-end OCR; the Web alpha workflow sets this for its pinned
+Chromium/SwiftShader check. A missing adapter or OCR assets fails that gate. Existing integer
+parity assertions (tolerance zero) and OCR text assertions remain unchanged.
+
+**Separate landing question: OCR quality and default-on policy remain unresolved.** Current code
+still defaults to `auto`, including CPU preprocessing on browsers without WebGPU. Integer parity
+between the GPU and CPU kernels, lifecycle fault injection, and one synthetic OCR fixture do not
+establish quality parity against the previous unprocessed recognizer across representative
+images. This correction grants no default-on approval. Keep the PR draft pending independent
+review, representative OCR-quality evidence, and resolution of that policy; hardware GPU and
+Safari/iOS validation remain outstanding.
+
+Correction validation: `docs/validation/pr243-webgpu-waits.json` records 88 lifecycle assertions
+in Node and Chromium 151.0.7922.34, 39 CPU checks, and all 19 original browser checks with
+actual SwiftShader GPU execution and OCR. Four separate original-head controls fail after
+the 1-second abort watchdog. These are implementation-author checks, not independent approval.
