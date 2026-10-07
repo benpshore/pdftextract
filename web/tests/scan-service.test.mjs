@@ -206,13 +206,14 @@ try {
     const signal = controller.signal;
     const add = signal.addEventListener.bind(signal);
     const remove = signal.removeEventListener.bind(signal);
-    let added = 0; let removed = 0; let upload;
+    let added = 0; let removed = 0;
     signal.addEventListener = (...args) => { added++; return add(...args); };
     signal.removeEventListener = (...args) => { removed++; return remove(...args); };
     let cancelUrl;
     class FixtureXHR {
+      static instances = [];
       upload = {};
-      open(method, url) { this.method = method; this.url = url; upload = this; }
+      open(method, url) { this.method = method; this.url = url; FixtureXHR.instances.push(this); }
       setRequestHeader() {}
       getAllResponseHeaders() { return 'Content-Type: application/json'; }
       send(body) { this.body = body; }
@@ -224,13 +225,13 @@ try {
       const pending = scanFile(connection, file, { signal });
       const rejected = assert.rejects(pending, error => error.name === 'AbortError');
       controller.abort(); await rejected;
-      check(upload.method === 'POST' && upload.body === file && new URL(cancelUrl).searchParams.get('id') === new URL(upload.url).searchParams.get('id'), 'XHR abort sends matching worker cancellation');
+      check(FixtureXHR.instances.at(-1).method === 'POST' && FixtureXHR.instances.at(-1).body === file && new URL(cancelUrl).searchParams.get('id') === new URL(FixtureXHR.instances.at(-1).url).searchParams.get('id'), 'XHR abort sends matching worker cancellation');
       check(added === 2 && removed === 2, 'XHR and request cancellation listeners are removed on completion');
       // A completed upload also removes its listener: abort later does nothing.
       const completed = new AbortController();
       const pendingResult = scanFile(connection, file, { signal: completed.signal });
-      const value = await (await fakeFetch(upload.url, { headers: { Authorization: `Bearer ${TOKEN}` } })).json();
-      upload.status = 200; upload.statusText = 'OK'; upload.response = JSON.stringify(value); upload.onload();
+      const value = await (await fakeFetch(FixtureXHR.instances.at(-1).url, { headers: { Authorization: `Bearer ${TOKEN}` } })).json();
+      FixtureXHR.instances.at(-1).status = 200; FixtureXHR.instances.at(-1).statusText = 'OK'; FixtureXHR.instances.at(-1).response = JSON.stringify(value); FixtureXHR.instances.at(-1).onload();
       await pendingResult;
       cancelUrl = undefined;
       completed.abort();
