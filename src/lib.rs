@@ -44,6 +44,7 @@ pub mod grobid;
 pub mod latex_refs;
 pub mod ledger;
 pub mod metadata;
+pub mod pdfium_provision;
 pub mod pipeline;
 pub mod reading_order;
 pub mod regions;

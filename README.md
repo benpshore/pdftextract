@@ -57,6 +57,9 @@ exact citation. See [bibliography behavior and limits](docs/BIBLIOGRAPHY.md).
   adapters. MuPDF and Poppler require separately built, explicitly configured
   provider libraries. Availability depends on build features and runtime
   artifacts; `tpe backends` reports what the installed binary can open.
+  `tpe pdfium fetch` installs the pinned, hash-verified PDFium library for the
+  current user, after which `pdfium` and `routed` need no environment variable
+  ([NATIVE](docs/NATIVE.md)).
 - `auto` can select another whole backend pass while retaining usable native
   evidence when a candidate fails or regresses. MuPDF/Poppler fallback is an
   explicit opt-in. It does **not** fuse pages or regions across engines. See

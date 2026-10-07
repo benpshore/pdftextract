@@ -23,6 +23,7 @@ use tpe::corpus::{self, Manifest, ManifestItem};
 use tpe::eval::{self, CorpusReport, PaperEval};
 use tpe::latex_refs;
 use tpe::ledger::Ledger;
+use tpe::pdfium_provision;
 use tpe::pipeline::{self, PipelineError, Progress};
 use tpe::schema::{ExtractionResult, Job, Metadata};
 
@@ -90,6 +91,11 @@ enum Cmd {
     /// List every known backend, whether it is compiled in, and whether it
     /// opens a one-page probe PDF (native libraries found).
     Backends,
+    /// Provision and inspect the pinned `PDFium` library (`fetch`, `status`, `path`).
+    Pdfium {
+        #[command(subcommand)]
+        command: pdfium_provision::cli::Command,
+    },
 }
 
 #[derive(Subcommand)]
@@ -318,6 +324,7 @@ fn main() -> anyhow::Result<ExitCode> {
             run_backends()?;
             Ok(ExitCode::SUCCESS)
         }
+        Cmd::Pdfium { command } => Ok(pdfium_provision::cli::run(&command)),
     }
 }
 

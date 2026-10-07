@@ -40,11 +40,24 @@ case "$#" in
   *) echo "usage: $0 [--archive FILE]" >&2; exit 2 ;;
 esac
 
-verify() {
+# Compare digests as strings: macOS ships a BSD `sha256sum` whose flags differ
+# from GNU's (`--check` is rejected with a usage error), while both tools and
+# `shasum -a 256` agree on the `<hex>  <file>` output format (as in fetch.sh).
+digest_of() {
   if command -v sha256sum >/dev/null 2>&1; then
-    printf '%s  %s\n' "$1" "$2" | sha256sum --check
+    sha256sum "$1" | cut -d ' ' -f 1
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | cut -d ' ' -f 1
   else
-    printf '%s  %s\n' "$1" "$2" | shasum -a 256 --check
+    echo "error: neither sha256sum nor shasum is available" >&2
+    exit 1
+  fi
+}
+verify() { # <pinned hex> <file>
+  actual=$(digest_of "$2")
+  if [ "$actual" != "$1" ]; then
+    echo "error: $2: sha256 $actual does not match the pinned $1" >&2
+    exit 1
   fi
 }
 verify "$archive_pin" "$archive"

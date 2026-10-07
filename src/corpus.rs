@@ -298,7 +298,7 @@ fn unpack_fresh(bytes: &[u8], dest: &Path) -> Result<(), CorpusError> {
 }
 
 fn download(url: &str, user_agent: &str) -> Result<Vec<u8>, CorpusError> {
-    let config = ureq::Agent::config_builder()
+    let mut builder = ureq::Agent::config_builder()
         .user_agent(user_agent)
         .http_status_as_error(true)
         .max_redirects(10)
@@ -306,9 +306,12 @@ fn download(url: &str, user_agent: &str) -> Result<Vec<u8>, CorpusError> {
         .timeout_connect(Some(TIMEOUT))
         .timeout_send_request(Some(TIMEOUT))
         .timeout_recv_response(Some(TIMEOUT))
-        .timeout_recv_body(Some(TIMEOUT))
-        .build();
-    let agent = ureq::Agent::new_with_config(config);
+        .timeout_recv_body(Some(TIMEOUT));
+    // `$SSL_CERT_FILE` names the trust store, as for curl and OpenSSL.
+    if let Some(tls) = crate::pdfium_provision::trust_store_from_env() {
+        builder = builder.tls_config(tls);
+    }
+    let agent = ureq::Agent::new_with_config(builder.build());
     match download_once(&agent, url) {
         Ok(bytes) => Ok(bytes),
         Err(first) if is_transient(&first) => {
