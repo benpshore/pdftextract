@@ -575,13 +575,13 @@ mod tests {
     fn transport_failures_retry_then_report() {
         let script = Script::new(vec![Err("dns".to_string()), ok("{}")]);
         let (client, _) = make_client(&script, None);
-        let resp = client.fetch("k", "https://doi.org/10.1/x", &[]).unwrap();
+        let resp = client.fetch("k", "https://doi.org/10.1000/x", &[]).unwrap();
         assert_eq!(resp.status, 200);
         let script = Script::new(vec![Err("a".into()), Err("b".into()), Err("c".into())]);
         let (client, _) = make_client(&script, None);
         assert_eq!(
             client
-                .fetch("k", "https://doi.org/10.1/x", &[])
+                .fetch("k", "https://doi.org/10.1000/x", &[])
                 .unwrap_err(),
             FetchError::Transport("c".to_string())
         );
@@ -636,9 +636,9 @@ mod tests {
 
     #[test]
     fn doi_resolution_falls_back_to_crossref_and_urls_are_polite() {
-        let csl = r#"{"DOI":"10.1/a","title":"A","author":[{"family":"Ab"}],"issued":{"date-parts":[[2020]]}}"#;
+        let csl = r#"{"DOI":"10.1000/a","title":"A","author":[{"family":"Ab"}],"issued":{"date-parts":[[2020]]}}"#;
         let work =
-            r#"{"status":"ok","message-type":"work","message":{"DOI":"10.1/b","title":["B"]}}"#;
+            r#"{"status":"ok","message-type":"work","message":{"DOI":"10.1000/b","title":["B"]}}"#;
         let script = Script::new(vec![
             ok(csl),
             status(404, None),
@@ -647,28 +647,32 @@ mod tests {
             status(404, None),
         ]);
         let (client, _) = make_client(&script, None);
-        assert!(matches!(client.resolve_doi("10.1/a"), Lookup::Found(r) if r.source == "doi.org"));
-        assert!(matches!(client.resolve_doi("10.1/b"), Lookup::Found(r) if r.source == "crossref"));
-        assert_eq!(client.resolve_doi("10.1/c(d)"), Lookup::NotFound);
+        assert!(
+            matches!(client.resolve_doi("10.1000/a"), Lookup::Found(r) if r.source == "doi.org")
+        );
+        assert!(
+            matches!(client.resolve_doi("10.1000/b"), Lookup::Found(r) if r.source == "crossref")
+        );
+        assert_eq!(client.resolve_doi("10.1000/c(d)"), Lookup::NotFound);
         let urls = script.urls.lock().unwrap();
-        assert_eq!(urls[0], "https://doi.org/10.1/a");
+        assert_eq!(urls[0], "https://doi.org/10.1000/a");
         assert_eq!(
             urls[2],
-            "https://api.crossref.org/works/10.1/b?mailto=ci%40example%2Eorg"
+            "https://api.crossref.org/works/10.1000/b?mailto=ci%40example%2Eorg"
         );
         assert_eq!(
             urls[4],
-            "https://api.crossref.org/works/10.1/c(d)?mailto=ci%40example%2Eorg"
+            "https://api.crossref.org/works/10.1000/c(d)?mailto=ci%40example%2Eorg"
         );
     }
 
     #[test]
     fn query_url_and_errors() {
-        let list = r#"{"status":"ok","message-type":"work-list","message":{"items":[{"DOI":"10.1/q","title":["Q"]}]}}"#;
+        let list = r#"{"status":"ok","message-type":"work-list","message":{"items":[{"DOI":"10.1000/q","title":["Q"]}]}}"#;
         let script = Script::new(vec![ok(list), status(400, None)]);
         let (client, _) = make_client(&script, None);
         let records = client.query("Smith 2020 A title", 5).unwrap();
-        assert_eq!(records[0].doi.as_deref(), Some("10.1/q"));
+        assert_eq!(records[0].doi.as_deref(), Some("10.1000/q"));
         assert_eq!(
             script.urls.lock().unwrap()[0],
             "https://api.crossref.org/works?query.bibliographic=Smith%202020%20A%20title&rows=5&mailto=ci%40example%2Eorg"

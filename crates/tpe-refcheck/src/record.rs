@@ -92,17 +92,18 @@ pub fn normalize_doi(raw: &str) -> Option<String> {
             break;
         }
     }
-    let s = s.trim_end_matches(['.', ',', ';', ')', ']']);
-    let lower = s.to_lowercase();
-    let (prefix, suffix) = lower.split_once('/')?;
+    // Require a whole DOI, then reuse the resolver's balanced delimiter rule.
+    // In particular, a closing parenthesis inside a balanced suffix is data.
+    let (prefix, suffix) = s.split_once('/')?;
     let digits = prefix.strip_prefix("10.")?;
-    if digits.is_empty() || !digits.chars().all(|c| c.is_ascii_digit()) || suffix.is_empty() {
+    if !(4..=9).contains(&digits.len())
+        || !digits.bytes().all(|b| b.is_ascii_digit())
+        || suffix.is_empty()
+        || s.chars().any(char::is_whitespace)
+    {
         return None;
     }
-    if lower.chars().any(char::is_whitespace) {
-        return None;
-    }
-    Some(lower)
+    tpe::resolve::doi_in(s)
 }
 
 /// One record from a CSL-JSON item or a Crossref `message` work object.
@@ -163,11 +164,46 @@ pub fn from_csl(item: &Value, source: &str) -> Record {
     }
 }
 
+fn registry_record(item: &Value, source: &str) -> Result<Record, ParseError> {
+    // Unknown fields are harmless, but identity fields must have CSL shapes.
+    for key in ["DOI", "doi", "title", "subtitle"] {
+        if let Some(value) = item.get(key) {
+            let valid = match value {
+                Value::Null | Value::String(_) => true,
+                Value::Array(values) if matches!(key, "title" | "subtitle") => {
+                    values.iter().all(Value::is_string)
+                }
+                _ => false,
+            };
+            if !valid {
+                return Err(ParseError::Shape(format!("invalid registry {key} field")));
+            }
+        }
+    }
+    if let Some(authors) = item.get("author")
+        && !authors.is_null()
+        && !authors
+            .as_array()
+            .is_some_and(|list| list.iter().all(Value::is_object))
+    {
+        return Err(ParseError::Shape(
+            "invalid registry author field".to_string(),
+        ));
+    }
+    let record = from_csl(item, source);
+    if !item.is_object() || record.doi.is_none() {
+        return Err(ParseError::Shape(
+            "registry item lacks a valid DOI".to_string(),
+        ));
+    }
+    Ok(record)
+}
+
 /// The record in a `doi.org` content-negotiation body
 /// (`Accept: application/vnd.citationstyles.csl+json`).
 ///
 /// # Errors
-/// When the body is not a JSON object.
+/// When the body is not a JSON object with a valid DOI.
 pub fn parse_csl_json(body: &str) -> Result<Record, ParseError> {
     let value: Value = serde_json::from_str(body).map_err(|e| ParseError::Json(e.to_string()))?;
     if !value.is_object() {
@@ -175,7 +211,7 @@ pub fn parse_csl_json(body: &str) -> Result<Record, ParseError> {
             "CSL-JSON item is not an object".to_string(),
         ));
     }
-    Ok(from_csl(&value, "doi.org"))
+    registry_record(&value, "doi.org")
 }
 
 fn crossref_message(body: &str) -> Result<Value, ParseError> {
@@ -201,7 +237,7 @@ pub fn parse_crossref_work(body: &str) -> Result<Record, ParseError> {
             "Crossref work message is not an object".to_string(),
         ));
     }
-    Ok(from_csl(&message, "crossref"))
+    registry_record(&message, "crossref")
 }
 
 /// The records in a Crossref `GET /works?query.bibliographic=...` body.
@@ -214,10 +250,10 @@ pub fn parse_crossref_works(body: &str) -> Result<Vec<Record>, ParseError> {
         .get("items")
         .and_then(Value::as_array)
         .ok_or_else(|| ParseError::Shape("Crossref work-list without items".to_string()))?;
-    Ok(items
+    items
         .iter()
-        .map(|item| from_csl(item, "crossref"))
-        .collect())
+        .map(|item| registry_record(item, "crossref"))
+        .collect()
 }
 
 #[cfg(test)]
@@ -238,6 +274,48 @@ mod tests {
         assert_eq!(normalize_doi("11.1000/x"), None);
         assert_eq!(normalize_doi("10.1000/a b"), None);
         assert_eq!(normalize_doi(""), None);
+    }
+
+    #[test]
+    fn balanced_doi_suffixes_follow_the_resolver() {
+        for raw in [
+            "10.1000/example(abc)",
+            "https://doi.org/10.1000/example(abc)).",
+            "DOI:10.1000/example[abc]}",
+            "10.1000/example(abc)[x]{y}<z>.",
+            "10.1002/(SICI)1097-0258(19980815)17:15<1741::AID-SIM868>3.0.CO;2-8",
+        ] {
+            assert_eq!(normalize_doi(raw), tpe::resolve::doi_in(raw), "{raw}");
+        }
+        assert_eq!(
+            normalize_doi("10.1000/example(abc)"),
+            Some("10.1000/example(abc)".into())
+        );
+        assert_eq!(normalize_doi("10.1/10.1000/abc"), None);
+    }
+
+    #[test]
+    fn malformed_registry_records_are_errors() {
+        for item in [
+            "{}",
+            r#"{"error":"not a record"}"#,
+            r#"{"title":"A title"}"#,
+            r#"{"DOI":"invalid"}"#,
+            "null",
+        ] {
+            assert!(parse_csl_json(item).is_err(), "{item}");
+            assert!(
+                parse_crossref_work(&format!(r#"{{"status":"ok","message":{item}}}"#)).is_err(),
+                "{item}"
+            );
+            assert!(
+                parse_crossref_works(&format!(
+                    r#"{{"status":"ok","message":{{"items":[{item}]}}}}"#
+                ))
+                .is_err(),
+                "{item}"
+            );
+        }
     }
 
     #[test]
@@ -270,8 +348,8 @@ mod tests {
     #[test]
     fn work_list_and_bad_shapes() {
         let list = r#"{"status":"ok","message-type":"work-list","message":{"items":[
-            {"DOI":"10.1/a","title":["A"],"author":[{"name":"Some Consortium"}],"issued":{"date-parts":[[null]]},"published-online":{"date-parts":[[2018,1]]}},
-            {"DOI":"10.1/b","title":[]}
+            {"DOI":"10.1000/a","title":["A"],"author":[{"name":"Some Consortium"}],"issued":{"date-parts":[[null]]},"published-online":{"date-parts":[[2018,1]]}},
+            {"DOI":"10.1000/b","title":[]}
         ],"total-results":2}}"#;
         let records = parse_crossref_works(list).unwrap();
         assert_eq!(records.len(), 2);

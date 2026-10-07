@@ -153,7 +153,8 @@ pub fn select_candidate(
         .fold(None, |acc: Option<f32>, s| {
             Some(acc.map_or(s, |a| a.max(s)))
         });
-    scored.retain(|(_, c)| c.same_work);
+    scored
+        .retain(|(r, c)| r.doi.as_deref().and_then(record::normalize_doi).is_some() && c.same_work);
     scored.sort_by(|a, b| b.1.identity.total_cmp(&a.1.identity));
     let Some((best, best_cmp)) = scored.first().cloned() else {
         return Selection::None(best_any);
@@ -330,12 +331,18 @@ impl<'a> Checker<'a> {
                 out.method = Method::Doi;
                 out.record = Some(found(&record));
                 out.fields.clone_from(&comparison.differing);
-                out.verdict = if comparison.differing.is_empty() {
+                let doi_matches = record.doi.as_deref() == Some(doi.as_str());
+                if !doi_matches {
+                    out.fields.insert(0, "doi".to_string());
+                }
+                let same_work = comparison.same_work;
+                out.verdict = if !out.fields.is_empty() {
+                    Verdict::Mismatch
+                } else if same_work {
                     Verdict::Verified
                 } else {
-                    Verdict::Mismatch
+                    Verdict::NotFound
                 };
-                let same_work = comparison.same_work;
                 out.detail = Some(format!(
                     "doi: {} ({}) identity {:.2}{}",
                     doi,
@@ -344,11 +351,11 @@ impl<'a> Checker<'a> {
                     if same_work {
                         ""
                     } else {
-                        "; record is another work"
+                        "; insufficient positive same-work evidence"
                     }
                 ));
                 out.comparison = Some(comparison);
-                if !same_work && self.query {
+                if (!same_work || !doi_matches) && self.query {
                     // The printed DOI points elsewhere: look for the right one.
                     let mut suggestion = Self::blank(entry);
                     self.apply_query(entry, &mut suggestion, Some(&doi));
@@ -476,23 +483,23 @@ mod tests {
             ..Record::default()
         };
         let t = Thresholds::default();
-        let right = make("10.1/right", "Attention is all you need", 2017);
+        let right = make("10.1000/right", "Attention is all you need", 2017);
         let other = make(
-            "10.1/other",
+            "10.1000/other",
             "Tensor2Tensor for neural machine translation",
             2018,
         );
         match select_candidate(&entry, &[other.clone(), right.clone()], &t) {
             Selection::Accepted(accepted) => {
                 let (r, c) = *accepted;
-                assert_eq!(r.doi.as_deref(), Some("10.1/right"));
+                assert_eq!(r.doi.as_deref(), Some("10.1000/right"));
                 assert!(c.same_work);
             }
             other => panic!("{other:?}"),
         }
         // Two different DOIs with identical evidence (a preprint and its
         // published version) are not decided by response order.
-        let twin = make("10.1/twin", "Attention is all you need", 2017);
+        let twin = make("10.1000/twin", "Attention is all you need", 2017);
         assert!(matches!(
             select_candidate(&entry, &[right.clone(), twin], &t),
             Selection::Ambiguous(_, _)

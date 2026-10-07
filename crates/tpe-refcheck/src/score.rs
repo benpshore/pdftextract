@@ -396,7 +396,7 @@ mod tests {
     fn record(first: &str, title: &str, years: &[u16]) -> Record {
         let family = first.split_whitespace().last().unwrap_or("").to_string();
         Record {
-            doi: Some("10.1/x".to_string()),
+            doi: Some("10.1000/x".to_string()),
             title: Some(title.to_string()),
             authors: vec![first.to_string()],
             families: vec![family],

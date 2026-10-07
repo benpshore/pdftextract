@@ -41,7 +41,7 @@ struct Args {
     /// Contact address sent to the registries (polite pool); also `TPE_MAILTO`.
     #[arg(long)]
     mailto: Option<String>,
-    /// Exit with status 2 when any entry is a mismatch.
+    /// Exit with status 2 when any entry is not verified.
     #[arg(long)]
     strict: bool,
     /// Never touch the network; answer from the cache only.
@@ -127,7 +127,11 @@ fn run(args: &Args) -> Result<u8, String> {
         Stdout::Json => println!("{json}"),
         Stdout::Markdown => print!("{markdown}"),
     }
-    Ok(if args.strict && s.mismatch > 0 { 2 } else { 0 })
+    Ok(if args.strict && s.verified != s.entries {
+        2
+    } else {
+        0
+    })
 }
 
 fn main() -> ExitCode {

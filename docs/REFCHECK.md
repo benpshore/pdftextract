@@ -59,7 +59,9 @@ neither side is trusted for diacritics.
 | pages | `pages` | `page`, else `article-number` | first pages equal after dash unification and expansion of abbreviated ranges (`436-44` is `436-444`). |
 
 A field is `unknown` (not compared) when either side lacks it; `unknown`
-never counts as a mismatch.
+never counts as a field mismatch. It also does not count as positive identity
+evidence: an empty or DOI-only record cannot verify an entry. Registry items
+without a valid DOI, or with malformed identity fields, are response errors.
 
 **Identity** (is the record the printed work?): the title agrees and the
 first author agrees, or the title agrees at `title_strong` and the record
@@ -83,7 +85,7 @@ Default thresholds (`Thresholds::default()`, written into every report):
 
 | Verdict | Meaning |
 |---------|---------|
-| `verified` | a record was obtained and every compared field agrees |
+| `verified` | a valid registry DOI matches the printed DOI (when present), positive same-work identity is established, and every compared field agrees |
 | `mismatch` | a record was obtained and `fields` lists what disagrees (`doi`, `title`, `author`, `year`, `container`, `volume`, `pages`); `comparison.same_work` says whether it is still the printed work (wrong pages) or another work (wrong DOI) |
 | `not-found` | neither the DOI nor a query produced a record that identifies the entry (`detail` says why, including ambiguity) |
 | `offline-or-error` | offline without a cached answer, or a request failed after its retries; nothing is known |
@@ -119,7 +121,7 @@ export TPE_MAILTO=you@example.org
 tpe bibliography paper.pdf > paper.refs.jsonl
 tpe-refcheck paper.refs.jsonl --cache-dir ~/.cache/tpe-refcheck --out report/
 tpe-refcheck paper.refs.jsonl --cache-dir ~/.cache/tpe-refcheck --stdout markdown
-tpe-refcheck paper.refs.jsonl --cache-dir ~/.cache/tpe-refcheck --strict   # exit 2 on any mismatch
+tpe-refcheck paper.refs.jsonl --cache-dir ~/.cache/tpe-refcheck --strict   # exit 2 on any unverified entry
 ```
 
 `--out DIR` writes `refcheck.json` (the report below) and `refcheck.md` (a
@@ -127,10 +129,10 @@ table: label, verdict, printed DOI, suggested DOI, title and author
 similarity, differing fields, detail). `--stdout summary|json|markdown`
 chooses what is printed. `--limit N` checks the first N entries.
 
-Exit status: `0`; `2` when `--strict` is set and at least one entry is a
-`mismatch` (`not-found` and `offline-or-error` never fail a strict run, so a
-flaky network does not fail a build); `1` for unreadable input, an input
-without entries, or a usage error.
+Exit status: `0`; `2` when `--strict` is set and any entry is not `verified`,
+including `not-found` and `offline-or-error`. Invalid registry responses and
+insufficient positive identity evidence cannot pass strict mode. `1` for
+unreadable input, an input without entries, or a usage error.
 
 ## Report
 

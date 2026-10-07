@@ -267,3 +267,137 @@ fn usage_errors_exit_one() {
     ]);
     assert_eq!(code, 1, "{stderr}");
 }
+
+#[test]
+fn strict_requires_valid_matching_doi_and_positive_identity() {
+    let cases = [
+        ("{}", "offline-or-error"),
+        (
+            r#"{"DOI":"10.1038/nature14539","title":2015}"#,
+            "offline-or-error",
+        ),
+        (
+            r#"{"DOI":"10.1038/nature14539","title":"Deep learning","author":"LeCun"}"#,
+            "offline-or-error",
+        ),
+        (r#"{"title":"Deep learning"}"#, "offline-or-error"),
+        (r#"{"DOI":"10.1038/nature14539"}"#, "not-found"),
+        (
+            r#"{"DOI":"10.1038/nature14539","title":"Deep learninXX"}"#,
+            "not-found",
+        ),
+        (
+            r#"{"DOI":"10.1038/nature14539","author":[{"family":"LeCun"}],"issued":{"date-parts":[[2015]]}}"#,
+            "not-found",
+        ),
+        (
+            r#"{"DOI":"10.1000/other","title":"Deep learning","author":[{"family":"LeCun"}]}"#,
+            "mismatch",
+        ),
+        (
+            r#"{"DOI":"10.1038/nature14539","title":"Deep learning"}"#,
+            "verified",
+        ),
+    ];
+    for (body, verdict) in cases {
+        let dir = tempfile::tempdir().unwrap();
+        let input = dir.path().join("refs.json");
+        fs::write(
+            &input,
+            serde_json::to_string(&vec![entries()[0].clone()]).unwrap(),
+        )
+        .unwrap();
+        let cache_dir = dir.path().join("cache");
+        let cache = Cache::open(&cache_dir).unwrap();
+        cache
+            .put(
+                &Cache::doi_key(DEEP_LEARNING_DOI),
+                "https://doi.org/test",
+                200,
+                body,
+            )
+            .unwrap();
+        cache
+            .put(
+                &format!("crossref:{}", Cache::doi_key(DEEP_LEARNING_DOI)),
+                "https://api.crossref.org/test",
+                200,
+                &format!(r#"{{"status":"ok","message":{body}}}"#),
+            )
+            .unwrap();
+        for no_query in [true, false] {
+            let mut args = vec![
+                input.to_str().unwrap(),
+                "--offline",
+                "--strict",
+                "--cache-dir",
+                cache_dir.to_str().unwrap(),
+                "--stdout",
+                "json",
+            ];
+            if no_query {
+                args.push("--no-query");
+            }
+            let (code, stdout, stderr) = run(&args);
+            assert_eq!(
+                code,
+                if verdict == "verified" { 0 } else { 2 },
+                "{body}: {stderr}"
+            );
+            let report: Value = serde_json::from_str(&stdout).unwrap();
+            assert_eq!(report["entries"][0]["verdict"], verdict, "{body}");
+            if verdict == "mismatch" {
+                assert_eq!(report["entries"][0]["fields"], serde_json::json!(["doi"]));
+            }
+        }
+    }
+}
+
+#[test]
+fn parenthesized_doi_survives_cache_lookup_and_verification() {
+    let dir = tempfile::tempdir().unwrap();
+    let input = dir.path().join("refs.json");
+    let mut reference = entries()[0].clone();
+    reference.doi = Some("https://doi.org/10.1000/example(abc)).".into());
+    fs::write(&input, serde_json::to_string(&vec![reference]).unwrap()).unwrap();
+    let cache_dir = dir.path().join("cache");
+    Cache::open(&cache_dir).unwrap().put(&Cache::doi_key("10.1000/example(abc)"), "https://doi.org/test", 200,
+        r#"{"DOI":"10.1000/example(abc)","title":"Deep learning","author":[{"family":"LeCun"}]}"#).unwrap();
+    let (code, stdout, stderr) = run(&[
+        input.to_str().unwrap(),
+        "--offline",
+        "--strict",
+        "--no-query",
+        "--cache-dir",
+        cache_dir.to_str().unwrap(),
+        "--stdout",
+        "json",
+    ]);
+    assert_eq!(code, 0, "{stderr}");
+    let report: Value = serde_json::from_str(&stdout).unwrap();
+    assert_eq!(report["entries"][0]["verdict"], "verified");
+    assert_eq!(
+        report["entries"][0]["printed"]["doi"],
+        "10.1000/example(abc)"
+    );
+}
+
+#[test]
+fn strict_fails_for_unregistered_and_uncached_dois() {
+    for reference in entries().into_iter().skip(3) {
+        let dir = tempfile::tempdir().unwrap();
+        let input = dir.path().join("refs.json");
+        fs::write(&input, serde_json::to_string(&vec![reference]).unwrap()).unwrap();
+        let cache_dir = dir.path().join("cache");
+        seed(&Cache::open(&cache_dir).unwrap(), &entries());
+        let (code, _, stderr) = run(&[
+            input.to_str().unwrap(),
+            "--offline",
+            "--strict",
+            "--no-query",
+            "--cache-dir",
+            cache_dir.to_str().unwrap(),
+        ]);
+        assert_eq!(code, 2, "{stderr}");
+    }
+}
