@@ -25,12 +25,22 @@ tpe-export --format sqlite     --input corpus.sqlite --hash 9f2c --output paper.
   a `failed` record is refused).
 - Ledger inputs export one run: `--run <id>`, `--hash <hex prefix>` (latest
   run of that document) or, with neither, the latest run in the ledger. The
-  file is first opened read-only and checked for the ledger tables, so a
-  foreign database is never given the ledger schema. Opening a ledger may
-  create its `-wal`/`-shm` companions, as every ledger reader does.
+  reader uses SQLite read-only flags throughout, checks the ledger tables and
+  version, and never initializes tables or migrates the source. Compatible
+  v4 ledgers remain v4; the optional historical `figures` table need not exist.
+  Selection and reconstruction share a read transaction, including committed
+  WAL rows. Opening a ledger may create/use its `-wal`/`-shm` companions;
+  this is not a no-adjacent-files guarantee. Immutable SQLite mode is not used
+  because it would ignore a live WAL.
 - `--output` is never overwritten unless `--force` is given. The file is
   staged beside the target under a temporary name and renamed into place, so
-  an interrupted export leaves no partial file.
+  an interrupted export leaves no partial file. The CLI retains the opened
+  input's filesystem identity through publication and refuses direct,
+  hard-linked or symlinked self-output even with `--force`. It checks again
+  after staging and syncing the complete output; a replaced source is refused.
+  These checks do not serialize concurrent filesystem renames by other
+  processes. Library callers publishing an input-derived export should pair
+  `input::load_preserving` with `write_export_preserving`.
 - Exit code 0 on success with one summary line on stdout; 1 with
   `error: ...` on stderr otherwise; 2 for usage errors.
 
@@ -222,3 +232,33 @@ an RFC 4180 reader; read the `SQLite` file back read-only (journal mode,
 same result comes from a ledger (`--hash`, `--run`, latest) and from a
 bibliography record; and exercise the CLI's overwrite refusal, `--force`,
 bad format and missing input.
+
+`tests/preservation.rs` adds nine regressions: v4 without `figures` (all run
+selectors and output formats, byte/schema preservation), empty/unsupported
+ledgers, enforced read-only/missing-file opens, read-only file permissions,
+live WAL rows, direct and hard-link self-output for JSON/SQLite with and
+without force across every format, symlink and parent-symlink aliases, an
+alias created after loading, and source replacement before publication.
+
+### Source-preservation correction validation (2026-10-07)
+
+Based on PR #249 head `e2b526653d1ff3eb295ddcb3624f864996eabd46`:
+
+- `cargo test --locked -p tpe-export`: 17 unit, 11 golden/integration and
+  nine preservation tests passed (37 total).
+- `cargo clippy --locked -p tpe-export --all-targets -- -D warnings`,
+  workspace Clippy and formatting passed; all ten ledger unit tests passed.
+- Python formatting/lint, 210 tests and dependency audit passed.
+- The full workspace Rust test run reached `cli_containment` with three
+  failures: `deadline_and_cancellation_kill_and_reap_a_stopped_worker`,
+  `cancellation_does_not_launch_relays_for_the_whole_pending_batch`, and
+  `kernel_parent_death_signal_terminates_even_a_stopped_parser`. Each failed
+  at line 408 with `worker did not become observable`. All three also failed
+  individually/serially at the unchanged reviewed head with the same error.
+  The root library run passed 753 tests (six ignored) before these failures;
+  this is not a claim of full workspace test success.
+- Swift, CMake and CTest were unavailable in this environment.
+
+Read-only SQLite can use/create WAL/SHM companions. This correction does not
+claim strict absence of adjacent filesystem writes or protection against
+concurrent external namespace mutation between a check and rename.

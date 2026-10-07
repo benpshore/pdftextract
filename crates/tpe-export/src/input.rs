@@ -1,10 +1,10 @@
 //! Reading the article to export: an engine JSON result, a `tpe
 //! bibliography` record, or a run from the `SQLite` ledger.
 
-use std::fs;
+use std::fs::File;
+use std::io::Read;
 use std::path::Path;
 
-use rusqlite::{Connection, OpenFlags};
 use serde::Deserialize;
 use tpe::ledger::Ledger;
 use tpe::schema::{Author, ExtractionResult, Metadata, ReferenceEntry, Resolved};
@@ -88,12 +88,28 @@ impl BibliographyRecord {
 /// Reads `path`, sniffing a `SQLite` ledger by its file header and
 /// otherwise parsing JSON. `selector` only applies to ledgers.
 pub fn load(path: &Path, selector: &RunSelector) -> Result<Article, ExportError> {
-    let bytes = fs::read(path).map_err(|source| ExportError::io(path, source))?;
-    if bytes.starts_with(SQLITE_MAGIC) {
-        load_ledger(path, selector)
+    load_preserving(path, selector).map(|(article, _)| article)
+}
+
+/// Reads the article and retains the identity of the opened input for output
+/// publication. JSON bytes are read from that same open file.
+pub fn load_preserving(
+    path: &Path,
+    selector: &RunSelector,
+) -> Result<(Article, crate::InputIdentity), ExportError> {
+    let mut file = File::open(path).map_err(|source| ExportError::io(path, source))?;
+    let identity = crate::InputIdentity::capture(path, &file)?;
+    let mut bytes = Vec::new();
+    file.read_to_end(&mut bytes)
+        .map_err(|source| ExportError::io(path, source))?;
+    identity.check_source()?;
+    let article = if bytes.starts_with(SQLITE_MAGIC) {
+        load_ledger(path, selector)?
     } else {
-        parse_json(&bytes)
-    }
+        parse_json(&bytes)?
+    };
+    identity.check_source()?;
+    Ok((article, identity))
 }
 
 /// Parses the engine's JSON output: an extraction result (`<hash>.json`
@@ -136,28 +152,9 @@ fn is_extraction_result(value: &serde_json::Value) -> bool {
         && value.get("references").is_some()
 }
 
-/// Loads one run from a ledger. The file is first checked read-only for
-/// the ledger tables so a foreign database is never given a schema.
+/// Loads one run without initializing or migrating the source ledger.
 pub fn load_ledger(path: &Path, selector: &RunSelector) -> Result<Article, ExportError> {
-    {
-        let probe = Connection::open_with_flags(
-            path,
-            OpenFlags::SQLITE_OPEN_READ_ONLY | OpenFlags::SQLITE_OPEN_NO_MUTEX,
-        )?;
-        let tables: i64 = probe.query_row(
-            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' \
-             AND name IN ('schema_meta', 'runs', 'metadata', 'references')",
-            [],
-            |row| row.get(0),
-        )?;
-        if tables != 4 {
-            return Err(ExportError::Input(format!(
-                "{} is a SQLite database but not an engine ledger",
-                path.display()
-            )));
-        }
-    }
-    let ledger = Ledger::open(path)?;
+    let ledger = Ledger::open_read_only(path)?;
     let run = match selector {
         RunSelector::RunId(id) => *id,
         RunSelector::HashPrefix(prefix) => ledger

@@ -30,8 +30,9 @@ pub mod sqlite;
 pub mod zotero_rdf;
 
 use std::fmt;
+use std::fs::File;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 use thiserror::Error;
@@ -57,6 +58,62 @@ pub enum ExportError {
     Input(String),
     #[error("output exists: {0} (pass --force to replace it)")]
     OutputExists(String),
+    #[error("output aliases the input: {0}")]
+    OutputIsInput(String),
+    #[error("input changed while exporting: {0}")]
+    InputChanged(String),
+}
+
+/// The immutable identity of the opened source, kept alive until publication.
+/// Identity equality detects hard links as well as paths through symlinks.
+#[derive(Debug)]
+pub struct InputIdentity {
+    handle: same_file::Handle,
+    path: PathBuf,
+    original_path: PathBuf,
+}
+
+impl InputIdentity {
+    pub(crate) fn capture(path: &Path, file: &File) -> Result<Self, ExportError> {
+        let copy = file
+            .try_clone()
+            .map_err(|source| ExportError::io(path, source))?;
+        let handle =
+            same_file::Handle::from_file(copy).map_err(|source| ExportError::io(path, source))?;
+        let original_path =
+            std::path::absolute(path).map_err(|source| ExportError::io(path, source))?;
+        let path = std::fs::canonicalize(path).map_err(|source| ExportError::io(path, source))?;
+        let identity = Self {
+            handle,
+            path,
+            original_path,
+        };
+        identity.check_source()?;
+        Ok(identity)
+    }
+
+    pub(crate) fn check_source(&self) -> Result<(), ExportError> {
+        for path in [&self.path, &self.original_path] {
+            let current = same_file::Handle::from_path(path)
+                .map_err(|source| ExportError::io(path, source))?;
+            if current != self.handle {
+                return Err(ExportError::InputChanged(path.display().to_string()));
+            }
+        }
+        Ok(())
+    }
+
+    fn check_output(&self, output: &Path) -> Result<(), ExportError> {
+        self.check_source()?;
+        match same_file::Handle::from_path(output) {
+            Ok(handle) if handle == self.handle => {
+                Err(ExportError::OutputIsInput(output.display().to_string()))
+            }
+            Ok(_) => Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(error) => Err(ExportError::io(output, error)),
+        }
+    }
 }
 
 impl ExportError {
@@ -120,6 +177,31 @@ pub fn write_export(
     output: &Path,
     force: bool,
 ) -> Result<(), ExportError> {
+    write_export_inner(export, format, output, force, None)
+}
+
+/// Publishes an export while excluding the retained input identity, even
+/// under `force`. Checks before staging and immediately before publication.
+pub fn write_export_preserving(
+    export: &Export,
+    format: Format,
+    output: &Path,
+    force: bool,
+    input: &InputIdentity,
+) -> Result<(), ExportError> {
+    write_export_inner(export, format, output, force, Some(input))
+}
+
+fn write_export_inner(
+    export: &Export,
+    format: Format,
+    output: &Path,
+    force: bool,
+    input: Option<&InputIdentity>,
+) -> Result<(), ExportError> {
+    if let Some(input) = input {
+        input.check_output(output)?;
+    }
     if output.symlink_metadata().is_ok() && !force {
         return Err(ExportError::OutputExists(output.display().to_string()));
     }
@@ -143,6 +225,13 @@ pub fn write_export(
     staged
         .flush()
         .map_err(|source| ExportError::io(staged.path(), source))?;
+    staged
+        .as_file()
+        .sync_all()
+        .map_err(|source| ExportError::io(staged.path(), source))?;
+    if let Some(input) = input {
+        input.check_output(output)?;
+    }
     let persisted = if force {
         staged.persist(output).map_err(|e| e.error)
     } else {

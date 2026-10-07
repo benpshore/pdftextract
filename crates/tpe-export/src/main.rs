@@ -6,7 +6,7 @@ use std::process::ExitCode;
 use clap::Parser;
 use tpe_export::input::{self, RunSelector};
 use tpe_export::model::Export;
-use tpe_export::{Format, write_export};
+use tpe_export::{Format, write_export_preserving};
 
 /// Export an extracted article and its reference list as Zotero RDF,
 /// Zotero CSV or a SQLite database.
@@ -53,9 +53,9 @@ fn run(cli: &Cli) -> Result<(), tpe_export::ExportError> {
         (None, Some(prefix)) => RunSelector::HashPrefix(prefix.clone()),
         (None, None) => RunSelector::Latest,
     };
-    let article = input::load(&cli.input, &selector)?;
+    let (article, identity) = input::load_preserving(&cli.input, &selector)?;
     let export = Export::from_article(&article);
-    write_export(&export, cli.format, &cli.output, cli.force)?;
+    write_export_preserving(&export, cli.format, &cli.output, cli.force, &identity)?;
     println!(
         "wrote {} ({}): 1 article, {} references",
         cli.output.display(),
