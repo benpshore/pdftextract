@@ -318,11 +318,15 @@ export default function Workspace({userId}:{userId:string}) {
   async function drop(event:DragEvent) {
     event.preventDefault();setDragging(false);if(savedOpenRef.current)return;
     // Entries must be taken synchronously, before the first await, or the browser forgets them.
-    const dropped=dropEntries(Array.from(event.dataTransfer.items));
-    if(dropped.hasDirectory){
-      const roots=dropped.entries.map(entry=>entry.name);
-      await importFolder(roots.length===1?roots[0]:roots.length+' dropped items',()=>enumerateDropEntries(dropped.entries,{signal:folderAbort.current?.signal,onProgress:progress=>{if(mounted.current)setFolderScan({root:roots[0],label:progress.label+' ('+progress.found+' files found)',progress:null});}}));
-      if(dropped.files.length)addFiles(dropped.files);
+    const dropped=dropEntries(event.dataTransfer.items);
+    if(dropped.hasDirectory||dropped.truncated){
+      // Fallback files belong to the same bounded, cancellable batch as entry-backed files.
+      const entries=[...dropped.entries,...dropped.files.map(file=>({isFile:true,isDirectory:false,name:file.name,file:(done:(file:File)=>void)=>done(file)}))];
+      const roots=entries.map(entry=>entry.name);
+      await importFolder(roots.length===1?roots[0]:roots.length+' dropped items',async()=>{
+        const scanned=await enumerateDropEntries(entries,{signal:folderAbort.current?.signal,onProgress:progress=>{if(mounted.current)setFolderScan({root:roots[0],label:progress.label+' ('+progress.found+' files found)',progress:null});}});
+        return {...scanned,truncated:scanned.truncated||dropped.truncated};
+      });
     }else if(event.dataTransfer.files.length)addFiles(event.dataTransfer.files);
     else addText(event.dataTransfer.getData('text/uri-list').split('\n').filter(line=>!line.startsWith('#')).join('\n')||event.dataTransfer.getData('text/plain'),event.dataTransfer.getData('text/html'));
   }

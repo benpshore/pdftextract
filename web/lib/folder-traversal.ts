@@ -3,8 +3,8 @@
  * Three folder sources feed one collector:
  *  - File System Access API (`showDirectoryPicker`, Chrome/Edge): `enumerateDirectoryHandle`.
  *  - `<input type="file" webkitdirectory>` (Safari/Firefox and everything else): `enumerateFileList`.
- *  - Drag-and-drop folders (`DataTransferItem.webkitGetAsEntry`): `enumerateDropItems`, which keeps
- *    calling `readEntries` until it returns an empty batch, as the directory-reader contract requires.
+ *  - Drag-and-drop folders (`DataTransferItem.webkitGetAsEntry`): bounded `dropEntries` intake
+ *    followed by `enumerateDropEntries`, which stops at an empty batch or the entry budget.
  *
  * `collectFolder` then applies the import policy: hidden/system files are skipped, every file is
  * classified by its extension (PDF first), unsupported types stay in the result with a reason instead
@@ -176,15 +176,22 @@ export function enumerateFileList(files: Iterable<File>, options: FolderOptions 
   return { candidates, hidden, truncated, examined };
 }
 /** Drag-and-drop: call synchronously inside the drop handler, because `webkitGetAsEntry` only works before the event ends. */
-export function dropEntries(items: Iterable<DropItemLike>): { entries: DropEntryLike[]; files: File[]; hasDirectory: boolean } {
+export function dropEntries(items: Iterable<DropItemLike>, options: FolderOptions = {}): { entries: DropEntryLike[]; files: File[]; hasDirectory: boolean; truncated: boolean } {
+  const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const entries: DropEntryLike[] = [], files: File[] = [];
+  let examined = 0, truncated = limits.maxEntries <= 0;
+  cancelled(options.signal);
+  if (truncated) return { entries, files, hasDirectory: false, truncated };
   for (const item of items) {
-    if (item.kind !== 'file') continue;
-    const entry = item.webkitGetAsEntry?.();
-    if (entry) entries.push(entry);
-    else { const file = item.getAsFile?.(); if (file) files.push(file); }
+    cancelled(options.signal); examined++;
+    if (item.kind === 'file') {
+      const entry = item.webkitGetAsEntry?.();
+      if (entry) entries.push(entry);
+      else { const file = item.getAsFile?.(); if (file) files.push(file); }
+    }
+    if (examined >= limits.maxEntries) { truncated = true; break; }
   }
-  return { entries, files, hasDirectory: entries.some(entry => entry.isDirectory) };
+  return { entries, files, hasDirectory: entries.some(entry => entry.isDirectory), truncated };
 }
 async function readEntriesWithinBudget(entry: DropEntryLike, budget: number, signal?: AbortSignal): Promise<{ children: DropEntryLike[]; truncated: boolean }> {
   const reader = entry.createReader?.();
@@ -275,7 +282,7 @@ export async function collectFolder(root: string, scan: Scan, options: FolderOpt
           if (other.digest === entry.digest && await equalFileBytes(other.file, file, options.signal)) { twin = other; break; }
         }
         if (twin) { skipped.push({ path, size: file.size, kind: 'duplicate', reason: `Same content as ${twin.path}.` }); report(path); continue; }
-      } catch (error) { cancelled(options.signal); /* a digest failure keeps both copies rather than guessing */ void error; }
+      } catch (error) { cancelled(options.signal); /* digest or comparison failures keep both copies */ void error; }
       sameSize.push(entry);
     } else bySize.set(file.size, [entry]);
     files.push(entry); bytes += file.size;

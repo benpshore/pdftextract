@@ -163,6 +163,22 @@ const Workspace = mod.exports.default;
     assert.equal(upload().getAttribute('aria-expanded'), 'false');
     focused(upload(), 'focus returns to Upload when the picker is launched');
     delete fileInput.click;
+    // A mixed folder drop is one batch: cancellation also discards getAsFile fallbacks.
+    let dropDone, dropReads = 0;
+    const mixedDrop = new Event('drop', { bubbles: true, cancelable: true });
+    Object.defineProperty(mixedDrop, 'dataTransfer', { value: {
+        items: [
+            { kind: 'file', webkitGetAsEntry: () => ({ isDirectory: true, isFile: false, name: 'cancel-folder', createReader: () => ({ readEntries: done => { dropReads++; dropDone = done; } }) }) },
+            { kind: 'file', getAsFile: () => new File(['must remain unqueued'], 'cancel-fallback.txt') },
+        ], files: [], getData: () => '',
+    } });
+    await act(async () => { document.querySelector('main').dispatchEvent(mixedDrop); });
+    await act(async () => { document.querySelector('.folder-scan button').click(); await new Promise(resolve => setTimeout(resolve, 10)); });
+    assert.equal(rows.size, 0, 'cancelled mixed drop uploads no fallback file');
+    assert.equal(document.querySelectorAll('.queue-item').length, 0, 'cancelled mixed drop queues nothing');
+    assert.equal(dropReads, 1);
+    await act(async () => { dropDone([]); await Promise.resolve(); });
+    assert.equal(rows.size, 0, 'late reader callback cannot queue cancelled files');
     Object.defineProperty(fileInput, 'files', { configurable: true, value: [new File(['<html>First</html>'], 'renamed.pdf'), new File(['Second'], 'second.txt')] });
     await act(async () => { fileInput.dispatchEvent(new Event('change', { bubbles: true })); await new Promise(resolve => setTimeout(resolve, 50)); });
     assert.equal(rows.size, 2);
@@ -298,5 +314,5 @@ const Workspace = mod.exports.default;
     assert.match(document.querySelector('.reading').textContent, /Café/);
     assert.match(document.querySelector('.queue-item:last-child').textContent, /Cancelled/);
     await act(async () => { recovered.unmount(); });
-    console.log(JSON.stringify({ multi_file_independent_failure: true, content_dispatch_over_extension: true, stable_selection: true, retry_owner_preserved: true, back_reader_and_scroll: true, indexeddb_snapshot_drops_saved_files: true, remount_reader_restored: true, private_asset_only_rendering: true, queued_cancel_skips_upload: true, interrupted_retry_reuses_owned_original: true, reader_css_and_active_inputs_removed: true, reread_reuses_owned_original: true, hero_removed_compact_hint: true, upload_symbol_named_tooltip_options_focus: true, saved_articles_menu_open_close_select_focus: true, saved_html_charset_recovered: true, failed_reread_keeps_valid_result: true, failed_status_reread_keeps_valid_result: true, cancelled_reread_keeps_valid_result: true }));
+    console.log(JSON.stringify({ cancelled_mixed_folder_drop_queues_nothing: true, multi_file_independent_failure: true, content_dispatch_over_extension: true, stable_selection: true, retry_owner_preserved: true, back_reader_and_scroll: true, indexeddb_snapshot_drops_saved_files: true, remount_reader_restored: true, private_asset_only_rendering: true, queued_cancel_skips_upload: true, interrupted_retry_reuses_owned_original: true, reader_css_and_active_inputs_removed: true, reread_reuses_owned_original: true, hero_removed_compact_hint: true, upload_symbol_named_tooltip_options_focus: true, saved_articles_menu_open_close_select_focus: true, saved_html_charset_recovered: true, failed_reread_keeps_valid_result: true, failed_status_reread_keeps_valid_result: true, cancelled_reread_keeps_valid_result: true }));
 })().catch(error => { console.error(error); process.exitCode = 1; });
