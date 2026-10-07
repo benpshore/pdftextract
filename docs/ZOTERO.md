@@ -185,3 +185,38 @@ parse with `ImportRequest::parse`, map with `ImportItem::to_record`):
 * `path` is `null` when the file is not on this computer (for example not
   yet synced) or for linked URLs.
 * Only regular items are sent; selected notes and attachments are skipped.
+
+## Web app: Send to Zotero from the browser
+
+`web/lib/zotero/` is a self-contained React panel plus hooks and a browser
+client for the same Web API v3 (see `web/lib/zotero/README.md` for the
+one-line wiring into the reader, the storage choices and the test). It is
+not mounted in `web/app/workspace.tsx` yet.
+
+* The API key is entered once, verified with `GET /keys/current`, and kept
+  only in the browser: `sessionStorage` (until the tab closes) or IndexedDB
+  (on this device), as the user chooses. It is sent only to
+  `https://api.zotero.org` in the `Zotero-API-Key` header; this app's server
+  never sees it and there is no server route (`web/app/api/zotero/` does not
+  exist). `Forget key` clears both places.
+* The API serves `Access-Control-Allow-Origin: *` and allows the Zotero
+  request headers, so items, notes, links, collections and the file-upload
+  authorisation are all requested from the browser. The storage host's CORS
+  policy for the upload bytes (step 2) is not verified; a blocked upload is
+  reported as a warning beside the created item key, and the source link
+  remains.
+* What is sent: the article's editable metadata as an item of the chosen
+  type (journal article, preprint, conference paper, report, book, web page
+  or document) in the chosen library (user or writable group) and
+  collection with tags; the DOIs found in the text as an HTML child note;
+  a `linked_url` attachment for the source; optionally the saved original as
+  an `imported_file` attachment through the three-step upload.
+* Rust and TypeScript follow the same protocol: 50 objects per write with a
+  32-hex `Zotero-Write-Token`, `If-Unmodified-Since-Version` on `PATCH` /
+  `DELETE`, `limit=100` paging over `Link: rel="next"` inside the API base
+  only, `Backoff` pauses, `Retry-After` on `429`, three attempts for `5xx`
+  and transport failures, and the upload flow `POST /items/<key>/file`
+  (`md5`, `filename`, `filesize`, `mtime`, `If-None-Match: *`) → storage
+  `POST` → `upload=<uploadKey>`.
+
+Test (no network; JSDOM and a mocked `fetch`): `cd web && node tests/zotero.test.mjs`.
