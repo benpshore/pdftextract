@@ -125,8 +125,14 @@ impl OutputPair {
             files.push(file);
         }
         let exists = self.check()?; // Recheck after OCR and staging.
-        let backups = tempfile::Builder::new()
-            .prefix(".tpe-image-text-recovery-")
+        let mut recovery_builder = tempfile::Builder::new();
+        recovery_builder.prefix(".tpe-image-text-recovery-");
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            recovery_builder.permissions(fs::Permissions::from_mode(0o700));
+        }
+        let backups = recovery_builder
             .tempdir_in(directory)
             .map_err(|e| io_error(directory, e))?;
         let mut transaction = Transaction {
@@ -262,6 +268,34 @@ fn sync_directory(path: &Path) -> io::Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    #[cfg(unix)]
+    fn forced_recovery_directory_is_private_during_publication() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = tempfile::tempdir().unwrap();
+        let input = dir.path().join("input.png");
+        fs::write(&input, b"source").unwrap();
+        let paths = [dir.path().join("input.txt"), dir.path().join("input.json")];
+        for path in &paths {
+            fs::write(path, b"old output").unwrap();
+        }
+        let pair = OutputPair::new(&input, [&paths[0], &paths[1]], true, &[]).unwrap();
+        pair.publish_with([b"new text", b"new JSON"], |from, to| {
+            let recovery = fs::read_dir(dir.path())?
+                .map(|entry| entry.unwrap().path())
+                .find(|path| path.is_dir())
+                .expect("recovery directory exists until publication completes");
+            assert_eq!(fs::metadata(&recovery)?.permissions().mode() & 0o777, 0o700);
+            for index in 0..2 {
+                assert_eq!(fs::read(recovery.join(index.to_string()))?, b"old output");
+            }
+            fs::hard_link(from, to)
+        })
+        .unwrap();
+        assert_eq!(fs::read_dir(dir.path()).unwrap().count(), 3);
+    }
 
     #[test]
     fn second_link_failure_restores_old_pair_and_cleans_staging() {
