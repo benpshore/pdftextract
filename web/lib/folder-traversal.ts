@@ -3,13 +3,13 @@
  * Three folder sources feed one collector:
  *  - File System Access API (`showDirectoryPicker`, Chrome/Edge): `enumerateDirectoryHandle`.
  *  - `<input type="file" webkitdirectory>` (Safari/Firefox and everything else): `enumerateFileList`.
- *  - Drag-and-drop folders (`DataTransferItem.webkitGetAsEntry`): `enumerateDropItems`, which keeps
- *    calling `readEntries` until it returns an empty batch, as the directory-reader contract requires.
+ *  - Drag-and-drop folders (`DataTransferItem.webkitGetAsEntry`): bounded `dropEntries` intake
+ *    followed by `enumerateDropEntries`, which stops at an empty batch or the entry budget.
  *
  * `collectFolder` then applies the import policy: hidden/system files are skipped, every file is
  * classified by its extension (PDF first), unsupported types stay in the result with a reason instead
  * of vanishing, a per-file size limit and a queue-entry limit stop runaway imports with a plain message,
- * duplicates (same relative path, or same size and content digest) are dropped once, progress is
+ * duplicates (confirmed equal bytes, with digests used only to find candidates) are dropped once, progress is
  * reported as "n of m" with bytes, and an AbortSignal cancels between entries. Files are never modified.
  */
 export type FolderKind = 'pdf' | 'html' | 'text' | 'json' | 'xml' | 'css' | 'image' | 'office' | 'archive';
@@ -84,20 +84,43 @@ export function formatBytes(bytes: number): string {
 function toHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer), byte => byte.toString(16).padStart(2, '0')).join('');
 }
-/** Content digest used for in-batch de-duplication. Files above `digestBytes` are fingerprinted by
- * size plus their first and last 4 MiB (labelled `sampled`) so a scan never reads gigabytes twice. */
-export async function digestFile(file: Blob, digestBytes = DEFAULT_LIMITS.digestBytes): Promise<string> {
+/** Candidate index only, never proof of equality. Hash at most 64 MiB in one allocation;
+ * larger files use the first/last 4 MiB, then matching candidates get a bounded full comparison. */
+export async function digestFile(file: Blob, digestBytes = DEFAULT_LIMITS.digestBytes, signal?: AbortSignal): Promise<string> {
+  cancelled(signal);
   const subtle = globalThis.crypto?.subtle;
   if (!subtle) throw new Error('This browser cannot compute content digests.');
-  if (file.size <= digestBytes) return `sha256:${toHex(await subtle.digest('SHA-256', await file.arrayBuffer()))}`;
+  if (file.size <= Math.min(digestBytes, DEFAULT_LIMITS.digestBytes)) {
+    const bytes = await file.arrayBuffer(); cancelled(signal);
+    const hash = await subtle.digest('SHA-256', bytes); cancelled(signal);
+    return `sha256:${toHex(hash)}`;
+  }
   const edge = 4 * 1024 * 1024;
-  const head = await file.slice(0, edge).arrayBuffer(), tail = await file.slice(file.size - edge).arrayBuffer();
+  const head = await file.slice(0, edge).arrayBuffer(); cancelled(signal);
+  const tail = await file.slice(file.size - edge).arrayBuffer(); cancelled(signal);
   const joined = new Uint8Array(head.byteLength + tail.byteLength);
   joined.set(new Uint8Array(head), 0); joined.set(new Uint8Array(tail), head.byteLength);
   return `sampled-sha256:${file.size}:${toHex(await subtle.digest('SHA-256', joined))}`;
 }
 function cancelled(signal?: AbortSignal): void {
   if (signal?.aborted) throw signal.reason instanceof Error ? signal.reason : new DOMException('Folder import cancelled.', 'AbortError');
+}
+/** Digests (including complete hashes) are only an index; deletion requires byte identity.
+ * Two 1 MiB buffers at a time, independent of file size. Original Blob/File bytes are untouched. */
+async function equalFileBytes(a: Blob, b: Blob, signal?: AbortSignal): Promise<boolean> {
+  if (a.size !== b.size) return false;
+  const chunkBytes = 1024 * 1024;
+  for (let offset = 0; offset < a.size; offset += chunkBytes) {
+    cancelled(signal);
+    const left = new Uint8Array(await a.slice(offset, offset + chunkBytes).arrayBuffer());
+    cancelled(signal);
+    const right = new Uint8Array(await b.slice(offset, offset + chunkBytes).arrayBuffer());
+    cancelled(signal);
+    const expected = Math.min(chunkBytes, a.size - offset);
+    if (left.length !== expected || right.length !== expected) return false;
+    for (let index = 0; index < left.length; index++) if (left[index] !== right[index]) return false;
+  }
+  return true;
 }
 function message(error: unknown): string { return error instanceof Error ? error.message : String(error); }
 function pathSort(a: { path: string }, b: { path: string }): number { return a.path < b.path ? -1 : a.path > b.path ? 1 : 0; }
@@ -110,14 +133,21 @@ export async function enumerateDirectoryHandle(root: DirectoryHandleLike, option
   const stack: { handle: DirectoryHandleLike; path: string }[] = [{ handle: root, path: root.name }];
   let examined = 0, truncated = false;
   while (stack.length && !truncated) {
+    cancelled(options.signal);
+    if (examined >= limits.maxEntries) { truncated = true; break; }
     const current = stack.pop()!;
     const children: (FileHandleLike | DirectoryHandleLike)[] = [];
-    for await (const child of current.handle.values()) { cancelled(options.signal); children.push(child); }
+    for await (const child of current.handle.values()) {
+      cancelled(options.signal);
+      children.push(child); examined++;
+      options.onProgress?.({ phase: 'scanning', label: `Scanning ${current.path}`, found: candidates.length, prepared: 0, total: null, bytes: 0, path: current.path });
+      // Stop consuming the iterator at the budget, before collecting/sorting more entries.
+      if (examined >= limits.maxEntries) { truncated = true; break; }
+    }
     children.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     const directories: { handle: DirectoryHandleLike; path: string }[] = [];
     for (const child of children) {
       const path = `${current.path}/${child.name}`;
-      if (++examined > limits.maxEntries) { truncated = true; break; }
       if (isHiddenName(child.name)) { hidden.push({ path, size: null, kind: 'hidden', reason: 'Hidden or system file.' }); continue; }
       if (child.kind === 'directory') directories.push({ handle: child, path });
       else candidates.push({ path, name: child.name, open: () => child.getFile() });
@@ -128,55 +158,80 @@ export async function enumerateDirectoryHandle(root: DirectoryHandleLike, option
   return { candidates, hidden, truncated, examined: Math.min(examined, limits.maxEntries) };
 }
 /** Safari/Firefox and everyone else: a `webkitdirectory` input's FileList (relative paths are set by the browser). */
-export function enumerateFileList(files: Iterable<File>): Scan {
+export function enumerateFileList(files: Iterable<File>, options: FolderOptions = {}): Scan {
+  const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const candidates: Candidate[] = [], hidden: FolderSkip[] = [];
+  let examined = 0, truncated = false;
+  cancelled(options.signal);
+  if (limits.maxEntries <= 0) return { candidates, hidden, truncated: true, examined };
   for (const file of files) {
+    cancelled(options.signal); examined++;
     const path = (file.webkitRelativePath || file.name).replace(/\\/g, '/').replace(/^\/+/, '');
     const segment = hiddenSegment(path);
-    if (segment) { hidden.push({ path, size: file.size, kind: 'hidden', reason: `Hidden or system file (${segment}).` }); continue; }
-    candidates.push({ path, name: file.name, size: file.size, open: async () => file });
+    if (segment) hidden.push({ path, size: file.size, kind: 'hidden', reason: `Hidden or system file (${segment}).` });
+    else candidates.push({ path, name: file.name, size: file.size, open: async () => file });
+    if (examined >= limits.maxEntries) { truncated = true; break; }
   }
   candidates.sort(pathSort);
-  return { candidates, hidden, truncated: false };
+  return { candidates, hidden, truncated, examined };
 }
 /** Drag-and-drop: call synchronously inside the drop handler, because `webkitGetAsEntry` only works before the event ends. */
-export function dropEntries(items: Iterable<DropItemLike>): { entries: DropEntryLike[]; files: File[]; hasDirectory: boolean } {
+export function dropEntries(items: Iterable<DropItemLike>, options: FolderOptions = {}): { entries: DropEntryLike[]; files: File[]; hasDirectory: boolean; truncated: boolean } {
+  const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const entries: DropEntryLike[] = [], files: File[] = [];
+  let examined = 0, truncated = limits.maxEntries <= 0;
+  cancelled(options.signal);
+  if (truncated) return { entries, files, hasDirectory: false, truncated };
   for (const item of items) {
-    if (item.kind !== 'file') continue;
-    const entry = item.webkitGetAsEntry?.();
-    if (entry) entries.push(entry);
-    else { const file = item.getAsFile?.(); if (file) files.push(file); }
+    cancelled(options.signal); examined++;
+    if (item.kind === 'file') {
+      const entry = item.webkitGetAsEntry?.();
+      if (entry) entries.push(entry);
+      else { const file = item.getAsFile?.(); if (file) files.push(file); }
+    }
+    if (examined >= limits.maxEntries) { truncated = true; break; }
   }
-  return { entries, files, hasDirectory: entries.some(entry => entry.isDirectory) };
+  return { entries, files, hasDirectory: entries.some(entry => entry.isDirectory), truncated };
 }
-function readAllEntries(entry: DropEntryLike, signal?: AbortSignal): Promise<DropEntryLike[]> {
-  return new Promise((resolve, reject) => {
-    const reader = entry.createReader?.();
-    if (!reader) { resolve([]); return; }
-    const collected: DropEntryLike[] = [];
-    const next = () => {
-      if (signal?.aborted) { reject(signal.reason ?? new DOMException('Folder import cancelled.', 'AbortError')); return; }
-      // A reader hands back directory contents in batches; only an empty batch means the end.
-      reader.readEntries(batch => { if (!batch.length) resolve(collected); else { collected.push(...batch); next(); } }, reject);
-    };
-    next();
-  });
+async function readEntriesWithinBudget(entry: DropEntryLike, budget: number, signal?: AbortSignal): Promise<{ children: DropEntryLike[]; truncated: boolean }> {
+  const reader = entry.createReader?.();
+  const children: DropEntryLike[] = [];
+  if (!reader) return { children, truncated: false };
+  while (children.length < budget) {
+    cancelled(signal);
+    const batch = await new Promise<DropEntryLike[]>((resolve, reject) => {
+      const abort = () => { cleanup(); reject(signal?.reason ?? new DOMException('Folder import cancelled.', 'AbortError')); };
+      const cleanup = () => signal?.removeEventListener('abort', abort);
+      signal?.addEventListener('abort', abort, { once: true });
+      if (signal?.aborted) { abort(); return; }
+      try { reader.readEntries(entries => { cleanup(); resolve(entries); }, error => { cleanup(); reject(error); }); }
+      catch (error) { cleanup(); reject(error); }
+    });
+    cancelled(signal);
+    if (!batch.length) return { children, truncated: false };
+    // The browser owns each returned batch; retain only the budgeted prefix and never request more.
+    const count = Math.min(batch.length, budget - children.length);
+    for (let index = 0; index < count; index++) children.push(batch[index]);
+  }
+  return { children, truncated: true };
 }
 export async function enumerateDropEntries(roots: DropEntryLike[], options: FolderOptions = {}): Promise<Scan> {
   const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const candidates: Candidate[] = [], hidden: FolderSkip[] = [], unreadable: FolderSkip[] = [];
   const stack: { entry: DropEntryLike; path: string }[] = [];
-  for (let index = roots.length - 1; index >= 0; index--) stack.push({ entry: roots[index], path: roots[index].name });
-  let examined = 0, truncated = false;
-  while (stack.length && !truncated) {
+  for (let index = Math.min(roots.length, limits.maxEntries) - 1; index >= 0; index--) stack.push({ entry: roots[index], path: roots[index].name });
+  let examined = 0, truncated = roots.length > limits.maxEntries;
+  while (stack.length) {
     const current = stack.pop()!;
     cancelled(options.signal);
     if (++examined > limits.maxEntries) { truncated = true; break; }
     if (isHiddenName(current.entry.name)) { hidden.push({ path: current.path, size: null, kind: 'hidden', reason: 'Hidden or system file.' }); continue; }
     if (current.entry.isDirectory) {
       let children: DropEntryLike[];
-      try { children = await readAllEntries(current.entry, options.signal); }
+      try {
+        const read = await readEntriesWithinBudget(current.entry, limits.maxEntries - examined - stack.length, options.signal);
+        children = read.children; truncated ||= read.truncated;
+      }
       catch (error) { cancelled(options.signal); unreadable.push({ path: current.path, size: null, kind: 'unreadable', reason: `Folder could not be read: ${message(error)}` }); continue; }
       children.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
       for (let index = children.length - 1; index >= 0; index--) stack.push({ entry: children[index], path: `${current.path}/${children[index].name}` });
@@ -193,7 +248,7 @@ export async function enumerateDropEntries(roots: DropEntryLike[], options: Fold
 export async function collectFolder(root: string, scan: Scan, options: FolderOptions = {}): Promise<FolderImport> {
   const limits = { ...DEFAULT_LIMITS, ...options.limits };
   const files: FolderFile[] = [], skipped: FolderSkip[] = [...(scan.hidden ?? []), ...(scan.unreadable ?? [])];
-  const seenPaths = new Set<string>(), bySize = new Map<number, FolderFile[]>();
+  const bySize = new Map<number, FolderFile[]>();
   // `reported` starts at -Infinity so the first file is always announced, whatever the process uptime; later events are throttled to one per 100 ms.
   let bytes = 0, prepared = 0, reported = -Infinity, truncated = !!scan.truncated, stoppedAt = 0;
   const total = scan.candidates.length;
@@ -209,8 +264,6 @@ export async function collectFolder(root: string, scan: Scan, options: FolderOpt
     if (queued() >= limits.maxFiles) { truncated = true; stoppedAt = prepared; break; }
     prepared++;
     const path = candidate.path;
-    if (seenPaths.has(path)) { skipped.push({ path, size: candidate.size ?? null, kind: 'duplicate', reason: 'Same relative path was already queued.' }); report(path); continue; }
-    seenPaths.add(path);
     const kind = classify(path);
     if (!kind) { skipped.push({ path, size: candidate.size ?? null, kind: 'unsupported', reason: `Unsupported file type. Folder import handles ${SUPPORTED_SUMMARY}; add this file on its own to store the original.` }); report(path); continue; }
     let file: File;
@@ -222,11 +275,14 @@ export async function collectFolder(root: string, scan: Scan, options: FolderOpt
     if (sameSize) {
       // Only files of equal size can be identical; hash lazily so most scans never read file bodies here.
       try {
-        entry.digest = await digestFile(file, limits.digestBytes);
+        entry.digest = await digestFile(file, limits.digestBytes, options.signal);
         let twin: FolderFile | undefined;
-        for (const other of sameSize) { other.digest ??= await digestFile(other.file, limits.digestBytes); if (other.digest === entry.digest) { twin = other; break; } }
+        for (const other of sameSize) {
+          other.digest ??= await digestFile(other.file, limits.digestBytes, options.signal);
+          if (other.digest === entry.digest && await equalFileBytes(other.file, file, options.signal)) { twin = other; break; }
+        }
         if (twin) { skipped.push({ path, size: file.size, kind: 'duplicate', reason: `Same content as ${twin.path}.` }); report(path); continue; }
-      } catch (error) { cancelled(options.signal); /* a digest failure keeps both copies rather than guessing */ void error; }
+      } catch (error) { cancelled(options.signal); /* digest or comparison failures keep both copies */ void error; }
       sameSize.push(entry);
     } else bySize.set(file.size, [entry]);
     files.push(entry); bytes += file.size;

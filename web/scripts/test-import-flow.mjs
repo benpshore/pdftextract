@@ -77,7 +77,8 @@ try{
  const sameSize=await T.collectFolder('root',T.enumerateFileList([named('root/x.pdf',pdf),named('root/y.pdf',pdf.slice(0,-1)+'!')]));
  assert.equal(sameSize.files.length,2,'equal size, different bytes: both kept');
  const samePath=await T.collectFolder('two roots',{candidates:[...T.enumerateFileList([named('root/a.pdf',pdf)]).candidates,...T.enumerateFileList([named('root/a.pdf',pdf+'2')]).candidates]});
- assert.deepEqual(samePath.skipped.map(s=>[s.kind,s.reason]),[['duplicate','Same relative path was already queued.']]);
+ assert.equal(samePath.files.length,2,'same path with different content retains both originals');
+ assert.deepEqual(samePath.skipped,[]);
  const controller=new AbortController();
  await assert.rejects(T.collectFolder('root',list,{signal:controller.signal,onProgress:()=>controller.abort()}),error=>error.name==='AbortError');
  const unreadable=await T.collectFolder('root',{candidates:[{path:'root/gone.pdf',name:'gone.pdf',open:async()=>{throw new Error('NotFoundError');}}]});
@@ -111,3 +112,5 @@ try{
  assert.equal(items.hasDirectory,true);assert.equal(items.entries.length,1);assert.deepEqual(items.files.map(f=>f.name),['loose.txt']);
  console.log('Folder traversal: FileList, directory handles, drop entries, hidden/unsupported/size/count/duplicate policy, progress and cancellation passed.');
 }
+
+await import('./test-folder-integrity.mjs');
