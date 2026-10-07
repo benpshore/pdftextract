@@ -1,0 +1,78 @@
+name: Engine comparison
+
+# Fixture guarantees are independent of the diagnostic Native corpus run.
+on:
+  pull_request:
+    paths:
+      - tests/engine_compare.rs
+      - tests/common/**
+      - tests/fixtures/**
+      - src/backend/**
+      - src/pipeline.rs
+      - src/reading_order.rs
+      - src/text_cleanup.rs
+      - Cargo.toml
+      - Cargo.lock
+      - rust-toolchain.toml
+      - native/manifest.json
+      - native/fetch.sh
+      - .github/workflows/engine-compare.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docling-pdfium:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    env:
+      PDFIUM_DYNAMIC_LIB_PATH: ${{ github.workspace }}/.pdfium/lib
+      CARGO_TARGET_DIR: ${{ runner.temp }}/engine-compare-target
+      CARGO_PROFILE_DEV_DEBUG: 0
+      CARGO_PROFILE_TEST_DEBUG: 0
+      CARGO_INCREMENTAL: 0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - run: rustup show active-toolchain
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            ~/.cache/ort.pyke.io
+            ${{ runner.temp }}/engine-compare-target
+          key: engine-compare-arm-${{ hashFiles('Cargo.lock', 'rust-toolchain.toml') }}
+      - name: Provision and verify pinned PDFium (no models or corpus needed)
+        run: sh native/fetch.sh --pdfium-only
+      - run: cargo fmt --all --check
+      - run: cargo clippy --locked --all-targets --features docling,pdfium -- -D warnings
+      - name: Compare actual backend outputs and retain discrepancy evidence
+        run: |
+          set -o pipefail
+          cargo test --locked --features docling,pdfium --test engine_compare -- --nocapture 2>&1 | tee "$RUNNER_TEMP/engine-compare.log"
+          python3 - "$RUNNER_TEMP/engine-compare.log" <<'PY'
+          import pathlib
+          import sys
+
+          log = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+          roster = next(line for line in log.splitlines() if line.startswith("backends: "))
+          names = set(roster.removeprefix("backends: ").split(", "))
+          assert {"lopdf", "docling-text", "pdfium"} <= names, roster
+          assert "synthetic/superscripts|docling-text: 0.786" in log
+          assert "known limitation: docling-text retains detached citation markers" in log
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: engine-compare-docling-pdfium
+          path: ${{ runner.temp }}/engine-compare.log
+          if-no-files-found: warn

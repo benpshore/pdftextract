@@ -18,7 +18,7 @@ version). Publishing a run is one transaction and idempotent: re-running replace
 | --- | --- | --- |
 | `lopdf` | baseline, pure Rust, always compiled | content-stream interpreter with glyph geometry; no native deps, runs on every CI target |
 | `pdfium` | implemented behind feature `pdfium` | `pdfium-render` 0.8 (same major as `docling-pdf`, so one instance links `libpdfium`); needs the PDFium shared library at run time; spans ordered by the engine's XY-cut; image objects become `raster` figures |
-| `docling-text` | implemented behind feature `docling` | `docling-pdf` text layer; no models, no PDFium; docling's own reading order is kept |
+| `docling-text` | implemented behind feature `docling-text` (also enabled by `docling`) | retained per-page word cells from `docling-pdf`; no models, no PDFium; engine reading order and cleanup; cells have no font-size metadata, so raised citation digits can remain detached |
 | `docling` | implemented behind feature `docling` (implies `pdfium`) | full docling pipeline: layout, OCR (scanned pages), pictures as `layout` figures; needs PDFium, the ONNX models and ONNX Runtime |
 | `pdf-oxide` | implemented behind feature `pdf-oxide` | independent pure-Rust character parser (`pdf_oxide` 0.3.78); per-character spans ordered by the engine's XY-cut; every page stays Partial by policy ([PDF_OXIDE.md](PDF_OXIDE.md)) |
 | `poppler`, `mupdf` | implemented behind features `poppler` / `mupdf` | user-built providers behind the C ABI in `native/provider.h`, loaded only from explicitly configured absolute library paths; GPL/AGPL obligations stay with the user ([NATIVE_FALLBACK.md](NATIVE_FALLBACK.md)) |
@@ -30,8 +30,9 @@ backend, whether it is compiled in, and whether it opens a one-page probe PDF (f
 `open failed: unsupported: pdfium library not found: ...`). Asking `extract`/`eval` for a
 backend that is not compiled in fails with a hint naming the feature.
 
-A backend that declares its own reading order (`docling-text`, `docling`) gets one line per
-span in `seq` order; the others are ordered by the XY-cut.
+A backend that declares its own reading order (`docling`) gets one line per
+span in `seq` order; the others, including the retained `docling-text` adapter,
+are ordered by the XY-cut.
 
 ## Measured status (2026-09-29)
 
@@ -65,8 +66,10 @@ path. Accuracy reports for `pdfium`, `docling-text` and `docling` come from the 
 ## Cross-backend comparison harness
 
 `tests/engine_compare.rs` is an offline harness for tuning text quality
-across the parsers. It runs every backend compiled into the build (`lopdf`
-always; `pdf-oxide` under `--features pdf-oxide`; `poppler`/`mupdf` when
+across the parsers. It runs every primary text backend compiled into the build (`lopdf`
+always; `docling-text` under `--features docling-text` or `docling`;
+`pdfium` when compiled and its pinned shared library is available;
+`pdf-oxide` under `--features pdf-oxide`; `poppler`/`mupdf` when
 their provider and runtime libraries are configured, otherwise the table
 names the missing configuration) over the committed fixture PDFs
 (`tests/fixtures/native-worker`, `tests/fixtures/pdfium-unicode`) and a set
@@ -79,18 +82,41 @@ word-level similarity of each backend pair (`2 * LCS / (words_a + words_b)`
 over the whitespace-normalised page text) and a line diff where the pages
 differ. `TPE_ENGINE_COMPARE_DIR=/dir/of/pdfs` adds uncommitted PDFs to the
 printout without adding assertions.
+Full `docling`, `routed` and `liteparse-layout` composites are excluded from
+this primary-parser harness; it makes no parity claim about them.
 
 ```sh
 cargo test --test engine_compare --features pdf-oxide,pdf-extract -- --nocapture
+cargo test --locked --features docling,pdfium --test engine_compare -- --nocapture
 ```
 
 The harness asserts the behaviours the engine guarantees on those fixtures
-on *every* backend (ligature expansion, `pipe-`/`line` joined while
+on every participating backend (ligature expansion, `pipe-`/`line` joined while
 `state-of-`/`the-art` and the attested `self-`/`contained` keep their
 hyphens, `literature⁵` and `work²,³`, running heads and page numbers out of
 the text, left column before right column with the caption in place) and
 that the synthetic fixtures produce identical normalised text across
-backends.
+backends, with exactly one measured backend/fixture limitation:
+
+| Backend / fixture | Required output and evidence |
+| --- | --- |
+| `docling-text` / `synthetic/superscripts` | Exactly one page with five lines: `5`, `This is cited in the literature`, `2,3`, `and extends prior work`, `on reading order.`. Both marker strings and the entire body must survive in this measured order. The unchanged word-LCS similarity against `lopdf` must remain `11/14` (printed `0.786`), with the detached-versus-attached line diff and an explicit known-limitation message. This is preserved disagreement, not parity or correct citation attachment. |
+| All other participating backends / `synthetic/superscripts` | Attached `literature⁵` and `work²,³`, with identical words to `lopdf`. |
+| All other synthetic backend/fixture pairs | Existing text-quality checks and word-LCS similarity `1.000`; no backend-wide exemption. |
+
+The retained `docling-text` adapter sets span `font` and `size` to `None`:
+its word-cell boxes alone do not establish the font-size ratio and baseline
+needed by the shared superscript cleanup. Inferring a font size from box
+height or copying `lopdf`'s attached text would manufacture evidence or hide
+the parser discrepancy, so this correction does not retune the adapter or
+cleanup thresholds. Focused regressions reject lost lines/markers, false
+`1.000` parity, and exceptions for other backends or fixtures. An adapter
+improvement must remeasure and update this narrowly pinned expectation.
+
+This fixture-level contract is separate from extraction completeness: it
+does not change status or diagnostics. The previously recorded Native
+corpus's 209 Partial validation failures remain a separate baseline; a
+passing comparison test does not certify corpus completeness.
 
 Measured 2026-10-05 on this branch, `lopdf` versus `pdf-oxide` 0.3.78
 (debug build, Linux x86_64; diagnostic, not a corpus result):
@@ -111,7 +137,7 @@ as `ligatures expanded: N` on the page, as it does for `lopdf`; the provider
 coverage check still counts the provider's own characters. Word spacing
 (`SPACE_GAP`, 0.15 em), paragraph breaks (1.5 median line heights), column
 cuts and the hyphen and superscript rules were not retuned: on these
-fixtures they already agree across backends, and the licensed real-paper
+fixtures `lopdf` and `pdf-oxide` already agree, and the licensed real-paper
 corpus is not committed, so a threshold change would have no measured
 evidence behind it. The harness is the place to add a fixture that shows
 such a disagreement before changing a constant.
