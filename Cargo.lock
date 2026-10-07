@@ -8644,7 +8644,9 @@ dependencies = [
 name = "tpe-biblio"
 version = "0.2.0"
 dependencies = [
+ "regex",
  "serde_json",
+ "tempfile",
  "thiserror 2.0.21",
  "tpe-common",
  "ureq",
