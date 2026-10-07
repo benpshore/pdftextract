@@ -1,0 +1,75 @@
+name: Image publication evidence
+
+on:
+  push:
+    branches: [fix/image-output-preservation-20261006]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: image-publication-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preservation:
+    # Bounded correction evidence; no OCR model provisioning.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      CARGO_INCREMENTAL: '0'
+      CARGO_TARGET_DIR: target-image-corrected-${{ github.sha }}-no-default
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: corrected
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: runner.os == 'Linux'
+        with:
+          ref: d408ef17275268f99d35806ec5f50810a94004a0
+          persist-credentials: false
+          path: original
+      - name: Verify exact source identities
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.sha }}
+        run: |
+          test "$(git -C corrected rev-parse HEAD)" = "$EXPECTED_HEAD"
+          git -C corrected rev-parse HEAD HEAD^{tree}
+          if [ -d original ]; then
+            test "$(git -C original rev-parse HEAD)" = d408ef17275268f99d35806ec5f50810a94004a0
+            cp corrected/crates/tpe-image-text/tests/preservation.rs original/crates/tpe-image-text/tests/preservation.rs
+            git -C original status --short
+          fi
+      - name: Corrected production-path and rollback tests without models
+        working-directory: corrected
+        run: |
+          cargo test --locked -p tpe-image-text --no-default-features --lib --test preservation -- --nocapture
+          cargo clippy --locked -p tpe-image-text --no-default-features --all-targets -- -D warnings
+      - name: Original source must exhibit nine failures and three controls must pass
+        if: always() && runner.os == 'Linux'
+        working-directory: original
+        env:
+          CARGO_TARGET_DIR: target-image-original-d408ef17-no-default
+        run: |
+          set +e
+          cargo test --locked -p tpe-image-text --no-default-features --test preservation -- --nocapture > "$RUNNER_TEMP/image-original.log" 2>&1
+          result=$?
+          set -e
+          cat "$RUNNER_TEMP/image-original.log"
+          test "$result" -eq 101
+          grep -F 'test result: FAILED. 3 passed; 9 failed; 0 ignored;' "$RUNNER_TEMP/image-original.log"
+          for name in rejects_input_path_even_with_force rejects_hard_link_even_with_force rejects_symlink_even_with_force rejects_alias_created_during_recognition rejects_another_batch_input_as_output no_force_dangling_second_output_keeps_pair_absent force_replaces_dangling_entry_without_following failed_pair_keeps_new_output_absent failed_pair_preserves_existing_output; do
+            grep -E "test $name \\.\\.\\. FAILED" "$RUNNER_TEMP/image-original.log"
+          done
+      - name: Formatting and source cleanliness
+        if: always()
+        working-directory: corrected
+        run: |
+          cargo fmt --all
+          git diff --exit-code

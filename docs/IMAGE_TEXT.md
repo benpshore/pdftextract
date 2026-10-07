@@ -50,6 +50,28 @@ output names; the second fails with `output exists` rather than overwriting the
 first, even with `--force` absent or present for the first. Pick distinct
 stems or separate `--out` directories.
 
+Publication refuses an output that is an input path, a hard link to an
+input, or a symlink resolving to it, including other inputs in the batch
+and including with `--force`. A dangling
+symlink counts as an existing output without `--force`. With `--force`, a
+legitimate output entry (including a dangling symlink) is replaced; its
+symlink referent is never written. Both complete files are staged and synced
+before either final name changes. Existing forced outputs are retained in
+a private sibling recovery directory until both exclusive publications and
+the directory sync succeed. A handled failure removes newly published files
+owned by this operation and restores old entries; incomplete rollback names
+the retained directory (`0` is text, `1` is JSON) for manual recovery.
+
+This is a cooperating-writer contract: keep the input and output directories
+stable while a call runs. The source is checked by an open file identity
+before OCR and again before publication; pathname checks and renames are
+not a defense against hostile concurrent directory replacement. Each new
+file appears complete, but the pair is not a single atomic transaction;
+forced names can be briefly absent during replacement. Process termination
+or power loss can leave a partial pair and recovery files. Crash recovery,
+concurrent source-content mutation and hostile writers are not verified.
+The report's write/total timings are captured before final publication.
+
 Exit codes: 0 every input written; 1 at least one input failed (the others are
 still written); 2 no engine available, unusable arguments, or no input found.
 
@@ -150,7 +172,7 @@ The engine sees the result; `bbox` values refer to it.
 ## Tests and verification
 
 ```sh
-export CARGO_TARGET_DIR=/path/to/shared/target   # optional
+export CARGO_TARGET_DIR=/path/to/isolated-target-for-this-head
 cargo test -p tpe-image-text
 cargo clippy -p tpe-image-text --all-targets -- -D warnings
 ```
@@ -170,6 +192,13 @@ process equal the requested limits for every limit the report lists as applied
 `skipped: …` and pass when `tesseract` is not on `PATH` or the ocrs models are
 not under `TPE_OCRS_MODELS_DIR` / `.models/ocrs`; with the models present the
 ocrs test recognises `hello.png` and the skewed fixture end to end.
+
+`tests/preservation.rs` exercises the actual `process_file` production path
+with tiny synthetic PNGs and a synthetic in-process engine. It covers source
+paths, hard links, symlinks, dangling outputs, no-force collisions, legitimate
+forced replacement, successful pairs and handled second-output failures,
+without OCR models. A publisher unit test injects a failure after the first
+exclusive link and checks cleanup/restoration for new and forced outputs.
 
 Not done: HEIC/HEIF decoding, docling OCR, per-character confidence for ocrs,
 languages other than English for ocrs, orientation detection (upside-down or
