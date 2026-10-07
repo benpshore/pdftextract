@@ -308,7 +308,7 @@ export class ZoteroApi {
       if (options.contentType) headers['Content-Type'] = options.contentType;
       let error: ZoteroApiError;
       try {
-        const response = await this.fetchImpl(url, { method, headers, body: options.body });
+        const response = await this.fetchImpl(url, { method, headers, body: options.body, redirect: 'error' });
         const backoff = Number(response.headers.get('Backoff'));
         if (backoff > 0) this.backoffUntil = Date.now() + Math.min(backoff * 1000, this.maxDelayMs);
         const body = await response.text();

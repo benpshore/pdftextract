@@ -13,7 +13,7 @@ import type { ZoteroApiOptions, ZoteroLibraryRef } from './api';
 import { useSendToZotero, useZoteroCollections, useZoteroConnection } from './hooks';
 import type { KeyPersistence } from './key-storage';
 import { ITEM_TYPES, articleMetadata, buildItem, references, referencesNoteHtml, suggestItemType, type ArticleMetadata, type ZoteroItemType } from './mapping';
-import type { SendPlan } from './send';
+import { describeError, type SendPlan } from './send';
 
 export type ZoteroOriginal = { url?: string; blob?: Blob; name: string; contentType?: string };
 export type ZoteroPanelProps = {
@@ -90,25 +90,27 @@ export function ZoteroPanel({ article, sourceUrl, original, apiOptions }: Zotero
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedLibrary) return;
-    setFileError(null);
-    const item = buildItem({ ...meta, authors: meta.authors.map(author => author.trim()).filter(Boolean) }, { itemType, collections: collection ? [collection] : [], tags: tags.split(',').map(tag => tag.trim()).filter(Boolean) });
-    const plan: SendPlan = { library: selectedLibrary, item };
-    if (includeNote && refs.length) plan.noteHtml = referencesNoteHtml(refs, article.engine);
-    if (includeLink && meta.url) plan.link = { url: meta.url, title: 'Source' };
-    if (includeFile && original) {
-      try {
-        const blob = original.blob ?? await (async () => {
-          const response = await fetch(original.url as string);
-          if (!response.ok) throw new Error('the original could not be read (' + response.status + ')');
-          return response.blob();
-        })();
-        plan.file = { blob, filename: original.name || 'original', contentType: original.contentType || blob.type || 'application/octet-stream', title: original.name || 'Original' };
-      } catch (reason) {
-        setFileError('The file will not be uploaded: ' + (reason instanceof Error ? reason.message : String(reason)) + '. You can send the item without it.');
-        return;
+    await sending.send(async () => {
+      setFileError(null);
+      const item = buildItem({ ...meta, authors: meta.authors.map(author => author.trim()).filter(Boolean) }, { itemType, collections: collection ? [collection] : [], tags: tags.split(',').map(tag => tag.trim()).filter(Boolean) });
+      const plan: SendPlan = { library: selectedLibrary, item };
+      if (includeNote && refs.length) plan.noteHtml = referencesNoteHtml(refs, article.engine);
+      if (includeLink && meta.url) plan.link = { url: meta.url, title: 'Source' };
+      if (includeFile && original) {
+        try {
+          const blob = original.blob ?? await (async () => {
+            const response = await fetch(original.url as string);
+            if (!response.ok) throw new Error('the original could not be read (' + response.status + ')');
+            return response.blob();
+          })();
+          plan.file = { blob, filename: original.name || 'original', contentType: original.contentType || blob.type || 'application/octet-stream', title: original.name || 'Original' };
+        } catch (reason) {
+          setFileError('The file will not be uploaded: ' + (reason instanceof Error ? reason.message : String(reason)) + '. You can send the item without it.');
+          throw new Error('Original acquisition failed: ' + describeError(reason));
+        }
       }
-    }
-    await sending.send(plan);
+      return plan;
+    });
   }
 
   const busy = connection.status === 'checking' || sending.busy;
@@ -183,7 +185,7 @@ export function ZoteroPanel({ article, sourceUrl, original, apiOptions }: Zotero
         {sending.outcome.warnings.length > 0 && <ul>{sending.outcome.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
       </div>}
       <div className="zotero-actions">
-        <button type="submit" className="zotero-primary" disabled={busy || !selectedLibrary || !libraryWritable || !meta.title.trim()}>{sending.busy ? 'Sending…' : 'Send to Zotero'}</button>
+        <button type="submit" className="zotero-primary" disabled={busy || sending.submitted || !selectedLibrary || !libraryWritable || !meta.title.trim()}>{sending.busy ? 'Sending…' : 'Send to Zotero'}</button>
         <button type="button" onClick={() => { void connection.disconnect(); sending.reset(); }} disabled={busy}>Forget key</button>
       </div>
     </form>}

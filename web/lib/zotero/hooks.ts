@@ -3,7 +3,7 @@
 // React hooks around the client: key connection (restored from the
 // browser's own storage), collections of a library, and one send run.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ZoteroApi, accessFor, type Collection, type Group, type KeyInfo, type ZoteroApiOptions, type ZoteroLibraryRef } from './api';
 import { clearStoredKey, loadStoredKey, storeKey, type KeyPersistence } from './key-storage';
 import { describeError, sendToZotero, type SendOutcome, type SendPlan } from './send';
@@ -95,26 +95,39 @@ export function useZoteroCollections(api: ZoteroApi | null, ref: ZoteroLibraryRe
 }
 
 /** One send run with live progress text. */
-export function useSendToZotero(api: ZoteroApi | null, info: KeyInfo | null): { send: (plan: SendPlan) => Promise<SendOutcome | null>; busy: boolean; progress: string; outcome: SendOutcome | null; error: string | null; reset: () => void } {
+export function useSendToZotero(api: ZoteroApi | null, info: KeyInfo | null): { send: (plan: SendPlan | (() => Promise<SendPlan>)) => Promise<SendOutcome | null>; busy: boolean; progress: string; outcome: SendOutcome | null; error: string | null; reset: () => void; submitted: boolean } {
+  const inFlight = useRef(false);
+  const parentAttempted = useRef(false);
+  const saved = useRef<SendOutcome | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState('');
   const [outcome, setOutcome] = useState<SendOutcome | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const send = useCallback(async (plan: SendPlan) => {
+  const send = useCallback(async (input: SendPlan | (() => Promise<SendPlan>)) => {
+    // Refs lock synchronously, before React renders or any original-file await.
+    if (inFlight.current || parentAttempted.current) return saved.current;
     if (!api) { setError('Connect a Zotero API key first.'); return null; }
-    setBusy(true); setError(null); setOutcome(null); setProgress('Starting…');
+    inFlight.current = true;
+    setBusy(true); setError(null); setProgress('Preparing…');
     try {
+      const plan = typeof input === 'function' ? await input() : input;
+      // Once a parent write starts, even a lost response may mean it exists.
+      // Do not issue a new write token after an uncertain result.
+      parentAttempted.current = true;
+      setSubmitted(true);
       const result = await sendToZotero(api, info, plan, setProgress);
+      saved.current = result;
       setOutcome(result);
       return result;
     } catch (reason) {
-      setError(describeError(reason));
+      setError(describeError(reason) + (parentAttempted.current ? ' The parent write may have completed. Check your Zotero library before starting another send; this panel will not create another parent.' : ''));
       setProgress('');
       return null;
-    } finally { setBusy(false); }
+    } finally { inFlight.current = false; setBusy(false); }
   }, [api, info]);
 
-  const reset = useCallback(() => { setOutcome(null); setError(null); setProgress(''); }, []);
-  return { send, busy, progress, outcome, error, reset };
+  const reset = useCallback(() => { if (!parentAttempted.current) { setOutcome(null); setError(null); setProgress(''); } }, []);
+  return { send, busy, progress, outcome, error, reset, submitted };
 }

@@ -114,3 +114,27 @@ JSDOM plus a mocked `fetch` (no network): pure helpers, the API client
 send run with the three-step upload, and the panel flow (connect with a
 session-only key → collections → send → forget; refused key). It is a
 JSDOM/Chromium-free check, not proof of Safari or VoiceOver behaviour.
+
+## Browser write boundaries
+
+Authenticated API fetches use `redirect: 'error'`, including reads, writes,
+pagination and upload authorization/registration. No redirect is followed
+with the API key. Storage byte uploads still omit the API key.
+
+The send hook synchronously locks the entire operation before preparing its
+plan or fetching the original. An original-read failure releases the lock
+without a parent write, allowing a retry or sending without the original.
+Once a parent write starts, the mounted panel retains that fact, its saved
+outcome (including child warnings), or an explicit uncertain outcome. It
+will not start a second parent write, even through direct form events or
+Forget key/reconnect. API transport retries keep the same write token.
+After an uncertain write, check the library before starting another send.
+This guard is scoped to the mounted article panel; reloading/remounting or
+another tab is a new operation, not a durable cross-tab deduplication system.
+
+Run `node tests/zotero.browser.test.mjs` with Playwright and Chromium
+installed (`PLAYWRIGHT_MODULE` can point to an existing installation).
+The fixtures use only loopback servers and synthetic keys/documents. They
+exercise a real cross-origin 302, delayed-original double submission,
+retained saved outcomes, pre-write acquisition failure, and lost-response
+retries with a single write token. CI runs both the JSDOM and Chromium suites.

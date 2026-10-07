@@ -34,7 +34,7 @@ function server(route = () => null) {
   const calls = [];
   const fetchImpl = async (url, init = {}) => {
     const headers = new Headers(init.headers || {});
-    const call = { url, method: init.method || 'GET', headers: Object.fromEntries(headers.entries()), body: init.body };
+    const call = { url, method: init.method || 'GET', headers: Object.fromEntries(headers.entries()), body: init.body, redirect: init.redirect };
     calls.push(call);
     const intercepted = route(call, calls);
     if (intercepted) return intercepted;
@@ -172,6 +172,7 @@ test('API client: headers, paging, write token, Backoff and Retry-After', async 
   const api = new Z.ZoteroApi(KEY, { fetch: fetchImpl, sleep: async ms => { slept.push(ms); } });
   const info = await api.keyInfo();
   assert.equal(info.userId, 475425);
+  assert.ok(calls.every(call => call.redirect === 'error'), 'authenticated requests reject redirects');
   assert.equal(calls[0].url, `${API}/keys/current`, 'the key is never put in a URL');
   const collections = await api.collections({ type: 'user', id: 475425 });
   assert.deepEqual(collections.map(entry => entry.key), ['COLL2345', 'SUBC2345']);
@@ -357,6 +358,51 @@ test('Panel: a refused key is explained and nothing is stored', async () => {
   assert.equal(window.sessionStorage.getItem('tpe-zotero-api-key'), null);
   assert.equal(byLabel('Zotero API key').value, 'bad-key', 'the typed key stays for correction');
   await act(async () => { reactRoot.unmount(); });
+});
+
+test('Panel: synchronous lock includes delayed original and retains saved outcome', async () => {
+  const { calls, fetchImpl } = server();
+  let release;
+  let reads = 0;
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    reads++;
+    return new Promise(resolve => { release = () => resolve(new Response('original')); });
+  };
+  const reactRoot = createRoot(root);
+  try {
+    await act(async () => { reactRoot.render(createElement(Z.ZoteroPanel, { article, original: {url: '/original', name: 'a.pdf'}, apiOptions: {fetch: fetchImpl, sleep: async () => {}} })); });
+    await until(() => byLabel('Zotero API key'), 'key form');
+    await act(async () => { setValue(byLabel('Zotero API key'), KEY); });
+    await act(async () => { button('Connect').click(); });
+    await until(() => /Connected as/.test(root.textContent), 'connection');
+    await act(async () => { byLabel('The original file').click(); });
+    const submit = () => byLabel('Title').form.dispatchEvent(new window.Event('submit', {bubbles: true, cancelable: true}));
+    await act(async () => { submit(); submit(); });
+    assert.equal(reads, 1);
+    assert.equal(button('Sending…').disabled, true);
+    assert.equal(calls.filter(call => call.method === 'POST').length, 0);
+    await act(async () => { release(); });
+    await until(() => /Item ABCD2345 saved/.test(root.textContent), 'saved');
+    const parents = () => calls.filter(call => call.method === 'POST' && typeof call.body === 'string' && call.body.startsWith('[') && JSON.parse(call.body)[0]?.itemType === 'journalArticle').length;
+    assert.equal(parents(), 1);
+    await act(async () => { submit(); submit(); });
+    assert.equal(parents(), 1);
+    assert.equal(reads, 1);
+    assert.equal(button('Send to Zotero').disabled, true);
+    await act(async () => { button('Forget key').click(); });
+    await until(() => byLabel('Zotero API key'), 'forget');
+    await act(async () => { setValue(byLabel('Zotero API key'), KEY); });
+    await act(async () => { button('Connect').click(); });
+    await until(() => /Connected as/.test(root.textContent), 'reconnect');
+    assert.match(root.textContent, /Item ABCD2345 saved/);
+    await act(async () => { submit(); });
+    assert.equal(parents(), 1);
+    await act(async () => { button('Forget key').click(); });
+  } finally {
+    globalThis.fetch = previousFetch;
+    await act(async () => { reactRoot.unmount(); });
+  }
 });
 
 let failed = 0;
