@@ -108,20 +108,31 @@ lookups now go through the cache and the Retry-After-aware retry.
 
 The paper itself (`Resolver::resolve_paper_report(meta, pages)`):
 
-1. **DOI from the metadata** -> `resolve_doi`. Accepted when the record
-   carries that DOI, its title agrees with the metadata title at 0.85 or
-   better (an empty metadata title does not block an exact DOI), and no
-   labelled printed ISSN is absent from the record's ISSNs. The accepted
-   record brings `PublisherMetadata` (publisher, container title, type,
-   ISSN/ISBN, licences, funders, volume/issue/page, URL, member).
-2. **PMID printed on page 1 or in `/Info`** -> PubMed `esummary`. The
-   summary must carry that PMID; title agreement 0.85; when both sides name
-   a first author the family name must appear in the printed name; when
-   both have a year they must be within one. Method `pmid`, source
-   `pubmed`, PMCID and DOI retained when the summary carries them; the DOI
-   is then looked up for publisher metadata.
-3. **Title query** (12+ characters) -> `query.bibliographic`, accepted only
-   when one record agrees clearly better than the next (`select_paper_record`).
+All three paths use the same compatibility rule: a supplied title must agree
+at 0.85 or better; first-author family names must agree when both sides have
+one; known years must differ by at most one; labelled printed ISSNs must
+overlap record ISSNs when both are available. Missing optional fields add
+no contradiction. An exact identifier can resolve without a metadata title.
+
+1. **DOI from the metadata** -> `resolve_doi`. The record must carry that DOI
+   and pass the common rule. The accepted record brings `PublisherMetadata`.
+2. **PMID printed on page 1 or in `/Info`** -> PubMed `esummary`. The summary
+   must carry that PMID and pass the common rule, including its ISSNs. When
+   its DOI lookup returns metadata, that metadata must also pass the rule
+   before it can be attached. Method `pmid`, source `pubmed`; PMCID and DOI
+   are retained when supplied.
+3. **Title query** (12+ characters) -> `query.bibliographic`. Full Crossref
+   works retain ISSNs through verification. Only compatible candidates enter
+   ranking; distinct DOIs within 0.05 are ambiguous. The paper query uses the
+   same retrying, opt-in cache as identifier lookups, under
+   `crossref-paper-query` with a `rows:title` key.
+
+A contradicted DOI or PMID remains rejected for the rest of the resolution
+pass, even if a later response omits the conflicting fields or spells the
+DOI differently. A genuinely different compatible identity can still resolve.
+Contradictory duplicates in one query are excluded independent of response
+order. Rejections are local to the current paper and are never persisted as
+registry absence.
 
 `PaperResolution.status` is `resolved`, `mismatch`, `ambiguous`, `not_found`,
 `unresolved: <reason>` or `unresolved: no identifier or title`; `attempts`

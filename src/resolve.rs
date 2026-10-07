@@ -561,40 +561,104 @@ fn printed_doi(entry: &ReferenceEntry) -> Option<String> {
     }
 }
 
-fn exact_paper_record(title: &str, doi: &str, record: &PaperRecord) -> Option<Resolved> {
-    if record.doi.as_deref().and_then(normalize_doi) != normalize_doi(doi) {
-        return None;
+/// Rejected identities remain binding even when another registry omits the
+/// contradictory fields. A different DOI/PMID can still be considered.
+#[derive(Default)]
+struct PaperRejections {
+    dois: HashSet<String>,
+    pmids: HashSet<String>,
+}
+
+impl PaperRejections {
+    fn reject(&mut self, record: &PaperRecord) {
+        if let Some(doi) = record.doi.as_deref().and_then(normalize_doi) {
+            self.dois.insert(doi);
+        }
+        if let Some(pmid) = &record.pmid {
+            self.pmids.insert(pmid.clone());
+        }
     }
-    let score = if title.is_empty() {
-        1.0
-    } else {
-        title_agreement(title, &record.title)
-    };
-    (score >= PAPER_TITLE_MIN).then(|| resolved_from(record, doi, "metadata", score))
+
+    fn verify(&self, record: &PaperRecord) -> Result<(), String> {
+        if record
+            .doi
+            .as_deref()
+            .and_then(normalize_doi)
+            .is_some_and(|doi| self.dois.contains(&doi))
+            || record
+                .pmid
+                .as_ref()
+                .is_some_and(|pmid| self.pmids.contains(pmid))
+        {
+            return Err("identity: previously rejected contradictory record".to_string());
+        }
+        Ok(())
+    }
 }
 
 fn select_paper_record(
-    title: &str,
-    records: impl IntoIterator<Item = PaperRecord>,
-) -> Option<Resolved> {
-    let mut candidates: Vec<(f32, Resolved)> = records
-        .into_iter()
-        .filter_map(|record| {
-            let doi = record.doi.as_deref().and_then(normalize_doi)?;
-            let score = title_agreement(title, &record.title);
-            (score >= PAPER_TITLE_MIN)
-                .then(|| (score, resolved_from(&record, &doi, "query", score)))
-        })
-        .collect();
-    candidates.sort_by(|a, b| b.0.total_cmp(&a.0));
-    let (score, best) = candidates.first()?;
+    meta: &Metadata,
+    printed_issns: &[String],
+    rejected: &mut PaperRejections,
+    attempts: &mut Vec<Attempt>,
+    records: impl IntoIterator<Item = doi_metadata::DoiMetadata>,
+) -> (Option<(Resolved, PublisherMetadata)>, usize) {
+    let mut candidates = Vec::new();
+    for found in records {
+        let checked = rejected
+            .verify(&found.record)
+            .and_then(|()| verify_paper_doi(meta, &found.doi, &found, printed_issns));
+        match checked {
+            Ok(mut resolved) => {
+                resolved.method = "query".to_string();
+                candidates.push((resolved, found.publisher));
+            }
+            Err(detail) => {
+                rejected.reject(&found.record);
+                attempts.push(Attempt {
+                    method: "query".to_string(),
+                    doi: Some(found.doi),
+                    outcome: "mismatch".to_string(),
+                    detail: Some(detail),
+                });
+            }
+        }
+    }
+    // A later duplicate can contradict an earlier sparse record. Filter again
+    // after inspecting the entire response, independent of response order.
+    candidates.retain(|(r, _)| {
+        !r.doi.as_ref().is_some_and(|d| rejected.dois.contains(d))
+            && !r.pmid.as_ref().is_some_and(|p| rejected.pmids.contains(p))
+    });
+    candidates.sort_by(|a, b| b.0.score.total_cmp(&a.0.score));
+    let compatible = candidates.len();
+    let Some((best, _)) = candidates.first() else {
+        return (None, compatible);
+    };
     if candidates
         .iter()
-        .any(|(other, record)| record.doi != best.doi && score - other < QUERY_MARGIN)
+        .any(|(other, _)| other.doi != best.doi && best.score - other.score < QUERY_MARGIN)
     {
-        return None;
+        return (None, compatible);
     }
-    Some(best.clone())
+    (candidates.into_iter().next(), compatible)
+}
+
+/// Keep the full work metadata (including ISSNs) through paper-query selection.
+fn paper_bibliographic_search(
+    fetcher: &Fetcher<'_>,
+    title: &str,
+    rows: u32,
+) -> Result<Vec<doi_metadata::DoiMetadata>, BiblioError> {
+    let url = crossref::bibliographic_url(title, rows, fetcher.client().mailto());
+    let key = format!("{rows}:{title}");
+    let Some(body) = fetcher.get_optional("crossref-paper-query", &key, &url, &[])? else {
+        return Ok(Vec::new());
+    };
+    Ok(crossref::parse_crossref_works(&body)?
+        .iter()
+        .filter_map(doi_metadata::DoiMetadata::from_crossref)
+        .collect())
 }
 
 /// Count unresolved metadata disagreements, excluding candidates withheld only
@@ -1007,9 +1071,10 @@ impl Resolver {
 
     /// The paper's own record: its metadata DOI when it verifies against
     /// the metadata title, otherwise its printed PMID verified the same way,
-    /// otherwise a query on the title verified by title agreement of at
-    /// least [`PAPER_TITLE_MIN`]. See [`Self::resolve_paper_report`] for
-    /// the attempts and the reason when nothing is accepted.
+    /// otherwise a query on the title. Every path checks title, first author,
+    /// year and printed ISSNs when available; rejected identities stay rejected.
+    /// See [`Self::resolve_paper_report`] for the attempts and the reason when
+    /// nothing is accepted.
     #[must_use]
     pub fn resolve_paper(&self, meta: &Metadata) -> Option<Resolved> {
         self.resolve_paper_report(meta, &[]).resolved
@@ -1021,13 +1086,14 @@ impl Resolver {
     ///
     /// 1. The DOI from the metadata is looked up (Crossref, then `DataCite`,
     ///    then `doi.org`); the record must carry that DOI, its title must
-    ///    agree with the metadata title ([`PAPER_TITLE_MIN`]) and, when the
-    ///    paper prints a labelled ISSN, the record's ISSNs must include it.
+    ///    agree with the metadata title ([`PAPER_TITLE_MIN`]), and all known
+    ///    author, year and labelled ISSN evidence must be compatible.
     /// 2. A printed PMID is looked up in `PubMed`; the summary must carry
     ///    that PMID and agree on title (and first author and year when both
     ///    sides have them).
     /// 3. A title of 12+ characters is searched on Crossref and accepted
-    ///    only when one record agrees clearly better than any other.
+    ///    only when one compatible record agrees clearly better than any other.
+    ///    Contradictions from earlier attempts remain binding for that identity.
     ///
     /// A registry that could not be asked leaves the status `unresolved:
     /// <reason>` rather than `not_found`.
@@ -1041,6 +1107,7 @@ impl Resolver {
             ..PaperResolution::default()
         };
         let fetcher = self.fetcher();
+        let mut rejected = PaperRejections::default();
 
         if let Some(doi) = report.identifiers.doi.clone() {
             let mut attempt = Attempt {
@@ -1051,7 +1118,7 @@ impl Resolver {
             };
             match doi_metadata::resolve_doi(&fetcher, &doi) {
                 Lookup::Found(found) => {
-                    match verify_paper_doi(title, &doi, &found, &report.identifiers.issns) {
+                    match verify_paper_doi(meta, &doi, &found, &report.identifiers.issns) {
                         Ok(resolved) => {
                             attempt.outcome = "verified".to_string();
                             attempt.detail = Some(format!("{} record", found.source));
@@ -1062,6 +1129,8 @@ impl Resolver {
                             return report;
                         }
                         Err(detail) => {
+                            rejected.reject(&found.record);
+                            rejected.dois.insert(doi.clone());
                             attempt.outcome = "mismatch".to_string();
                             attempt.detail = Some(detail);
                             report.status = "mismatch".to_string();
@@ -1091,7 +1160,27 @@ impl Resolver {
             match pubmed::resolve_pmid(&fetcher, &pmid) {
                 Lookup::Found(summary) if summary.pmid == pmid => {
                     let record = summary.to_record();
-                    match verify_paper_record(meta, &record) {
+                    let publisher = record.doi.as_deref().and_then(|doi| {
+                        if let Lookup::Found(found) = doi_metadata::resolve_doi(&fetcher, doi) {
+                            Some(found)
+                        } else {
+                            None
+                        }
+                    });
+                    let checked = rejected.verify(&record).and_then(|()| {
+                        let score = verify_paper_record(
+                            meta,
+                            &record,
+                            &report.identifiers.issns,
+                            &summary.issns(),
+                        )?;
+                        if let Some(found) = &publisher {
+                            rejected.verify(&found.record)?;
+                            verify_paper_doi(meta, &found.doi, found, &report.identifiers.issns)?;
+                        }
+                        Ok(score)
+                    });
+                    match checked {
                         Ok(score) => {
                             attempt.outcome = "verified".to_string();
                             attempt.doi.clone_from(&record.doi);
@@ -1103,18 +1192,17 @@ impl Resolver {
                                 score,
                             ));
                             report.status = "resolved".to_string();
-                            if let Some(doi) = record.doi.as_deref()
-                                && let Lookup::Found(found) =
-                                    doi_metadata::resolve_doi(&fetcher, doi)
-                            {
-                                report.publisher = Some(found.publisher);
-                            }
+                            report.publisher = publisher.map(|found| found.publisher);
                             return report;
                         }
                         Err(detail) => {
                             attempt.outcome = "mismatch".to_string();
                             attempt.detail = Some(detail);
-                            if !report.status.starts_with("unresolved") {
+                            rejected.reject(&record);
+                            if let Some(found) = &publisher {
+                                rejected.reject(&found.record);
+                            }
+                            if !report.attempts.iter().any(|a| a.outcome == "error") {
                                 report.status = "mismatch".to_string();
                             }
                         }
@@ -1144,23 +1232,21 @@ impl Resolver {
             outcome: String::new(),
             detail: None,
         };
-        match with_retry(|| bibliographic_search(&self.client, title, QUERY_ROWS)) {
+        match paper_bibliographic_search(&fetcher, title, QUERY_ROWS) {
             Ok(found) => {
-                let records: Vec<PaperRecord> = found.into_iter().map(|f| f.record).collect();
-                let compatible = records
-                    .iter()
-                    .filter(|r| title_agreement(title, &r.title) >= PAPER_TITLE_MIN)
-                    .count();
-                match select_paper_record(title, records) {
-                    Some(resolved) => {
+                let (selected, compatible) = select_paper_record(
+                    meta,
+                    &report.identifiers.issns,
+                    &mut rejected,
+                    &mut report.attempts,
+                    found,
+                );
+                match selected {
+                    Some((resolved, publisher)) => {
                         attempt.outcome = "verified".to_string();
                         attempt.doi.clone_from(&resolved.doi);
                         report.attempts.push(attempt);
-                        if let Some(doi) = resolved.doi.as_deref()
-                            && let Lookup::Found(found) = doi_metadata::resolve_doi(&fetcher, doi)
-                        {
-                            report.publisher = Some(found.publisher);
-                        }
+                        report.publisher = Some(publisher);
                         report.resolved = Some(resolved);
                         report.status = "resolved".to_string();
                         return report;
@@ -1169,8 +1255,18 @@ impl Resolver {
                         attempt.outcome = "ambiguous".to_string();
                         attempt.detail =
                             Some("distinct DOIs agree with the title equally well".to_string());
-                        if !report.status.starts_with("unresolved") {
+                        if !report.attempts.iter().any(|a| a.outcome == "error") {
                             report.status = "ambiguous".to_string();
+                        }
+                    }
+                    None if report
+                        .attempts
+                        .iter()
+                        .any(|a| a.method == "query" && a.outcome == "mismatch") =>
+                    {
+                        attempt.outcome = "mismatch".to_string();
+                        if !report.attempts.iter().any(|a| a.outcome == "error") {
+                            report.status = "mismatch".to_string();
                         }
                     }
                     None => {
@@ -1197,55 +1293,42 @@ impl Resolver {
 /// DOI, its title agrees with the metadata title and no labelled printed
 /// ISSN contradicts the record's ISSNs.
 fn verify_paper_doi(
-    title: &str,
+    meta: &Metadata,
     doi: &str,
     found: &doi_metadata::DoiMetadata,
     printed_issns: &[String],
 ) -> Result<Resolved, String> {
-    let Some(resolved) = exact_paper_record(title, doi, &found.record) else {
-        let same_doi = found
-            .record
-            .doi
-            .as_deref()
-            .and_then(normalize_doi)
-            .as_deref()
-            == Some(doi);
-        return Err(if same_doi {
-            format!(
-                "title: record {:?} agrees {:.0}% with the metadata title {title:?}",
-                found.record.title,
-                title_agreement(title, &found.record.title) * 100.0
-            )
-        } else {
-            "lookup returned a different or missing DOI".to_string()
-        });
+    let Some(doi) = normalize_doi(doi) else {
+        return Err("lookup returned a different or missing DOI".to_string());
     };
-    if !printed_issns.is_empty()
-        && !found.publisher.issn.is_empty()
-        && !printed_issns
-            .iter()
-            .any(|p| found.publisher.issn.contains(p))
-    {
-        return Err(format!(
-            "issn: printed {} not among the record's {}",
-            printed_issns.join(", "),
-            found.publisher.issn.join(", ")
-        ));
+    if found.record.doi.as_deref().and_then(normalize_doi).as_ref() != Some(&doi) {
+        return Err("lookup returned a different or missing DOI".to_string());
     }
-    Ok(resolved)
+    let score = verify_paper_record(meta, &found.record, printed_issns, &found.publisher.issn)?;
+    Ok(resolved_from(&found.record, &doi, "metadata", score))
 }
 
 /// Verify a record found by identifier against the paper's metadata: the
-/// title must agree ([`PAPER_TITLE_MIN`]); when both sides name a first
+/// title must agree when provided ([`PAPER_TITLE_MIN`]); when both sides name a first
 /// author its family name must appear in the printed name; when both have a
-/// year they must be within one. With no title on either side there is
-/// nothing to compare.
-fn verify_paper_record(meta: &Metadata, record: &PaperRecord) -> Result<f32, String> {
+/// year they must be within one. Labelled printed ISSNs must overlap known
+/// record ISSNs. Missing fields add no contradiction; identifier paths still
+/// enforce their requested identity and queries require a printed title.
+fn verify_paper_record(
+    meta: &Metadata,
+    record: &PaperRecord,
+    printed_issns: &[String],
+    record_issns: &[String],
+) -> Result<f32, String> {
     let title = meta.title.as_deref().unwrap_or("");
-    if title.is_empty() || record.title.is_empty() {
-        return Err("nothing to compare: no title on one side".to_string());
+    if !title.is_empty() && record.title.is_empty() {
+        return Err("nothing to compare: no record title".to_string());
     }
-    let score = title_agreement(title, &record.title);
+    let score = if title.is_empty() {
+        1.0
+    } else {
+        title_agreement(title, &record.title)
+    };
     if score < PAPER_TITLE_MIN {
         return Err(format!(
             "title: record {:?} agrees {:.0}% with the metadata title {title:?}",
@@ -1266,6 +1349,16 @@ fn verify_paper_record(meta: &Metadata, record: &PaperRecord) -> Result<f32, Str
         && printed.abs_diff(year) > 1
     {
         return Err(format!("year: record {year} is not the printed {printed}"));
+    }
+    if !printed_issns.is_empty()
+        && !record_issns.is_empty()
+        && !printed_issns.iter().any(|p| record_issns.contains(p))
+    {
+        return Err(format!(
+            "issn: printed {} not among the record's {}",
+            printed_issns.join(", "),
+            record_issns.join(", ")
+        ));
     }
     Ok(score)
 }
@@ -1579,16 +1672,66 @@ mod tests {
         assert_eq!(printed_doi(&entry), doi_in(&entry.raw));
     }
 
+    fn paper_found(record: PaperRecord) -> doi_metadata::DoiMetadata {
+        doi_metadata::DoiMetadata {
+            doi: record
+                .doi
+                .as_deref()
+                .and_then(normalize_doi)
+                .unwrap_or_default(),
+            record,
+            publisher: PublisherMetadata::default(),
+            source: "crossref".to_string(),
+            agency: None,
+        }
+    }
+
+    fn select_test_paper(
+        title: &str,
+        records: impl IntoIterator<Item = PaperRecord>,
+    ) -> Option<Resolved> {
+        select_paper_record(
+            &Metadata {
+                title: Some(title.to_string()),
+                ..Metadata::default()
+            },
+            &[],
+            &mut PaperRejections::default(),
+            &mut Vec::new(),
+            records.into_iter().map(paper_found),
+        )
+        .0
+        .map(|(r, _)| r)
+    }
+
     #[test]
     fn paper_exact_lookup_requires_normalized_requested_doi() {
         let mut record = query_record("10.1000/other");
-        for title in ["", record.title.as_str()] {
-            assert!(exact_paper_record(title, "10.1000/requested", &record).is_none());
-        }
+        let meta = Metadata {
+            title: Some(record.title.clone()),
+            ..Metadata::default()
+        };
+        assert!(
+            verify_paper_doi(
+                &meta,
+                "10.1000/requested",
+                &paper_found(record.clone()),
+                &[]
+            )
+            .is_err()
+        );
         record.doi = None;
-        assert!(exact_paper_record("", "10.1000/requested", &record).is_none());
+        assert!(
+            verify_paper_doi(
+                &meta,
+                "10.1000/requested",
+                &paper_found(record.clone()),
+                &[]
+            )
+            .is_err()
+        );
         record.doi = Some("https://doi.org/10.1000/REQUESTED".to_string());
-        assert!(exact_paper_record(&record.title, "10.1000/requested", &record).is_some());
+        assert!(verify_paper_doi(&meta, "10.1000/requested", &paper_found(record), &[]).is_ok());
     }
 
     #[test]
@@ -1597,14 +1740,14 @@ mod tests {
         let mut b = query_record("10.1000/b");
         b.title.push('s');
         for records in [[a.clone(), b.clone()], [b.clone(), a.clone()]] {
-            assert!(select_paper_record(&a.title, records).is_none());
+            assert!(select_test_paper(&a.title, records).is_none());
         }
         b.doi = Some("https://doi.org/10.1000/A".to_string());
-        assert!(select_paper_record(&a.title, [a.clone(), b.clone()]).is_some());
+        assert!(select_test_paper(&a.title, [a.clone(), b.clone()]).is_some());
         b.doi = Some("10.1000/b".to_string());
         b.title = "Unrelated research findings".to_string();
         assert_eq!(
-            select_paper_record(&a.title, [b, a.clone()])
+            select_test_paper(&a.title, [b, a.clone()])
                 .unwrap()
                 .doi
                 .as_deref(),
@@ -2137,6 +2280,237 @@ mod tests {
         let outcome = resolver.resolve_entries(&mut entries);
         assert_eq!(outcome.unresolved, 1);
         assert_eq!(entries[0].attempts[0].outcome, "not_found");
+    }
+
+    /// Populate the actual query transport cache, so the public resolver runs
+    /// exact lookup, rejection, query parsing and final acceptance without HTTP.
+    fn cache_paper_query(dir: &Path, meta: &Metadata, items: &[serde_json::Value]) {
+        DiskCache::new(dir, Duration::from_secs(600))
+            .put(
+                "crossref-paper-query",
+                &format!("{QUERY_ROWS}:{}", meta.title.as_deref().unwrap()),
+                200,
+                &serde_json::json!({"message": {"items": items}}).to_string(),
+            )
+            .unwrap();
+    }
+
+    fn cached_work_item() -> serde_json::Value {
+        serde_json::from_str::<serde_json::Value>(CACHED_WORK).unwrap()["message"].clone()
+    }
+
+    #[test]
+    fn paper_reject_then_query_keeps_doi_issn_contradiction_binding() {
+        for sparse in [false, true] {
+            let dir = tempfile::tempdir().unwrap();
+            let resolver = cached_resolver(dir.path());
+            let mut meta = paper_meta();
+            meta.doi = Some("10.7717/peerj.4375".to_string());
+            let mut page = PageText::new(1, 600.0, 800.0, 0);
+            page.text = "ISSN 0028-0836".to_string();
+            let mut item = cached_work_item();
+            if sparse {
+                item.as_object_mut().unwrap().remove("ISSN");
+                item.as_object_mut().unwrap().remove("issn-type");
+            }
+            // Alternate casing and URI spelling must not bypass rejection.
+            item["DOI"] = serde_json::json!("https://doi.org/10.7717/PEERJ.4375");
+            cache_paper_query(dir.path(), &meta, &[item.clone()]);
+            let report = resolver.resolve_paper_report(&meta, &[page.clone()]);
+            assert_eq!(report.status, "mismatch", "{:?}", report.attempts);
+            assert!(report.resolved.is_none());
+            assert!(report.publisher.is_none());
+            assert_eq!(report.attempts[0].outcome, "mismatch");
+            assert!(
+                report.attempts[0]
+                    .detail
+                    .as_deref()
+                    .unwrap()
+                    .starts_with("issn")
+            );
+            assert!(
+                report
+                    .attempts
+                    .iter()
+                    .any(|a| a.method == "query" && a.outcome == "mismatch")
+            );
+            assert!(
+                !report
+                    .attempts
+                    .iter()
+                    .any(|a| a.outcome == "verified" || a.outcome == "error")
+            );
+
+            let mut compatible = cached_work_item();
+            compatible["DOI"] = serde_json::json!("10.1000/compatible");
+            compatible["ISSN"] = serde_json::json!(["0028-0836"]);
+            compatible.as_object_mut().unwrap().remove("issn-type");
+            for items in [
+                vec![item.clone(), compatible.clone()],
+                vec![compatible.clone(), item.clone()],
+            ] {
+                cache_paper_query(dir.path(), &meta, &items);
+                let report = resolver.resolve_paper_report(&meta, &[page.clone()]);
+                assert_eq!(report.status, "resolved", "{:?}", report.attempts);
+                assert_eq!(
+                    report.resolved.unwrap().doi.as_deref(),
+                    Some("10.1000/compatible")
+                );
+                assert_eq!(report.publisher.unwrap().issn, vec!["0028-0836"]);
+            }
+        }
+    }
+
+    #[test]
+    fn paper_reject_then_query_keeps_pmid_author_year_contradictions_binding() {
+        for wrong_author in [false, true] {
+            let dir = tempfile::tempdir().unwrap();
+            let resolver = cached_resolver(dir.path());
+            let mut meta = paper_meta();
+            if wrong_author {
+                meta.authors[0].name = "Someone Else".to_string();
+            } else {
+                meta.year = Some(2011);
+            }
+            let mut page = PageText::new(1, 600.0, 800.0, 0);
+            page.text = "PMID: 29456894".to_string();
+            let mut item = cached_work_item();
+            // Later title-only evidence cannot erase the PubMed contradiction.
+            item.as_object_mut().unwrap().remove("author");
+            item.as_object_mut().unwrap().remove("issued");
+            cache_paper_query(dir.path(), &meta, &[item.clone()]);
+            let report = resolver.resolve_paper_report(&meta, &[page.clone()]);
+            assert_eq!(report.status, "mismatch", "{:?}", report.attempts);
+            assert!(report.resolved.is_none());
+            assert!(report.publisher.is_none());
+            assert_eq!(report.attempts[0].method, "pmid");
+            assert_eq!(report.attempts[0].outcome, "mismatch");
+            assert!(
+                report.attempts[0]
+                    .detail
+                    .as_deref()
+                    .unwrap()
+                    .starts_with(if wrong_author { "first author" } else { "year" })
+            );
+            assert!(
+                report
+                    .attempts
+                    .iter()
+                    .any(|a| a.method == "query" && a.outcome == "mismatch")
+            );
+            assert!(
+                !report
+                    .attempts
+                    .iter()
+                    .any(|a| a.outcome == "verified" || a.outcome == "error")
+            );
+
+            let mut compatible = cached_work_item();
+            compatible["DOI"] = serde_json::json!("10.1000/compatible");
+            if wrong_author {
+                compatible["author"] = serde_json::json!([{"given": "Someone", "family": "Else"}]);
+            } else {
+                compatible["issued"] = serde_json::json!({"date-parts": [[2011]]});
+            }
+            for items in [
+                vec![item.clone(), compatible.clone()],
+                vec![compatible.clone(), item.clone()],
+            ] {
+                cache_paper_query(dir.path(), &meta, &items);
+                let report = resolver.resolve_paper_report(&meta, &[page.clone()]);
+                assert_eq!(report.status, "resolved", "{:?}", report.attempts);
+                assert_eq!(
+                    report.resolved.unwrap().doi.as_deref(),
+                    Some("10.1000/compatible")
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn paper_exact_paths_share_author_year_and_issn_checks() {
+        let dir = tempfile::tempdir().unwrap();
+        let resolver = cached_resolver(dir.path());
+        for wrong_author in [false, true] {
+            let mut meta = paper_meta();
+            meta.doi = Some("10.7717/peerj.4375".to_string());
+            if wrong_author {
+                meta.authors[0].name = "Someone Else".to_string();
+            } else {
+                meta.year = Some(2011);
+            }
+            cache_paper_query(dir.path(), &meta, &[cached_work_item()]);
+            let report = resolver.resolve_paper_report(&meta, &[]);
+            assert_eq!(report.attempts[0].outcome, "mismatch");
+            assert_eq!(report.status, "mismatch");
+            assert!(report.resolved.is_none());
+        }
+        let meta = paper_meta();
+        let mut page = PageText::new(1, 600.0, 800.0, 0);
+        page.text = "PMID: 29456894 ISSN 0028-0836".to_string();
+        cache_paper_query(dir.path(), &meta, &[cached_work_item()]);
+        let report = resolver.resolve_paper_report(&meta, &[page]);
+        assert_eq!(report.attempts[0].method, "pmid");
+        assert_eq!(report.attempts[0].outcome, "mismatch");
+        assert!(
+            report.attempts[0]
+                .detail
+                .as_deref()
+                .unwrap()
+                .starts_with("issn")
+        );
+        assert_eq!(report.status, "mismatch");
+
+        // Preserve the existing exact-DOI contract when the title is absent.
+        let mut meta = paper_meta();
+        meta.doi = Some("10.7717/peerj.4375".to_string());
+        meta.title = None;
+        assert_eq!(resolver.resolve_paper_report(&meta, &[]).status, "resolved");
+    }
+
+    #[test]
+    fn paper_query_contradictory_duplicates_cannot_win_by_response_order() {
+        let dir = tempfile::tempdir().unwrap();
+        let resolver = cached_resolver(dir.path());
+        let meta = paper_meta();
+        let mut sparse = cached_work_item();
+        sparse.as_object_mut().unwrap().remove("author");
+        let mut bad = cached_work_item();
+        bad["author"] = serde_json::json!([{"family": "Wrong"}]);
+        for items in [vec![sparse.clone(), bad.clone()], vec![bad, sparse]] {
+            cache_paper_query(dir.path(), &meta, &items);
+            let report = resolver.resolve_paper_report(&meta, &[]);
+            assert_eq!(report.status, "mismatch");
+            assert!(report.resolved.is_none());
+        }
+    }
+
+    #[test]
+    fn paper_query_checks_all_metadata_and_reports_real_ambiguity() {
+        let dir = tempfile::tempdir().unwrap();
+        let resolver = cached_resolver(dir.path());
+        let meta = paper_meta();
+        for field in ["author", "issued", "ISSN"] {
+            let mut bad = cached_work_item();
+            let mut page = PageText::new(1, 600.0, 800.0, 0);
+            match field {
+                "author" => bad["author"] = serde_json::json!([{"family": "Wrong"}]),
+                "issued" => bad["issued"] = serde_json::json!({"date-parts": [[2000]]}),
+                _ => page.text = "ISSN 0028-0836".to_string(),
+            }
+            cache_paper_query(dir.path(), &meta, &[bad]);
+            let report = resolver.resolve_paper_report(&meta, &[page]);
+            assert_eq!(report.status, "mismatch", "{:?}", report.attempts);
+            assert!(report.resolved.is_none());
+        }
+        let a = cached_work_item();
+        let mut b = a.clone();
+        b["DOI"] = serde_json::json!("10.1000/other");
+        cache_paper_query(dir.path(), &meta, &[a, b]);
+        assert_eq!(
+            resolver.resolve_paper_report(&meta, &[]).status,
+            "ambiguous"
+        );
     }
 
     #[test]
