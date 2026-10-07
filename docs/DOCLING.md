@@ -90,18 +90,45 @@ Security model, enforced and tested in `tests/service.rs`:
   `Retry-After` is the only exposed header.
 - Bounded: `--max-body-mib` (64), `--max-pages` (50), `--max-concurrent` (1),
   `--scan-timeout-s` (120). Oversize bodies are `413 limit`, a busy service is
-  `429 busy` with `Retry-After`.
+  `429 busy` with `Retry-After`. Host/Origin/token validation precedes
+  body-length validation and upload storage. Only a fixed 4 KiB read chunk
+  can arrive alongside the bounded head before authentication; a declared
+  length never reserves body storage. Admission covers upload and execution,
+  so only `max_concurrent` scans accumulate bodies or convert images.
+- Head receipt has a fixed 10 s deadline from acceptance; upload completion
+  has a fixed 70 s deadline (10 s head budget plus 60 s upload budget) from
+  acceptance. Sending more bytes does not extend either deadline (`408
+  request_timeout`). Shutdown and upload cancellation interrupt reads.
 - Each scan runs in a disposable worker process of the same binary (hidden
   `worker` subcommand) with an address-space growth limit
   (`--worker-memory-mib`, 4096) and the deadline; a hung or crashed conversion
   is killed and reported as `504 timeout` or `500 internal`, and the service
-  stays up. The worker boundary exists on Linux and macOS (`rustix`).
+  stays up. PNG/JPEG decoding, conversion, compression and PDF wrapping all
+  occur in that worker after its hard memory limit is installed, under the
+  same scan deadline. Worker stderr is drained through fixed 4 KiB buffers,
+  retaining only its last 4 KiB while reading. The worker boundary exists on
+  Linux and macOS (`rustix`).
+- Disconnect, shutdown or authenticated cancellation kills the request's
+  private worker process group and joins its input/output drains before
+  releasing admission. The browser assigns a random `id` to each scan and
+  sends `POST /cancel?id=<id>` on a separate authenticated connection when
+  aborted; it waits for acknowledgement before its promise settles. A
+  `204` acknowledges cleanup and capacity release; `cancel_pending` means
+  cleanup could not be confirmed, so the caller must wait before Retry.
+  Cancellation that overtakes scan headers is recorded in at most 64
+  short-lived entries (head deadline plus one second) to block late starts.
+  IDs are operation identifiers, never credentials. XHR abort listeners are
+  removed at completion; abort during result parsing suppresses late success.
 - No outbound connections, no telemetry, nothing on disk. Model files are
   probed (and hashed unless `--no-hash`) at start and re-probed on each
   `/capabilities` call, so provisioning while the service runs is noticed.
 
-HTTP contract (all responses are JSON):
+HTTP contract (success/error bodies are JSON; preflight/cancel acknowledgements are empty):
 
+- `POST /cancel?id=<id>`: token/Host/Origin checks are identical to scans,
+  accepts no body, and returns `204` only after the matching request releases
+  its slot. Other active scans continue. Cancellation tracking exhaustion is
+  `429 cancel_pending`; worker cleanup exceeding 5 s is `503 cancel_pending`.
 - `GET /capabilities`: `service` (name, version, pinned docling version,
   pid), `build` (`ocr_compiled`, `text_layer_compiled`), `ocr` (`available`,
   engine `ppocr`, `languages`, `reason` when unavailable, what `confidence`

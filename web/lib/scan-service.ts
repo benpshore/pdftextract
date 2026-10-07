@@ -156,6 +156,7 @@ export function describeUnavailable(error: unknown, connection?: ScanServiceConn
       case 'models_not_provisioned': return `The scan service is running but its OCR models are not provisioned: ${error.message} ${fallback}`;
       case 'not_compiled': return `The scan service was built without OCR: ${error.message} ${fallback}`;
       case 'busy': return `The scan service is busy with another scan; try again${error.retryAfterSeconds ? ` in ${error.retryAfterSeconds} s` : ' shortly'}.`;
+      case 'cancel_pending': return 'Cancellation could not be confirmed yet. Wait briefly before retrying the scan.';
       case 'timeout': return `The scan took too long and was stopped: ${error.message}`;
       case 'too_large': case 'limit': return `This file is too large for the scan service in one request: ${error.message}`;
       default: return `The scan service reported ${error.code}: ${error.message} ${fallback}`;
@@ -205,10 +206,11 @@ export async function detectService(connection: ScanServiceConnection, options: 
   return capabilities;
 }
 
-function scanUrl(connection: ScanServiceConnection, options: ScanOptions): string {
+function scanUrl(connection: ScanServiceConnection, options: ScanOptions, id: string): string {
   const query = new URLSearchParams();
   if (options.mode) query.set('mode', options.mode);
   if (options.pages) query.set('pages', `${options.pages[0]}-${options.pages[1]}`);
+  query.set('id', id);
   const suffix = query.toString();
   return `${serviceOrigin(connection)}/scan${suffix ? `?${suffix}` : ''}`;
 }
@@ -224,9 +226,12 @@ function uploadWithProgress(url: string, token: string, file: Blob, options: Sca
       if (event.lengthComputable) options.onProgress?.({ phase: 'uploading', fraction: event.total ? event.loaded / event.total : 0, message: `Sending ${Math.round((100 * event.loaded) / Math.max(event.total, 1))}%…`, window: options.pages });
     };
     xhr.upload.onload = () => options.onProgress?.({ phase: 'scanning', fraction: 1, message: 'Scanning…', window: options.pages });
-    xhr.onerror = () => reject(new TypeError('network error'));
-    xhr.onabort = () => reject(new DOMException('The scan was cancelled.', 'AbortError'));
+    const abort = () => xhr.abort();
+    const cleanup = () => options.signal?.removeEventListener('abort', abort);
+    xhr.onerror = () => { cleanup(); reject(new TypeError('network error')); };
+    xhr.onabort = () => { cleanup(); reject(new DOMException('The scan was cancelled.', 'AbortError')); };
     xhr.onload = () => {
+      cleanup();
       const headers = new Headers();
       for (const line of xhr.getAllResponseHeaders().trim().split(/[\r\n]+/)) {
         const index = line.indexOf(':');
@@ -234,8 +239,9 @@ function uploadWithProgress(url: string, token: string, file: Blob, options: Sca
       }
       resolve(new Response(xhr.response as string, { status: xhr.status, statusText: xhr.statusText, headers }));
     };
-    options.signal?.addEventListener('abort', () => xhr.abort(), { once: true });
-    xhr.send(file);
+    options.signal?.addEventListener('abort', abort, { once: true });
+    if (options.signal?.aborted) { cleanup(); reject(new DOMException('The scan was cancelled.', 'AbortError')); return; }
+    try { xhr.send(file); } catch (error) { cleanup(); reject(error); }
   });
 }
 
@@ -252,25 +258,53 @@ export async function scanFile(connection: ScanServiceConnection, file: Blob, op
   }
   if (file.size === 0) throw new ScanServiceError('empty', 'The file is empty.');
   options.onProgress?.({ phase: 'uploading', fraction: 0, message: 'Sending to the local scan service…', window: options.pages });
-  const url = scanUrl(connection, options);
-  let response: Response;
+  options.signal?.throwIfAborted();
+  const id = crypto.randomUUID();
+  const url = scanUrl(connection, options, id);
+  const doFetch = options.fetch ?? fetch;
+  let cancellation: Promise<void> | undefined;
+  const cancel = () => {
+    if (cancellation) return;
+    // Separate authenticated request: never pass the already-aborted signal.
+    // The service acknowledges only after its worker is reaped and slot freed.
+    cancellation = (async () => {
+      const reply = await doFetch(`${serviceOrigin(connection)}/cancel?id=${encodeURIComponent(id)}`, {
+        method: 'POST', headers: { Authorization: `Bearer ${connection.token}` },
+        signal: AbortSignal.timeout(6000), cache: 'no-store', credentials: 'omit', mode: 'cors',
+      });
+      if (!reply.ok) throw await errorFromResponse(reply);
+    })().catch(error => {
+      throw error instanceof ScanServiceError ? error : new ScanServiceError('cancel_pending', 'The scan service did not confirm cancellation.');
+    });
+    // Mark handled immediately; the scan still awaits and propagates failures.
+    void cancellation.catch(() => {});
+  };
+  options.signal?.addEventListener('abort', cancel, { once: true });
   try {
-    if (!options.fetch && typeof XMLHttpRequest !== 'undefined') {
-      response = await uploadWithProgress(url, connection.token, file, options);
-    } else {
-      const doFetch = options.fetch ?? fetch;
-      response = await doFetch(url, { method: 'POST', headers: { Authorization: `Bearer ${connection.token}`, 'Content-Type': file.type || 'application/octet-stream' }, body: file, signal: options.signal, cache: 'no-store', credentials: 'omit', mode: 'cors' });
-      options.onProgress?.({ phase: 'scanning', fraction: 1, message: 'Scanning…', window: options.pages });
+    let response: Response;
+    try {
+      if (!options.fetch && typeof XMLHttpRequest !== 'undefined') {
+        response = await uploadWithProgress(url, connection.token, file, options);
+      } else {
+        response = await doFetch(url, { method: 'POST', headers: { Authorization: `Bearer ${connection.token}`, 'Content-Type': file.type || 'application/octet-stream' }, body: file, signal: options.signal, cache: 'no-store', credentials: 'omit', mode: 'cors' });
+        options.onProgress?.({ phase: 'scanning', fraction: 1, message: 'Scanning…', window: options.pages });
+      }
+    } catch (error) {
+      if (options.signal?.aborted || (error instanceof DOMException && error.name === 'AbortError')) { cancel(); await cancellation; throw error; }
+      throw unreachable(connection, error);
     }
+    if (!response.ok) throw await errorFromResponse(response);
+    const result = await response.json() as ScanResult;
+    if (options.signal?.aborted) { cancel(); await cancellation; options.signal.throwIfAborted(); }
+    if (!Array.isArray(result?.pages)) throw new ScanServiceError('bad_result', 'The scan service returned an unexpected result.');
+    options.onProgress?.({ phase: 'done', fraction: 1, message: `Scanned pages ${result.pages_scanned?.[0]}–${result.pages_scanned?.[1]} of ${result.pages_total}.`, window: options.pages, pagesTotal: result.pages_total });
+    return result;
   } catch (error) {
-    if (options.signal?.aborted || (error instanceof DOMException && error.name === 'AbortError')) throw error;
-    throw unreachable(connection, error);
+    if (options.signal?.aborted) { cancel(); await cancellation; options.signal.throwIfAborted(); }
+    throw error;
+  } finally {
+    options.signal?.removeEventListener('abort', cancel);
   }
-  if (!response.ok) throw await errorFromResponse(response);
-  const result = await response.json() as ScanResult;
-  if (!Array.isArray(result?.pages)) throw new ScanServiceError('bad_result', 'The scan service returned an unexpected result.');
-  options.onProgress?.({ phase: 'done', fraction: 1, message: `Scanned pages ${result.pages_scanned?.[0]}–${result.pages_scanned?.[1]} of ${result.pages_total}.`, window: options.pages, pagesTotal: result.pages_total });
-  return result;
 }
 
 /**

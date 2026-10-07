@@ -2,21 +2,22 @@
 //! request checks (`Host`, `Origin`, bearer token), CORS for the web app,
 //! concurrency and size limits, and graceful shutdown.
 
+use std::collections::{HashMap, VecDeque};
 use std::io::Write;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use crate::capabilities;
-use crate::http::{Request, Response, read_request};
-use crate::image_pdf::{self, ImageError, InputKind};
+use crate::http::{Request, Response, body_length, read_body, read_head};
+use crate::image_pdf;
 use crate::models::{self, MODELS_DIR_ENV, ModelReport, PdfiumReport};
 use crate::multipart;
 use crate::scan::{ErrorCode, Mode, ScanError, ScanOptions, parse_pages};
-use crate::worker::{WorkerLimits, run_in_worker};
+use crate::worker::{WorkerLimits, run_in_worker_cancellable};
 
 /// Service configuration. `Config::new` holds the defaults.
 #[derive(Clone, Debug)]
@@ -34,6 +35,9 @@ pub struct Config {
     pub max_pages: u32,
     pub max_concurrent: usize,
     pub scan_timeout: Duration,
+    /// Absolute, non-renewable head and upload deadlines.
+    pub header_timeout: Duration,
+    pub body_timeout: Duration,
     pub worker_memory_growth_mib: u64,
     /// Explicit models directory (exported to the worker as `DOCLING_RS_MODELS_DIR`).
     pub models_dir: Option<PathBuf>,
@@ -56,6 +60,8 @@ impl Config {
             max_pages: 50,
             max_concurrent: 1,
             scan_timeout: Duration::from_secs(120),
+            header_timeout: HEADER_TIMEOUT,
+            body_timeout: BODY_TIMEOUT,
             worker_memory_growth_mib: 4096,
             models_dir: None,
             hash_models: true,
@@ -140,6 +146,7 @@ struct Shared {
     gate: Gate,
     shutdown: AtomicBool,
     handlers: AtomicUsize,
+    jobs: Mutex<Jobs>,
 }
 
 /// A running service. Dropping it shuts it down.
@@ -186,6 +193,7 @@ impl Service {
             gate: Gate::default(),
             shutdown: AtomicBool::new(false),
             handlers: AtomicUsize::new(0),
+            jobs: Mutex::new(Jobs::default()),
             config,
         });
         let accept_shared = Arc::clone(&shared);
@@ -279,12 +287,13 @@ fn accept_loop(listener: Arc<TcpListener>, shared: &Arc<Shared>) {
                 .write_to(&mut stream);
             continue;
         }
+        let accepted = Instant::now();
         shared.handlers.fetch_add(1, Ordering::SeqCst);
         let handler_shared = Arc::clone(shared);
         let spawned = std::thread::Builder::new()
             .name("tpe-scan-conn".to_string())
             .spawn(move || {
-                handle_connection(stream, &handler_shared);
+                handle_connection(stream, &handler_shared, accepted);
                 handler_shared.handlers.fetch_sub(1, Ordering::SeqCst);
             });
         match spawned {
@@ -302,18 +311,66 @@ fn accept_loop(listener: Arc<TcpListener>, shared: &Arc<Shared>) {
     }
 }
 
-fn handle_connection(mut stream: TcpStream, shared: &Arc<Shared>) {
+// Cancellation can overtake a scan's headers on a separate HTTP connection.
+// Fixed-count, short-lived tombstones prevent that late scan from starting.
+const MAX_CANCEL_TOMBSTONES: usize = 64;
+#[derive(Default)]
+struct Jobs {
+    active: HashMap<String, Arc<Job>>,
+    cancelled: VecDeque<(String, Instant)>,
+}
+impl Jobs {
+    fn expire(&mut self) {
+        let now = Instant::now();
+        self.cancelled.retain(|(_, expiry)| *expiry > now);
+    }
+}
+
+#[derive(Default)]
+struct Job {
+    cancel: AtomicBool,
+    finished: AtomicBool,
+}
+
+// Own the slot through upload, worker execution and pipe cleanup. Cancellation
+// acknowledgement is published only after the slot is free.
+struct Admission<'a> {
+    shared: &'a Shared,
+    slot: Option<Slot<'a>>,
+    id: Option<String>,
+    job: Arc<Job>,
+}
+impl Drop for Admission<'_> {
+    fn drop(&mut self) {
+        drop(self.slot.take());
+        if let Some(id) = &self.id {
+            self.shared
+                .jobs
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .active
+                .remove(id);
+        }
+        self.job.finished.store(true, Ordering::SeqCst);
+    }
+}
+
+fn busy() -> Response {
+    scan_error(&ScanError::new(
+        ErrorCode::Busy,
+        "scan capacity is occupied; retry shortly",
+    ))
+}
+
+fn handle_connection(mut stream: TcpStream, shared: &Arc<Shared>, accepted: Instant) {
     let _ = stream.set_write_timeout(Some(WRITE_TIMEOUT));
     let _ = stream.set_nodelay(true);
-    let response = match read_request(
-        &mut stream,
-        shared.config.max_body_bytes,
-        HEADER_TIMEOUT,
-        BODY_TIMEOUT,
-    ) {
-        Ok(request) => {
+    let response = match read_head(&mut stream, accepted + shared.config.header_timeout, || {
+        shared.shutdown.load(Ordering::SeqCst)
+    }) {
+        Ok(mut request) => {
             let origin = allowed_origin(&request, &shared.config.origins);
-            let response = route(&request, shared);
+            let response = handle_authenticated(&mut stream, &mut request, shared, accepted);
             with_cors(response, &request, origin.as_deref())
         }
         Err(error) => Response::error(error.status(), error.code(), &error.to_string()),
@@ -321,6 +378,139 @@ fn handle_connection(mut stream: TcpStream, shared: &Arc<Shared>) {
     let _ = response.write_to(&mut stream);
     let _ = stream.flush();
     let _ = stream.shutdown(std::net::Shutdown::Both);
+}
+
+fn handle_authenticated(
+    stream: &mut TcpStream,
+    request: &mut Request,
+    shared: &Arc<Shared>,
+    accepted: Instant,
+) -> Response {
+    if let Some(response) = authenticate(request, shared) {
+        return response;
+    }
+    let length = match body_length(request, shared.config.max_body_bytes) {
+        Ok(length) => length,
+        Err(error) => return Response::error(error.status(), error.code(), &error.to_string()),
+    };
+    if request.method != "POST" || request.path != "/scan" {
+        // Only scans accept bodies; never wait for irrelevant untrusted bytes.
+        if length != 0 {
+            return Response::error(400, "unexpected_body", "this route accepts no body");
+        }
+        return route(request, shared);
+    }
+    let Some(slot) = shared.gate.try_acquire(shared.config.max_concurrent) else {
+        return busy();
+    };
+    let id = request.query_param("id");
+    if id.as_ref().is_some_and(|id| !valid_job_id(id)) {
+        return Response::error(
+            400,
+            "bad_id",
+            "scan id must be 16-64 ASCII letters, digits or hyphens",
+        );
+    }
+    let job = Arc::new(Job::default());
+    if let Some(id) = &id {
+        let mut jobs = shared
+            .jobs
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        jobs.expire();
+        if jobs.cancelled.iter().any(|(cancelled, _)| cancelled == id) {
+            return scan_error(&ScanError::new(
+                ErrorCode::Timeout,
+                "scan cancelled before admission",
+            ));
+        }
+        if jobs.active.contains_key(id) {
+            return Response::error(409, "duplicate_id", "scan id is already active");
+        }
+        jobs.active.insert(id.clone(), Arc::clone(&job));
+    }
+    let admission = Admission {
+        shared,
+        slot: Some(slot),
+        id,
+        job,
+    };
+    if let Err(error) = read_body(
+        stream,
+        request,
+        length,
+        accepted + shared.config.header_timeout + shared.config.body_timeout,
+        || shared.shutdown.load(Ordering::SeqCst) || admission.job.cancel.load(Ordering::SeqCst),
+    ) {
+        return Response::error(error.status(), error.code(), &error.to_string());
+    }
+    if let Err(error) = stream.set_nonblocking(true) {
+        return Response::error(500, "internal", &error.to_string());
+    }
+    let response = scan_response(request, shared, || {
+        if shared.shutdown.load(Ordering::SeqCst) || admission.job.cancel.load(Ordering::SeqCst) {
+            return true;
+        }
+        let mut probe = [0_u8; 1];
+        match stream.peek(&mut probe) {
+            Ok(_) => true, // EOF or extra data: one request per connection.
+            Err(error) => !matches!(
+                error.kind(),
+                std::io::ErrorKind::WouldBlock | std::io::ErrorKind::Interrupted
+            ),
+        }
+    });
+    let _ = stream.set_nonblocking(false);
+    response
+}
+
+fn valid_job_id(id: &str) -> bool {
+    (16..=64).contains(&id.len())
+        && id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-')
+}
+
+fn cancel_response(request: &Request, shared: &Shared) -> Response {
+    let Some(id) = request.query_param("id").filter(|id| valid_job_id(id)) else {
+        return Response::error(400, "bad_id", "a valid scan id is required");
+    };
+    let job = {
+        let mut jobs = shared
+            .jobs
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        jobs.expire();
+        // Preserve the tombstone even if a completed ID is seen again.
+        if !jobs.cancelled.iter().any(|(cancelled, _)| cancelled == &id) {
+            if jobs.cancelled.len() >= MAX_CANCEL_TOMBSTONES && !jobs.active.contains_key(&id) {
+                return Response::error(
+                    429,
+                    "cancel_pending",
+                    "cancellation tracking is full; retry shortly",
+                );
+            }
+            if jobs.cancelled.len() < MAX_CANCEL_TOMBSTONES {
+                jobs.cancelled.push_back((
+                    id.clone(),
+                    Instant::now() + shared.config.header_timeout + Duration::from_secs(1),
+                ));
+            }
+        }
+        jobs.active.get(&id).cloned()
+    };
+    let Some(job) = job else {
+        return Response::empty(204);
+    };
+    job.cancel.store(true, Ordering::SeqCst);
+    let deadline = Instant::now() + Duration::from_secs(5);
+    while !job.finished.load(Ordering::SeqCst) {
+        if Instant::now() >= deadline {
+            return Response::error(503, "cancel_pending", "worker cleanup is still pending");
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    Response::empty(204)
 }
 
 /// The request's `Origin` when it is one of the configured origins.
@@ -356,50 +546,56 @@ fn with_cors(response: Response, request: &Request, origin: Option<&str>) -> Res
     response
 }
 
-fn route(request: &Request, shared: &Arc<Shared>) -> Response {
+fn authenticate(request: &Request, shared: &Shared) -> Option<Response> {
     let config = &shared.config;
     match request.header("host") {
         Some(host) if host_allowed(host, shared.port) => {}
         _ => {
-            return Response::error(
+            return Some(Response::error(
                 403,
                 "host_not_allowed",
                 "the Host header must name this service's loopback address",
-            );
+            ));
         }
     }
     if let Some(origin) = request.header("origin") {
         let allowed = normalize_origin(origin).is_some_and(|value| config.origins.contains(&value));
         if !allowed {
-            return Response::error(
+            return Some(Response::error(
                 403,
                 "origin_not_allowed",
                 "this browser origin is not allowed; start the service with --origin <web app origin>",
-            );
+            ));
         }
     }
     if request.method == "OPTIONS" {
-        return if request.header("origin").is_some() {
+        return Some(if request.header("origin").is_some() {
             Response::empty(204)
         } else {
             Response::error(403, "origin_required", "preflight without an Origin header")
-        };
+        });
     }
     let presented = request
         .header("authorization")
         .and_then(crate::auth::bearer)
         .unwrap_or_default();
     if !crate::auth::token_matches(&config.token, presented) {
-        return Response::error(
-            401,
-            "unauthorized",
-            "a valid bearer token is required (printed once when the service started)",
-        )
-        .header("WWW-Authenticate", "Bearer realm=\"tpe-scan-service\"");
+        return Some(
+            Response::error(
+                401,
+                "unauthorized",
+                "a valid bearer token is required (printed once when the service started)",
+            )
+            .header("WWW-Authenticate", "Bearer realm=\"tpe-scan-service\""),
+        );
     }
+    None
+}
+
+fn route(request: &Request, shared: &Arc<Shared>) -> Response {
     match (request.method.as_str(), request.path.as_str()) {
         ("GET", "/capabilities") => capabilities_response(shared),
-        ("POST", "/scan") => scan_response(request, shared),
+        ("POST", "/cancel") => cancel_response(request, shared),
         ("GET" | "HEAD", "/scan") | ("POST", "/capabilities") => Response::error(
             405,
             "method_not_allowed",
@@ -453,7 +649,11 @@ fn scan_error(error: &ScanError) -> Response {
     }
 }
 
-fn scan_response(request: &Request, shared: &Arc<Shared>) -> Response {
+fn scan_response(
+    request: &Request,
+    shared: &Arc<Shared>,
+    cancel: impl FnMut() -> bool,
+) -> Response {
     let config = &shared.config;
     let mode = match request.query_param("mode") {
         None => Mode::Ocr,
@@ -491,7 +691,7 @@ fn scan_response(request: &Request, shared: &Arc<Shared>) -> Response {
             "send the PDF, PNG or JPEG bytes as the body",
         );
     }
-    let Some(kind) = image_pdf::sniff(&bytes) else {
+    if image_pdf::sniff(&bytes).is_none() {
         return Response::error(
             415,
             "unsupported_media_type",
@@ -502,40 +702,7 @@ fn scan_response(request: &Request, shared: &Arc<Shared>) -> Response {
                     .unwrap_or_default()
             ),
         );
-    };
-    let mut warnings = Vec::new();
-    let pdf = match kind {
-        InputKind::Pdf => bytes,
-        InputKind::Png | InputKind::Jpeg => match image_pdf::wrap_image(&bytes, kind) {
-            Ok(wrapped) => {
-                warnings.push(format!(
-                    "{} image of {}x{} px placed on one page at an assumed {} dpi",
-                    kind.as_str(),
-                    wrapped.width_px,
-                    wrapped.height_px,
-                    image_pdf::DEFAULT_DPI
-                ));
-                wrapped.pdf
-            }
-            Err(ImageError::TooLarge { .. }) => {
-                return scan_error(&ScanError::new(
-                    ErrorCode::Limit,
-                    format!("image exceeds {} pixels", image_pdf::MAX_PIXELS),
-                ));
-            }
-            Err(error) => return Response::error(400, "bad_image", &error.to_string()),
-        },
-    };
-    let Some(_slot) = shared.gate.try_acquire(config.max_concurrent) else {
-        return scan_error(&ScanError::new(
-            ErrorCode::Busy,
-            format!(
-                "{} scan(s) already running; the limit is {}",
-                shared.gate.in_flight(),
-                config.max_concurrent
-            ),
-        ));
-    };
+    }
     let options = ScanOptions {
         mode,
         pages,
@@ -550,20 +717,8 @@ fn scan_response(request: &Request, shared: &Arc<Shared>) -> Response {
     if let Some(dir) = &config.models_dir {
         env.push((MODELS_DIR_ENV.to_string(), dir.display().to_string()));
     }
-    match run_in_worker(
-        &config.worker_exe,
-        pdf,
-        &options,
-        limits,
-        &env,
-        &shared.shutdown,
-    ) {
-        Ok(mut result) => {
-            result.warnings.extend(warnings);
-            let mut value = serde_json::to_value(&result).unwrap_or_default();
-            value["input"] = serde_json::Value::String(kind.as_str().to_string());
-            Response::json(200, &value)
-        }
+    match run_in_worker_cancellable(&config.worker_exe, bytes, &options, limits, &env, cancel) {
+        Ok(result) => Response::json(200, &serde_json::to_value(&result).unwrap_or_default()),
         Err(error) => scan_error(&error),
     }
 }

@@ -34,6 +34,8 @@ jobs:
       - run: node scripts/copy-pdf-wasm.mjs
       - run: node scripts/copy-ocr-assets.mjs
       - run: pnpm exec tsc --noEmit
+      - run: node tests/scan-service.test.mjs
+      - run: pnpm exec eslint lib/scan-service.ts tests/scan-service.test.mjs
       - run: node scripts/test-clip.mjs
       - run: node scripts/test-web-extraction-review.mjs
       - run: node scripts/test-import-flow.mjs

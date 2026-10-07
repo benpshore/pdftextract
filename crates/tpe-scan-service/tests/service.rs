@@ -439,7 +439,7 @@ fn text_mode_reads_a_pdf_and_wraps_a_png_through_the_worker() {
             .contains("probe"),
         "{value}"
     );
-    assert!(value["pages"][0]["blocks"].as_array().unwrap().len() >= 1);
+    assert!(!value["pages"][0]["blocks"].as_array().unwrap().is_empty());
     assert!(value["pages"][0]["confidence"].is_null());
 
     let mut png = std::io::Cursor::new(Vec::new());
@@ -562,4 +562,366 @@ fn shutdown_stops_the_listener() {
             Ok(_) => panic!("the port still accepts connections 5 s after shutdown returned"),
         }
     }
+}
+
+// Incomplete bodies are intentional: admission must answer from the head alone.
+fn head_reply(addr: SocketAddr, head: &str) -> Reply {
+    let mut stream = TcpStream::connect(addr).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    stream.write_all(head.as_bytes()).unwrap();
+    reply_from_stream(&mut stream)
+}
+
+fn reply_from_stream(stream: &mut TcpStream) -> Reply {
+    let mut buffer = Vec::new();
+    let _ = stream.read_to_end(&mut buffer);
+    let split = buffer
+        .windows(4)
+        .position(|w| w == b"\r\n\r\n")
+        .unwrap_or_else(|| panic!("no prompt response: {:?}", String::from_utf8_lossy(&buffer)));
+    let head = String::from_utf8_lossy(&buffer[..split]);
+    let mut lines = head.split("\r\n");
+    let status = lines
+        .next()
+        .unwrap()
+        .split(' ')
+        .nth(1)
+        .unwrap()
+        .parse()
+        .unwrap();
+    Reply {
+        status,
+        headers: lines
+            .filter_map(|line| line.split_once(':'))
+            .map(|(key, value)| (key.trim().to_string(), value.trim().to_string()))
+            .collect(),
+        body: buffer[split + 4..].to_vec(),
+    }
+}
+
+#[test]
+fn unauthenticated_incomplete_or_oversized_bodies_are_refused_before_continue() {
+    let service = Service::start(config()).unwrap();
+    let addr = service.addr();
+    for length in [1024, 1_u64 << 40] {
+        for (host, extra, expected) in [
+            ("127.0.0.1", "", 401),
+            ("evil.example", "", 403),
+            ("127.0.0.1", "Origin: https://evil.example\r\n", 403),
+        ] {
+            let reply = head_reply(
+                addr,
+                &format!(
+                    "POST /scan HTTP/1.1\r\nHost: {host}:{}\r\n{extra}Content-Length: {length}\r\nExpect: 100-continue\r\n\r\n",
+                    addr.port()
+                ),
+            );
+            assert_eq!(reply.status, expected);
+        }
+    }
+    // Authenticated GETs and preflights do not consume uploads either.
+    let reply = head_reply(
+        addr,
+        &format!(
+            "GET /capabilities HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 1024\r\n\r\n",
+            addr.port()
+        ),
+    );
+    assert_eq!(reply.status, 400);
+    service.shutdown();
+}
+
+#[test]
+fn trickling_headers_and_bodies_cannot_renew_request_deadlines() {
+    let mut cfg = config();
+    cfg.header_timeout = Duration::from_millis(200);
+    cfg.body_timeout = Duration::from_millis(200);
+    let service = Service::start(cfg).unwrap();
+    for body in [false, true] {
+        let mut stream = TcpStream::connect(service.addr()).unwrap();
+        stream
+            .set_read_timeout(Some(Duration::from_secs(2)))
+            .unwrap();
+        if body {
+            write!(stream, "POST /scan HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 100\r\n\r\n", service.addr().port()).unwrap();
+        } else {
+            stream.write_all(b"POST /scan HTTP/1.1\r\nX-Pad: ").unwrap();
+        }
+        let mut sender = stream.try_clone().unwrap();
+        let started = std::time::Instant::now();
+        let trickle = std::thread::spawn(move || {
+            for _ in 0..40 {
+                if sender.write_all(b"x").is_err() {
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(30));
+            }
+        });
+        let reply = reply_from_stream(&mut stream);
+        assert_eq!(reply.status, 408);
+        assert_eq!(reply.error_code(), "request_timeout");
+        assert!(started.elapsed() < Duration::from_secs(1));
+        trickle.join().unwrap();
+    }
+    service.shutdown();
+}
+
+#[test]
+fn scan_admission_precedes_image_decode_and_upload_storage() {
+    let service = Service::start(config()).unwrap();
+    let addr = service.addr();
+    let mut first = TcpStream::connect(addr).unwrap();
+    first
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    write!(first, "POST /scan HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 100\r\nExpect: 100-continue\r\n\r\n", addr.port()).unwrap();
+    let mut interim = [0_u8; 25];
+    first.read_exact(&mut interim).unwrap();
+    assert_eq!(&interim, b"HTTP/1.1 100 Continue\r\n\r\n");
+    let threads: Vec<_> = (0..6).map(|_| std::thread::spawn(move || {
+        let reply = request(addr, "POST", "/scan", &[("Content-Type", "image/png")], b"\x89PNG\r\n\x1a\nbroken");
+        assert_eq!(reply.status, 429); // decoding would instead return 400
+        let reply = head_reply(addr, &format!("POST /scan HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 1048576\r\n\r\n", addr.port()));
+        assert_eq!(reply.status, 429); // no body sent or reserved
+    })).collect();
+    for thread in threads {
+        thread.join().unwrap();
+    }
+    drop(first);
+    service.shutdown();
+}
+
+#[cfg(unix)]
+fn fixture_worker(directory: &std::path::Path, delay: bool, flood: bool) -> PathBuf {
+    use std::os::unix::fs::PermissionsExt;
+    let script = directory.join("worker");
+    // Each child writes its own PID marker. Fixtures only, no real input or token.
+    let text = format!(
+        "#!/bin/sh\necho $$ > '{}/started-'$$\ncat >/dev/null\n{}{}printf '%s' '{{\"err\":{{\"code\":\"malformed\",\"message\":\"fixture outcome\"}}}}'\n",
+        directory.display(),
+        if flood {
+            "dd if=/dev/zero bs=65536 count=512 1>&2 2>/dev/null\nprintf 'FLOOD-END' >&2\n"
+        } else {
+            ""
+        },
+        if delay { "sleep 30\n" } else { "" }
+    );
+    std::fs::write(&script, text).unwrap();
+    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
+    script
+}
+
+#[cfg(unix)]
+fn wait_for_workers(directory: &std::path::Path, count: usize) -> Vec<u32> {
+    let deadline = std::time::Instant::now() + Duration::from_secs(3);
+    loop {
+        let pids: Vec<_> = std::fs::read_dir(directory)
+            .unwrap()
+            .filter_map(Result::ok)
+            .filter(|entry| entry.file_name().to_string_lossy().starts_with("started-"))
+            .map(|entry| {
+                std::fs::read_to_string(entry.path())
+                    .unwrap()
+                    .trim()
+                    .parse()
+                    .unwrap()
+            })
+            .collect();
+        if pids.len() == count {
+            return pids;
+        }
+        assert!(std::time::Instant::now() < deadline, "worker did not start");
+        std::thread::sleep(Duration::from_millis(10));
+    }
+}
+
+#[cfg(unix)]
+fn worker_alive(pid: u32) -> bool {
+    std::process::Command::new("/bin/kill")
+        .args(["-0", &pid.to_string()])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .unwrap()
+        .success()
+}
+
+#[cfg(unix)]
+fn start_scan(addr: SocketAddr, id: &str) -> TcpStream {
+    let mut stream = TcpStream::connect(addr).unwrap();
+    stream
+        .set_read_timeout(Some(Duration::from_secs(3)))
+        .unwrap();
+    let bytes = b"%PDF-1.4\nfixture";
+    write!(stream, "POST /scan?id={id} HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: {}\r\n\r\n", addr.port(), bytes.len()).unwrap();
+    stream.write_all(bytes).unwrap();
+    stream
+}
+
+#[cfg(unix)]
+#[test]
+fn disconnect_kills_worker_and_releases_capacity_for_retry() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut cfg = config();
+    cfg.worker_exe = fixture_worker(dir.path(), true, false);
+    let service = Service::start(cfg).unwrap();
+    let stream = start_scan(service.addr(), "disconnect-fixture-01");
+    let pid = wait_for_workers(dir.path(), 1)[0];
+    drop(stream);
+    let deadline = std::time::Instant::now() + Duration::from_secs(2);
+    while worker_alive(pid) {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "disconnected worker is alive"
+        );
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    // Admission may be released just after wait reaps the process.
+    loop {
+        let reply = request(service.addr(), "POST", "/scan", &[], b"junk");
+        if reply.status == 415 {
+            break;
+        }
+        assert_eq!(reply.status, 429);
+        assert!(std::time::Instant::now() < deadline);
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    service.shutdown();
+}
+
+#[cfg(unix)]
+#[test]
+fn authenticated_cancel_reaps_only_corresponding_worker_before_acknowledging() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut cfg = config();
+    cfg.max_concurrent = 2;
+    cfg.worker_exe = fixture_worker(dir.path(), true, false);
+    let service = Service::start(cfg).unwrap();
+    let mut first = start_scan(service.addr(), "cancel-fixture-first");
+    let first_pid = wait_for_workers(dir.path(), 1)[0];
+    let mut second = start_scan(service.addr(), "cancel-fixture-second");
+    let all = wait_for_workers(dir.path(), 2);
+    let second_pid = *all.iter().find(|&&pid| pid != first_pid).unwrap();
+    let unauthorized = request(
+        service.addr(),
+        "POST",
+        "/cancel?id=cancel-fixture-first",
+        &[("Authorization", "Bearer wrong-fixture-token")],
+        b"",
+    );
+    assert_eq!(unauthorized.status, 401);
+    assert!(worker_alive(first_pid));
+    let cancelled = request(
+        service.addr(),
+        "POST",
+        "/cancel?id=cancel-fixture-first",
+        &[("Origin", ORIGIN)],
+        b"",
+    );
+    assert_eq!(cancelled.status, 204);
+    assert_eq!(
+        cancelled.header("Access-Control-Allow-Origin"),
+        Some(ORIGIN)
+    );
+    assert!(!worker_alive(first_pid));
+    assert!(worker_alive(second_pid));
+    assert_eq!(reply_from_stream(&mut first).error_code(), "timeout");
+    // Slot is available immediately after the cancellation acknowledgement.
+    assert_eq!(
+        request(service.addr(), "POST", "/scan", &[], b"junk").status,
+        415
+    );
+    assert_eq!(
+        request(
+            service.addr(),
+            "POST",
+            "/cancel?id=cancel-fixture-second",
+            &[],
+            b""
+        )
+        .status,
+        204
+    );
+    assert!(!worker_alive(second_pid));
+    assert_eq!(reply_from_stream(&mut second).error_code(), "timeout");
+    service.shutdown();
+}
+
+#[cfg(unix)]
+#[test]
+fn stderr_flood_is_drained_and_cancelled_without_blocking_cleanup() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut cfg = config();
+    cfg.worker_exe = fixture_worker(dir.path(), true, true);
+    let service = Service::start(cfg).unwrap();
+    let stream = start_scan(service.addr(), "stderr-flood-fixture");
+    let pid = wait_for_workers(dir.path(), 1)[0];
+    std::thread::sleep(Duration::from_millis(100));
+    let reply = request(
+        service.addr(),
+        "POST",
+        "/cancel?id=stderr-flood-fixture",
+        &[],
+        b"",
+    );
+    assert_eq!(reply.status, 204);
+    assert!(!worker_alive(pid));
+    drop(stream);
+    service.shutdown();
+}
+
+#[test]
+fn cancellation_before_admission_prevents_late_worker_start() {
+    let service = Service::start(config()).unwrap();
+    let addr = service.addr();
+    // This models cancellation arriving on a separate browser connection first.
+    assert_eq!(
+        request(addr, "POST", "/cancel?id=cancel-overtakes-scan", &[], b"").status,
+        204
+    );
+    let reply = head_reply(
+        addr,
+        &format!(
+            "POST /scan?id=cancel-overtakes-scan HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 1024\r\nExpect: 100-continue\r\n\r\n",
+            addr.port()
+        ),
+    );
+    assert_eq!(reply.status, 504);
+    assert_eq!(reply.error_code(), "timeout");
+    assert_eq!(request(addr, "POST", "/scan", &[], b"junk").status, 415);
+    service.shutdown();
+}
+
+#[test]
+fn cancelling_an_incomplete_upload_releases_admission_before_acknowledgement() {
+    let service = Service::start(config()).unwrap();
+    let addr = service.addr();
+    let mut upload = TcpStream::connect(addr).unwrap();
+    upload
+        .set_read_timeout(Some(Duration::from_secs(2)))
+        .unwrap();
+    write!(upload, "POST /scan?id=cancel-during-upload HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: 1048576\r\nExpect: 100-continue\r\n\r\n", addr.port()).unwrap();
+    let mut interim = [0_u8; 25];
+    upload.read_exact(&mut interim).unwrap();
+    assert_eq!(&interim, b"HTTP/1.1 100 Continue\r\n\r\n");
+    assert_eq!(
+        request(addr, "POST", "/cancel?id=cancel-during-upload", &[], b"").status,
+        204
+    );
+    assert_eq!(request(addr, "POST", "/scan", &[], b"junk").status, 415);
+    drop(upload);
+    service.shutdown();
+}
+
+#[test]
+fn service_shutdown_interrupts_incomplete_request_reads() {
+    let service = Service::start(config()).unwrap();
+    let mut upload = TcpStream::connect(service.addr()).unwrap();
+    upload.write_all(b"POST /scan HTTP/1.1\r\n").unwrap();
+    std::thread::sleep(Duration::from_millis(50));
+    let started = std::time::Instant::now();
+    service.shutdown();
+    assert!(started.elapsed() < Duration::from_secs(1));
 }

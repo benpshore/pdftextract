@@ -109,7 +109,7 @@ try {
   const progress = [];
   const result = await scanFile(connection, file, { fetch: fakeFetch, mode: 'ocr', pages: [1, 2], capabilities: detected, onProgress: p => progress.push(p.phase) });
   check(result.pages.length === 2 && result.pages_scanned[1] === 2, 'single-window scan returns its pages');
-  check(requests.at(-1).url === 'http://127.0.0.1:5209/scan?mode=ocr&pages=1-2' && requests.at(-1).body === file, 'scan posts the file with mode and pages');
+  check(new URL(requests.at(-1).url).pathname === '/scan' && new URL(requests.at(-1).url).searchParams.get('pages') === '1-2' && new URL(requests.at(-1).url).searchParams.get('id').length === 36 && requests.at(-1).body === file, 'scan posts the file with mode and pages');
   check(progress[0] === 'uploading' && progress.includes('scanning') && progress.at(-1) === 'done', `progress phases ${progress.join(',')}`);
   await assert.rejects(scanFile(connection, new Blob([new Uint8Array(2048)]), { fetch: fakeFetch, capabilities: detected }), error => error.code === 'too_large');
   checks.push('oversized files are refused before upload');
@@ -132,6 +132,111 @@ try {
   aborted.abort();
   await assert.rejects(scanFile(connection, file, { fetch: fakeFetch, signal: aborted.signal }), error => error.name === 'AbortError');
   checks.push('an aborted signal rejects before sending');
+
+  // Cancel acknowledgement, not merely HTTP abort, releases Retry.
+  {
+    const controller = new AbortController();
+    let active = false;
+    let uploadUrl;
+    let releaseCancel;
+    let cancelInit;
+    let cancelUrl;
+    const cancelFetch = async (url, init) => {
+      if (new URL(url).pathname === '/cancel') {
+        cancelUrl = url; cancelInit = init;
+        return new Promise(resolve => { releaseCancel = () => { active = false; resolve(new Response(null, { status: 204 })); }; });
+      }
+      if (active) return json(429, { error: { code: 'busy', message: 'occupied' } });
+      if (!init.signal) return fakeFetch(url, init);
+      active = true; uploadUrl = url;
+      return new Promise((resolve, reject) => init.signal.addEventListener('abort', () => reject(new DOMException('cancelled', 'AbortError')), { once: true }));
+    };
+    let settled = false;
+    const pending = scanFile(connection, file, { fetch: cancelFetch, signal: controller.signal });
+    const rejected = assert.rejects(pending, error => error.name === 'AbortError').then(() => { settled = true; });
+    controller.abort();
+    await new Promise(resolve => setImmediate(resolve));
+    check(!settled && active && releaseCancel, 'abort waits for worker cleanup acknowledgement before settling');
+    check(new URL(cancelUrl).searchParams.get('id') === new URL(uploadUrl).searchParams.get('id'), 'cancel targets only the corresponding scan id');
+    check(cancelInit.headers.Authorization === `Bearer ${TOKEN}` && !cancelInit.signal.aborted && cancelInit.body === undefined, 'cancel uses a separate authenticated bodyless request with a live bounded signal');
+    releaseCancel();
+    await rejected;
+    await scanFile(connection, file, { fetch: cancelFetch });
+    check(!active, 'retry after acknowledged cancellation has capacity');
+  }
+
+  // An abort while response JSON is pending must suppress a late result.
+  {
+    const controller = new AbortController();
+    let finishJson;
+    const phases = [];
+    let cancelCount = 0;
+    const delayedFetch = async (url, init) => {
+      if (new URL(url).pathname === '/cancel') { cancelCount++; return new Response(null, { status: 204 }); }
+      const reply = await fakeFetch(url, init);
+      const value = await reply.json();
+      return { ok: true, json: () => new Promise(resolve => { finishJson = () => resolve(value); }) };
+    };
+    const pending = scanFile(connection, file, { fetch: delayedFetch, signal: controller.signal, onProgress: p => phases.push(p.phase) });
+    const rejected = assert.rejects(pending, error => error.name === 'AbortError');
+    await new Promise(resolve => setImmediate(resolve));
+    controller.abort(); finishJson();
+    await rejected;
+    check(cancelCount === 1 && !phases.includes('done'), 'late response parsing after abort cannot report success or double-cancel');
+  }
+
+  // A failed cancellation is explicit; do not claim cleanup succeeded.
+  {
+    const controller = new AbortController();
+    const downOnCancel = async (url, init) => {
+      if (new URL(url).pathname === '/cancel') throw new TypeError('connection lost');
+      return new Promise((resolve, reject) => init.signal.addEventListener('abort', () => reject(new DOMException('cancelled', 'AbortError')), { once: true }));
+    };
+    const pending = scanFile(connection, file, { fetch: downOnCancel, signal: controller.signal });
+    const rejected = assert.rejects(pending, error => error.code === 'cancel_pending');
+    controller.abort(); await rejected;
+    check(/could not be confirmed/.test(describeUnavailable(new ScanServiceError('cancel_pending', 'x'), connection)), 'failed cancellation tells the caller cleanup is unconfirmed');
+  }
+
+  // Exercise the default XHR transport too, including listener cleanup.
+  {
+    const oldXHR = globalThis.XMLHttpRequest;
+    const oldFetch = globalThis.fetch;
+    const controller = new AbortController();
+    const signal = controller.signal;
+    const add = signal.addEventListener.bind(signal);
+    const remove = signal.removeEventListener.bind(signal);
+    let added = 0; let removed = 0; let upload;
+    signal.addEventListener = (...args) => { added++; return add(...args); };
+    signal.removeEventListener = (...args) => { removed++; return remove(...args); };
+    let cancelUrl;
+    class FixtureXHR {
+      upload = {};
+      open(method, url) { this.method = method; this.url = url; upload = this; }
+      setRequestHeader() {}
+      getAllResponseHeaders() { return 'Content-Type: application/json'; }
+      send(body) { this.body = body; }
+      abort() { this.onabort?.(); }
+    }
+    try {
+      globalThis.XMLHttpRequest = FixtureXHR;
+      globalThis.fetch = async (url, init) => { cancelUrl = url; assert(!init.signal.aborted); return new Response(null, { status: 204 }); };
+      const pending = scanFile(connection, file, { signal });
+      const rejected = assert.rejects(pending, error => error.name === 'AbortError');
+      controller.abort(); await rejected;
+      check(upload.method === 'POST' && upload.body === file && new URL(cancelUrl).searchParams.get('id') === new URL(upload.url).searchParams.get('id'), 'XHR abort sends matching worker cancellation');
+      check(added === 2 && removed === 2, 'XHR and request cancellation listeners are removed on completion');
+      // A completed upload also removes its listener: abort later does nothing.
+      const completed = new AbortController();
+      const pendingResult = scanFile(connection, file, { signal: completed.signal });
+      const value = await (await fakeFetch(upload.url, { headers: { Authorization: `Bearer ${TOKEN}` } })).json();
+      upload.status = 200; upload.statusText = 'OK'; upload.response = JSON.stringify(value); upload.onload();
+      await pendingResult;
+      cancelUrl = undefined;
+      completed.abort();
+      check(cancelUrl === undefined, 'aborting a completed XHR scan cannot send a stale cancellation');
+    } finally { globalThis.XMLHttpRequest = oldXHR; globalThis.fetch = oldFetch; }
+  }
 
   // Page windows over the service's page limit.
   const windows = [];

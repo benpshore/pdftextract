@@ -250,6 +250,7 @@ pub struct PageOut {
 /// The result of one scan.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct ScanResult {
+    pub input: crate::image_pdf::InputKind,
     pub backend: BackendIdentity,
     pub mode: Mode,
     pub pages_total: u32,
@@ -348,6 +349,7 @@ pub fn scan_bytes(pdf: &[u8], options: &ScanOptions) -> Result<ScanResult, ScanE
         );
     }
     Ok(ScanResult {
+        input: crate::image_pdf::InputKind::Pdf,
         backend: identity,
         mode,
         pages_total: total,

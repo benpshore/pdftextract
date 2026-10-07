@@ -14,6 +14,7 @@ use std::time::{Duration, Instant};
 
 use serde::{Deserialize, Serialize};
 
+use crate::image_pdf::{self, ImageError, InputKind};
 use crate::scan::{ErrorCode, ScanError, ScanOptions, ScanResult, scan_bytes};
 
 /// Subcommand name the child is started with.
@@ -90,10 +91,78 @@ fn worker_output(request_json: &str) -> WorkerOutput {
         Ok(input) => input,
         Err(error) => return WorkerOutput::Err(error),
     };
-    match scan_bytes(&input, &request.options) {
+    match scan_input(&input, &request.options) {
         Ok(result) => WorkerOutput::Ok(Box::new(result)),
         Err(error) => WorkerOutput::Err(error),
     }
+}
+
+// Called only in the disposable worker after hard limits are installed.
+fn scan_input(input: &[u8], options: &ScanOptions) -> Result<ScanResult, ScanError> {
+    let started = Instant::now();
+    let kind = image_pdf::sniff(input)
+        .ok_or_else(|| ScanError::new(ErrorCode::Malformed, "unsupported input"))?;
+    let wrapped = if kind == InputKind::Pdf {
+        None
+    } else {
+        Some(image_pdf::wrap_image(input, kind).map_err(|error| {
+            ScanError::new(
+                if matches!(error, ImageError::TooLarge { .. }) {
+                    ErrorCode::Limit
+                } else {
+                    ErrorCode::Malformed
+                },
+                error.to_string(),
+            )
+        })?)
+    };
+    let pdf = wrapped
+        .as_ref()
+        .map_or(input, |wrapped| wrapped.pdf.as_slice());
+    let mut result = scan_bytes(pdf, options)?;
+    result.input = kind;
+    if let Some(wrapped) = wrapped {
+        result.warnings.push(format!(
+            "{} image of {}x{} px placed on one page at an assumed {} dpi",
+            kind.as_str(),
+            wrapped.width_px,
+            wrapped.height_px,
+            image_pdf::DEFAULT_DPI
+        ));
+    }
+    result.elapsed_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
+    Ok(result)
+}
+
+/// Drain stderr with fixed storage; retain only the last 4 KiB while reading.
+fn stderr_tail(mut stream: impl Read) -> String {
+    let mut ring = [0_u8; STDERR_TAIL_BYTES];
+    let mut chunk = [0_u8; STDERR_TAIL_BYTES];
+    let mut position = 0;
+    let mut kept = 0;
+    loop {
+        let read = match stream.read(&mut chunk) {
+            Ok(0) => break,
+            Ok(read) => read,
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(_) => break,
+        };
+        for &byte in &chunk[..read] {
+            ring[position] = byte;
+            position = (position + 1) % STDERR_TAIL_BYTES;
+        }
+        kept = (kept + read).min(STDERR_TAIL_BYTES);
+    }
+    let mut ordered = Vec::with_capacity(kept);
+    let start = if kept == STDERR_TAIL_BYTES {
+        position
+    } else {
+        0
+    };
+    for index in 0..kept {
+        ordered.push(ring[(start + index) % STDERR_TAIL_BYTES]);
+    }
+    String::from_utf8_lossy(&ordered).into_owned()
 }
 
 fn read_stdin(max_bytes: u64) -> Result<Vec<u8>, ScanError> {
@@ -117,14 +186,27 @@ fn read_stdin(max_bytes: u64) -> Result<Vec<u8>, ScanError> {
 }
 
 /// Kill-on-drop guard so an abandoned child never outlives the request.
-struct Reaped(Child);
+struct Reaped(Child, bool);
+impl Reaped {
+    fn kill(&mut self) {
+        if self.1 {
+            return;
+        }
+        self.1 = true;
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        if let Ok(raw) = i32::try_from(self.0.id())
+            && let Some(pid) = rustix::process::Pid::from_raw(raw)
+        {
+            let _ = rustix::process::kill_process_group(pid, rustix::process::Signal::KILL);
+        }
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
 
 impl Drop for Reaped {
     fn drop(&mut self) {
-        if !matches!(self.0.try_wait(), Ok(Some(_))) {
-            let _ = self.0.kill();
-            let _ = self.0.wait();
-        }
+        self.kill();
     }
 }
 
@@ -139,6 +221,27 @@ pub fn run_in_worker(
     env: &[(String, String)],
     cancel: &AtomicBool,
 ) -> Result<ScanResult, ScanError> {
+    run_in_worker_cancellable(executable, pdf, options, limits, env, || {
+        cancel.load(Ordering::SeqCst)
+    })
+}
+
+/// Supervise the request's shutdown, disconnect and explicit cancellation.
+pub fn run_in_worker_cancellable(
+    executable: &Path,
+    input: Vec<u8>,
+    options: &ScanOptions,
+    limits: WorkerLimits,
+    env: &[(String, String)],
+    mut cancelled: impl FnMut() -> bool,
+) -> Result<ScanResult, ScanError> {
+    let deadline = Instant::now() + limits.timeout;
+    if cancelled() || Instant::now() >= deadline {
+        return Err(ScanError::new(
+            ErrorCode::Timeout,
+            "scan cancelled or deadline exceeded",
+        ));
+    }
     let request = WorkerRequest {
         options: options.clone(),
         max_bytes: limits.max_bytes,
@@ -157,28 +260,36 @@ pub fn run_in_worker(
     for (key, value) in env {
         command.env(key, value);
     }
-    let mut child = Reaped(command.spawn().map_err(|error| {
-        ScanError::new(
-            ErrorCode::Internal,
-            format!(
-                "could not start the scan worker {}: {error}",
-                executable.display()
-            ),
-        )
-    })?);
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
+    let mut child = Reaped(
+        command.spawn().map_err(|error| {
+            ScanError::new(
+                ErrorCode::Internal,
+                format!(
+                    "could not start the scan worker {}: {error}",
+                    executable.display()
+                ),
+            )
+        })?,
+        false,
+    );
     let Some(mut stdin) = child.0.stdin.take() else {
         return Err(ScanError::new(ErrorCode::Internal, "worker stdin missing"));
     };
     let Some(mut stdout) = child.0.stdout.take() else {
         return Err(ScanError::new(ErrorCode::Internal, "worker stdout missing"));
     };
-    let Some(mut stderr) = child.0.stderr.take() else {
+    let Some(stderr) = child.0.stderr.take() else {
         return Err(ScanError::new(ErrorCode::Internal, "worker stderr missing"));
     };
     // A child that exits early closes its pipe; a broken pipe is then
     // reported through its JSON/exit status, not here.
     let writer = std::thread::spawn(move || {
-        let _ = stdin.write_all(&pdf);
+        let _ = stdin.write_all(&input);
         drop(stdin);
     });
     let (sender, receiver) = mpsc::channel();
@@ -191,45 +302,39 @@ pub fn run_in_worker(
             .map(|_| output);
         let _ = sender.send(outcome);
     });
-    let errors = std::thread::spawn(move || {
-        let mut tail = Vec::new();
-        let _ = stderr.read_to_end(&mut tail);
-        let start = tail.len().saturating_sub(STDERR_TAIL_BYTES);
-        String::from_utf8_lossy(&tail[start..]).into_owned()
-    });
-    let deadline = Instant::now() + limits.timeout;
-    let status = loop {
-        if let Some(status) = child.0.try_wait().map_err(|error| {
-            ScanError::new(
-                ErrorCode::Internal,
-                format!("waiting for the worker: {error}"),
-            )
-        })? {
-            break status;
-        }
-        if cancel.load(Ordering::SeqCst) {
-            drop(child);
-            let _ = writer.join();
-            return Err(ScanError::new(
+    let errors = std::thread::spawn(move || stderr_tail(stderr));
+    let outcome = loop {
+        if cancelled() {
+            break Err(ScanError::new(
                 ErrorCode::Timeout,
-                "scan cancelled: the service is shutting down",
+                "scan cancelled; its worker was killed",
             ));
         }
         if Instant::now() >= deadline {
-            drop(child);
-            let _ = writer.join();
-            return Err(ScanError::new(
+            break Err(ScanError::new(
                 ErrorCode::Timeout,
-                format!(
-                    "scan exceeded {} s and its worker was killed; scan fewer pages (pages=a-b) \
-                     or raise --scan-timeout-s",
-                    limits.timeout.as_secs()
-                ),
+                "scan deadline exceeded; its worker was killed",
             ));
+        }
+        match child.0.try_wait() {
+            Ok(Some(status)) => break Ok(status),
+            Ok(None) => {}
+            Err(error) => {
+                break Err(ScanError::new(
+                    ErrorCode::Internal,
+                    format!("waiting for worker: {error}"),
+                ));
+            }
         }
         std::thread::sleep(Duration::from_millis(20));
     };
+    // Kill the entire private process group, including any descendants holding
+    // pipes open, and join all drains before returning/releasing admission.
+    child.kill();
     let _ = writer.join();
+    let _ = reader.join();
+    let stderr_tail = errors.join().unwrap_or_default();
+    let status = outcome?;
     let output = receiver
         .recv_timeout(Duration::from_secs(10))
         .map_err(|_| ScanError::new(ErrorCode::Internal, "worker output was not delivered"))?
@@ -239,8 +344,6 @@ pub fn run_in_worker(
                 format!("reading worker output: {error}"),
             )
         })?;
-    let _ = reader.join();
-    let stderr_tail = errors.join().unwrap_or_default();
     match serde_json::from_slice::<WorkerOutput>(&output) {
         Ok(WorkerOutput::Ok(result)) => Ok(*result),
         Ok(WorkerOutput::Err(error)) => Err(error),
@@ -375,6 +478,40 @@ pub mod limits {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn stderr_storage_stays_fixed_while_a_large_stream_is_read() {
+        struct Flood {
+            remaining: usize,
+            marker: bool,
+        }
+        impl Read for Flood {
+            fn read(&mut self, buffer: &mut [u8]) -> std::io::Result<usize> {
+                // Catch a growing read_to_end buffer, while streaming 32 MiB
+                // without allocating the synthetic flood in the test itself.
+                assert!(buffer.len() <= STDERR_TAIL_BYTES);
+                if self.remaining > 0 {
+                    let count = self.remaining.min(buffer.len());
+                    buffer[..count].fill(b'x');
+                    self.remaining -= count;
+                    return Ok(count);
+                }
+                if !self.marker {
+                    self.marker = true;
+                    buffer[..9].copy_from_slice(b"FLOOD-END");
+                    return Ok(9);
+                }
+                Ok(0)
+            }
+        }
+        let tail = stderr_tail(Flood {
+            remaining: 32 * 1024 * 1024,
+            marker: false,
+        });
+        assert_eq!(tail.len(), STDERR_TAIL_BYTES);
+        assert!(tail.ends_with("FLOOD-END"));
+        assert!(tail[..tail.len() - 9].bytes().all(|byte| byte == b'x'));
+    }
 
     #[test]
     fn worker_output_json_shapes_are_stable() {
