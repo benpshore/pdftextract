@@ -1,0 +1,252 @@
+{
+  "reviewed_head": "62564c4fbea96b69ab081474cef4030c2cb62c76",
+  "date": "2026-10-07",
+  "kind": "implementation-author validation, independent review pending",
+  "passing": {
+    "node_lifecycle_assertions": 88,
+    "chromium_lifecycle_assertions": 88,
+    "cpu_checks": 39,
+    "gpu_ocr_browser_checks": 19,
+    "chromium_version": "151.0.7922.34",
+    "gpu_tested": true,
+    "adapter": {
+      "vendor": "google",
+      "architecture": "swiftshader",
+      "device": "",
+      "description": "",
+      "fallback": true
+    },
+    "typescript": true,
+    "focused_eslint": true,
+    "web_build": true,
+    "source_manifest_verified": true,
+    "python_tests": 210,
+    "ruff_format_and_check": true
+  },
+  "node_wait_timings": [
+    {
+      "stage": "adapter",
+      "action": "abort",
+      "elapsedMs": 0.24092200000001185
+    },
+    {
+      "stage": "adapter",
+      "action": "deadline",
+      "elapsedMs": 60.311792000000025
+    },
+    {
+      "stage": "fallback-adapter",
+      "action": "abort",
+      "elapsedMs": 0.09041599999994787
+    },
+    {
+      "stage": "fallback-adapter",
+      "action": "deadline",
+      "elapsedMs": 59.46839499999999
+    },
+    {
+      "stage": "acquisition-adapter",
+      "action": "abort",
+      "elapsedMs": 0.07777699999996912
+    },
+    {
+      "stage": "acquisition-adapter",
+      "action": "deadline",
+      "elapsedMs": 59.526190999999926
+    },
+    {
+      "stage": "adapter-info",
+      "action": "abort",
+      "elapsedMs": 0.08110199999998713
+    },
+    {
+      "stage": "adapter-info",
+      "action": "deadline",
+      "elapsedMs": 59.61341300000004
+    },
+    {
+      "stage": "device",
+      "action": "abort",
+      "elapsedMs": 0.08764199999995981
+    },
+    {
+      "stage": "device",
+      "action": "deadline",
+      "elapsedMs": 59.64117400000009
+    },
+    {
+      "stage": "pipeline",
+      "action": "abort",
+      "elapsedMs": 0.10089100000004692
+    },
+    {
+      "stage": "pipeline",
+      "action": "deadline",
+      "elapsedMs": 59.398233000000005
+    },
+    {
+      "stage": "map-1",
+      "action": "abort",
+      "elapsedMs": 0.1410120000000461
+    },
+    {
+      "stage": "map-1",
+      "action": "deadline",
+      "elapsedMs": 59.452661000000035
+    },
+    {
+      "stage": "map-2",
+      "action": "abort",
+      "elapsedMs": 0.07329000000004271
+    },
+    {
+      "stage": "map-2",
+      "action": "deadline",
+      "elapsedMs": 59.48767299999997
+    },
+    {
+      "stage": "map-3",
+      "action": "abort",
+      "elapsedMs": 0.1660389999999552
+    },
+    {
+      "stage": "map-3",
+      "action": "deadline",
+      "elapsedMs": 59.797911
+    },
+    {
+      "stage": "error-scope",
+      "action": "abort",
+      "elapsedMs": 0.09250899999994999
+    },
+    {
+      "stage": "error-scope",
+      "action": "deadline",
+      "elapsedMs": 59.50078399999995
+    }
+  ],
+  "browser_wait_timings": [
+    {
+      "stage": "adapter",
+      "action": "abort",
+      "elapsedMs": 0.10000000149011612
+    },
+    {
+      "stage": "adapter",
+      "action": "deadline",
+      "elapsedMs": 60.100000001490116
+    },
+    {
+      "stage": "fallback-adapter",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "fallback-adapter",
+      "action": "deadline",
+      "elapsedMs": 59.29999999701977
+    },
+    {
+      "stage": "acquisition-adapter",
+      "action": "abort",
+      "elapsedMs": 0.10000000149011612
+    },
+    {
+      "stage": "acquisition-adapter",
+      "action": "deadline",
+      "elapsedMs": 59.29999999701977
+    },
+    {
+      "stage": "adapter-info",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "adapter-info",
+      "action": "deadline",
+      "elapsedMs": 59.5
+    },
+    {
+      "stage": "device",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "device",
+      "action": "deadline",
+      "elapsedMs": 59.399999998509884
+    },
+    {
+      "stage": "pipeline",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "pipeline",
+      "action": "deadline",
+      "elapsedMs": 59.399999998509884
+    },
+    {
+      "stage": "map-1",
+      "action": "abort",
+      "elapsedMs": 0.10000000149011612
+    },
+    {
+      "stage": "map-1",
+      "action": "deadline",
+      "elapsedMs": 59.5
+    },
+    {
+      "stage": "map-2",
+      "action": "abort",
+      "elapsedMs": 0.10000000149011612
+    },
+    {
+      "stage": "map-2",
+      "action": "deadline",
+      "elapsedMs": 59.399999998509884
+    },
+    {
+      "stage": "map-3",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "map-3",
+      "action": "deadline",
+      "elapsedMs": 59.29999999701977
+    },
+    {
+      "stage": "error-scope",
+      "action": "abort",
+      "elapsedMs": 0
+    },
+    {
+      "stage": "error-scope",
+      "action": "deadline",
+      "elapsedMs": 59.29999999701977
+    }
+  ],
+  "negative_controls": {
+    "adapter": "original head fails: adapter abort stayed pending after 1000 ms watchdog",
+    "device": "original head fails: device abort stayed pending after 1000 ms watchdog",
+    "pipeline": "original head fails: pipeline abort stayed pending after 1000 ms watchdog",
+    "map-1": "original head fails: map-1 abort stayed pending after 1000 ms watchdog"
+  },
+  "boundaries": {
+    "gpu_deadline_ms": 10000,
+    "signal_reason_preserved": true,
+    "gpu_cpu_integer_tolerance": 0,
+    "existing_quality_assertions_changed": false,
+    "ocr_quality_default_on_approved": false,
+    "hardware_gpu_tested": false,
+    "safari_ios_tested": false,
+    "independent_review": "pending"
+  },
+  "unavailable_repository_checks": {
+    "uv_audit": "offline OSV query data not cached",
+    "cargo": "not installed",
+    "swift": "not installed",
+    "cmake": "not installed"
+  }
+}

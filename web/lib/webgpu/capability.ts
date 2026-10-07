@@ -1,6 +1,8 @@
 /** WebGPU capability detection and device ownership for the OCR pre-processing path.
- * Detection never throws: every failure becomes an explicit `unavailable` status with a
+ * GPU failures become an explicit `unavailable` status with a
  * reason the UI can show. Safari 26 / iOS 26 and Chrome differences are handled here. */
+
+import { checkGpuWait, gpuWaitOptions, waitForGpu, WebGpuTimeoutError, type GpuWaitOptions } from './wait';
 
 export type WebGpuAdapterSummary = { vendor: string; architecture: string; device: string; description: string; fallback: boolean };
 export type WebGpuLimits = { maxBufferSize: number; maxStorageBufferBindingSize: number; maxComputeWorkgroupsPerDimension: number; maxComputeInvocationsPerWorkgroup: number; maxComputeWorkgroupSizeX: number; maxComputeWorkgroupStorageSize: number };
@@ -19,7 +21,7 @@ export type WebGpuStatus = {
   /** One plain sentence for an accessible status line; no colour or icon carries meaning. */
   statusLine: string;
 };
-export type DetectOptions = { workingPixels?: number; powerPreference?: 'low-power' | 'high-performance' };
+export type DetectOptions = { workingPixels?: number; powerPreference?: 'low-power' | 'high-performance' } & GpuWaitOptions;
 
 const OCR_WORKING_PIXELS = 4_000_000;
 const WORKGROUP = 256;
@@ -37,10 +39,13 @@ function limitsOf(adapter: GPUAdapter): WebGpuLimits {
   const limits = adapter.limits;
   return { maxBufferSize: limits.maxBufferSize, maxStorageBufferBindingSize: limits.maxStorageBufferBindingSize, maxComputeWorkgroupsPerDimension: limits.maxComputeWorkgroupsPerDimension, maxComputeInvocationsPerWorkgroup: limits.maxComputeInvocationsPerWorkgroup, maxComputeWorkgroupSizeX: limits.maxComputeWorkgroupSizeX, maxComputeWorkgroupStorageSize: limits.maxComputeWorkgroupStorageSize };
 }
-async function adapterSummary(adapter: GPUAdapter): Promise<WebGpuAdapterSummary> {
+async function adapterSummary(adapter: GPUAdapter, wait: GpuWaitOptions): Promise<WebGpuAdapterSummary> {
   // Safari 26 exposes `adapter.info`; older Chrome shipped the now-removed `requestAdapterInfo()`.
   let info: GPUAdapterInfo | undefined = adapter.info;
-  if (!info && typeof adapter.requestAdapterInfo === 'function') info = await adapter.requestAdapterInfo().catch(() => undefined);
+  if (!info && typeof adapter.requestAdapterInfo === 'function') {
+    try { info = await waitForGpu(() => adapter.requestAdapterInfo!(), wait, 'requestAdapterInfo'); }
+    catch (error) { if (wait.signal?.aborted || error instanceof WebGpuTimeoutError) throw error; }
+  }
   return { vendor: info?.vendor || '', architecture: info?.architecture || '', device: info?.device || '', description: info?.description || '', fallback: Boolean(info?.isFallbackAdapter ?? adapter.isFallbackAdapter ?? false) };
 }
 /** Bytes and dispatch sizes the kernels need for a working image of `pixels` pixels. */
@@ -64,10 +69,13 @@ export function statusLineFor(status: Omit<WebGpuStatus, 'statusLine'>): string 
   return `WebGPU unavailable${status.reason ? ` (${status.reason})` : ''}: image pre-processing and OCR run on the CPU. Nothing leaves this device.`;
 }
 
-let cached: { device: GPUDevice; status: WebGpuStatus } | null = null, lostReason: string | null = null, deviceFailure: string | null = null, acquiring: Promise<{ device: GPUDevice; status: WebGpuStatus } | null> | null = null;
+let cached: { device: GPUDevice; status: WebGpuStatus } | null = null, lostReason: string | null = null, deviceFailure: string | null = null;
+let generation = 0;
 
-/** Probe `navigator.gpu`, request an adapter (then a fallback adapter), check limits. Never throws. */
+/** Probe the adapter within a deadline. GPU failures become status; cancellation throws its reason. */
 export async function detectWebGpu(options: DetectOptions = {}): Promise<WebGpuStatus> {
+  const wait = gpuWaitOptions(options);
+  checkGpuWait(wait, 'adapter detection');
   const pixels = options.workingPixels ?? OCR_WORKING_PIXELS, browser = hints();
   const secureContext = typeof isSecureContext === 'boolean' ? isSecureContext : false;
   const base = { secureContext, browser, adapter: null, features: [], limits: null, notes: [] as string[] };
@@ -77,45 +85,67 @@ export async function detectWebGpu(options: DetectOptions = {}): Promise<WebGpuS
   if (lostReason) { const status = { ...base, state: 'lost' as const, reason: lostReason }; return { ...status, statusLine: statusLineFor(status) }; }
   const gpu = typeof navigator === 'object' ? navigator.gpu : undefined;
   if (!gpu) return unavailable(typeof isSecureContext === 'boolean' && !isSecureContext ? 'navigator.gpu requires a secure context (https or localhost)' : 'navigator.gpu is not exposed by this browser');
-  let adapter: GPUAdapter | null = null;
-  try { adapter = await gpu.requestAdapter(options.powerPreference ? { powerPreference: options.powerPreference } : {}); } catch (error) { base.notes.push(`requestAdapter threw: ${(error as Error).message}`); }
-  if (!adapter) {
-    // Chrome returns null on blocklisted GPUs; a fallback adapter (SwiftShader) may still exist.
-    try { adapter = await gpu.requestAdapter({ forceFallbackAdapter: true }); } catch (error) { base.notes.push(`fallback requestAdapter threw: ${(error as Error).message}`); }
-    if (adapter) base.notes.push('only a fallback (software) adapter is available');
+  try {
+    let adapter: GPUAdapter | null = null;
+    try { adapter = await waitForGpu(() => gpu.requestAdapter(options.powerPreference ? { powerPreference: options.powerPreference } : {}), wait, 'requestAdapter'); } catch (error) { if (wait.signal?.aborted || error instanceof WebGpuTimeoutError) throw error; base.notes.push(`requestAdapter threw: ${(error as Error).message}`); }
+    if (!adapter) {
+      // Chrome returns null on blocklisted GPUs; a fallback adapter (SwiftShader) may still exist.
+      try { adapter = await waitForGpu(() => gpu.requestAdapter({ forceFallbackAdapter: true }), wait, 'fallback requestAdapter'); } catch (error) { if (wait.signal?.aborted || error instanceof WebGpuTimeoutError) throw error; base.notes.push(`fallback requestAdapter threw: ${(error as Error).message}`); }
+      if (adapter) base.notes.push('only a fallback (software) adapter is available');
+    }
+    if (!adapter) return unavailable('no WebGPU adapter (GPU blocklisted, driver unsupported, or disabled by browser policy)');
+    const summary = await adapterSummary(adapter, wait), limits = limitsOf(adapter), features = [...adapter.features].sort();
+    const shortfall = limitShortfall(limits, pixels);
+    if (shortfall) return unavailable(`adapter limits too small: ${shortfall}`, { adapter: summary, limits, features });
+    if (summary.fallback) base.notes.push('fallback adapter: compute runs in software, so a first-use timing comparison decides whether it is used');
+    if (browser.engine === 'webkit') base.notes.push('WebKit (Safari 26 / iOS 26): default limits only, no optional features requested; the device is released when the page is hidden for long');
+    const ok = { ...base, state: 'available' as const, reason: null, adapter: summary, limits, features, notes: [...base.notes, `limits cover a ${pixels.toLocaleString('en-US')}-pixel working image`] };
+    return { ...ok, statusLine: statusLineFor(ok) };
+  } catch (error) {
+    wait.signal?.throwIfAborted();
+    return unavailable((error as Error).message || String(error));
   }
-  if (!adapter) return unavailable('no WebGPU adapter (GPU blocklisted, driver unsupported, or disabled by browser policy)');
-  const summary = await adapterSummary(adapter), limits = limitsOf(adapter), features = [...adapter.features].sort();
-  const shortfall = limitShortfall(limits, pixels);
-  if (shortfall) return unavailable(`adapter limits too small: ${shortfall}`, { adapter: summary, limits, features });
-  if (summary.fallback) base.notes.push('fallback adapter: compute runs in software, so a first-use timing comparison decides whether it is used');
-  if (browser.engine === 'webkit') base.notes.push('WebKit (Safari 26 / iOS 26): default limits only, no optional features requested; the device is released when the page is hidden for long');
-  const ok = { ...base, state: 'available' as const, reason: null, adapter: summary, limits, features, notes: [...base.notes, `limits cover a ${pixels.toLocaleString('en-US')}-pixel working image`] };
-  return { ...ok, statusLine: statusLineFor(ok) };
 }
 
-/** Create (once) and share the compute device. Returns null, with the status explaining why, when unavailable. */
+/** Reuse a session device; pending requests belong to each caller so one abort cannot
+ * cancel another caller. Concurrent successful requests publish only one device. */
 export async function acquireWebGpuDevice(options: DetectOptions = {}): Promise<{ device: GPUDevice; status: WebGpuStatus } | null> {
+  const wait = gpuWaitOptions(options), epoch = generation;
+  try { checkGpuWait(wait, 'device acquisition'); } catch (error) {
+    wait.signal?.throwIfAborted();
+    deviceFailure = (error as Error).message; return null;
+  }
   if (cached) return cached;
-  if (acquiring) return acquiring;
-  acquiring = (async () => {
-    const status = await detectWebGpu(options);
-    if (status.state !== 'available') return null;
+  const status = await detectWebGpu({ ...options, ...wait });
+  if (status.state !== 'available') return null;
+  let device: GPUDevice | null = null;
+  try {
     const gpu = navigator.gpu!;
-    let adapter: GPUAdapter | null = null;
-    try { adapter = await gpu.requestAdapter(options.powerPreference ? { powerPreference: options.powerPreference } : {}) ?? await gpu.requestAdapter({ forceFallbackAdapter: true }); } catch { adapter = null; }
+    const adapter = await waitForGpu(() => gpu.requestAdapter(options.powerPreference ? { powerPreference: options.powerPreference } : {}), wait, 'requestAdapter')
+      ?? await waitForGpu(() => gpu.requestAdapter({ forceFallbackAdapter: true }), wait, 'fallback requestAdapter');
     if (!adapter) return null;
-    try {
-      // Request nothing optional: Safari rejects unknown features/limits and the kernels need only defaults.
-      const device = await adapter.requestDevice({ label: 'tpe-ocr-preprocess' });
-      device.lost.then(info => { lostReason = `${info.reason}: ${info.message || 'no message'}`; cached = null; }).catch(() => { cached = null; });
-      cached = { device, status };
-      return cached;
-    } catch (error) { deviceFailure = `requestDevice failed: ${(error as Error).message || 'unknown error'}`; return null; }
-  })();
-  try { return await acquiring; } finally { acquiring = null; }
+    // No optional features/limits. A device delivered after abort/timeout is destroyed.
+    device = await waitForGpu(() => adapter.requestDevice({ label: 'tpe-ocr-preprocess' }), wait, 'requestDevice', late => late.destroy());
+    checkGpuWait(wait, 'device acquisition');
+    if (epoch !== generation) { device.destroy(); return null; }
+    if (cached) { device.destroy(); return cached; }
+    const owned = device;
+    device.lost.then(info => {
+      if (cached?.device !== owned) return;
+      lostReason = `${info.reason}: ${info.message || 'no message'}`; cached = null;
+    }).catch(() => { if (cached?.device === owned) cached = null; });
+    cached = { device, status };
+    return cached;
+  } catch (error) {
+    device?.destroy();
+    wait.signal?.throwIfAborted();
+    if (epoch === generation && !cached) deviceFailure = `requestDevice failed: ${(error as Error).message || String(error)}`;
+    return null;
+  }
 }
+/** Most recent acquisition failure without starting another adapter probe. */
+export function webGpuFailureReason(): string | null { return deviceFailure ?? lostReason; }
 /** Destroy the shared device (tests and page teardown). */
-export function releaseWebGpuDevice(): void { try { cached?.device.destroy(); } catch { /* already destroyed */ } cached = null; }
+export function releaseWebGpuDevice(): void { generation++; const owned = cached?.device; cached = null; try { owned?.destroy(); } catch { /* already destroyed */ } }
 /** Forget a recorded device loss so the next acquisition tries again (tests). */
 export function resetWebGpuState(): void { releaseWebGpuDevice(); lostReason = null; deviceFailure = null; }

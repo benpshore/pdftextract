@@ -703,10 +703,10 @@
       "sha256": "53f3d3d070f0a9082934da25b875f9499855c2b0693868dd28be8c23d8730f68"
     },
     {
-      "bytes": 10410,
+      "bytes": 11947,
       "mode": "0644",
       "path": "lib/webgpu/capability.ts",
-      "sha256": "ab1c064d08ba97e59b4517b027bf00f0482155ee8de5a8dbb5e2abeabfe19702"
+      "sha256": "d148da93d25eb2e77deb30bca2d3c3a60541cc7a076bb0a3e07cc8ea1e58e5dc"
     },
     {
       "bytes": 7084,
@@ -715,22 +715,28 @@
       "sha256": "f5aeb68447419f4e5a066e71606b65eb582f03bddc9cdb83f86e19009d27b59f"
     },
     {
-      "bytes": 11768,
+      "bytes": 13222,
       "mode": "0644",
       "path": "lib/webgpu/gpu.ts",
-      "sha256": "3d390490b04b7c19fd8235472ad18bf3b6d5c6c5a6cf96d4bdf222abd4383f99"
+      "sha256": "89133d0eb08b151da17cd40e91604f4faba2140f9f22f777486b2f2ca9912afd"
     },
     {
-      "bytes": 7385,
+      "bytes": 7669,
       "mode": "0644",
       "path": "lib/webgpu/index.ts",
-      "sha256": "1faf5e7df2d0a26c3e1f6c6fc8598e5722baf84bbb7af6d00c8e3785150da141"
+      "sha256": "3743c17a5c7109d83c23cf488100c0d96f3518a7bd757f899e2273222dac53dc"
     },
     {
       "bytes": 3841,
       "mode": "0644",
       "path": "lib/webgpu/shaders.ts",
       "sha256": "4ee62a947023c1aca8cac671660394e928c28c3ec60d81361ce9538324895f39"
+    },
+    {
+      "bytes": 2394,
+      "mode": "0644",
+      "path": "lib/webgpu/wait.ts",
+      "sha256": "06eb01a146fc6f73aa7ce5eb3795527a58ba33eb6255fdca55a1c103b8a1af9b"
     },
     {
       "bytes": 4284,

@@ -34,6 +34,16 @@ jobs:
       - run: node scripts/copy-pdf-wasm.mjs
       - run: node scripts/copy-ocr-assets.mjs
       - run: pnpm exec tsc --noEmit
+      - run: node tests/webgpu-cpu.mjs
+      - run: node tests/webgpu-cancellation.mjs
+      - name: Install pinned Chromium test runtime
+        run: |
+          npm install --prefix "$RUNNER_TEMP/tpe-playwright" --no-package-lock --ignore-scripts playwright@1.62.1
+          node "$RUNNER_TEMP/tpe-playwright/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: WebGPU browser lifecycle, integer parity and OCR checks
+        env:
+          WEBGPU_REQUIRE_GPU: '1'
+        run: PLAYWRIGHT_MODULE="$RUNNER_TEMP/tpe-playwright/node_modules/playwright/index.mjs" node tests/webgpu-browser.mjs
       - run: node scripts/test-clip.mjs
       - run: node scripts/test-web-extraction-review.mjs
       - run: node scripts/test-import-flow.mjs
