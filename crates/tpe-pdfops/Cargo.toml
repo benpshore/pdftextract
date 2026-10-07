@@ -29,8 +29,7 @@ image = { version = "0.25", default-features = false, features = ["jpeg"] }
 lopdf = "0.45"
 pdfium-render = { version = "0.8", optional = true, default-features = false, features = ["pdfium_latest", "thread_safe"] }
 thiserror = "2"
-
-[dev-dependencies]
+same-file = "1"
 tempfile = "3"
 
 [lints]

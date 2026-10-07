@@ -66,10 +66,10 @@ PDFIUM_DYNAMIC_LIB_PATH="$PWD/.pdfium/lib"` (see `docs/NATIVE.md`).
 ```rust
 use tpe_pdfops::{Output, PageSelection};
 use tpe_pdfops::concat::{concatenate, ConcatOptions};
-use tpe_pdfops::output::save_document;
+use tpe_pdfops::output::save_document_with_inputs;
 
 let mut doc = concatenate(&[a, b], &ConcatOptions { outlines: true })?;
-save_document(&mut doc, &Output::new("merged.pdf"))?;   // Err(OutputExists) if present
+save_document_with_inputs(&mut doc, &Output::new("merged.pdf"), &[a, b])?;   // Err(OutputExists) if present
 ```
 
 Every operation returns a `lopdf::Document` (or, for `paginate`, writes its
@@ -104,3 +104,24 @@ feature the test asserts the unsupported result instead.
   are not moved.
 - `clean` output is image-only; its file size depends on `--dpi` and
   `--encoding`.
+
+
+### Output publication safety
+
+CLI operations and `paginate` pass their input paths to the checked writer.
+`ensure_not_input` compares file identities as well as canonical paths,
+including hard links and symlinks. The writer retains input identity handles
+and rechecks the destination after staging. Complete bytes are written,
+flushed and synced to a temporary new inode in the output directory before
+publication. `--force` replaces a directory entry by rename; it never opens
+the existing destination for writing. A link introduced after the final check
+therefore cannot cause input truncation. Without force, publication refuses
+a concurrently created destination. Handled staging or publication failures
+preserve existing outputs and remove the temporary file.
+
+Library callers must use `save_document_with_inputs` or
+`write_bytes_with_inputs` to request alias rejection; the low-level writers
+without an input list still publish new inodes but cannot identify input paths.
+This is per-file publication, not an all-or-nothing transaction across split
+outputs. Parent directories must remain stable; hostile directory replacement
+and power-loss durability of directory entries are outside this guarantee.

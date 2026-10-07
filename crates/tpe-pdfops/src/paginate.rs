@@ -8,7 +8,7 @@ use lopdf::{Document, Object, ObjectId, dictionary};
 
 use crate::error::{PdfOpsError, Result};
 use crate::inspect::{inherited_box, materialise_inherited};
-use crate::output::{Output, ensure_not_input, load_input, save_document};
+use crate::output::{Output, ensure_not_input, load_input, save_document_with_inputs};
 use crate::pages::PageSelection;
 
 /// How the pages are grouped into output files.
@@ -76,7 +76,7 @@ pub fn paginate(input: &Path, options: &PaginateOptions, output: &Output) -> Res
             path: path.clone(),
             force: output.force,
         };
-        save_document(&mut doc, &file)?;
+        save_document_with_inputs(&mut doc, &file, &[input])?;
         written.push(path);
     }
     Ok(written)
@@ -91,6 +91,22 @@ pub fn extract_pages(
 ) -> Result<Document> {
     let source_pages = source.get_pages();
     let mut out = Document::with_version(source.version.as_str());
+    // Imported references keep their source IDs. Reserve the entire source
+    // namespace before allocating the tree, duplicate pages or stamp objects.
+    out.max_id = source
+        .objects
+        .keys()
+        .map(|id| id.0)
+        .max()
+        .unwrap_or(0)
+        .max(source.max_id);
+    let generated = u32::try_from(pages.len())
+        .ok()
+        .and_then(|n| n.checked_mul(4))
+        .and_then(|n| n.checked_add(2));
+    if generated.and_then(|n| out.max_id.checked_add(n)).is_none() {
+        return Err(PdfOpsError::Invalid("PDF object ID space exhausted".into()));
+    }
     let tree_id = out.new_object_id();
     // Keep every object id: the kept pages reference fonts, images and
     // resources by id; unreferenced ones are pruned at the end.
@@ -102,7 +118,6 @@ pub fn extract_pages(
             }
         }
     }
-    out.max_id = out.max_id.max(source.max_id) + 1;
     let mut kids = Vec::new();
     for page_number in pages {
         let page_id = *source_pages

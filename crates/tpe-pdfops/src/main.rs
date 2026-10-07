@@ -11,7 +11,7 @@ use tpe_pdfops::imagepdf::ImageEncoding;
 use tpe_pdfops::inspect::{inspect, render_summary};
 use tpe_pdfops::letter::normalise_to_letter;
 use tpe_pdfops::linearize::linearize;
-use tpe_pdfops::output::{Output, ensure_not_input, save_document};
+use tpe_pdfops::output::{Output, ensure_not_input, save_document_with_inputs};
 use tpe_pdfops::paginate::{PaginateOptions, SplitMode, paginate};
 use tpe_pdfops::reorient::{Orientation, reorient};
 use tpe_pdfops::unlock::remove_password;
@@ -185,7 +185,7 @@ fn selection(spec: Option<&str>) -> Result<Option<PageSelection>, PdfOpsError> {
 
 fn write(doc: &mut lopdf::Document, inputs: &[&Path], out: &OutArgs) -> Result<(), PdfOpsError> {
     ensure_not_input(&out.out, inputs)?;
-    let pages = save_document(doc, &out.output())?;
+    let pages = save_document_with_inputs(doc, &out.output(), inputs)?;
     println!("wrote {} ({pages} pages)", out.out.display());
     Ok(())
 }
