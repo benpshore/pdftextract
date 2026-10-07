@@ -5,7 +5,7 @@
 
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 /// Largest request head (request line plus headers) accepted.
 pub const MAX_HEADER_BYTES: usize = 16 * 1024;
@@ -73,6 +73,8 @@ pub fn percent_decode(value: &str) -> String {
 /// Why a request could not be read; each maps to an HTTP status.
 #[derive(Debug, thiserror::Error)]
 pub enum ReadError {
+    #[error("request deadline exceeded")]
+    Deadline,
     #[error("request headers exceed {MAX_HEADER_BYTES} bytes")]
     HeadersTooLarge,
     #[error("malformed request: {0}")]
@@ -91,6 +93,7 @@ impl ReadError {
     /// The HTTP status that reports this error.
     pub fn status(&self) -> u16 {
         match self {
+            Self::Deadline => 408,
             Self::HeadersTooLarge => 431,
             Self::Malformed(_) | Self::Truncated | Self::Io(_) => 400,
             Self::BodyTooLarge { .. } => 413,
@@ -101,6 +104,7 @@ impl ReadError {
     /// A short machine-readable code for the JSON error body.
     pub fn code(&self) -> &'static str {
         match self {
+            Self::Deadline => "request_timeout",
             Self::HeadersTooLarge => "headers_too_large",
             Self::Malformed(_) => "malformed_request",
             Self::Truncated | Self::Io(_) => "incomplete_request",
@@ -110,39 +114,36 @@ impl ReadError {
     }
 }
 
-/// Read one request. The head must arrive within `header_timeout`; each body
-/// read within `body_timeout`. A body longer than `max_body` is refused
-/// before it is read.
-pub fn read_request(
+/// Read only a bounded head and at most one fixed-size chunk of body prefix.
+/// Authentication and admission must happen before `read_body`.
+pub fn read_head(
     stream: &mut TcpStream,
-    max_body: u64,
-    header_timeout: Duration,
-    body_timeout: Duration,
+    deadline: Instant,
+    mut cancelled: impl FnMut() -> bool,
 ) -> Result<Request, ReadError> {
-    stream.set_read_timeout(Some(header_timeout))?;
-    let mut buffer: Vec<u8> = Vec::with_capacity(4096);
+    let mut buffer = Vec::with_capacity(4096);
     let mut chunk = [0_u8; 4096];
-    let (request, body_start) = loop {
-        let read = stream.read(&mut chunk)?;
+    loop {
+        let read = read_before(stream, &mut chunk, deadline, &mut cancelled)?;
         if read == 0 {
-            return Err(if buffer.is_empty() {
-                ReadError::Malformed("empty request".to_string())
-            } else {
-                ReadError::Truncated
-            });
+            return Err(ReadError::Truncated);
         }
         buffer.extend_from_slice(&chunk[..read]);
-        if let Some((request, consumed)) = parse_head(&buffer)? {
+        if let Some((mut request, consumed)) = parse_head(&buffer)? {
             if consumed > MAX_HEADER_BYTES {
                 return Err(ReadError::HeadersTooLarge);
             }
-            break (request, consumed);
+            request.body = buffer.split_off(consumed);
+            return Ok(request);
         }
-        if buffer.len() > MAX_HEADER_BYTES {
+        if buffer.len() >= MAX_HEADER_BYTES {
             return Err(ReadError::HeadersTooLarge);
         }
-    };
-    let mut request = request;
+    }
+}
+
+/// Length validation is intentionally separate from header authentication.
+pub fn body_length(request: &Request, max_body: u64) -> Result<usize, ReadError> {
     if request
         .header("transfer-encoding")
         .is_some_and(|value| !value.is_empty())
@@ -153,7 +154,7 @@ pub fn read_request(
         None => 0,
         Some(value) => value
             .parse()
-            .map_err(|_| ReadError::Malformed("invalid Content-Length".to_string()))?,
+            .map_err(|_| ReadError::Malformed("invalid Content-Length".into()))?,
     };
     if length > max_body {
         return Err(ReadError::BodyTooLarge {
@@ -161,34 +162,70 @@ pub fn read_request(
             limit: max_body,
         });
     }
-    let length = usize::try_from(length)
-        .map_err(|_| ReadError::Malformed("Content-Length too large".to_string()))?;
-    let mut body = buffer.split_off(body_start);
-    if body.len() > length {
-        return Err(ReadError::Malformed(
-            "bytes after the declared body".to_string(),
-        ));
+    usize::try_from(length).map_err(|_| ReadError::Malformed("Content-Length too large".into()))
+}
+
+/// Grow storage only for bytes actually received, after authentication and
+/// admission. Recompute remaining time before every read; progress never
+/// renews the absolute deadline. Short polling also permits prompt shutdown.
+pub fn read_body(
+    stream: &mut TcpStream,
+    request: &mut Request,
+    length: usize,
+    deadline: Instant,
+    mut cancelled: impl FnMut() -> bool,
+) -> Result<(), ReadError> {
+    if request.body.len() > length {
+        return Err(ReadError::Malformed("bytes after the declared body".into()));
     }
-    if body.len() < length {
-        if request
+    if request.body.len() < length
+        && request
             .header("expect")
             .is_some_and(|value| value.eq_ignore_ascii_case("100-continue"))
-        {
-            stream.write_all(b"HTTP/1.1 100 Continue\r\n\r\n")?;
-        }
-        stream.set_read_timeout(Some(body_timeout))?;
-        let start = body.len();
-        body.resize(length, 0);
-        stream.read_exact(&mut body[start..]).map_err(|error| {
-            if error.kind() == io::ErrorKind::UnexpectedEof {
-                ReadError::Truncated
-            } else {
-                ReadError::Io(error)
-            }
-        })?;
+    {
+        stream.write_all(b"HTTP/1.1 100 Continue\r\n\r\n")?;
     }
-    request.body = body;
-    Ok(request)
+    let mut chunk = [0_u8; 8192];
+    while request.body.len() < length {
+        let remaining = (length - request.body.len()).min(chunk.len());
+        let read = read_before(stream, &mut chunk[..remaining], deadline, &mut cancelled)?;
+        if read == 0 {
+            return Err(ReadError::Truncated);
+        }
+        request.body.extend_from_slice(&chunk[..read]);
+    }
+    if cancelled() {
+        return Err(ReadError::Truncated);
+    }
+    Ok(())
+}
+
+fn read_before(
+    stream: &mut TcpStream,
+    buffer: &mut [u8],
+    deadline: Instant,
+    cancelled: &mut impl FnMut() -> bool,
+) -> Result<usize, ReadError> {
+    loop {
+        if cancelled() {
+            return Err(ReadError::Truncated);
+        }
+        let remaining = deadline
+            .checked_duration_since(Instant::now())
+            .filter(|remaining| !remaining.is_zero())
+            .ok_or(ReadError::Deadline)?;
+        stream.set_read_timeout(Some(remaining.min(Duration::from_millis(50))))?;
+        match stream.read(buffer) {
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::WouldBlock
+                        | io::ErrorKind::TimedOut
+                        | io::ErrorKind::Interrupted
+                ) => {}
+            result => return result.map_err(ReadError::Io),
+        }
+    }
 }
 
 /// Parse the request head from `buffer`; `None` while it is incomplete.
@@ -218,7 +255,15 @@ pub fn parse_head(buffer: &[u8]) -> Result<Option<(Request, usize)>, ReadError> 
     for header in parsed.headers.iter() {
         let value = std::str::from_utf8(header.value)
             .map_err(|_| ReadError::Malformed(format!("header {} is not UTF-8", header.name)))?;
-        collected.push((header.name.to_ascii_lowercase(), value.to_string()));
+        let name = header.name.to_ascii_lowercase();
+        if matches!(
+            name.as_str(),
+            "host" | "origin" | "authorization" | "content-length" | "transfer-encoding"
+        ) && collected.iter().any(|(key, _)| key == &name)
+        {
+            return Err(ReadError::Malformed(format!("duplicate {name} header")));
+        }
+        collected.push((name, value.to_string()));
     }
     Ok(Some((
         Request {
@@ -313,6 +358,8 @@ pub fn reason(status: u16) -> &'static str {
         403 => "Forbidden",
         404 => "Not Found",
         405 => "Method Not Allowed",
+        408 => "Request Timeout",
+        409 => "Conflict",
         411 => "Length Required",
         413 => "Content Too Large",
         415 => "Unsupported Media Type",

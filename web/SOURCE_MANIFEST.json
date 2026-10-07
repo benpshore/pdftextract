@@ -661,10 +661,10 @@
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
     },
     {
-      "bytes": 18351,
+      "bytes": 20311,
       "mode": "0644",
       "path": "lib/scan-service.ts",
-      "sha256": "253e41a2ce61c7d3319c3f4f938f3e266ada77c6d615e2c8339ff4f122cb9e70"
+      "sha256": "926234c78c235c09f29d3a68b52ed2d1849409f99328486a5d1d8a5e139ee878"
     },
     {
       "bytes": 2920,

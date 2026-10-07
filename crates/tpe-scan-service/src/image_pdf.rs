@@ -8,10 +8,10 @@ use std::io::Write;
 use image::{ImageFormat, ImageReader};
 use lopdf::content::{Content, Operation};
 use lopdf::{Document, Object, Stream, dictionary};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// What the uploaded bytes are, from their magic numbers.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum InputKind {
     Pdf,
