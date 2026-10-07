@@ -15,7 +15,7 @@ use std::collections::BTreeMap;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use rusqlite::{Connection, OptionalExtension, Params, Row, Transaction, params};
+use rusqlite::{Connection, OpenFlags, OptionalExtension, Params, Row, Transaction, params};
 use thiserror::Error;
 
 use crate::schema::{
@@ -337,6 +337,34 @@ const SELECT_STATS: &str = "SELECT \
     (SELECT COUNT(*) FROM figures)";
 
 impl Ledger {
+    /// Opens an existing ledger without initialization, migrations or write
+    /// pragmas. Compatible v4 ledgers remain v4. SQLite may use WAL/SHM
+    /// companions; immutable mode is deliberately avoided so WAL rows are read.
+    pub fn open_read_only(path: &Path) -> Result<Self, LedgerError> {
+        let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+        conn.busy_timeout(std::time::Duration::from_secs(5))?;
+        // Keep selection and reconstruction in one consistent read snapshot.
+        conn.execute_batch("BEGIN")?;
+        let tables: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' \
+             AND name IN ('schema_meta', 'runs', 'metadata', 'references')",
+            [],
+            |row| row.get(0),
+        )?;
+        if tables != 4 {
+            return Err(LedgerError::NotFound("not an engine ledger".to_string()));
+        }
+        let found = optional_row(&conn, SELECT_VERSION, [], |row| row.get::<_, u32>(0))?
+            .ok_or_else(|| LedgerError::NotFound("ledger schema version".to_string()))?;
+        if found != SCHEMA_VERSION && !(found == 4 && SCHEMA_VERSION == 5) {
+            return Err(LedgerError::SchemaMismatch {
+                found,
+                expected: SCHEMA_VERSION,
+            });
+        }
+        Ok(Self { conn })
+    }
+
     /// Opens or creates the ledger file at `path` and verifies its schema
     /// version. Uses WAL journaling, `synchronous = NORMAL`, a 5 s busy
     /// timeout and enforced foreign keys.
@@ -906,6 +934,16 @@ fn load_pages(conn: &Connection, run: RunId) -> Result<Vec<PageText>, LedgerErro
 /// Loads the figures of `run` grouped by page number, each page's figures
 /// in ascending index order.
 fn load_figures(conn: &Connection, run: RunId) -> Result<BTreeMap<u32, Vec<Figure>>, LedgerError> {
+    // Figures were added without a schema-version change. Read-only readers
+    // must handle older ledgers without creating this optional table.
+    let exists: bool = conn.query_row(
+        "SELECT EXISTS(SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'figures')",
+        [],
+        |row| row.get(0),
+    )?;
+    if !exists {
+        return Ok(BTreeMap::new());
+    }
     let mut stmt = conn.prepare(SELECT_FIGURES)?;
     let rows = stmt.query_map(params![run], |row| {
         let page: u32 = row.get(0)?;
