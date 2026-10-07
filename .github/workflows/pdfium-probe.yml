@@ -108,8 +108,8 @@ jobs:
           env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe extract tests/fixtures/pdfium-unicode/native.pdf --backend pdfium --db out/pdfium-probe/discovery.sqlite --out out/pdfium-probe/discovery | tee out/pdfium-probe/extract-discovery.txt
           grep -q '^complete' out/pdfium-probe/extract-discovery.txt
           env -u PDFIUM_DYNAMIC_LIB_PATH ./target/debug/tpe extract tests/fixtures/pdfium-unicode/native.pdf --backend routed --db out/pdfium-probe/routed.sqlite --out out/pdfium-probe/routed | tee out/pdfium-probe/extract-routed.txt
-          grep -q '^complete' out/pdfium-probe/extract-routed.txt
-          grep -l 'confirmed: pdfium agrees' out/pdfium-probe/routed/*.json
+          grep -q '^partial' out/pdfium-probe/extract-routed.txt
+          grep -l 'unconfirmed: pdfium identical text' out/pdfium-probe/routed/*.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:

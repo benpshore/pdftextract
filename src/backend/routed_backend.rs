@@ -9,14 +9,11 @@
 //! is missing or fails for a page, the Oxide page is kept and the page says so
 //! (`route not taken: ...`); nothing is silently substituted.
 //!
-//! An Oxide page that mapped cleanly is additionally *confirmed* by `PDFium`
-//! when it is available: both parsers read the page independently and, when
-//! their texts agree ([`agreement`]), the page drops PDF Oxide's standing
-//! "completeness not independently verified" warning and records
-//! `confirmed: pdfium agrees (...)`, so the page is Complete. Disagreement or
-//! an unavailable `PDFium` leaves the Oxide text and its Partial status in
-//! place and records `unconfirmed: ...`. The Oxide text itself is never edited
-//! from `PDFium`'s.
+//! An Oxide page is cross-read by `PDFium` when available. Text agreement is
+//! corroborating evidence, not proof of completeness: both parsers can omit
+//! the same content. Every Oxide warning and every native diagnostic survives
+//! confirmation, including mapping and resource uncertainty. The Oxide text
+//! itself is never edited from `PDFium`'s. Page-count disagreement is explicit.
 
 use std::collections::BTreeMap;
 
@@ -27,7 +24,7 @@ use crate::router::{PageBackend, PageEvidence, Task, page_route};
 use crate::schema::{BackendIdentity, PageText, config_digest};
 
 /// Identity of the per-page rule; bump when [`page_route`] changes.
-pub const POLICY: &str = "oxide-default-pdfium-per-page-confirm-v2";
+pub const POLICY: &str = "oxide-default-pdfium-per-page-corroborate-v3";
 
 /// The two-parser backend selected with `--backend routed`.
 #[derive(Clone, Debug, Default)]
@@ -95,10 +92,11 @@ impl RoutedSession {
 }
 
 /// PDF Oxide's standing warning that its completeness was not independently
-/// verified (`pdf_oxide_backend`); lifted only by a `PDFium` confirmation.
+/// verified (`pdf_oxide_backend`); agreement cannot discharge this uncertainty.
+#[cfg(test)]
 const UNVERIFIED_PREFIX: &str =
     "extraction_incomplete: pdf-oxide character extraction retains upstream fallback uncertainty";
-/// Word-multiset similarity at or above which two parsers are taken to agree.
+/// Character 4-gram similarity at or above which texts closely overlap.
 const AGREEMENT_THRESHOLD: f64 = 0.98;
 
 /// How two parsers' texts for one page relate.
@@ -106,7 +104,7 @@ const AGREEMENT_THRESHOLD: f64 = 0.98;
 pub enum Agreement {
     /// Identical after whitespace normalisation.
     Same,
-    /// Word multisets overlap at this Dice similarity (at or above the threshold).
+    /// Character 4-gram multisets overlap at or above the threshold.
     Close(f64),
     /// Below the threshold.
     Different(f64),
@@ -176,30 +174,51 @@ fn page_words(page: &PageText) -> String {
     page.spans.iter().map(|span| span.text.as_str()).collect()
 }
 
+/// Corroborate text without erasing either parser's extraction evidence.
+fn corroborate_with_pdfium(page: &mut PageText, native: &PageText) {
+    let native_status = native.extraction_status();
+    // Keep diagnostic prefixes intact: extraction_status() relies on them.
+    // Backend attribution is a suffix rather than a prefix for that reason.
+    page.warnings.extend(
+        native
+            .warnings
+            .iter()
+            .map(|warning| format!("{warning} [confirming backend: pdfium]")),
+    );
+    let verdict = agreement(&page_words(page), &page_words(native));
+    let outcome = match verdict {
+        Agreement::Same => "identical text",
+        Agreement::Close(_) => "close text; changed or omitted content remains possible",
+        Agreement::Different(_) => "different text",
+    };
+    page.warnings.push(format!(
+        "unconfirmed: pdfium {outcome} (similarity {:.3}, native status {native_status:?}); text comparison does not verify completeness; pdf-oxide text retained",
+        verdict.score()
+    ));
+}
+
 impl RoutedSession {
-    /// Read `number` with `PDFium` too and, when the two parsers agree, lift
-    /// PDF Oxide's "not independently verified" warning from `page`. Every
-    /// outcome is recorded on the page; the Oxide text is never changed.
+    /// Read `number` independently, preserving all uncertainty and text.
     fn confirm_with_pdfium(&mut self, number: u32, page: &mut PageText) {
-        let verdict = match self.pdfium() {
-            Ok(session) => match session.page_text(number) {
-                Ok(native) => Ok(agreement(&page_words(page), &page_words(&native))),
-                Err(error) => Err(format!("pdfium page failed: {error}")),
-            },
-            Err(unavailable) => Err(format!("pdfium unavailable: {unavailable}")),
-        };
-        match verdict {
-            Ok(Agreement::Same | Agreement::Close(_)) => {
-                let score = verdict.as_ref().map_or(0.0, |v| v.score());
-                page.warnings.retain(|w| !w.starts_with(UNVERIFIED_PREFIX));
-                page.warnings.push(format!(
-                    "confirmed: pdfium agrees (similarity {score:.3}); completeness independently verified"
-                ));
+        let oxide_count = self.oxide.page_count();
+        match self.pdfium() {
+            Ok(session) => {
+                let native_count = session.page_count();
+                if native_count != oxide_count {
+                    page.warnings.push(format!(
+                        "extraction_incomplete: pdfium/pdf-oxide page-count disagreement: pdfium={native_count}, pdf-oxide={oxide_count}"
+                    ));
+                }
+                match session.page_text(number) {
+                    Ok(native) => corroborate_with_pdfium(page, &native),
+                    Err(error) => page
+                        .warnings
+                        .push(format!("unconfirmed: pdfium page failed: {error}")),
+                }
             }
-            Ok(Agreement::Different(score)) => page.warnings.push(format!(
-                "unconfirmed: pdfium disagrees (similarity {score:.3}); pdf-oxide text retained"
-            )),
-            Err(why) => page.warnings.push(format!("unconfirmed: {why}")),
+            Err(unavailable) => page
+                .warnings
+                .push(format!("unconfirmed: pdfium unavailable: {unavailable}")),
         }
     }
 }
@@ -448,6 +467,168 @@ mod tests {
         assert!((Agreement::Same.score() - 1.0).abs() < f64::EPSILON);
     }
 
+    fn synthetic_page(text: &str, warnings: &[&str]) -> PageText {
+        let mut page = PageText::new(1, 612.0, 792.0, 0);
+        page.spans.push(crate::schema::Span {
+            text: text.to_string(),
+            bbox: None,
+            font: None,
+            size: None,
+            seq: 0,
+        });
+        page.warnings = warnings
+            .iter()
+            .map(|warning| (*warning).to_string())
+            .collect();
+        page
+    }
+
+    struct FixedSession {
+        page: PageText,
+        count: u32,
+    }
+
+    impl DocumentSession for FixedSession {
+        fn page_count(&self) -> u32 {
+            self.count
+        }
+
+        fn info(&self) -> BTreeMap<String, String> {
+            BTreeMap::new()
+        }
+
+        fn page_text(&mut self, number: u32) -> Result<PageText, BackendError> {
+            assert_eq!(number, 1);
+            Ok(self.page.clone())
+        }
+    }
+
+    fn confirm_synthetic(oxide: PageText, native: PageText, native_count: u32) -> PageText {
+        let mut session = RoutedSession {
+            oxide: Box::new(FixedSession {
+                page: oxide,
+                count: 1,
+            }),
+            pdfium: Some(Box::new(FixedSession {
+                page: native,
+                count: native_count,
+            })),
+            pdfium_failure: None,
+            backend: PdfiumBackend::default(),
+            bytes: Vec::new(),
+            password: None,
+        };
+        // Exercise the production routing and confirmation path, not just comparison.
+        session.page_text(1).unwrap()
+    }
+
+    #[test]
+    fn equal_text_preserves_partial_native_mapping_resource_and_failure_evidence() {
+        for diagnostic in [
+            "unicode_mapping: unresolved character",
+            "resource_limit: inspection budget exhausted",
+            "extraction_incomplete: native omitted content",
+            "failed: native extraction failed",
+        ] {
+            let oxide = synthetic_page("ALPHA BETA", &[UNVERIFIED_PREFIX, "oxide diagnostic"]);
+            let native = synthetic_page("ALPHA BETA", &[diagnostic, "native diagnostic"]);
+            assert_eq!(native.extraction_status(), Status::Partial);
+            let page = confirm_synthetic(oxide, native, 1);
+            assert_eq!(text_of(&page), "ALPHA BETA");
+            assert_eq!(page.extraction_status(), Status::Partial);
+            assert!(page.warnings.iter().any(|w| w == UNVERIFIED_PREFIX));
+            assert!(page.warnings.iter().any(|w| w == "oxide diagnostic"));
+            assert!(
+                page.warnings
+                    .iter()
+                    .any(|w| w == &format!("{diagnostic} [confirming backend: pdfium]"))
+            );
+            assert!(
+                page.warnings
+                    .iter()
+                    .any(|w| w == "native diagnostic [confirming backend: pdfium]")
+            );
+            assert!(confirmation(&page).contains("native status Partial"));
+        }
+    }
+
+    #[test]
+    fn close_changed_or_omitted_text_cannot_promote_completeness() {
+        let words: Vec<String> = (0..1000).map(|i| format!("word{i}")).collect();
+        let original = words.join(" ");
+        let mut changed = words.clone();
+        changed[500] = "changed".to_string();
+        let mut omitted = words;
+        omitted.remove(500);
+        for text in [changed.join(" "), omitted.join(" ")] {
+            assert!(matches!(agreement(&original, &text), Agreement::Close(_)));
+            let page = confirm_synthetic(
+                synthetic_page(&original, &[UNVERIFIED_PREFIX]),
+                synthetic_page(&text, &[]),
+                1,
+            );
+            assert_eq!(text_of(&page), original);
+            assert_eq!(page.extraction_status(), Status::Partial);
+            assert!(confirmation(&page).contains("changed or omitted content"));
+            assert!(page.warnings.iter().any(|w| w == UNVERIFIED_PREFIX));
+        }
+    }
+
+    #[test]
+    fn different_text_preserves_both_backends_evidence() {
+        let page = confirm_synthetic(
+            synthetic_page("ALPHA BETA", &[UNVERIFIED_PREFIX]),
+            synthetic_page("GAMMA DELTA", &["resource_limit: native limit"]),
+            1,
+        );
+        assert_eq!(text_of(&page), "ALPHA BETA");
+        assert_eq!(page.extraction_status(), Status::Partial);
+        assert!(confirmation(&page).contains("different text"));
+        assert!(
+            page.warnings
+                .iter()
+                .any(|w| w.starts_with("resource_limit:"))
+        );
+        assert!(page.warnings.iter().any(|w| w == UNVERIFIED_PREFIX));
+    }
+
+    #[test]
+    fn shared_omissions_are_not_disproved_by_identical_clean_native_text() {
+        // Ground truth contains an extra clause neither extraction captured.
+        let source_text = "ALPHA BETA omitted clause";
+        let extracted = "ALPHA BETA";
+        assert_ne!(source_text, extracted);
+        let native = synthetic_page(extracted, &[]);
+        assert_eq!(native.extraction_status(), Status::Complete);
+        let page = confirm_synthetic(synthetic_page(extracted, &[UNVERIFIED_PREFIX]), native, 1);
+        assert_eq!(page.extraction_status(), Status::Partial);
+        assert!(confirmation(&page).contains("identical text"));
+        assert!(confirmation(&page).contains("does not verify completeness"));
+        assert!(page.warnings.iter().any(|w| w == UNVERIFIED_PREFIX));
+    }
+
+    #[test]
+    fn page_count_disagreement_survives_equal_text_confirmation() {
+        for count in [0, 2] {
+            let page = confirm_synthetic(
+                synthetic_page("ALPHA BETA", &[UNVERIFIED_PREFIX]),
+                synthetic_page("ALPHA BETA", &["native diagnostic"]),
+                count,
+            );
+            assert_eq!(text_of(&page), "ALPHA BETA");
+            assert_eq!(page.extraction_status(), Status::Partial);
+            assert!(page.warnings.iter().any(|w| w == &format!(
+                "extraction_incomplete: pdfium/pdf-oxide page-count disagreement: pdfium={count}, pdf-oxide=1"
+            )));
+            assert!(page.warnings.iter().any(|w| w == UNVERIFIED_PREFIX));
+            assert!(
+                page.warnings
+                    .iter()
+                    .any(|w| w == "native diagnostic [confirming backend: pdfium]")
+            );
+        }
+    }
+
     #[test]
     fn clean_oxide_pages_stay_partial_and_unconfirmed_without_pdfium() {
         let backend = without_pdfium();
@@ -465,7 +646,7 @@ mod tests {
     }
 
     #[test]
-    fn pdfium_confirms_clean_oxide_pages_as_complete() {
+    fn pdfium_corroborates_clean_oxide_pages_without_claiming_completeness() {
         if !native_available() {
             return;
         }
@@ -473,17 +654,45 @@ mod tests {
         let page = page_of(&backend, &fixture("native.pdf"));
         assert_eq!(supplier(&page), "routed: pdf-oxide (text mapped cleanly)");
         let line = confirmation(&page);
-        assert!(line.starts_with("confirmed: pdfium agrees"), "{line}");
         assert!(
-            !page
-                .warnings
+            line.starts_with("unconfirmed: pdfium identical text"),
+            "{line}"
+        );
+        assert!(
+            page.warnings
                 .iter()
                 .any(|w| w.starts_with(UNVERIFIED_PREFIX)),
             "{:?}",
             page.warnings
         );
-        assert_eq!(page.extraction_status(), Status::Complete);
+        assert_eq!(page.extraction_status(), Status::Partial);
         assert!(text_of(&page).contains("Faithful native text"));
+    }
+
+    #[test]
+    fn native_partial_fixture_keeps_mapping_evidence_on_oxide_route() {
+        if !native_available() {
+            return;
+        }
+        let bytes = fixture("partial-cmap.pdf");
+        let mut session = PdfiumBackend::default().open(&bytes, None).unwrap();
+        let native = session.page_text(1).unwrap();
+        assert_eq!(native.extraction_status(), Status::Partial);
+        let page = page_of(&RoutedBackend::default(), &bytes);
+        assert_eq!(supplier(&page), "routed: pdf-oxide (text mapped cleanly)");
+        assert_eq!(page.extraction_status(), Status::Partial);
+        assert!(
+            page.warnings
+                .iter()
+                .any(|w| w.starts_with(UNVERIFIED_PREFIX))
+        );
+        for warning in &native.warnings {
+            assert!(
+                page.warnings
+                    .contains(&format!("{warning} [confirming backend: pdfium]"))
+            );
+        }
+        assert!(confirmation(&page).contains("native status Partial"));
     }
 
     #[test]

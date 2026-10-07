@@ -135,16 +135,16 @@ page.
 
 A page that PDF Oxide mapped cleanly is additionally cross-read by `PDFium`
 when the library is available (environment variable or `tpe pdfium fetch`
-install). When the two independent parsers agree (whitespace ignored, Dice
-similarity of character 4-grams at or above 0.98), the page drops PDF Oxide's
-standing `extraction_incomplete: ... completeness not independently verified`
-warning, records `confirmed: pdfium agrees (similarity ...)`, and is
-`complete`. Disagreement keeps the Oxide text, records
-`unconfirmed: pdfium disagrees (similarity ...)`, and stays `partial`; without
-`PDFium` the page records `unconfirmed: pdfium unavailable: ...` and stays
-`partial`. The routed identity carries the policy name
-(`oxide-default-pdfium-per-page-confirm-v2`), so ledger runs made before and
-after this rule are distinguishable.
+install). Whitespace-insensitive character 4-gram similarity (threshold 0.98)
+corroborates text only. Identical or close text cannot establish completeness:
+both parsers can share an omission. Every PDF Oxide warning remains, and every
+PDFium diagnostic is copied with backend attribution while retaining its
+status-bearing prefix. The page stays `partial`, records the similarity and
+PDFium status in `unconfirmed: ...`, and retains the Oxide text. Page-count
+disagreement adds an explicit `extraction_incomplete:` diagnostic. Missing or
+failed PDFium also leaves the page `partial`. The routed policy identity is
+`oxide-default-pdfium-per-page-corroborate-v3`, distinguishing these results
+from earlier confirmation behavior.
 
 ## Licences
 
