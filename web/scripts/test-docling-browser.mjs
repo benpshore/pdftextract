@@ -5,8 +5,10 @@ import {resolve,dirname,extname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {browserMemorySampler} from './browser-process-memory.mjs';
+import {columnDerivatives} from './fixtures/docling/column-derivatives.mjs';
+import {workerMemoryProbe} from './worker-memory-probe.mjs';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
-const {PDFDocument}=await import(process.env.PDF_LIB_MODULE||'pdf-lib');
+const {PDFDocument,StandardFonts}=await import(process.env.PDF_LIB_MODULE||'pdf-lib');
 const web=resolve(dirname(fileURLToPath(import.meta.url)),'..'),repo=resolve(web,'..');
 const native=await readFile(resolve(repo,'tests/fixtures/pdfium-unicode/native.pdf'));
 assert.equal(createHash('sha256').update(native).digest('hex'),'099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8');
@@ -15,7 +17,7 @@ const fixtures=new Map([['native.pdf',native]]);
 for(const [name,sha] of [['semantic-two','fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14'],['semantic-three','07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a']]){
   const bytes=await readFile(resolve(web,'scripts/fixtures/docling',name+'.pdf'));assert.equal(createHash('sha256').update(bytes).digest('hex'),sha);fixtures.set(name+'.pdf',bytes);
 }
-const requested=[],blocked=[],pageErrors=[];
+const requested=[],blocked=[],pageErrors=[],partialRuns=[];
 const server=createServer(async(req,res)=>{
   try{
     const path=new URL(req.url,'http://localhost').pathname;
@@ -36,7 +38,12 @@ try{
   const context=await browser.newContext();await context.route('**/*',async route=>{
     const url=route.request().url();if(url.startsWith(origin+'/')){requested.push(url.slice(origin.length));await route.continue();}else{blocked.push(url);await route.abort();}
   });
-  const page=await context.newPage();await page.exposeFunction('beginResourceSample',label=>memory.begin(label));await page.exposeFunction('endResourceSample',()=>memory.end());page.on('console',msg=>{if(msg.text().startsWith('ACTUAL PDF RESULT'))console.log(msg.text());else if(msg.text().startsWith('PDF CHECK'))console.log(msg.text());else if(msg.type()==='error')console.error('Browser:',msg.text());});page.on('pageerror',e=>{pageErrors.push(e.message);console.error(e);});await page.goto(origin);
+  if(process.env.MEMORY_PROBE==='1')await context.route('**/pdf-api/v1/inference-worker.js',async route=>{
+    const source=await readFile(resolve(web,'public/pdf-api/v1/inference-worker.js'),'utf8');
+    await route.fulfill({contentType:'text/javascript',body:`(${workerMemoryProbe.toString()})();\n${source}`});
+  });
+  const page=await context.newPage();await page.exposeFunction('beginResourceSample',label=>memory.begin(label));await page.exposeFunction('endResourceSample',()=>memory.end());await page.exposeFunction('recordMemoryPhase',event=>memory.mark(event));page.on('console',msg=>{if(msg.text().startsWith('ACTUAL PDF RESULT'))console.log(msg.text());else if(msg.text().startsWith('PDF CHECK'))console.log(msg.text());else if(msg.type()==='error')console.error('Browser:',msg.text());});page.on('pageerror',e=>{pageErrors.push(e.message);console.error(e);});await page.goto(origin);
+  await page.exposeFunction('recordRun',async run=>{partialRuns.push(run);if(process.env.EVIDENCE_PATH)await writeFile(process.env.EVIDENCE_PATH,JSON.stringify({complete:false,browser:browser.version(),runs:partialRuns,pageErrors},null,2));});
   // Derive scan pixels from the pre-existing verified public-safe control PDF.
   const jpeg=await page.evaluate(async()=>{
     const pdfjs=await import('/vendor/docling/1.104.2/pdfjs/pdf.mjs');pdfjs.GlobalWorkerOptions.workerSrc='/vendor/docling/1.104.2/pdfjs/pdf.worker.mjs';
@@ -56,19 +63,22 @@ try{
   overlayPage.drawImage(await overlay.embedJpg(Buffer.from(jpeg,'base64')),{x:0,y:0,width:612,height:792});
   overlayPage.drawPage((await overlay.embedPdf(native))[0],{x:0,y:0,width:612,height:792});
   fixtures.set('overlay.pdf',Buffer.from(await overlay.save()));
-  const result=await page.evaluate(async expected=>{
+  const columnCases=await columnDerivatives(PDFDocument,StandardFonts,fixtures,expected);
+  for(const fixture of columnCases)fixtures.set(fixture.name,Buffer.from(fixture.bytes));
+  const result=await page.evaluate(async({expected,columnCases})=>{
     const api=await import('/pdf-api/v1/api.js'),checks=[],runs=[];
     const check=(condition,message)=>{if(!condition)throw new Error(message);checks.push(message);console.log('PDF CHECK',message);};
     const file=async name=>new File([await(await fetch('/fixtures/'+name)).arrayBuffer()],name,{type:'application/pdf'});
     const discovery=await api.discoverPdf();check(discovery.engine.version==='1.104.2'&&discovery.capabilities.provider.configured==='wasm','Identifiable discovery declares CPU/WASM and schema');
-    for(const [name,options] of [['native.pdf',{ocr:'off'}],['native.pdf',{ocr:'off'}],['scanned.pdf',{}],['mixed.pdf',{}],['six-pages.pdf',{ocr:'off'}],['semantic-two.pdf',{ocr:'off'}],['semantic-three.pdf',{ocr:'off'}],['same-page.pdf',{}],['same-page.pdf',{ocr:'always'}],['overlay.pdf',{}]]){
+    for(const [name,options] of [['native.pdf',{ocr:'off'}],['native.pdf',{ocr:'off'}],['scanned.pdf',{}],['mixed.pdf',{}],['six-pages.pdf',{ocr:'off'}],['semantic-two.pdf',{ocr:'off'}],['semantic-three.pdf',{ocr:'off'}],['same-page.pdf',{}],['same-page.pdf',{ocr:'always'}],['overlay.pdf',{}],...columnCases.map(c=>[c.name,{ocr:'off'}])]){
       const input=await file(name),before=await input.arrayBuffer(),progress=[];
       await globalThis.beginResourceSample(`${name}:${runs.length}`);
       const started=performance.now();
-      const job=api.createPdfJob(input,{...options,onProgress:event=>progress.push(event)});
+      const job=api.createPdfJob(input,{...options,onProgress:event=>{progress.push(event);void globalThis.recordMemoryPhase(event);}});
       let busy=false;try{api.createPdfJob(input);}catch(error){busy=error.code==='BUSY';}check(busy,`${name}: concurrent job rejected before allocating another runtime`);
       check(api.getPdfJob(job.id)===job,`${name}: callable job status`);
       const output=await job.result;const memory=await globalThis.endResourceSample();runs.push({name,output,progress,milliseconds:Math.round(performance.now()-started),memory});
+      await globalThis.recordRun(runs.at(-1));
       console.log('ACTUAL PDF RESULT',name,JSON.stringify({status:output.status,text:output.text,diagnostics:output.diagnostics}));
       check(output.status==='partial',`${name}: real Docling PDF inference returns explicit partial coverage`);
       check(output.engine.provider==='wasm'&&output.pages.length>0,`${name}: CPU provenance and page output`);
@@ -86,6 +96,8 @@ try{
         check(output.pages[0].orderedBlocks.some(b=>b.source==='native text')&&output.pages[0].orderedBlocks.some(b=>b.source==='raster-region OCR'),'Mixed result keeps distinct native and raster provenance');
       }
       if(name==='overlay.pdf')check(output.pages[0].ocrRegions[0].maskedNativeCells.length===3,'Spatial native-text masks prevent duplicate recognition of an overlapping raster text layer');
+      const column=columnCases.find(c=>c.name===name);
+      if(column)check(output.text.replace(/\s+/g,' ').trim()===column.expected.join(' '),`${name}: independent exact order for ${column.purpose}`);
     }
     check(runs[0].output.resources.runtimeId===runs[1].output.resources.runtimeId,'Successful jobs reuse the same owned model worker');
     check(runs[0].output.pages[0].execution[0].sessionId===runs[1].output.pages[0].execution[0].sessionId,'Warm job reuses the existing layout ONNX session');
@@ -123,7 +135,7 @@ try{
     check(fast.status==='partial'&&expected.every(s=>fast.text.includes(s))&&fast.engine.readingOrder==='unverified','PDF Oxide remains callable fast text with unverified order: '+JSON.stringify(fast.diagnostics));
     const emptyJob=api.createPdfJob(await file('native.pdf'),{ocr:'off'});emptyJob.cancel();const immediate=await emptyJob.result;check(immediate.status==='cancelled','Cancellation during initialization settles job');
     return {checks,runs,cancellation:aborted,subsequent:next,selection,discovery:await api.discoverPdf()};
-  },expected);
+  },{expected,columnCases:columnCases.map(({bytes,...rest})=>rest)});
   const failures=[];
   for(const [asset,code,name] of [['layout_heron_int8.onnx','MODEL_MISSING','native.pdf'],['ocr_det.onnx','MODEL_MISSING','scanned.pdf'],['en_dict.txt','MODEL_INVALID','scanned.pdf']]){
     await page.evaluate(async()=>{(await import('/pdf-api/v1/api.js')).disposePdfRuntime();});
@@ -151,7 +163,7 @@ try{
   }
   assert.deepEqual(blocked,[],'No external network during browser extraction');
   assert.deepEqual(pageErrors,[],'No unhandled page errors during interruption, stream limits or recovery');
-  const evidence={browser:browser.version(),memoryMethod:memory.method,memorySamples:memory.results,pageErrors,...result,failures,ui,semantic,fixtureHashes:Object.fromEntries([...fixtures].map(([n,b])=>[n,createHash('sha256').update(b).digest('hex')])),requests:[...new Set(requested)],externalRequests:blocked};
+  const evidence={complete:true,browser:browser.version(),memoryProbe:process.env.MEMORY_PROBE==='1',memoryMethod:memory.method,memorySamples:memory.results,pageErrors,...result,failures,ui,semantic,fixtureHashes:Object.fromEntries([...fixtures].map(([n,b])=>[n,createHash('sha256').update(b).digest('hex')])),requests:[...new Set(requested)],externalRequests:blocked};
   if(process.env.EVIDENCE_PATH)await writeFile(process.env.EVIDENCE_PATH,JSON.stringify(evidence,null,2)+'\n');
   console.log(JSON.stringify({checks:result.checks,semantic,provider:result.runs[0].output.engine,externalRequests:blocked},null,2));
   assert(semantic.every(s=>s.passed),'Independent two/three-column order acceptance');

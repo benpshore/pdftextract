@@ -158,11 +158,19 @@ byte-for-byte from PR269 head `850a66b577f03205ad4692d578319e1e7fe95417`;
 no legacy implementation was imported. Their hashes are asserted by the harness.
 
 Upstream layout merged each tiny column witness into a single region and kept
-scrambled stream order. A small browser adapter supplies provisional gutter
-order only when it conserves the PDF.js cell/Docling character multiset and no
-tables are present. Original model layout stays intact and order provenance is
-separate. The two/three-column expectations pass actual PDF/model/API execution.
-This is not general scientific-layout or scanned multi-column qualification.
+scrambled stream order. A bounded horizontal-LTR ordering policy resolves
+repeated whitespace gutters independently within text bands, with gaps of at
+least 1.5 text heights supported by at least two rows. Nearby paired rows handle
+staggered baselines; a vertical gap above three text heights starts a new band.
+Spanning rows divide column runs. Word cells on the same ordered line are joined
+without changing the retained source cells. Repair requires conservation of the
+PDF.js cell/Docling character multiset and absence of model tables. Original
+model layout stays intact and diagnostics retain gutter positions and support.
+The [expanded browser evidence](evidence/docling-browser-columns-memory-baseline.json)
+passes the original two/three-column expectations plus independently specified
+derivatives with changing column counts, staggered baselines and spanning
+headings/footers. Rotated/RTL text does not enter this policy. This is not general
+scientific-layout or scanned multi-column qualification.
 Phones and Safari are unqualified; English-only synthetic OCR is limited evidence.
 
 The [automatic-region checkpoint](evidence/docling-browser-regions.json) proves

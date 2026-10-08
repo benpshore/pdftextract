@@ -46,6 +46,7 @@ async function session(key) {
   try {
     const s = await ort.InferenceSession.create(await asset(key), { executionProviders: ['wasm'], logSeverityLevel: 3 });
     loaded.set(key, { ...MODELS[key], provider: 'wasm', sessionId: crypto.randomUUID(), loadMilliseconds: Math.round(performance.now() - started) });
+    status({phase:'model-ready',model:key,message:`${key} session ready`,resources:metrics()});
     return s;
   } catch (error) { throw error.code ? error : fail('MODEL_UNSUPPORTED', `${key} CPU/WASM session failed: ${error.message}`); }
 }
@@ -70,6 +71,7 @@ async function infer(session, feeds, model) {
       sha256: await hash(new Uint8Array(data.buffer, data.byteOffset, data.byteLength)) };
   }
   execution.push({ model, provider: 'wasm', sessionId: loaded.get(model).sessionId, milliseconds: inferenceMilliseconds, outputs });
+  status({phase:'model-complete',model,message:`${model} inference complete`,resources:metrics()});
   memory(); return out;
 }
 async function begin(id) {

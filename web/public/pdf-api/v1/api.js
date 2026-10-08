@@ -1,6 +1,6 @@
 import {VERSION,COMMIT,ROOT,MODELS,LIMITS,RUNTIME_POLICY} from './manifest.js';
 import {acquireRuntime,disposeRuntime,runtimeState} from './runtime-client.js';
-import {orderTextCells,textCells} from './geometry-order.js';
+import {orderTextCells,orderedTextBlocks,textCells} from './geometry-order.js';
 import {imageRegions,mappedRegionBlocks,topLeftBox} from './regions.js';
 export const API_VERSION='1';
 export const schemas=Object.freeze({
@@ -157,10 +157,10 @@ async function run(input,{ocr,pages:selected,limits},controller,emit,job){
       const normalized=value=>value.replace(/\s+/g,' ').trim();
       if(route==='digital'&&geometry.columns>1&&normalized(blocks.map(b=>b.text).join(' '))!==normalized(geometry.cells.map(c=>c.text).join(' '))){
         const multiset=value=>Array.from(value.replace(/\s/g,'')).sort().join('');
-        if(multiset(blocks.map(b=>b.text).join(''))===multiset(originalCells.map(c=>c.text).join(''))&&!(result.document.tables||[]).length){
-          blocks=geometry.cells.map((cell,index)=>({id:cell.id,text:cell.text,label:'text',order:index,provenance:[{page_no:pageNo,bbox:{l:cell.bbox[0],t:cell.bbox[1],r:cell.bbox[2],b:cell.bbox[3],coord_origin:'TOPLEFT'}}]}));
-          orderEngine='pdf-api repeated-gutter geometry v1 (PDF.js cells)';
-          diagnostics.push({code:'GEOMETRIC_ORDER',message:`${geometry.columns} columns inferred from repeated whitespace gutters disagree with the model sequence. Independent geometry supplies provisional order. Original Docling layout and PDF.js cells are retained.`});
+        if(geometry.supported&&multiset(blocks.map(b=>b.text).join(''))===multiset(originalCells.map(c=>c.text).join(''))&&!(result.document.tables||[]).length){
+          blocks=orderedTextBlocks(geometry.cells,pageNo);
+          orderEngine='pdf-api horizontal LTR gutter policy v2 (PDF.js cells)';
+          diagnostics.push({code:'GEOMETRIC_ORDER',message:`Repeated whitespace gutters resolve ${geometry.columns} columns within horizontal text bands. Text is conserved; original Docling layout and PDF.js cells are retained.`,policy:geometry.policy,bands:geometry.bands});
         }else diagnostics.push({code:'ORDER_UNRESOLVED',message:'Multiple text columns detected, but model text differs from embedded cells or includes tables. Automatic repair cannot conserve both; inspect original evidence.'});
       }
       const pageText=blocks.map(b=>b.text).join('\n');

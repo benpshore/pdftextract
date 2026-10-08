@@ -20,27 +20,35 @@ export function browserMemorySampler(rootPid) {
       const owned = new Set([rootPid]);
       let changed = true;
       while (changed) { changed = false; for (const p of processes) if (owned.has(p.parent) && !owned.has(p.pid)) { owned.add(p.pid); changed = true; } }
-      const rss = processes.filter(p => owned.has(p.pid)).reduce((n, p) => n + p.rss, 0);
-      const pss = await Promise.all([...owned].map(async pid => {
-        try { return Number((await readFile(`/proc/${pid}/smaps_rollup`, 'utf8')).match(/^Pss:\s+(\d+)/m)?.[1]) * 1024; }
-        catch { return null; }
+      const details=await Promise.all(processes.filter(p=>owned.has(p.pid)).map(async p=>{
+        let type=p.pid===rootPid?'browser':'child',pss=null,privateBytes=null;
+        try{const cmd=await readFile(`/proc/${p.pid}/cmdline`,'utf8');type=cmd.match(/--type=([^\0 ]+)/)?.[1]||type;}catch{}
+        try{const smaps=await readFile(`/proc/${p.pid}/smaps_rollup`,'utf8');pss=Number(smaps.match(/^Pss:\s+(\d+)/m)?.[1])*1024;privateBytes=[...smaps.matchAll(/^Private_(?:Clean|Dirty):\s+(\d+)/gm)].reduce((n,m)=>n+Number(m[1])*1024,0);}catch{}
+        return {type,rssBytes:p.rss,pssBytes:pss,privateBytes};
       }));
+      const rss=details.reduce((n,p)=>n+p.rssBytes,0),pss=details.map(p=>p.pssBytes);
       if (owner !== current) return;
       owner.samples++;
       owner.startRssBytes ??= rss;
       owner.endRssBytes = rss;
+      owner.endProcesses=details;
+      if(rss>=(owner.peakRssBytes||0))owner.processesAtRssPeak=details;
       owner.peakRssBytes = Math.max(owner.peakRssBytes || 0, rss);
+      const phase=owner.phase||'unspecified';
+      const phaseSample=owner.phases[phase]||={samples:0,peakRssBytes:0};phaseSample.samples++;phaseSample.peakRssBytes=Math.max(phaseSample.peakRssBytes,rss);
       if (pss.every(n => n !== null && Number.isFinite(n))) {
         const totalPss = pss.reduce((a, b) => a + b, 0);
         owner.peakPssBytes = Math.max(owner.peakPssBytes || 0, totalPss);
         owner.endPssBytes = totalPss;
+        phaseSample.peakPssBytes=Math.max(phaseSample.peakPssBytes||0,totalPss);
       }
     } catch { owner.unavailable = 'Linux /proc process RSS unavailable'; }
     finally { sampling = false; }
   }
   const timer = setInterval(() => void sample(), 100);
   return {
-    async begin(label) { current = { label, samples: 0, started: performance.now() }; await sample(); },
+    async begin(label) { current = { label, samples: 0,phases:{}, started: performance.now() }; await sample(); },
+    mark(event){if(current){current.phase=event.phase+(event.model?':'+event.model:'');void sample();}},
     async end() { await sample(); if (current) { const { started, ...result } = current; result.milliseconds = Math.round(performance.now() - started); results.push(result); current = null; return result; } },
     stop() { clearInterval(timer); },
     results,
