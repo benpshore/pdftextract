@@ -1,0 +1,62 @@
+[
+  {
+    "number": 207,
+    "title": "Repair Upload and paste interactions; browse supplied citation results",
+    "state": "closed",
+    "merged": true,
+    "base": "fix/web-alpha-integration-20261004",
+    "base_sha": "66bbb59f524afbf69044b9dddf09dfcc5cb8688c",
+    "head_sha": "32d93cab432623b6818aee2104e9c9f4094557f2",
+    "merged_at": "2026-10-04T04:50:50Z"
+  },
+  {
+    "number": 208,
+    "title": "feat: add opt-in reviewed region fusion pilot",
+    "state": "closed",
+    "merged": true,
+    "base": "feat/region-provenance-foundation-20261004",
+    "base_sha": "fb623bec2c8c68341a45e1f220ff0f46245dc039",
+    "head_sha": "cd95a8b7243c690b24f59b1994ecb7670c95c1c0",
+    "merged_at": "2026-10-04T04:51:04Z"
+  },
+  {
+    "number": 209,
+    "title": "Add opt-in CPU OCR orientation with immutable rotation evidence",
+    "state": "closed",
+    "merged": true,
+    "base": "feat/cpu-ocr-grobid-runtime-20261004",
+    "base_sha": "df395cc4be6792d0c26e2226a72ad7aa83d9500b",
+    "head_sha": "78ff9429f9e0231562396e58b3a51bd81e7fdbd1",
+    "merged_at": "2026-10-04T04:51:15Z"
+  },
+  {
+    "number": 210,
+    "title": "Classify all 240 frozen corpus outcomes without changing the gate",
+    "state": "closed",
+    "merged": true,
+    "base": "fix/native-eval-provenance-20261004",
+    "base_sha": "eb5f711b866b188b60af95d4330c9fc34a095a82",
+    "head_sha": "d678d641de08c8c66c0b133850459cdaedbf614e",
+    "merged_at": "2026-10-04T04:51:47Z"
+  },
+  {
+    "number": 213,
+    "title": "Keep failed resolver requests unavailable in saved references and CSV",
+    "state": "closed",
+    "merged": true,
+    "base": "feat/web-scholarly-adapter-local-20261004",
+    "base_sha": "c1a3a28027922c6a36e396d7feeccedc00d5b46b",
+    "head_sha": "b9987ccea95300a8af70fd7f558a8edcb64ba059",
+    "merged_at": "2026-10-04T04:53:21Z"
+  },
+  {
+    "number": 218,
+    "title": "Preserve sanitized resolver transport error categories",
+    "state": "closed",
+    "merged": true,
+    "base": "fix/native-eval-provenance-20261004",
+    "base_sha": "57aeb9657b71b8a1a61d1841bdf8ee0b1186278b",
+    "head_sha": "46434f5f0a1c7429b501df2c6de49421f7f6a3dc",
+    "merged_at": "2026-10-04T05:14:33Z"
+  }
+]

@@ -1,0 +1,271 @@
+{
+  "observed_at": "2026-10-04T12:42:35Z",
+  "actor": {
+    "name": "Busybody Bob",
+    "fingerprint": "2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f",
+    "config_sha256": "4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3",
+    "task_id": "pdftextract/stewardship/2026-10-04/busybody-bob",
+    "parent_task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb"
+  },
+  "authority": "https://github.com/benpshore/pdftextract/issues/225#issuecomment-5979917893",
+  "main_unchanged": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+  "owner": "Busybody Bob",
+  "next_review": "2026-10-05 UTC or any relevant head/main change",
+  "reason": "PR207 original and PR192 squash have identical trees but different ancestry; old PR211 descended from original PR207.",
+  "identical_base_tree": "0345a6d79cc9ba16150ea4194c865b76656103df",
+  "source_pr207_head": "32d93cab432623b6818aee2104e9c9f4094557f2",
+  "current_pr192_head": "b315c36a9d93c03ef1acac9339f758431587ff51",
+  "landing_path": [
+    "#175 source/dependency anchor (unqualified)",
+    "#192 reader/storage",
+    "#228 adapter",
+    "#229 network-off"
+  ],
+  "application_content_changed_by_repair": false,
+  "method": "Two new single-parent commits preserve the complete original source trees. No source branch rewrite, force push or merge commit.",
+  "replacements": [
+    {
+      "source_pr": 211,
+      "source_head": "d8e902be6e409b15f476ea126cb29e861a23b095",
+      "replacement_pr": 228,
+      "replacement_head": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "single_parent": "b315c36a9d93c03ef1acac9339f758431587ff51",
+      "exact_tree": "d226930b2ffec77168e66bd1fa7ae14a5557b841",
+      "branch": "steward/web-scholarly-linear-20261004",
+      "base": "fix/web-alpha-integration-20261004",
+      "contribution_path_count": 47,
+      "contribution_paths": [
+        ".github/workflows/web.yml",
+        "docs/WEB_RESOLVER_UNAVAILABLE_20261004.md",
+        "docs/WEB_SCHOLARLY_CONTINUATION_20261004.md",
+        "docs/WEB_SCHOLARLY_PAUSED_CHECKPOINT_20261004.md",
+        "docs/validation/scholarly-local-checkpoint-20261004/browser-upload-probe.json",
+        "docs/validation/scholarly-local-checkpoint-20261004/build-provenance.json",
+        "docs/validation/scholarly-local-checkpoint-20261004/checkpoint.json",
+        "docs/validation/scholarly-local-checkpoint-20261004/full-app-empty-desktop.png",
+        "docs/validation/scholarly-local-checkpoint-20261004/native-grobid.json",
+        "docs/validation/scholarly-local-checkpoint-20261004/native-grobid.tei.xml",
+        "docs/validation/scholarly-local-checkpoint-20261004/workerd-redirect-regression.json",
+        "docs/validation/web-resolver-unavailable-20261004/resolution.json",
+        "docs/validation/web-resolver-unavailable-20261004/verification.json",
+        "docs/validation/web-resolver-unavailable-20261004/workers.json",
+        "docs/validation/web-scholarly-continuation-20261004/adapter.json",
+        "docs/validation/web-scholarly-continuation-20261004/browser.json",
+        "docs/validation/web-scholarly-continuation-20261004/client.json",
+        "docs/validation/web-scholarly-continuation-20261004/controls.json",
+        "docs/validation/web-scholarly-continuation-20261004/references.csv",
+        "docs/validation/web-scholarly-continuation-20261004/runtime.txt",
+        "docs/validation/web-scholarly-continuation-20261004/scholarly-desktop.png",
+        "docs/validation/web-scholarly-continuation-20261004/verification.json",
+        "docs/validation/web-scholarly-continuation-20261004/workers.json",
+        "scripts/scholarly-local-runtime.mjs",
+        "scripts/scholarly-local-runtime.test.mjs",
+        "scripts/test-site-scholarly-workers.mjs",
+        "scripts/test-web-scholarly-browser.mjs",
+        "web/SOURCE_MANIFEST.json",
+        "web/app/api/documents/[id]/scholarly/evidence/route.ts",
+        "web/app/api/documents/[id]/scholarly/route.ts",
+        "web/app/workspace.tsx",
+        "web/build/scholarly-local-worker.mjs",
+        "web/cloudflare-env.d.ts",
+        "web/components/scholarly-controls.tsx",
+        "web/docs/SCHOLARLY_ADAPTER.md",
+        "web/lib/scholarly-adapter.ts",
+        "web/lib/scholarly-client.ts",
+        "web/lib/scholarly-naming.ts",
+        "web/lib/scholarly-service.ts",
+        "web/scripts/test-scholarly-adapter.mjs",
+        "web/scripts/test-scholarly-client.mjs",
+        "web/scripts/test-scholarly-controls.mjs",
+        "web/scripts/test-scholarly-resolution.mjs",
+        "web/tests/fixtures/scholarly/grobid-pr206-fixed-live.json",
+        "web/tests/fixtures/scholarly/provenance.json",
+        "web/tests/fixtures/scholarly/synthetic-scholarly.pdf",
+        "web/vite.config.ts"
+      ],
+      "archive_ref": "archive/steward-20261004/pr-211-d8e902be6e40",
+      "closure_receipt": "https://github.com/benpshore/pdftextract/pull/211#issuecomment-5980042744",
+      "state": "source closed/unmerged; replacement open draft",
+      "reopen": "Reopen original PR; unchanged original branch and archive preserve the inspected head."
+    },
+    {
+      "source_pr": 221,
+      "source_head": "3809145fc07c0a33be5a85514a50bc3dfcff4938",
+      "replacement_pr": 229,
+      "replacement_head": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "single_parent": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "exact_tree": "86e10a3baf49802df4ed3b8599a4d5f540c61f3c",
+      "branch": "steward/web-local-only-linear-20261004",
+      "base": "steward/web-scholarly-linear-20261004",
+      "contribution_path_count": 25,
+      "contribution_paths": [
+        ".github/workflows/web.yml",
+        "docs/WEB_LOCAL_ONLY_DEFAULT_20261004.md",
+        "docs/validation/web-local-only-default-20261004/browser.json",
+        "scripts/scholarly-local-runtime.mjs",
+        "scripts/scholarly-local-runtime.test.mjs",
+        "scripts/test-site-lifecycle-workers.mjs",
+        "scripts/test-site-scholarly-workers.mjs",
+        "scripts/test-web-scholarly-browser.mjs",
+        "scripts/test-web-workspace.cjs",
+        "web/SOURCE_MANIFEST.json",
+        "web/app/api/capture/route.ts",
+        "web/app/api/documents/[id]/assets/route.ts",
+        "web/app/workspace.tsx",
+        "web/build/scholarly-local-worker.mjs",
+        "web/docs/SCHOLARLY_ADAPTER.md",
+        "web/lib/article-assets.ts",
+        "web/lib/clip.ts",
+        "web/lib/network-capabilities.ts",
+        "web/lib/passive-html.ts",
+        "web/lib/scholarly-service.ts",
+        "web/lib/source-fetch.ts",
+        "web/lib/upload-client.ts",
+        "web/scripts/test-clip.mjs",
+        "web/scripts/test-network-capabilities.mjs",
+        "web/scripts/test-web-extraction-review.mjs"
+      ],
+      "archive_ref": "archive/steward-20261004/pr-221-3809145fc07c",
+      "closure_receipt": "https://github.com/benpshore/pdftextract/pull/221#issuecomment-5980045854",
+      "state": "source closed/unmerged; replacement open draft",
+      "reopen": "Reopen original PR; unchanged original branch and archive preserve the inspected head."
+    }
+  ],
+  "checks": [
+    {
+      "n": 228,
+      "head": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "checks": [
+        {
+          "name": "ci",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436922316",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "repo",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436442009",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "rust (ubuntu-24.04-arm)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441984",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "python",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441927",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "rust (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441914",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "swift",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349278/job/111436441822",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        },
+        {
+          "name": "web",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202349187/job/111436441633",
+          "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b"
+        }
+      ]
+    },
+    {
+      "n": 229,
+      "head": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "checks": [
+        {
+          "name": "ci",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437899296",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "web",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697554/job/111437446864",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "swift",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446587",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "repo",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446564",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "rust (ubuntu-24.04-arm)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446546",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "rust (ubuntu-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446531",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        },
+        {
+          "name": "python",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/benpshore/pdftextract/actions/runs/37202697546/job/111437446494",
+          "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28"
+        }
+      ]
+    }
+  ],
+  "ownership_evidence": "Original owners parent-reported idle; repeated live exact-head/comment checks found no new claim. Platform owner runtime status unavailable.",
+  "done_criteria": "Both replacement trees equal preserved source trees; expected single-parent ancestry and marked-agent trailers verified; exact-head required CI/Web green; superseded drafts archived then reversibly closed; current rationale and ledger published.",
+  "remaining_gates": [
+    "#175 broad residual/main qualification",
+    "209 genuine native Partials",
+    "Separately owned #222 and open #215; formal security resources unavailable",
+    "No actual-device or fresh native/GROBID/registry accuracy qualification"
+  ],
+  "usage": {
+    "status": "unknown",
+    "receipt": null,
+    "amount": null,
+    "unit": null
+  },
+  "historical_attribution": "Individual native/web/Luna/review/research identities and prior ChatGPTWork activity remain unresolved; no retrospective fingerprints minted.",
+  "receipts": [
+    "https://github.com/benpshore/pdftextract/issues/225#issuecomment-5979917893",
+    "https://github.com/benpshore/pdftextract/issues/225#issuecomment-5979997859"
+  ],
+  "local_limitations": [
+    "OSV proxy blocked",
+    "Cargo/Swift/CMake executables absent",
+    "Playwright browser download CDN denied; existing system Chromium used without alternate download",
+    "Browser scholarly bridge replays captured PR206 output; desktop only"
+  ]
+}

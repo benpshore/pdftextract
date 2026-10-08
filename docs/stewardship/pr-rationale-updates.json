@@ -1,0 +1,209 @@
+[
+  {
+    "number": 78,
+    "head_sha": "f23f392efec7d3d971c976b9f18b32b53d7039b2",
+    "base_sha": "cd14f587b11274da6f42a0a8b71773f8ac18e43b",
+    "updated_at": "2026-10-04T12:01:18Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/36549813782/job/109398912756"
+    },
+    "other_nonpassing": [
+      "ci=failure",
+      "rust (macos-15)=cancelled",
+      "cmake=cancelled",
+      "native (macos-15)=cancelled"
+    ],
+    "previous_body_sha256": "39474f754fd132e43b09a89c112184a7a4df29f89d4403c5216facb0ce4481e9",
+    "updated_body_sha256": "9746483980ecdaf3b334f0c6d18af15cee81e59f8f4398afd7fae9b6d9d57751"
+  },
+  {
+    "number": 83,
+    "head_sha": "dda67a8981fb4110cc66aaa9fe63d86c4852e473",
+    "base_sha": "f23f392efec7d3d971c976b9f18b32b53d7039b2",
+    "updated_at": "2026-10-04T12:01:25Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/36555371978/job/109398883072"
+    },
+    "other_nonpassing": [
+      "ci=failure",
+      "rust (macos-15)=cancelled",
+      "cmake=cancelled",
+      "native (macos-15)=cancelled"
+    ],
+    "previous_body_sha256": "f611ae25a6ae69e75bca588f24cd4ac98c8dcaff666b1efbb1be20a9f07f0f72",
+    "updated_body_sha256": "97f62a015ef5c42423e4f61fe8348f3937df93acc2696468a372e37a930ac3af"
+  },
+  {
+    "number": 114,
+    "head_sha": "d547cd688b8cdd2199ca55b3ea2d4567fd1f524e",
+    "base_sha": "8fb4dd1668991045823027866e1ca804e514367c",
+    "updated_at": "2026-10-04T12:01:33Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/36658130647/job/109707184504"
+    },
+    "other_nonpassing": [],
+    "previous_body_sha256": "f97aeab28208a41c1771519a89810b55a080c2b4e3fbea5096543431c85c344f",
+    "updated_body_sha256": "90b05fa18a98924798885df43fd5f6c17240028a6db354fc69bc857815ca8668"
+  },
+  {
+    "number": 175,
+    "head_sha": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+    "base_sha": "e27e1fb28a5b40dbca7f517c6fe396e6f11ed4ec",
+    "updated_at": "2026-10-04T12:01:47Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37167782186/job/111335556951"
+    },
+    "other_nonpassing": [
+      "native (ubuntu-24.04-arm)=failure"
+    ],
+    "previous_body_sha256": "25ed640f5b044927eea0b145e705c4faa3aac54e296a40f8732b20e59508ee26",
+    "updated_body_sha256": "879d48a5eac594d0a3e0cc8e694360a859e9845ba486758a375ae1bdbc7d0ee2"
+  },
+  {
+    "number": 191,
+    "head_sha": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9",
+    "base_sha": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+    "updated_at": "2026-10-04T12:01:55Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37169841954/job/111340973166"
+    },
+    "other_nonpassing": [
+      "native (ubuntu-24.04-arm)=failure"
+    ],
+    "previous_body_sha256": "b05b687504f7c0c1dcd0efdc50c44eb2e9fc75d7d6fd9ae813e5192309bfc1a6",
+    "updated_body_sha256": "40afe750e15a05987b967e194d7d495b2bb8c882ada3e443b7b20e948e5071d8"
+  },
+  {
+    "number": 192,
+    "head_sha": "b315c36a9d93c03ef1acac9339f758431587ff51",
+    "base_sha": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+    "updated_at": "2026-10-04T12:02:02Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37178179835/job/111365533601"
+    },
+    "other_nonpassing": [],
+    "previous_body_sha256": "cedfa0825654ca720f131d1be1715d0b0af7dbf1f26fac987375a41efcc3d8ad",
+    "updated_body_sha256": "ba60f8ab64540454d7ea3c57faaf850d797e349394150fdf811aca3e39e0d276"
+  },
+  {
+    "number": 202,
+    "head_sha": "d964e9a7d939bab93bbe3ba3c57c4cc0a3c5c221",
+    "base_sha": "e27e1fb28a5b40dbca7f517c6fe396e6f11ed4ec",
+    "updated_at": "2026-10-04T12:02:11Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37178190770/job/111365499280"
+    },
+    "other_nonpassing": [],
+    "previous_body_sha256": "58e7dadc2382151813f00e849a62f6b070d9ac6863c82ad89b2e105188e2fa91",
+    "updated_body_sha256": "1caae98d9e1954ab28cc35116012fb3c87a5afc0a53b6114afa2163f82ae12ed"
+  },
+  {
+    "number": 205,
+    "head_sha": "3b73e37101e0ad1a22372601152f81403b273c54",
+    "base_sha": "490e39f9320c1b9e2766f136c27f0dccf9ca78e0",
+    "updated_at": "2026-10-04T12:02:20Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37179311869/job/111368845829"
+    },
+    "other_nonpassing": [
+      "native (ubuntu-24.04-arm)=failure"
+    ],
+    "previous_body_sha256": "88916c10e8b5e06b9a1e30bf897f3f8d6591b001de7e8629bbf12b9d2d81ae6f",
+    "updated_body_sha256": "b6c8a6341e5a60f0bd722d160f1a676af34bbbdc677a4da250c4b84534db9bf7"
+  },
+  {
+    "number": 206,
+    "head_sha": "f7b41b93ba874057f79cad1dc1f5d3a6ce3fbece",
+    "base_sha": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+    "updated_at": "2026-10-04T12:02:27Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37178200212/job/111365538738"
+    },
+    "other_nonpassing": [],
+    "previous_body_sha256": "d697bd7837cf51384530f2aee58d4e3fc6e39fb6416198dad1a0c1eb3079f496",
+    "updated_body_sha256": "a35d3792a741897ab1920f7fb1dc3018003eaf8303af0b2500f78a117aa9e5af"
+  },
+  {
+    "number": 211,
+    "head_sha": "d8e902be6e409b15f476ea126cb29e861a23b095",
+    "base_sha": "b315c36a9d93c03ef1acac9339f758431587ff51",
+    "updated_at": "2026-10-04T12:02:33Z",
+    "required_ci": null,
+    "other_nonpassing": [],
+    "previous_body_sha256": "0749ce75b05c7a58ef37d5f0403f2fa28d3222a5ff2bae84d72764385217ac27",
+    "updated_body_sha256": "e58d8ece16f4c3b57e41f1cfcc52e49693e3dd279ad23872a5974d07f63c6f2c"
+  },
+  {
+    "number": 221,
+    "head_sha": "3809145fc07c0a33be5a85514a50bc3dfcff4938",
+    "base_sha": "d8e902be6e409b15f476ea126cb29e861a23b095",
+    "updated_at": "2026-10-04T12:02:40Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37181270137/job/111374566894"
+    },
+    "other_nonpassing": [],
+    "previous_body_sha256": "2b316252064f7a7951e0bdc41c871d293c048f7927cc14964a16c3cbf7a017f3",
+    "updated_body_sha256": "0582351875eae39b90c6b44d22cd0d24d94e159545474b30b897dac94a446321"
+  },
+  {
+    "number": 223,
+    "head_sha": "7385a3bcd4592a2071cd5eb93d566fe4ec472723",
+    "base_sha": "3b73e37101e0ad1a22372601152f81403b273c54",
+    "updated_at": "2026-10-04T12:02:45Z",
+    "required_ci": {
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/benpshore/pdftextract/actions/runs/37181738212/job/111376163879"
+    },
+    "other_nonpassing": [
+      "native (ubuntu-24.04-arm)=failure",
+      "registry=failure"
+    ],
+    "previous_body_sha256": "0dff3adde7c912b4767b5c113936970abb7a4f5e39df1d138ea95adfc290c8e0",
+    "updated_body_sha256": "036c405749c9d8716d2617ea28061bb96b5946128f62e4ae134e11de34d9ba7c"
+  },
+  {
+    "number": 228,
+    "head_sha": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+    "updated_at": "2026-10-04T12:42:35Z",
+    "previous_body_sha256": "34c64480a17ec6f3805e03623a626e8313f817ce953842edda5cfe30f26a4ff1",
+    "updated_body_sha256": "3293c133de87f052a735d634c246598fcb46098cf44e8c2c43f34e77ebb6a9f7",
+    "reason": "Verified linear replacement path and current terminal-green CI; original head unchanged."
+  },
+  {
+    "number": 229,
+    "head_sha": "b752bae170ae628c07b12800a44a0a37b235db28",
+    "updated_at": "2026-10-04T12:42:35Z",
+    "previous_body_sha256": "20b4f3694a430c8f872267a4b12c62b9834166681e994a1cc2a2fb3f2a127df9",
+    "updated_body_sha256": "82bf38f9769112c3f52ac832818550ddb74efdf531bbd08ea9ae0f1414a52089",
+    "reason": "Verified linear replacement path and current terminal-green CI; original head unchanged."
+  },
+  {
+    "number": 192,
+    "head_sha": "b315c36a9d93c03ef1acac9339f758431587ff51",
+    "updated_at": "2026-10-04T12:42:35Z",
+    "previous_body_sha256": "ba60f8ab64540454d7ea3c57faaf850d797e349394150fdf811aca3e39e0d276",
+    "updated_body_sha256": "cbb9776bb06b143387649774094349a4ee803138856277fedab3bdafe348640c",
+    "reason": "Verified linear replacement path and current terminal-green CI; original head unchanged."
+  }
+]

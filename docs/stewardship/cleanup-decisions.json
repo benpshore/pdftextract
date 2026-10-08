@@ -1,0 +1,78 @@
+[
+  {
+    "number": 172,
+    "head_sha": "5c6225c7e1dc76cea97fca6d3019cc31094fa8ac",
+    "base": "publish/pdfium-native-hyphen",
+    "base_sha": "23880f84e8964d1876461ad94a2ed5b470bb7e5d",
+    "archive_ref": "archive/steward-20261004/pr-172-5c6225c7e1dc",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/172#issuecomment-5979663305",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 194,
+    "head_sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe",
+    "base": "integrate/native-bibliography-base-20261004",
+    "base_sha": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9",
+    "archive_ref": "archive/steward-20261004/pr-194-0ece13395f83",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/194#issuecomment-5979665508",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 203,
+    "head_sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0",
+    "base": "diagnostics/native-bibliography-20261004",
+    "base_sha": "0ece13395f8372a6e9b32aa93f16b612a850b0fe",
+    "archive_ref": "archive/steward-20261004/pr-203-5cd375e6b2c4",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/203#issuecomment-5979667406",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 204,
+    "head_sha": "490e39f9320c1b9e2766f136c27f0dccf9ca78e0",
+    "base": "fix/native-bibliography-boundaries-20261004",
+    "base_sha": "5cd375e6b2c46792cd5f70cf9ab58e990ebbe5d0",
+    "archive_ref": "archive/steward-20261004/pr-204-490e39f9320c",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/204#issuecomment-5979669416",
+    "reason": "all contributed files exactly equal observed main"
+  },
+  {
+    "number": 211,
+    "head_sha": "d8e902be6e409b15f476ea126cb29e861a23b095",
+    "base": "fix/web-alpha-integration-20261004",
+    "base_sha": "b315c36a9d93c03ef1acac9339f758431587ff51",
+    "archive_ref": "archive/steward-20261004/pr-211-d8e902be6e40",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/211#issuecomment-5980042744",
+    "replacement_pr": 228,
+    "replacement_head": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+    "reason": "Exact complete tree preserved in single-parent replacement with green exact-head CI/Web."
+  },
+  {
+    "number": 221,
+    "head_sha": "3809145fc07c0a33be5a85514a50bc3dfcff4938",
+    "base": "feat/web-scholarly-adapter-local-20261004",
+    "base_sha": "d8e902be6e409b15f476ea126cb29e861a23b095",
+    "archive_ref": "archive/steward-20261004/pr-221-3809145fc07c",
+    "archive_verified": true,
+    "state": "closed",
+    "merged": false,
+    "receipt": "https://github.com/benpshore/pdftextract/pull/221#issuecomment-5980045854",
+    "replacement_pr": 229,
+    "replacement_head": "b752bae170ae628c07b12800a44a0a37b235db28",
+    "reason": "Exact complete tree preserved in single-parent replacement with green exact-head CI/Web."
+  }
+]
