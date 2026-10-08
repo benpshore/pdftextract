@@ -535,16 +535,22 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
-      "bytes": 5580,
+      "bytes": 5759,
       "mode": "0644",
       "path": "docs/DOCLING_PDF_API.md",
-      "sha256": "efa650d17f2c5ad117fae147671ab4d405361859c222e7a5f54f18f8600a8bde"
+      "sha256": "63ed2f039bc798bfd8f61160048067005464c4a575ecaed6c999418ce2522034"
     },
     {
       "bytes": 5163,
       "mode": "0644",
       "path": "docs/OFFICE.md",
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
+    },
+    {
+      "bytes": 101165,
+      "mode": "0644",
+      "path": "docs/evidence/docling-browser-expanded.json",
+      "sha256": "7ca95f5c9127c483ae7a7b250aff950d4ca82cd1ce60ed81223660afffefce7c"
     },
     {
       "bytes": 71633,

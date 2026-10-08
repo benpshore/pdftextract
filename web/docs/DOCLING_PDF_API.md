@@ -93,8 +93,10 @@ node scripts/test-docling-browser.mjs
 ```
 
 Checkpoint handoff: TypeScript, Ruff, 210 Python tests, and import-flow tests
-passed. Expanded missing-model/invalid-model/UI/time-budget tests were running
-when the user requested the implementation-model handoff. The existing
+passed. Expanded browser tests also passed: missing layout/detector, corrupted dictionary,
+malformed input, input/time budgets, initialization and active-model cancellation,
+subsequent success, fast-text provenance, and the standalone UI.
+The expanded evidence records actual per-model output dimensions and timing. The existing
 `scripts/test-web-workspace.cjs` loader needs an alias for `@/lib/pdf-api`.
 No hosted browser CI has been added yet; exact-head CI must still be followed.
 Local Rust/Swift/CMake tools are absent; uv audit cannot reach api.osv.dev.
