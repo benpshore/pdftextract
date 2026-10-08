@@ -1,0 +1,2422 @@
+{
+  "browser": "151.0.7922.173",
+  "checks": [
+    "Identifiable discovery declares CPU/WASM and schema",
+    "native.pdf: callable job status",
+    "native.pdf: real Docling PDF inference returns explicit partial coverage",
+    "native.pdf: CPU provenance and page output",
+    "native.pdf: real inference progress",
+    "native.pdf: original unchanged",
+    "native.pdf: page 1 expected sentence: Faithful native text remains available.",
+    "native.pdf: page 1 expected sentence: Existing OCR already reads this sentence.",
+    "native.pdf: page 1 expected sentence: Numbers 12345 and alpha beta gamma.",
+    "scanned.pdf: callable job status",
+    "scanned.pdf: real Docling PDF inference returns explicit partial coverage",
+    "scanned.pdf: CPU provenance and page output",
+    "scanned.pdf: real inference progress",
+    "scanned.pdf: original unchanged",
+    "scanned.pdf: page 1 expected sentence: Faithful native text remains available.",
+    "scanned.pdf: page 1 expected sentence: Existing OCR already reads this sentence.",
+    "scanned.pdf: page 1 expected sentence: Numbers 12345 and alpha beta gamma.",
+    "Scan runs ScannedConverter with detector",
+    "mixed.pdf: callable job status",
+    "mixed.pdf: real Docling PDF inference returns explicit partial coverage",
+    "mixed.pdf: CPU provenance and page output",
+    "mixed.pdf: real inference progress",
+    "mixed.pdf: original unchanged",
+    "mixed.pdf: page 1 expected sentence: Faithful native text remains available.",
+    "mixed.pdf: page 1 expected sentence: Existing OCR already reads this sentence.",
+    "mixed.pdf: page 1 expected sentence: Numbers 12345 and alpha beta gamma.",
+    "mixed.pdf: page 2 expected sentence: Faithful native text remains available.",
+    "mixed.pdf: page 2 expected sentence: Existing OCR already reads this sentence.",
+    "mixed.pdf: page 2 expected sentence: Numbers 12345 and alpha beta gamma.",
+    "Mixed PDF preserves digital/scanned routes and original page identity",
+    "semantic-two.pdf: callable job status",
+    "semantic-two.pdf: real Docling PDF inference returns explicit partial coverage",
+    "semantic-two.pdf: CPU provenance and page output",
+    "semantic-two.pdf: real inference progress",
+    "semantic-two.pdf: original unchanged",
+    "semantic-three.pdf: callable job status",
+    "semantic-three.pdf: real Docling PDF inference returns explicit partial coverage",
+    "semantic-three.pdf: CPU provenance and page output",
+    "semantic-three.pdf: real inference progress",
+    "semantic-three.pdf: original unchanged",
+    "OCR off on a scan is meaningful failure",
+    "Cancellation terminates an actual rendered PDF operation",
+    "Successful subsequent PDF after interruption",
+    "Page selection remaps provenance to original page 2"
+  ],
+  "runs": [
+    {
+      "name": "native.pdf",
+      "output": {
+        "apiVersion": "1",
+        "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+        "status": "partial",
+        "source": {
+          "name": "native.pdf",
+          "bytes": 1433,
+          "sha256": "099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8",
+          "preserved": true,
+          "pageCount": 1,
+          "selectedPages": [
+            1
+          ]
+        },
+        "engine": {
+          "name": "docling.rs-wasm",
+          "version": "1.104.2",
+          "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+          "renderer": "pdfjs-dist 5.4.624",
+          "runtime": "onnxruntime-web 1.24.3",
+          "provider": "wasm",
+          "device": "CPU",
+          "threads": 1
+        },
+        "pages": [
+          {
+            "page": 1,
+            "width": 612,
+            "height": 792,
+            "rotation": 0,
+            "route": "digital",
+            "ocr": "off",
+            "status": "partial",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "orderEngine": "docling.rs-wasm document body",
+            "order": [
+              "#/texts/0"
+            ],
+            "layout": [
+              {
+                "id": "#/texts/0",
+                "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                "label": "text",
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 45.42,
+                      "t": 742.5,
+                      "r": 308.39,
+                      "b": 668.25,
+                      "coord_origin": "BOTTOMLEFT"
+                    },
+                    "charspan": [
+                      0,
+                      117
+                    ]
+                  }
+                ],
+                "order": 0
+              }
+            ],
+            "originalTextCells": [
+              {
+                "id": "pdfjs:0",
+                "index": 0,
+                "text": "Faithful native text remains available.",
+                "bbox": [
+                  45,
+                  46,
+                  275.31399999999996,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  732
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "index": 1,
+                "text": "Existing OCR already reads this sentence.",
+                "bbox": [
+                  45,
+                  76,
+                  307.98999999999995,
+                  90
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  702
+                ]
+              },
+              {
+                "id": "pdfjs:2",
+                "index": 2,
+                "text": "Numbers 12345 and alpha beta gamma.",
+                "bbox": [
+                  45,
+                  106,
+                  295.57199999999995,
+                  120
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  672
+                ]
+              }
+            ],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "native.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 17291602415036109000,
+                "filename": "native.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "text",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 45.42,
+                        "t": 742.5,
+                        "r": 308.39,
+                        "b": 668.25,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        117
+                      ]
+                    }
+                  ],
+                  "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                  "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 612,
+                    "height": 792
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          }
+        ],
+        "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+        "diagnostics": []
+      },
+      "progress": [
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "opening",
+          "completed": 0,
+          "message": "Opening PDF"
+        },
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "assets",
+          "message": "Loading layout model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "rasterizing",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Rendering page 1"
+        },
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "inference",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Text and layout on page 1 (CPU)"
+        },
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "page-complete",
+          "page": 1,
+          "completed": 1,
+          "total": 1,
+          "message": "Page 1 complete"
+        },
+        {
+          "jobId": "fec20ff4-c128-4480-bf26-6382fda8fa85",
+          "phase": "partial",
+          "completed": 1,
+          "message": "partial"
+        }
+      ]
+    },
+    {
+      "name": "scanned.pdf",
+      "output": {
+        "apiVersion": "1",
+        "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+        "status": "partial",
+        "source": {
+          "name": "scanned.pdf",
+          "bytes": 56619,
+          "sha256": "d2f6425c079ce23b9f4939175b6508af25319d469ea7419f88c0b8157c6dc72f",
+          "preserved": true,
+          "pageCount": 1,
+          "selectedPages": [
+            1
+          ]
+        },
+        "engine": {
+          "name": "docling.rs-wasm",
+          "version": "1.104.2",
+          "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+          "renderer": "pdfjs-dist 5.4.624",
+          "runtime": "onnxruntime-web 1.24.3",
+          "provider": "wasm",
+          "device": "CPU",
+          "threads": 1
+        },
+        "pages": [
+          {
+            "page": 1,
+            "width": 612,
+            "height": 792,
+            "rotation": 0,
+            "route": "scanned",
+            "ocr": "page",
+            "status": "partial",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "orderEngine": "docling.rs-wasm document body",
+            "order": [
+              "#/texts/0"
+            ],
+            "layout": [
+              {
+                "id": "#/texts/0",
+                "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                "label": "text",
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 44.23,
+                      "t": 745.59,
+                      "r": 307.2,
+                      "b": 672.89,
+                      "coord_origin": "BOTTOMLEFT"
+                    },
+                    "charspan": [
+                      0,
+                      117
+                    ]
+                  }
+                ],
+                "order": 0
+              }
+            ],
+            "originalTextCells": [],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "scanned.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 8241120670052256000,
+                "filename": "scanned.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "text",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 44.23,
+                        "t": 745.59,
+                        "r": 307.2,
+                        "b": 672.89,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        117
+                      ]
+                    }
+                  ],
+                  "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                  "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 612,
+                    "height": 792
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          }
+        ],
+        "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+        "diagnostics": []
+      },
+      "progress": [
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "opening",
+          "completed": 0,
+          "message": "Opening PDF"
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "assets",
+          "message": "Loading layout model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "probe",
+          "message": "Error: PDF has no usable embedded text layer (scanned/image-only?) — use the OCR pipeline",
+          "code": "DIGITAL_PROBE_REJECTED",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "rasterizing",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Rendering page 1"
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "inference",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "OCR and layout on page 1 (CPU)"
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "assets",
+          "message": "Loading recognition model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "assets",
+          "message": "Loading detector model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "page-complete",
+          "page": 1,
+          "completed": 1,
+          "total": 1,
+          "message": "Page 1 complete"
+        },
+        {
+          "jobId": "ccfd3893-2eca-4101-833a-5efef5b39dbb",
+          "phase": "partial",
+          "completed": 1,
+          "message": "partial"
+        }
+      ]
+    },
+    {
+      "name": "mixed.pdf",
+      "output": {
+        "apiVersion": "1",
+        "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+        "status": "partial",
+        "source": {
+          "name": "mixed.pdf",
+          "bytes": 57200,
+          "sha256": "fcd8fa23edede1172fa11029466c45edc4f8ae0989c13fc8e99046f55083ed62",
+          "preserved": true,
+          "pageCount": 2,
+          "selectedPages": [
+            1,
+            2
+          ]
+        },
+        "engine": {
+          "name": "docling.rs-wasm",
+          "version": "1.104.2",
+          "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+          "renderer": "pdfjs-dist 5.4.624",
+          "runtime": "onnxruntime-web 1.24.3",
+          "provider": "wasm",
+          "device": "CPU",
+          "threads": 1
+        },
+        "pages": [
+          {
+            "page": 1,
+            "width": 612,
+            "height": 792,
+            "rotation": 0,
+            "route": "digital",
+            "ocr": "pictures",
+            "status": "partial",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "orderEngine": "docling.rs-wasm document body",
+            "order": [
+              "#/texts/0"
+            ],
+            "layout": [
+              {
+                "id": "#/texts/0",
+                "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                "label": "text",
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 45.42,
+                      "t": 742.5,
+                      "r": 308.39,
+                      "b": 668.25,
+                      "coord_origin": "BOTTOMLEFT"
+                    },
+                    "charspan": [
+                      0,
+                      117
+                    ]
+                  }
+                ],
+                "order": 0
+              }
+            ],
+            "originalTextCells": [
+              {
+                "id": "pdfjs:0",
+                "index": 0,
+                "text": "Faithful native text remains available.",
+                "bbox": [
+                  45,
+                  46,
+                  275.31399999999996,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  732
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "index": 1,
+                "text": "Existing OCR already reads this sentence.",
+                "bbox": [
+                  45,
+                  76,
+                  307.98999999999995,
+                  90
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  702
+                ]
+              },
+              {
+                "id": "pdfjs:2",
+                "index": 2,
+                "text": "Numbers 12345 and alpha beta gamma.",
+                "bbox": [
+                  45,
+                  106,
+                  295.57199999999995,
+                  120
+                ],
+                "direction": "ltr",
+                "transform": [
+                  14,
+                  0,
+                  0,
+                  14,
+                  45,
+                  672
+                ]
+              }
+            ],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "mixed.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 1928236834263218000,
+                "filename": "mixed.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "text",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 45.42,
+                        "t": 742.5,
+                        "r": 308.39,
+                        "b": 668.25,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        117
+                      ]
+                    }
+                  ],
+                  "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                  "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 612,
+                    "height": 792
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          },
+          {
+            "page": 2,
+            "width": 612,
+            "height": 792,
+            "rotation": 0,
+            "route": "scanned",
+            "ocr": "page",
+            "status": "partial",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "orderEngine": "docling.rs-wasm document body",
+            "order": [
+              "#/texts/0"
+            ],
+            "layout": [
+              {
+                "id": "#/texts/0",
+                "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                "label": "text",
+                "provenance": [
+                  {
+                    "page_no": 2,
+                    "bbox": {
+                      "l": 44.23,
+                      "t": 745.59,
+                      "r": 307.2,
+                      "b": 672.89,
+                      "coord_origin": "BOTTOMLEFT"
+                    },
+                    "charspan": [
+                      0,
+                      117
+                    ]
+                  }
+                ],
+                "order": 0
+              }
+            ],
+            "originalTextCells": [],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "mixed.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 1928236834263218000,
+                "filename": "mixed.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "text",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 44.23,
+                        "t": 745.59,
+                        "r": 307.2,
+                        "b": 672.89,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        117
+                      ]
+                    }
+                  ],
+                  "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+                  "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 612,
+                    "height": 792
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          }
+        ],
+        "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.\n\nFaithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+        "diagnostics": []
+      },
+      "progress": [
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "opening",
+          "completed": 0,
+          "message": "Opening PDF"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "assets",
+          "message": "Loading layout model (CPU/WASM)",
+          "completed": 0,
+          "total": 2
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "rasterizing",
+          "page": 1,
+          "completed": 0,
+          "total": 2,
+          "message": "Rendering page 1"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "inference",
+          "page": 1,
+          "completed": 0,
+          "total": 2,
+          "message": "Text and layout on page 1 (CPU)"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "assets",
+          "message": "Loading recognition model (CPU/WASM)",
+          "completed": 0,
+          "total": 2
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "page-complete",
+          "page": 1,
+          "completed": 1,
+          "total": 2,
+          "message": "Page 1 complete"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "rasterizing",
+          "page": 2,
+          "completed": 1,
+          "total": 2,
+          "message": "Rendering page 2"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "inference",
+          "page": 2,
+          "completed": 1,
+          "total": 2,
+          "message": "OCR and layout on page 2 (CPU)"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "assets",
+          "message": "Loading detector model (CPU/WASM)",
+          "completed": 1,
+          "total": 2
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "page-complete",
+          "page": 2,
+          "completed": 2,
+          "total": 2,
+          "message": "Page 2 complete"
+        },
+        {
+          "jobId": "52535a8b-ea07-4f31-9924-bd2bff846db4",
+          "phase": "partial",
+          "completed": 2,
+          "message": "partial"
+        }
+      ]
+    },
+    {
+      "name": "semantic-two.pdf",
+      "output": {
+        "apiVersion": "1",
+        "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+        "status": "partial",
+        "source": {
+          "name": "semantic-two.pdf",
+          "bytes": 2081,
+          "sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+          "preserved": true,
+          "pageCount": 1,
+          "selectedPages": [
+            1
+          ]
+        },
+        "engine": {
+          "name": "docling.rs-wasm",
+          "version": "1.104.2",
+          "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+          "renderer": "pdfjs-dist 5.4.624",
+          "runtime": "onnxruntime-web 1.24.3",
+          "provider": "wasm",
+          "device": "CPU",
+          "threads": 1
+        },
+        "pages": [
+          {
+            "page": 1,
+            "width": 240,
+            "height": 180,
+            "rotation": 0,
+            "route": "digital",
+            "ocr": "off",
+            "status": "partial",
+            "text": "HEADING\nleft first row\nleft second row\nright first row\nright second row",
+            "orderEngine": "pdf-api repeated-gutter geometry v1 (PDF.js cells)",
+            "order": [
+              "pdfjs:2",
+              "pdfjs:1",
+              "pdfjs:4",
+              "pdfjs:3",
+              "pdfjs:0"
+            ],
+            "layout": [
+              {
+                "id": "pdfjs:2",
+                "text": "HEADING",
+                "label": "text",
+                "order": 0,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 102,
+                      "t": 26,
+                      "r": 144,
+                      "b": 36,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "text": "left first row",
+                "label": "text",
+                "order": 1,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 12,
+                      "t": 38,
+                      "r": 96,
+                      "b": 48,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:4",
+                "text": "left second row",
+                "label": "text",
+                "order": 2,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 12,
+                      "t": 50,
+                      "r": 102,
+                      "b": 60,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:3",
+                "text": "right first row",
+                "label": "text",
+                "order": 3,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 132,
+                      "t": 38,
+                      "r": 222,
+                      "b": 48,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:0",
+                "text": "right second row",
+                "label": "text",
+                "order": 4,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 132,
+                      "t": 50,
+                      "r": 228,
+                      "b": 60,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              }
+            ],
+            "originalTextCells": [
+              {
+                "id": "pdfjs:0",
+                "index": 0,
+                "text": "right second row",
+                "bbox": [
+                  132,
+                  50,
+                  228,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  132,
+                  120
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "index": 1,
+                "text": "left first row",
+                "bbox": [
+                  12,
+                  38,
+                  96,
+                  48
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  12,
+                  132
+                ]
+              },
+              {
+                "id": "pdfjs:2",
+                "index": 2,
+                "text": "HEADING",
+                "bbox": [
+                  102,
+                  26,
+                  144,
+                  36
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  102,
+                  144
+                ]
+              },
+              {
+                "id": "pdfjs:3",
+                "index": 3,
+                "text": "right first row",
+                "bbox": [
+                  132,
+                  38,
+                  222,
+                  48
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  132,
+                  132
+                ]
+              },
+              {
+                "id": "pdfjs:4",
+                "index": 4,
+                "text": "left second row",
+                "bbox": [
+                  12,
+                  50,
+                  102,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  12,
+                  120
+                ]
+              }
+            ],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "semantic-two.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 12802835806910736000,
+                "filename": "semantic-two.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "text",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 12.19,
+                        "t": 151.52,
+                        "r": 227.81,
+                        "b": 117.42,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        71
+                      ]
+                    }
+                  ],
+                  "orig": "right second row left first row HEADING right first row left second row",
+                  "text": "right second row left first row HEADING right first row left second row"
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 240,
+                    "height": 180
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "GEOMETRIC_ORDER",
+                "message": "2 columns inferred from repeated whitespace gutters. Docling merged the text region; independent geometry supplies provisional order. Original Docling output and PDF.js cells are retained."
+              },
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          }
+        ],
+        "text": "HEADING\nleft first row\nleft second row\nright first row\nright second row",
+        "diagnostics": []
+      },
+      "progress": [
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "opening",
+          "completed": 0,
+          "message": "Opening PDF"
+        },
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "assets",
+          "message": "Loading layout model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "rasterizing",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Rendering page 1"
+        },
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "inference",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Text and layout on page 1 (CPU)"
+        },
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "page-complete",
+          "page": 1,
+          "completed": 1,
+          "total": 1,
+          "message": "Page 1 complete"
+        },
+        {
+          "jobId": "471d1ec4-8f00-4f66-adf9-b723d80a5393",
+          "phase": "partial",
+          "completed": 1,
+          "message": "partial"
+        }
+      ]
+    },
+    {
+      "name": "semantic-three.pdf",
+      "output": {
+        "apiVersion": "1",
+        "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+        "status": "partial",
+        "source": {
+          "name": "semantic-three.pdf",
+          "bytes": 2119,
+          "sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+          "preserved": true,
+          "pageCount": 1,
+          "selectedPages": [
+            1
+          ]
+        },
+        "engine": {
+          "name": "docling.rs-wasm",
+          "version": "1.104.2",
+          "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+          "renderer": "pdfjs-dist 5.4.624",
+          "runtime": "onnxruntime-web 1.24.3",
+          "provider": "wasm",
+          "device": "CPU",
+          "threads": 1
+        },
+        "pages": [
+          {
+            "page": 1,
+            "width": 240,
+            "height": 180,
+            "rotation": 0,
+            "route": "digital",
+            "ocr": "off",
+            "status": "partial",
+            "text": "CENTER HEADING\nL1\nL2\nM1\nM2\nR1\nR2",
+            "orderEngine": "pdf-api repeated-gutter geometry v1 (PDF.js cells)",
+            "order": [
+              "pdfjs:2",
+              "pdfjs:5",
+              "pdfjs:3",
+              "pdfjs:1",
+              "pdfjs:6",
+              "pdfjs:4",
+              "pdfjs:0"
+            ],
+            "layout": [
+              {
+                "id": "pdfjs:2",
+                "text": "CENTER HEADING",
+                "label": "text",
+                "order": 0,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 84,
+                      "t": 26,
+                      "r": 168,
+                      "b": 36,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:5",
+                "text": "L1",
+                "label": "text",
+                "order": 1,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 12,
+                      "t": 38,
+                      "r": 24,
+                      "b": 48,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:3",
+                "text": "L2",
+                "label": "text",
+                "order": 2,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 12,
+                      "t": 50,
+                      "r": 24,
+                      "b": 60,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "text": "M1",
+                "label": "text",
+                "order": 3,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 90,
+                      "t": 38,
+                      "r": 102,
+                      "b": 48,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:6",
+                "text": "M2",
+                "label": "text",
+                "order": 4,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 90,
+                      "t": 50,
+                      "r": 102,
+                      "b": 60,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:4",
+                "text": "R1",
+                "label": "text",
+                "order": 5,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 168,
+                      "t": 38,
+                      "r": 180,
+                      "b": 48,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "pdfjs:0",
+                "text": "R2",
+                "label": "text",
+                "order": 6,
+                "provenance": [
+                  {
+                    "page_no": 1,
+                    "bbox": {
+                      "l": 168,
+                      "t": 50,
+                      "r": 180,
+                      "b": 60,
+                      "coord_origin": "TOPLEFT"
+                    }
+                  }
+                ]
+              }
+            ],
+            "originalTextCells": [
+              {
+                "id": "pdfjs:0",
+                "index": 0,
+                "text": "R2",
+                "bbox": [
+                  168,
+                  50,
+                  180,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  168,
+                  120
+                ]
+              },
+              {
+                "id": "pdfjs:1",
+                "index": 1,
+                "text": "M1",
+                "bbox": [
+                  90,
+                  38,
+                  102,
+                  48
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  90,
+                  132
+                ]
+              },
+              {
+                "id": "pdfjs:2",
+                "index": 2,
+                "text": "CENTER HEADING",
+                "bbox": [
+                  84,
+                  26,
+                  168,
+                  36
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  84,
+                  144
+                ]
+              },
+              {
+                "id": "pdfjs:3",
+                "index": 3,
+                "text": "L2",
+                "bbox": [
+                  12,
+                  50,
+                  24,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  12,
+                  120
+                ]
+              },
+              {
+                "id": "pdfjs:4",
+                "index": 4,
+                "text": "R1",
+                "bbox": [
+                  168,
+                  38,
+                  180,
+                  48
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  168,
+                  132
+                ]
+              },
+              {
+                "id": "pdfjs:5",
+                "index": 5,
+                "text": "L1",
+                "bbox": [
+                  12,
+                  38,
+                  24,
+                  48
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  12,
+                  132
+                ]
+              },
+              {
+                "id": "pdfjs:6",
+                "index": 6,
+                "text": "M2",
+                "bbox": [
+                  90,
+                  50,
+                  102,
+                  60
+                ],
+                "direction": "ltr",
+                "transform": [
+                  10,
+                  0,
+                  0,
+                  10,
+                  90,
+                  120
+                ]
+              }
+            ],
+            "docling": {
+              "schema_name": "DoclingDocument",
+              "version": "1.10.0",
+              "name": "semantic-three.pdf",
+              "origin": {
+                "mimetype": "text/plain",
+                "binary_hash": 4590282005442117000,
+                "filename": "semantic-three.pdf"
+              },
+              "furniture": {
+                "self_ref": "#/furniture",
+                "children": [],
+                "content_layer": "furniture",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "body": {
+                "self_ref": "#/body",
+                "children": [
+                  {
+                    "$ref": "#/texts/0"
+                  }
+                ],
+                "content_layer": "body",
+                "name": "_root_",
+                "label": "unspecified"
+              },
+              "groups": [],
+              "texts": [
+                {
+                  "self_ref": "#/texts/0",
+                  "parent": {
+                    "$ref": "#/body"
+                  },
+                  "children": [],
+                  "content_layer": "body",
+                  "label": "section_header",
+                  "prov": [
+                    {
+                      "page_no": 1,
+                      "bbox": {
+                        "l": 12.19,
+                        "t": 151.52,
+                        "r": 180,
+                        "b": 117.42,
+                        "coord_origin": "BOTTOMLEFT"
+                      },
+                      "charspan": [
+                        0,
+                        32
+                      ]
+                    }
+                  ],
+                  "orig": "R2 M1 CENTER HEADING L2 R1 L1 M2",
+                  "text": "R2 M1 CENTER HEADING L2 R1 L1 M2",
+                  "level": 1
+                }
+              ],
+              "pictures": [],
+              "tables": [],
+              "key_value_items": [],
+              "form_items": [],
+              "pages": {
+                "1": {
+                  "size": {
+                    "width": 240,
+                    "height": 180
+                  },
+                  "page_no": 1
+                }
+              }
+            },
+            "links": [],
+            "diagnostics": [
+              {
+                "code": "GEOMETRIC_ORDER",
+                "message": "3 columns inferred from repeated whitespace gutters. Docling merged the text region; independent geometry supplies provisional order. Original Docling output and PDF.js cells are retained."
+              },
+              {
+                "code": "COVERAGE_UNVERIFIED",
+                "message": "Model output is not a guarantee that every region or glyph was recovered."
+              }
+            ]
+          }
+        ],
+        "text": "CENTER HEADING\nL1\nL2\nM1\nM2\nR1\nR2",
+        "diagnostics": []
+      },
+      "progress": [
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "opening",
+          "completed": 0,
+          "message": "Opening PDF"
+        },
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "assets",
+          "message": "Loading layout model (CPU/WASM)",
+          "completed": 0,
+          "total": 1
+        },
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "rasterizing",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Rendering page 1"
+        },
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "inference",
+          "page": 1,
+          "completed": 0,
+          "total": 1,
+          "message": "Text and layout on page 1 (CPU)"
+        },
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "page-complete",
+          "page": 1,
+          "completed": 1,
+          "total": 1,
+          "message": "Page 1 complete"
+        },
+        {
+          "jobId": "27004c99-31f0-458f-8e2d-14a51fa92752",
+          "phase": "partial",
+          "completed": 1,
+          "message": "partial"
+        }
+      ]
+    }
+  ],
+  "cancellation": {
+    "apiVersion": "1",
+    "jobId": "662502b9-8e6b-4333-a2d6-7fddc535e48b",
+    "status": "cancelled",
+    "source": {
+      "name": "scanned.pdf",
+      "bytes": 56619,
+      "sha256": "d2f6425c079ce23b9f4939175b6508af25319d469ea7419f88c0b8157c6dc72f",
+      "preserved": true,
+      "pageCount": 1,
+      "selectedPages": [
+        1
+      ]
+    },
+    "engine": {
+      "name": "docling.rs-wasm",
+      "version": "1.104.2",
+      "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+      "renderer": "pdfjs-dist 5.4.624",
+      "runtime": "onnxruntime-web 1.24.3",
+      "provider": "wasm",
+      "device": "CPU",
+      "threads": 1
+    },
+    "pages": [],
+    "text": "",
+    "diagnostics": [
+      {
+        "code": "CANCELLED",
+        "message": "signal is aborted without reason"
+      }
+    ]
+  },
+  "subsequent": {
+    "apiVersion": "1",
+    "jobId": "e67c98ac-0de3-4c71-9cab-35a7cab27d2a",
+    "status": "partial",
+    "source": {
+      "name": "native.pdf",
+      "bytes": 1433,
+      "sha256": "099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8",
+      "preserved": true,
+      "pageCount": 1,
+      "selectedPages": [
+        1
+      ]
+    },
+    "engine": {
+      "name": "docling.rs-wasm",
+      "version": "1.104.2",
+      "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+      "renderer": "pdfjs-dist 5.4.624",
+      "runtime": "onnxruntime-web 1.24.3",
+      "provider": "wasm",
+      "device": "CPU",
+      "threads": 1
+    },
+    "pages": [
+      {
+        "page": 1,
+        "width": 612,
+        "height": 792,
+        "rotation": 0,
+        "route": "digital",
+        "ocr": "off",
+        "status": "partial",
+        "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+        "orderEngine": "docling.rs-wasm document body",
+        "order": [
+          "#/texts/0"
+        ],
+        "layout": [
+          {
+            "id": "#/texts/0",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "label": "text",
+            "provenance": [
+              {
+                "page_no": 1,
+                "bbox": {
+                  "l": 45.42,
+                  "t": 742.5,
+                  "r": 308.39,
+                  "b": 668.25,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  117
+                ]
+              }
+            ],
+            "order": 0
+          }
+        ],
+        "originalTextCells": [
+          {
+            "id": "pdfjs:0",
+            "index": 0,
+            "text": "Faithful native text remains available.",
+            "bbox": [
+              45,
+              46,
+              275.31399999999996,
+              60
+            ],
+            "direction": "ltr",
+            "transform": [
+              14,
+              0,
+              0,
+              14,
+              45,
+              732
+            ]
+          },
+          {
+            "id": "pdfjs:1",
+            "index": 1,
+            "text": "Existing OCR already reads this sentence.",
+            "bbox": [
+              45,
+              76,
+              307.98999999999995,
+              90
+            ],
+            "direction": "ltr",
+            "transform": [
+              14,
+              0,
+              0,
+              14,
+              45,
+              702
+            ]
+          },
+          {
+            "id": "pdfjs:2",
+            "index": 2,
+            "text": "Numbers 12345 and alpha beta gamma.",
+            "bbox": [
+              45,
+              106,
+              295.57199999999995,
+              120
+            ],
+            "direction": "ltr",
+            "transform": [
+              14,
+              0,
+              0,
+              14,
+              45,
+              672
+            ]
+          }
+        ],
+        "docling": {
+          "schema_name": "DoclingDocument",
+          "version": "1.10.0",
+          "name": "native.pdf",
+          "origin": {
+            "mimetype": "text/plain",
+            "binary_hash": 17291602415036109000,
+            "filename": "native.pdf"
+          },
+          "furniture": {
+            "self_ref": "#/furniture",
+            "children": [],
+            "content_layer": "furniture",
+            "name": "_root_",
+            "label": "unspecified"
+          },
+          "body": {
+            "self_ref": "#/body",
+            "children": [
+              {
+                "$ref": "#/texts/0"
+              }
+            ],
+            "content_layer": "body",
+            "name": "_root_",
+            "label": "unspecified"
+          },
+          "groups": [],
+          "texts": [
+            {
+              "self_ref": "#/texts/0",
+              "parent": {
+                "$ref": "#/body"
+              },
+              "children": [],
+              "content_layer": "body",
+              "label": "text",
+              "prov": [
+                {
+                  "page_no": 1,
+                  "bbox": {
+                    "l": 45.42,
+                    "t": 742.5,
+                    "r": 308.39,
+                    "b": 668.25,
+                    "coord_origin": "BOTTOMLEFT"
+                  },
+                  "charspan": [
+                    0,
+                    117
+                  ]
+                }
+              ],
+              "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+              "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+            }
+          ],
+          "pictures": [],
+          "tables": [],
+          "key_value_items": [],
+          "form_items": [],
+          "pages": {
+            "1": {
+              "size": {
+                "width": 612,
+                "height": 792
+              },
+              "page_no": 1
+            }
+          }
+        },
+        "links": [],
+        "diagnostics": [
+          {
+            "code": "COVERAGE_UNVERIFIED",
+            "message": "Model output is not a guarantee that every region or glyph was recovered."
+          }
+        ]
+      }
+    ],
+    "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+    "diagnostics": []
+  },
+  "selection": {
+    "apiVersion": "1",
+    "jobId": "4f09c43c-feaa-4ca9-b560-54cf749a554f",
+    "status": "partial",
+    "source": {
+      "name": "mixed.pdf",
+      "bytes": 57200,
+      "sha256": "fcd8fa23edede1172fa11029466c45edc4f8ae0989c13fc8e99046f55083ed62",
+      "preserved": true,
+      "pageCount": 2,
+      "selectedPages": [
+        2
+      ]
+    },
+    "engine": {
+      "name": "docling.rs-wasm",
+      "version": "1.104.2",
+      "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed",
+      "renderer": "pdfjs-dist 5.4.624",
+      "runtime": "onnxruntime-web 1.24.3",
+      "provider": "wasm",
+      "device": "CPU",
+      "threads": 1
+    },
+    "pages": [
+      {
+        "page": 2,
+        "width": 612,
+        "height": 792,
+        "rotation": 0,
+        "route": "scanned",
+        "ocr": "page",
+        "status": "partial",
+        "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+        "orderEngine": "docling.rs-wasm document body",
+        "order": [
+          "#/texts/0"
+        ],
+        "layout": [
+          {
+            "id": "#/texts/0",
+            "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+            "label": "text",
+            "provenance": [
+              {
+                "page_no": 2,
+                "bbox": {
+                  "l": 44.23,
+                  "t": 745.59,
+                  "r": 307.2,
+                  "b": 672.89,
+                  "coord_origin": "BOTTOMLEFT"
+                },
+                "charspan": [
+                  0,
+                  117
+                ]
+              }
+            ],
+            "order": 0
+          }
+        ],
+        "originalTextCells": [],
+        "docling": {
+          "schema_name": "DoclingDocument",
+          "version": "1.10.0",
+          "name": "mixed.pdf",
+          "origin": {
+            "mimetype": "text/plain",
+            "binary_hash": 1928236834263218000,
+            "filename": "mixed.pdf"
+          },
+          "furniture": {
+            "self_ref": "#/furniture",
+            "children": [],
+            "content_layer": "furniture",
+            "name": "_root_",
+            "label": "unspecified"
+          },
+          "body": {
+            "self_ref": "#/body",
+            "children": [
+              {
+                "$ref": "#/texts/0"
+              }
+            ],
+            "content_layer": "body",
+            "name": "_root_",
+            "label": "unspecified"
+          },
+          "groups": [],
+          "texts": [
+            {
+              "self_ref": "#/texts/0",
+              "parent": {
+                "$ref": "#/body"
+              },
+              "children": [],
+              "content_layer": "body",
+              "label": "text",
+              "prov": [
+                {
+                  "page_no": 1,
+                  "bbox": {
+                    "l": 44.23,
+                    "t": 745.59,
+                    "r": 307.2,
+                    "b": 672.89,
+                    "coord_origin": "BOTTOMLEFT"
+                  },
+                  "charspan": [
+                    0,
+                    117
+                  ]
+                }
+              ],
+              "orig": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+              "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma."
+            }
+          ],
+          "pictures": [],
+          "tables": [],
+          "key_value_items": [],
+          "form_items": [],
+          "pages": {
+            "1": {
+              "size": {
+                "width": 612,
+                "height": 792
+              },
+              "page_no": 1
+            }
+          }
+        },
+        "links": [],
+        "diagnostics": [
+          {
+            "code": "COVERAGE_UNVERIFIED",
+            "message": "Model output is not a guarantee that every region or glyph was recovered."
+          }
+        ]
+      }
+    ],
+    "text": "Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.",
+    "diagnostics": []
+  },
+  "discovery": {
+    "apiVersion": "1",
+    "engine": {
+      "name": "docling.rs-wasm",
+      "version": "1.104.2",
+      "commit": "29de9d1e842e6ebb35890c3f171ac0c38f273eed"
+    },
+    "interface": "browser JavaScript ES module",
+    "operations": [
+      "discoverPdf",
+      "createPdfJob",
+      "getPdfJob",
+      "cancelPdfJob"
+    ],
+    "schemas": {
+      "input": {
+        "type": "object",
+        "properties": {
+          "ocr": {
+            "enum": [
+              "auto",
+              "always",
+              "off"
+            ]
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "maxBytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 26214400
+              },
+              "maxPages": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 20
+              },
+              "maxPixels": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 6000000
+              },
+              "maxOutputBytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8388608
+              },
+              "timeoutMs": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 120000
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "result": {
+        "required": [
+          "apiVersion",
+          "jobId",
+          "status",
+          "source",
+          "engine",
+          "pages",
+          "text",
+          "diagnostics"
+        ],
+        "status": [
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled"
+        ],
+        "page": {
+          "required": [
+            "page",
+            "route",
+            "text",
+            "order",
+            "layout",
+            "docling",
+            "diagnostics"
+          ]
+        }
+      }
+    },
+    "limits": {
+      "maxBytes": 26214400,
+      "maxPages": 20,
+      "maxPixels": 6000000,
+      "maxOutputBytes": 8388608,
+      "timeoutMs": 120000
+    },
+    "capabilities": {
+      "embeddedText": true,
+      "layout": {
+        "model": "layout_heron_int8.onnx",
+        "available": true
+      },
+      "ocr": {
+        "languages": [
+          "en"
+        ],
+        "detectorRequired": true,
+        "available": true
+      },
+      "tables": "geometric; TableFormer unsupported",
+      "provider": {
+        "configured": "wasm",
+        "device": "CPU",
+        "threads": 1,
+        "webgpu": "unsupported",
+        "lastExecution": {
+          "provider": "wasm",
+          "version": "1.104.2",
+          "pages": 1,
+          "completedAt": "2026-10-08T06:06:15.182Z"
+        }
+      },
+      "cancellation": "owned inference worker terminated; pdf.js render cancelled",
+      "progress": true,
+      "http": false,
+      "wasi": false
+    },
+    "assets": [
+      {
+        "path": "/vendor/docling/1.104.2/docling_wasm.js",
+        "available": true,
+        "bytes": 39295
+      },
+      {
+        "path": "/vendor/docling/1.104.2/docling_wasm_bg.wasm",
+        "available": true,
+        "bytes": 15299714
+      },
+      {
+        "path": "/vendor/docling/1.104.2/pdfjs/pdf.mjs",
+        "available": true,
+        "bytes": 798756
+      },
+      {
+        "path": "/vendor/docling/1.104.2/pdfjs/pdf.worker.mjs",
+        "available": true,
+        "bytes": 1978100
+      },
+      {
+        "path": "/vendor/docling/1.104.2/ort/ort.wasm.min.mjs",
+        "available": true,
+        "bytes": 49997
+      },
+      {
+        "path": "/vendor/docling/1.104.2/ort/ort-wasm-simd-threaded.mjs",
+        "available": true,
+        "bytes": 24274
+      },
+      {
+        "path": "/vendor/docling/1.104.2/ort/ort-wasm-simd-threaded.wasm",
+        "available": true,
+        "bytes": 12361745
+      },
+      {
+        "path": "/vendor/docling/1.104.2/models/layout_heron_int8.onnx",
+        "available": true,
+        "bytes": 68695321
+      },
+      {
+        "path": "/vendor/docling/1.104.2/models/ocr_rec_en.onnx",
+        "available": true,
+        "bytes": 8967018
+      },
+      {
+        "path": "/vendor/docling/1.104.2/models/ocr_det.onnx",
+        "available": true,
+        "bytes": 9929594
+      },
+      {
+        "path": "/vendor/docling/1.104.2/models/en_dict.txt",
+        "available": true,
+        "bytes": 190
+      }
+    ]
+  },
+  "semantic": [
+    {
+      "name": "semantic-two",
+      "passed": true,
+      "expected": [
+        "HEADING",
+        "left",
+        "first",
+        "row",
+        "left",
+        "second",
+        "row",
+        "right",
+        "first",
+        "row",
+        "right",
+        "second",
+        "row"
+      ],
+      "actual": [
+        "HEADING",
+        "left",
+        "first",
+        "row",
+        "left",
+        "second",
+        "row",
+        "right",
+        "first",
+        "row",
+        "right",
+        "second",
+        "row"
+      ]
+    },
+    {
+      "name": "semantic-three",
+      "passed": true,
+      "expected": [
+        "CENTER",
+        "HEADING",
+        "L1",
+        "L2",
+        "M1",
+        "M2",
+        "R1",
+        "R2"
+      ],
+      "actual": [
+        "CENTER",
+        "HEADING",
+        "L1",
+        "L2",
+        "M1",
+        "M2",
+        "R1",
+        "R2"
+      ]
+    }
+  ],
+  "fixtureHashes": {
+    "native.pdf": "099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8",
+    "semantic-two.pdf": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+    "semantic-three.pdf": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+    "scanned.pdf": "d2f6425c079ce23b9f4939175b6508af25319d469ea7419f88c0b8157c6dc72f",
+    "mixed.pdf": "fcd8fa23edede1172fa11029466c45edc4f8ae0989c13fc8e99046f55083ed62"
+  },
+  "requests": [
+    "/",
+    "/vendor/docling/1.104.2/pdfjs/pdf.mjs",
+    "/fixtures/native.pdf",
+    "/vendor/docling/1.104.2/pdfjs/pdf.worker.mjs",
+    "/pdf-api/v1/api.js",
+    "/pdf-api/v1/manifest.js",
+    "/pdf-api/v1/geometry-order.js",
+    "/vendor/docling/1.104.2/docling_wasm.js",
+    "/vendor/docling/1.104.2/docling_wasm_bg.wasm",
+    "/vendor/docling/1.104.2/ort/ort.wasm.min.mjs",
+    "/vendor/docling/1.104.2/ort/ort-wasm-simd-threaded.mjs",
+    "/vendor/docling/1.104.2/ort/ort-wasm-simd-threaded.wasm",
+    "/vendor/docling/1.104.2/models/layout_heron_int8.onnx",
+    "/vendor/docling/1.104.2/models/ocr_rec_en.onnx",
+    "/vendor/docling/1.104.2/models/ocr_det.onnx",
+    "/vendor/docling/1.104.2/models/en_dict.txt",
+    "/pdf-api/v1/inference-worker.js",
+    "/fixtures/scanned.pdf",
+    "/fixtures/mixed.pdf",
+    "/fixtures/semantic-two.pdf",
+    "/fixtures/semantic-three.pdf"
+  ],
+  "externalRequests": []
+}

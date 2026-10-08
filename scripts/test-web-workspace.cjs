@@ -61,6 +61,7 @@ const helpers = {
                 yield { file, path: file.name };
         } },
     '@/lib/image-ocr': { recognizeImage: async () => { throw Error('Unexpected OCR'); } },
+    '@/lib/pdf-api': { extractPdfWithOptions: async () => { throw Error('HTML must never reach the PDF API'); } },
     '@/lib/office': { extractOffice: async () => { throw Error('Unexpected Office extraction'); } },
     '@/lib/article-assets': { retainArticleImages: async (record, result) => result, retainOfficeAssets: async (record, result) => result },
     '@/lib/workspace-storage': { readWorkspace: async () => stored, writeWorkspace: async (owner, snapshot) => { assert.equal(owner, 'owner-A'); stored = snapshot; } },

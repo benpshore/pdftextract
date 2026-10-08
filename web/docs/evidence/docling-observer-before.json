@@ -1,0 +1,347 @@
+{
+  "complete": true,
+  "browserKind": "chromium",
+  "checks": [
+    "No unhandled browser errors",
+    "No external job requests"
+  ],
+  "runs": [
+    {
+      "label": "completed-observer-probe",
+      "diagnosticOnly": true,
+      "beforeCollection": {
+        "label": "completed-observer-probe",
+        "samples": 17,
+        "phases": {
+          "unspecified": {
+            "samples": 17,
+            "peakRssBytes": 988241920,
+            "peakPssBytes": 716027904
+          }
+        },
+        "startRssBytes": 988241920,
+        "endRssBytes": 681033728,
+        "endProcesses": [
+          {
+            "process": "process-1",
+            "type": "browser",
+            "rssBytes": 132931584,
+            "pssBytes": 92528640,
+            "privateBytes": 77631488
+          },
+          {
+            "process": "process-4",
+            "type": "zygote",
+            "rssBytes": 50741248,
+            "pssBytes": 16518144,
+            "privateBytes": 815104
+          },
+          {
+            "process": "process-6",
+            "type": "zygote",
+            "rssBytes": 50737152,
+            "pssBytes": 12009472,
+            "privateBytes": 593920
+          },
+          {
+            "process": "process-3",
+            "type": "gpu-process",
+            "rssBytes": 39997440,
+            "pssBytes": 23676928,
+            "privateBytes": 13647872
+          },
+          {
+            "process": "process-2",
+            "type": "utility",
+            "rssBytes": 65572864,
+            "pssBytes": 33053696,
+            "privateBytes": 22769664
+          },
+          {
+            "process": "process-7",
+            "type": "utility",
+            "rssBytes": 23654400,
+            "pssBytes": 6596608,
+            "privateBytes": 2215936
+          },
+          {
+            "process": "process-8",
+            "type": "renderer",
+            "rssBytes": 186613760,
+            "pssBytes": 151334912,
+            "privateBytes": 134844416
+          },
+          {
+            "process": "process-5",
+            "type": "renderer",
+            "rssBytes": 34631680,
+            "pssBytes": 12037120,
+            "privateBytes": 5890048
+          },
+          {
+            "process": "process-9",
+            "type": "renderer",
+            "rssBytes": 96153600,
+            "pssBytes": 61037568,
+            "privateBytes": 44650496
+          }
+        ],
+        "processesAtRssPeak": [
+          {
+            "process": "process-1",
+            "type": "browser",
+            "rssBytes": 133005312,
+            "pssBytes": 92613632,
+            "privateBytes": 77725696
+          },
+          {
+            "process": "process-4",
+            "type": "zygote",
+            "rssBytes": 50741248,
+            "pssBytes": 16518144,
+            "privateBytes": 815104
+          },
+          {
+            "process": "process-6",
+            "type": "zygote",
+            "rssBytes": 50737152,
+            "pssBytes": 12009472,
+            "privateBytes": 593920
+          },
+          {
+            "process": "process-3",
+            "type": "gpu-process",
+            "rssBytes": 41230336,
+            "pssBytes": 24920064,
+            "privateBytes": 14897152
+          },
+          {
+            "process": "process-2",
+            "type": "utility",
+            "rssBytes": 65572864,
+            "pssBytes": 33053696,
+            "privateBytes": 22769664
+          },
+          {
+            "process": "process-7",
+            "type": "utility",
+            "rssBytes": 23654400,
+            "pssBytes": 6596608,
+            "privateBytes": 2215936
+          },
+          {
+            "process": "process-8",
+            "type": "renderer",
+            "rssBytes": 186998784,
+            "pssBytes": 151725056,
+            "privateBytes": 135237632
+          },
+          {
+            "process": "process-5",
+            "type": "renderer",
+            "rssBytes": 34631680,
+            "pssBytes": 12037120,
+            "privateBytes": 5890048
+          },
+          {
+            "process": "process-9",
+            "type": "renderer",
+            "rssBytes": 401670144,
+            "pssBytes": 366554112,
+            "privateBytes": 350167040
+          }
+        ],
+        "peakRssBytes": 988241920,
+        "peakPssBytes": 716027904,
+        "endPssBytes": 408793088,
+        "milliseconds": 1567
+      },
+      "workersBeforeCollection": [],
+      "workers": [],
+      "main": {
+        "didCollect": true,
+        "observerPayloadRetained": true,
+        "runtime": {
+          "resident": false,
+          "leased": false
+        }
+      },
+      "afterCollection": {
+        "label": "completed-observer-probe:diagnostic-gc",
+        "samples": 8,
+        "phases": {
+          "unspecified": {
+            "samples": 8,
+            "peakRssBytes": 681033728,
+            "peakPssBytes": 408793088
+          }
+        },
+        "startRssBytes": 681033728,
+        "endRssBytes": 677609472,
+        "endProcesses": [
+          {
+            "process": "process-1",
+            "type": "browser",
+            "rssBytes": 132976640,
+            "pssBytes": 92570624,
+            "privateBytes": 77672448
+          },
+          {
+            "process": "process-4",
+            "type": "zygote",
+            "rssBytes": 50741248,
+            "pssBytes": 16518144,
+            "privateBytes": 815104
+          },
+          {
+            "process": "process-6",
+            "type": "zygote",
+            "rssBytes": 50737152,
+            "pssBytes": 12009472,
+            "privateBytes": 593920
+          },
+          {
+            "process": "process-3",
+            "type": "gpu-process",
+            "rssBytes": 39997440,
+            "pssBytes": 23676928,
+            "privateBytes": 13647872
+          },
+          {
+            "process": "process-2",
+            "type": "utility",
+            "rssBytes": 65921024,
+            "pssBytes": 33397760,
+            "privateBytes": 23113728
+          },
+          {
+            "process": "process-7",
+            "type": "utility",
+            "rssBytes": 23654400,
+            "pssBytes": 6596608,
+            "privateBytes": 2215936
+          },
+          {
+            "process": "process-8",
+            "type": "renderer",
+            "rssBytes": 186613760,
+            "pssBytes": 151232512,
+            "privateBytes": 134639616
+          },
+          {
+            "process": "process-5",
+            "type": "renderer",
+            "rssBytes": 34631680,
+            "pssBytes": 12037120,
+            "privateBytes": 5890048
+          },
+          {
+            "process": "process-9",
+            "type": "renderer",
+            "rssBytes": 92336128,
+            "pssBytes": 57108480,
+            "privateBytes": 40615936
+          }
+        ],
+        "processesAtRssPeak": [
+          {
+            "process": "process-1",
+            "type": "browser",
+            "rssBytes": 132931584,
+            "pssBytes": 92528640,
+            "privateBytes": 77631488
+          },
+          {
+            "process": "process-4",
+            "type": "zygote",
+            "rssBytes": 50741248,
+            "pssBytes": 16518144,
+            "privateBytes": 815104
+          },
+          {
+            "process": "process-6",
+            "type": "zygote",
+            "rssBytes": 50737152,
+            "pssBytes": 12009472,
+            "privateBytes": 593920
+          },
+          {
+            "process": "process-3",
+            "type": "gpu-process",
+            "rssBytes": 39997440,
+            "pssBytes": 23676928,
+            "privateBytes": 13647872
+          },
+          {
+            "process": "process-2",
+            "type": "utility",
+            "rssBytes": 65572864,
+            "pssBytes": 33053696,
+            "privateBytes": 22769664
+          },
+          {
+            "process": "process-7",
+            "type": "utility",
+            "rssBytes": 23654400,
+            "pssBytes": 6596608,
+            "privateBytes": 2215936
+          },
+          {
+            "process": "process-8",
+            "type": "renderer",
+            "rssBytes": 186613760,
+            "pssBytes": 151334912,
+            "privateBytes": 134844416
+          },
+          {
+            "process": "process-5",
+            "type": "renderer",
+            "rssBytes": 34631680,
+            "pssBytes": 12037120,
+            "privateBytes": 5890048
+          },
+          {
+            "process": "process-9",
+            "type": "renderer",
+            "rssBytes": 96153600,
+            "pssBytes": 61037568,
+            "privateBytes": 44650496
+          }
+        ],
+        "peakRssBytes": 681033728,
+        "peakPssBytes": 408793088,
+        "endPssBytes": 405147648,
+        "milliseconds": 651
+      }
+    }
+  ],
+  "errors": [],
+  "external": [],
+  "forcedGc": "Only separately labelled diagnostic checkpoints; never during an extraction.",
+  "fixtureDescription": "Five copies of the verified native text strip per page, rasterized into separate JPEG images with alternating x offsets. Independent expected text is fixed before extraction. Synthetic scan length/ownership control, not real-world OCR qualification.",
+  "browserVersion": "151.0.7922.173",
+  "processMemoryMethod": "100 ms samples of owned Chromium process-tree Linux VmRSS and, when readable, smaps_rollup Pss. RSS counts shared mappings in each process; PSS allocates shared pages proportionally. Excludes fixture server/Node; peaks between samples can be missed. Neither measure is an in-browser memory bound.",
+  "fixtures": {
+    "native.pdf": {
+      "bytes": 1433,
+      "sha256": "099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8"
+    },
+    "scan-1.pdf": {
+      "bytes": 140961,
+      "sha256": "c7bee0f67fd91fd977457fab3a4221b314f38b7bd8d5d6da719e43d49ad8a46e"
+    },
+    "scan-8.pdf": {
+      "bytes": 1123349,
+      "sha256": "06ba95715275b257c270450c9e3fca9d16975a24ebf3a84d731c7d4076a6c69e"
+    },
+    "scan-12.pdf": {
+      "bytes": 1684678,
+      "sha256": "1f9953cfffe067cf25901b920e235cce23a13ddee80e2c474439eaee06d0b540"
+    },
+    "scan-16.pdf": {
+      "bytes": 2246069,
+      "sha256": "fa417664c02e1408a6c8aedbdc7f1bc1d927640aac29aa7d69eec9b9c2554c14"
+    }
+  },
+  "observerProbe": true
+}

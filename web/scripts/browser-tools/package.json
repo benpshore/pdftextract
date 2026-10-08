@@ -1,0 +1,9 @@
+{
+  "name": "pdf-api-browser-tests",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "pdf-lib": "1.17.1",
+    "playwright": "1.58.2"
+  }
+}
