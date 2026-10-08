@@ -895,6 +895,12 @@
       "sha256": "b81cf1430cf92e79c14b41fd11887ed100af5904316cf10bd56f104ef89ce1fb"
     },
     {
+      "bytes": 5132,
+      "mode": "0644",
+      "path": "scripts/benchmark-docling-scholarly.mjs",
+      "sha256": "d1d09e7e40a239426d12210237986d5e0fbb2a6d2a03e7015f1d0bc9137597be"
+    },
+    {
       "bytes": 3834,
       "mode": "0644",
       "path": "scripts/browser-process-memory.mjs",
@@ -1067,6 +1073,12 @@
       "mode": "0644",
       "path": "scripts/test-docling-browser.mjs",
       "sha256": "2dc8f1efc1d51136fb1ce26d5e4ce2e587390eb9cd813e81f07e2118d7fece51"
+    },
+    {
+      "bytes": 11675,
+      "mode": "0644",
+      "path": "scripts/test-docling-lifecycle.mjs",
+      "sha256": "7ee2a3618bbf6d6df1fbacba51a298bd03bc44aa3a57f5c1f84fe09d4f21bf56"
     },
     {
       "bytes": 3497,

@@ -64,4 +64,17 @@ jobs:
             web/docling-browser-evidence.json
             web/docling-browser-evidence.png
           if-no-files-found: warn
+      - name: Measure original five-page scholarly PDF with cold and warm CPU sessions
+        env:
+          PLAYWRIGHT_MODULE: ./browser-tools/node_modules/playwright/index.mjs
+          PDF_LIB_MODULE: ./browser-tools/node_modules/pdf-lib/cjs/index.js
+          EVIDENCE_PATH: docling-scholarly-evidence.json
+        run: node scripts/benchmark-docling-scholarly.mjs
+      - name: Preserve scholarly timing evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: docling-scholarly-${{ github.event.pull_request.head.sha || github.sha }}
+          path: web/docling-scholarly-evidence.json
+          if-no-files-found: warn
       - run: pnpm run build
