@@ -7,10 +7,10 @@
       "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
     },
     {
-      "bytes": 5436,
+      "bytes": 5974,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "a4e5987d3b17dcf466b2c55b56a3ea314ca39f6366705243034efaed171a1899"
+      "sha256": "74d2ef86c3f884c72fb54cc2affedd303c25246025f480644e00583cb28ba621"
     },
     {
       "bytes": 996,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 49851,
+      "bytes": 49988,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "df710c9d76069a68f232cf0401cda08466141b702bf76fda0bc003a79576353c"
+      "sha256": "a15059d2fc7aa3a18f5a40602e2e9fc7ff5057a3ef95134ec55294f628eb7fb6"
     },
     {
       "bytes": 7211,
@@ -535,6 +535,12 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
+      "bytes": 5621,
+      "mode": "0644",
+      "path": "docs/IMAGE_OCR_CHECKPOINT.md",
+      "sha256": "e35e3aa27c7760bffbb37f015bfe3d5bb29c35358f4c2b50b9ab168b30b91ab5"
+    },
+    {
       "bytes": 5163,
       "mode": "0644",
       "path": "docs/OFFICE.md",
@@ -637,10 +643,10 @@
       "sha256": "1c93d747e384c8e17e3e3dd5361b24412babf5eba2a11d2ae7a75f4e0924112c"
     },
     {
-      "bytes": 13743,
+      "bytes": 17242,
       "mode": "0644",
       "path": "lib/image-ocr.ts",
-      "sha256": "10119baacbd7c627198377dd247e8fc6fd0462a2a16767570cd2dc131a764698"
+      "sha256": "d7c09aed18bcd65b40de003948c8376669544417c495a01fd46d735f285dd380"
     },
     {
       "bytes": 22322,
@@ -871,6 +877,12 @@
       "sha256": "cb725294534dc9dd16b529d5f9e267ef956704d7c88a1e1f140de454cbe0f811"
     },
     {
+      "bytes": 15806,
+      "mode": "0644",
+      "path": "scripts/test-browser-ocr.mjs",
+      "sha256": "38fc66531cb1acf12f43e3acce837a6929f945358c46ed00c407b519cc0ef5f7"
+    },
+    {
       "bytes": 23835,
       "mode": "0644",
       "path": "scripts/test-browser-ui.mjs",
@@ -893,6 +905,12 @@
       "mode": "0644",
       "path": "scripts/test-node-imports.mjs",
       "sha256": "64f4aa61faabe1634db9540a9d12180cc5253224a324e22142a276b22314919e"
+    },
+    {
+      "bytes": 6990,
+      "mode": "0644",
+      "path": "scripts/test-ocr-lifecycle.mjs",
+      "sha256": "9bc28c8657ff6786901587461a1f368a401bf3d3f08f119a11b47002d0ace322"
     },
     {
       "bytes": 14578,
