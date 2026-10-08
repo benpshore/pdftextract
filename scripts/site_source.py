@@ -88,6 +88,7 @@ GITIGNORE_APPENDIX = b"""
 # Portable source mirror: protect local deployment state and generated assets.
 /.openai/
 /public/vendor/pdf-oxide/
+/public/vendor/docling/
 /public/ocr/
 *.tsbuildinfo
 __pycache__/
@@ -111,7 +112,10 @@ def allowed_path(value: str) -> bool:
         return False
     if path.parts[0] not in ROOTS and value not in CONFIGS:
         return False
-    if path.parts[:3] == ("public", "vendor", "pdf-oxide") or path.parts[:2] == (
+    if path.parts[:3] in {
+        ("public", "vendor", "pdf-oxide"),
+        ("public", "vendor", "docling"),
+    } or path.parts[:2] == (
         "public",
         "ocr",
     ):

@@ -1,1 +1,2 @@
 tests/fixtures/native-worker/*.pdf binary
+web/scripts/fixtures/docling/*.pdf binary

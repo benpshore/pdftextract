@@ -1,16 +1,16 @@
 {
   "files": [
     {
-      "bytes": 871,
+      "bytes": 895,
       "mode": "0644",
       "path": ".gitignore",
-      "sha256": "d9949f4680594c6f2306d3be769877e6d23f5873d739ff1736cadcaafaa28344"
+      "sha256": "c906bfa5013725f83295848620b431fb8b52ed09af43e0f29866c66faf9b6566"
     },
     {
-      "bytes": 5436,
+      "bytes": 6058,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "a4e5987d3b17dcf466b2c55b56a3ea314ca39f6366705243034efaed171a1899"
+      "sha256": "b1547e0cb523062b7e01287a88a70ca4cc01e6c8eaed78b7fcf563f886fd0708"
     },
     {
       "bytes": 996,
@@ -73,10 +73,10 @@
       "sha256": "4265a2e7c2dcb3a6f4b7026f762bf5b6e4caec76cc13c0a45987ee9a9f2e42cc"
     },
     {
-      "bytes": 15190,
+      "bytes": 15568,
       "mode": "0644",
       "path": "app/globals.css",
-      "sha256": "ac188d6436651149a5279970b233f685db34c4a8e7827e9e07ef545ffe2cfe39"
+      "sha256": "c7f8e35bb2cc4db0b29bd93ed6392a3d0187e190bd1cba52afc4e7c7fb90d1d6"
     },
     {
       "bytes": 524,
@@ -97,10 +97,10 @@
       "sha256": "e15031512d92c9bd0bb4fa9eabcd676dbe14e2e05fec1317cd7060b202cb21c3"
     },
     {
-      "bytes": 49851,
+      "bytes": 50012,
       "mode": "0644",
       "path": "app/workspace.tsx",
-      "sha256": "df710c9d76069a68f232cf0401cda08466141b702bf76fda0bc003a79576353c"
+      "sha256": "3a51fa801de8bfb4e2335f39041fba4c52120311412a34f6d8dd26ce5bfff1c8"
     },
     {
       "bytes": 7211,
@@ -535,10 +535,22 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
+      "bytes": 5580,
+      "mode": "0644",
+      "path": "docs/DOCLING_PDF_API.md",
+      "sha256": "efa650d17f2c5ad117fae147671ab4d405361859c222e7a5f54f18f8600a8bde"
+    },
+    {
       "bytes": 5163,
       "mode": "0644",
       "path": "docs/OFFICE.md",
       "sha256": "469039938a39d116c56face60bdba8adbb5b494ac9466277d78f61fc6d75e7f7"
+    },
+    {
+      "bytes": 71633,
+      "mode": "0644",
+      "path": "docs/evidence/docling-browser-initial.json",
+      "sha256": "e192e969045a66ddb112d475aea2962a40bd520f600991eb2fc3268e25b18cb0"
     },
     {
       "bytes": 148,
@@ -661,6 +673,12 @@
       "sha256": "b0227d9eb7ee501b2e76df798752c33f0a6307024b9b6ee1982ee5c25ea7c91e"
     },
     {
+      "bytes": 1601,
+      "mode": "0644",
+      "path": "lib/pdf-api.ts",
+      "sha256": "25818049818c8a412dabb20e0047cbad99bdd39f4fb05e8a95d850ced3dc9e23"
+    },
+    {
       "bytes": 2920,
       "mode": "0644",
       "path": "lib/server.ts",
@@ -757,6 +775,42 @@
       "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9"
     },
     {
+      "bytes": 18336,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/api.js",
+      "sha256": "20c5efc84bda6c6efa28ed6487aad7fe8b9b658815c0a0a1b466927824ea6d00"
+    },
+    {
+      "bytes": 2579,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/geometry-order.js",
+      "sha256": "0e699a70c5f6cf831d39647f7c2d5166f27337d5da6cb53bd98ba2ae128c96f3"
+    },
+    {
+      "bytes": 1997,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/index.html",
+      "sha256": "0ed36a127c1ff4a642c1af0477a785a9f4bfd606c4ee6a5655524f529b1a1316"
+    },
+    {
+      "bytes": 4896,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/inference-worker.js",
+      "sha256": "dcb50d926ec36d3337f7311121121e43697ab62aad14428f8041895bd8f7f398"
+    },
+    {
+      "bytes": 910,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/manifest.js",
+      "sha256": "a2b7b9f3984aa5e5cb72e4dc2f6a3f250b9ab57003eb0ea7df81e05eb6a0cc2e"
+    },
+    {
+      "bytes": 1630,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/ui.js",
+      "sha256": "59471bae8fd3350ca65b0ffde822530de963db3ad38d7ac5e5e742845e3b5b31"
+    },
+    {
       "bytes": 1936,
       "mode": "0644",
       "path": "public/pdf-worker.js",
@@ -809,6 +863,30 @@
       "mode": "0644",
       "path": "scripts/execution-profile.mjs",
       "sha256": "2e71116f4d2b70cff8bb70436f8dd5c709ec7ff62893424530f404e0193d3630"
+    },
+    {
+      "bytes": 2119,
+      "mode": "0644",
+      "path": "scripts/fixtures/docling/semantic-three.pdf",
+      "sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a"
+    },
+    {
+      "bytes": 36,
+      "mode": "0644",
+      "path": "scripts/fixtures/docling/semantic-three.txt",
+      "sha256": "c4ee7ec546a7afd11711b26e1877904929d6c07db60fc500b6a932e8c1264539"
+    },
+    {
+      "bytes": 2081,
+      "mode": "0644",
+      "path": "scripts/fixtures/docling/semantic-two.pdf",
+      "sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14"
+    },
+    {
+      "bytes": 74,
+      "mode": "0644",
+      "path": "scripts/fixtures/docling/semantic-two.txt",
+      "sha256": "1ce50e9b472d6c7c36980d12b7db87e32afdcd0551c877cebe785a3c343ef3ad"
     },
     {
       "bytes": 25259,
@@ -865,6 +943,12 @@
       "sha256": "df86ebfc27d2f00860036658e933ac0ddd7b5f6879aa5d51218f0863c7e1fb60"
     },
     {
+      "bytes": 4085,
+      "mode": "0644",
+      "path": "scripts/stage-docling-assets.mjs",
+      "sha256": "f3eb889227f8de8ef340d1fc7aa9958bef0c3b3952b3fc0aa2ba7f3ed9fe2961"
+    },
+    {
       "bytes": 10561,
       "mode": "0644",
       "path": "scripts/test-browser-imports.mjs",
@@ -881,6 +965,12 @@
       "mode": "0644",
       "path": "scripts/test-clip.mjs",
       "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
+    },
+    {
+      "bytes": 11405,
+      "mode": "0644",
+      "path": "scripts/test-docling-browser.mjs",
+      "sha256": "f7f47a3abea5103f5c74fa06a02bea9c8dfb234e5e1c2e3f9dc7ef42f48b2abb"
     },
     {
       "bytes": 3497,
