@@ -346,6 +346,46 @@ impl Response {
         stream.write_all(&self.to_bytes())?;
         stream.flush()
     }
+
+    /// Bound response delivery even when a peer trickles reads. Shutdown must
+    /// also interrupt writers, after worker cleanup has released admission.
+    pub fn write_to_before(
+        &self,
+        stream: &mut TcpStream,
+        deadline: Instant,
+        mut cancelled: impl FnMut() -> bool,
+    ) -> io::Result<()> {
+        let bytes = self.to_bytes();
+        let mut sent = 0;
+        while sent < bytes.len() {
+            if cancelled() {
+                return Err(io::Error::new(
+                    io::ErrorKind::Interrupted,
+                    "response cancelled",
+                ));
+            }
+            let remaining = deadline
+                .checked_duration_since(Instant::now())
+                .filter(|remaining| !remaining.is_zero())
+                .ok_or_else(|| {
+                    io::Error::new(io::ErrorKind::TimedOut, "response deadline exceeded")
+                })?;
+            stream.set_write_timeout(Some(remaining.min(Duration::from_millis(50))))?;
+            match stream.write(&bytes[sent..]) {
+                Ok(0) => return Err(io::ErrorKind::WriteZero.into()),
+                Ok(count) => sent += count,
+                Err(error)
+                    if matches!(
+                        error.kind(),
+                        io::ErrorKind::WouldBlock
+                            | io::ErrorKind::TimedOut
+                            | io::ErrorKind::Interrupted
+                    ) => {}
+                Err(error) => return Err(error),
+            }
+        }
+        Ok(())
+    }
 }
 
 /// Reason phrase for the statuses this service uses.
@@ -376,6 +416,21 @@ pub fn reason(status: u16) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn response_delivery_has_an_absolute_deadline_without_peer_progress() {
+        let listener = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
+        let client = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let (mut server, _) = listener.accept().unwrap();
+        let response = Response::new(200, vec![b'x'; 16 * 1024 * 1024]);
+        let started = Instant::now();
+        let error = response
+            .write_to_before(&mut server, started + Duration::from_millis(150), || false)
+            .unwrap_err();
+        assert_eq!(error.kind(), io::ErrorKind::TimedOut);
+        assert!(started.elapsed() < Duration::from_secs(1));
+        drop(client);
+    }
 
     #[test]
     fn head_parses_method_path_query_and_lowercases_headers() {

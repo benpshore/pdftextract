@@ -281,10 +281,11 @@ fn accept_loop(listener: Arc<TcpListener>, shared: &Arc<Shared>) {
         handlers.retain(|handle| !handle.is_finished());
         if shared.handlers.load(Ordering::SeqCst) >= max_handlers {
             let mut stream = stream;
-            let _ = stream.set_write_timeout(Some(Duration::from_secs(2)));
             let _ = Response::error(503, "busy", "too many open connections; retry shortly")
                 .header("Retry-After", "2")
-                .write_to(&mut stream);
+                .write_to_before(&mut stream, Instant::now() + Duration::from_secs(2), || {
+                    shared.shutdown.load(Ordering::SeqCst)
+                });
             continue;
         }
         let accepted = Instant::now();
@@ -375,7 +376,9 @@ fn handle_connection(mut stream: TcpStream, shared: &Arc<Shared>, accepted: Inst
         }
         Err(error) => Response::error(error.status(), error.code(), &error.to_string()),
     };
-    let _ = response.write_to(&mut stream);
+    let _ = response.write_to_before(&mut stream, Instant::now() + WRITE_TIMEOUT, || {
+        shared.shutdown.load(Ordering::SeqCst)
+    });
     let _ = stream.flush();
     let _ = stream.shutdown(std::net::Shutdown::Both);
 }

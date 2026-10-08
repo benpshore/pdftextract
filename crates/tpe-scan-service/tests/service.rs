@@ -925,3 +925,177 @@ fn service_shutdown_interrupts_incomplete_request_reads() {
     service.shutdown();
     assert!(started.elapsed() < Duration::from_secs(1));
 }
+
+#[test]
+fn oversized_multipart_metadata_is_rejected_and_admission_is_released() {
+    let service = Service::start(config()).unwrap();
+    let body = multipart::encode("b", &vec![Part::default(); 65]);
+    let reply = request(
+        service.addr(),
+        "POST",
+        "/scan",
+        &[("Content-Type", "multipart/form-data; boundary=b")],
+        &body,
+    );
+    assert_eq!(reply.status, 400);
+    assert_eq!(reply.error_code(), "bad_multipart");
+    assert!(
+        reply.json()["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("exceeds")
+    );
+    assert_eq!(
+        request(service.addr(), "POST", "/scan", &[], b"junk").status,
+        415
+    );
+    service.shutdown();
+}
+
+#[test]
+fn cancellation_registry_saturation_is_explicit_and_expiry_allows_retry() {
+    let mut cfg = config();
+    cfg.header_timeout = Duration::from_millis(100);
+    let service = Service::start(cfg).unwrap();
+    for index in 0..64 {
+        let reply = request(
+            service.addr(),
+            "POST",
+            &format!("/cancel?id=registry-fixture-{index:03}"),
+            &[],
+            b"",
+        );
+        assert_eq!(reply.status, 204);
+    }
+    let reply = request(
+        service.addr(),
+        "POST",
+        "/cancel?id=registry-fixture-overflow",
+        &[],
+        b"",
+    );
+    assert_eq!(reply.status, 429);
+    // A failed cancellation must not pretend that this ID was cancelled.
+    assert_eq!(
+        request(
+            service.addr(),
+            "POST",
+            "/scan?id=registry-fixture-overflow",
+            &[],
+            b"junk"
+        )
+        .status,
+        415
+    );
+    std::thread::sleep(Duration::from_millis(1200));
+    assert_eq!(
+        request(
+            service.addr(),
+            "POST",
+            "/cancel?id=registry-fixture-overflow",
+            &[],
+            b""
+        )
+        .status,
+        204
+    );
+    assert_eq!(
+        request(
+            service.addr(),
+            "POST",
+            "/scan?id=registry-fixture-overflow",
+            &[],
+            b"junk"
+        )
+        .status,
+        504
+    );
+    service.shutdown();
+}
+
+#[cfg(unix)]
+#[test]
+fn exited_worker_descendants_cannot_hold_pipes_or_admission_open() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let script = dir.path().join("worker");
+    std::fs::write(&script, "#!/bin/sh\ncat >/dev/null\nsleep 30 &\nprintf '%s' '{\"err\":{\"code\":\"malformed\",\"message\":\"descendant fixture\"}}'\nexit 0\n").unwrap();
+    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let mut cfg = config();
+    cfg.worker_exe = script;
+    let service = Service::start(cfg).unwrap();
+    let started = std::time::Instant::now();
+    let mut stream = start_scan(service.addr(), "descendant-fixture-01");
+    let reply = reply_from_stream(&mut stream);
+    assert_eq!(reply.status, 400);
+    assert!(started.elapsed() < Duration::from_secs(2));
+    assert_eq!(
+        request(service.addr(), "POST", "/scan", &[], b"junk").status,
+        415
+    );
+    service.shutdown();
+}
+
+#[cfg(unix)]
+#[test]
+fn shutdown_interrupts_a_response_to_a_nonreading_client() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let script = dir.path().join("worker");
+    std::fs::write(&script, "#!/bin/sh\ncat >/dev/null\nprintf '%s' '{\"err\":{\"code\":\"malformed\",\"message\":\"'\nhead -c 16777216 /dev/zero | tr '\\000' 'x'\nprintf '%s' '\"}}'\n").unwrap();
+    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let mut cfg = config();
+    cfg.worker_exe = script;
+    let service = Service::start(cfg).unwrap();
+    let mut stream = start_scan(service.addr(), "nonreading-fixture-01");
+    // Receipt of the response prefix proves worker cleanup finished and the
+    // handler is now sending a response larger than socket buffering.
+    let mut prefix = [0_u8; 1];
+    stream.read_exact(&mut prefix).unwrap();
+    let (sent, received) = std::sync::mpsc::channel();
+    let shutdown = std::thread::spawn(move || {
+        service.shutdown();
+        sent.send(()).unwrap();
+    });
+    let outcome = received.recv_timeout(Duration::from_secs(2));
+    // Closing our socket also lets the old implementation finish, so the
+    // regression itself cannot strand the test process after a failure.
+    drop(stream);
+    shutdown.join().unwrap();
+    assert!(outcome.is_ok(), "shutdown was blocked by a response writer");
+}
+
+#[cfg(unix)]
+#[test]
+fn cancelling_a_stopped_worker_unblocks_its_input_writer_and_reaps_it() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = tempfile::tempdir().unwrap();
+    let script = dir.path().join("worker");
+    std::fs::write(
+        &script,
+        format!(
+            "#!/bin/sh\necho $$ > '{}/started-'$$\nkill -STOP $$\ncat >/dev/null\n",
+            dir.path().display()
+        ),
+    )
+    .unwrap();
+    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700)).unwrap();
+    let mut cfg = config();
+    cfg.worker_exe = script;
+    let service = Service::start(cfg).unwrap();
+    let addr = service.addr();
+    let mut stream = TcpStream::connect(addr).unwrap();
+    let mut bytes = vec![b'x'; 1024 * 1024];
+    bytes[..5].copy_from_slice(b"%PDF-");
+    write!(stream, "POST /scan?id=stopped-worker-fixture HTTP/1.1\r\nHost: 127.0.0.1:{}\r\nAuthorization: Bearer {TOKEN}\r\nContent-Length: {}\r\n\r\n", addr.port(), bytes.len()).unwrap();
+    stream.write_all(&bytes).unwrap();
+    let pid = wait_for_workers(dir.path(), 1)[0];
+    let started = std::time::Instant::now();
+    let reply = request(addr, "POST", "/cancel?id=stopped-worker-fixture", &[], b"");
+    assert_eq!(reply.status, 204);
+    assert!(started.elapsed() < Duration::from_secs(2));
+    assert!(!worker_alive(pid));
+    assert_eq!(request(addr, "POST", "/scan", &[], b"junk").status, 415);
+    drop(stream);
+    service.shutdown();
+}

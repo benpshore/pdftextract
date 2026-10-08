@@ -4,6 +4,12 @@
 
 use std::fmt::Write;
 
+/// Bound per-part metadata amplification in the service process, independently
+/// of the body byte limit. A scan normally carries just one file part.
+pub const MAX_PARTS: usize = 64;
+/// Part headers are subject to the same byte budget as an HTTP request head.
+pub const MAX_PART_HEADER_BYTES: usize = 16 * 1024;
+
 /// One part of a multipart body.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Part {
@@ -51,6 +57,9 @@ pub fn parse(body: &[u8], boundary: &str) -> Result<Vec<Part>, String> {
         if body[cursor..].starts_with(b"--") {
             return Ok(parts);
         }
+        if parts.len() >= MAX_PARTS {
+            return Err(format!("multipart body exceeds {MAX_PARTS} parts"));
+        }
         // Tolerate transport padding after the delimiter; require the CRLF.
         while body
             .get(cursor)
@@ -62,7 +71,11 @@ pub fn parse(body: &[u8], boundary: &str) -> Result<Vec<Part>, String> {
             return Err("multipart boundary not followed by CRLF".to_string());
         }
         cursor += 2;
-        let head_end = find(body, b"\r\n\r\n", cursor).ok_or("multipart part has no header end")?;
+        // Search only the bounded header window, before decoding or copying
+        // metadata. Include the delimiter itself in this byte budget.
+        let head_limit = cursor.saturating_add(MAX_PART_HEADER_BYTES).min(body.len());
+        let head_end = find(&body[..head_limit], b"\r\n\r\n", cursor)
+            .ok_or("multipart part headers missing or too large")?;
         let head = std::str::from_utf8(&body[cursor..head_end])
             .map_err(|_| "multipart part headers are not UTF-8".to_string())?;
         let mut part = Part::default();
@@ -136,6 +149,35 @@ pub fn encode(boundary: &str, parts: &[Part]) -> Vec<u8> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn many_tiny_parts_cannot_amplify_parent_metadata_storage() {
+        // API-compatible witness: the reviewed head accepted all 100,000
+        // records from this 1.5 MB body and allocated a 12.6 MB Part vector.
+        let mut body = b"--b\r\n".to_vec();
+        for _ in 0..100_000 {
+            body.extend_from_slice(b"X: x\r\n\r\n\r\n--b\r\n");
+        }
+        body.truncate(body.len() - 2);
+        body.extend_from_slice(b"--\r\n");
+        assert!(parse(&body, "b").is_err());
+
+        let empty = Part::default();
+        let allowed = encode("b", &vec![empty.clone(); MAX_PARTS]);
+        assert_eq!(parse(&allowed, "b").unwrap().len(), MAX_PARTS);
+        let excessive = encode("b", &vec![empty; MAX_PARTS + 1]);
+        assert!(parse(&excessive, "b").is_err());
+    }
+
+    #[test]
+    fn part_headers_are_bounded_before_metadata_is_copied() {
+        let prefix = b"--b\r\nContent-Disposition: form-data; name=\"";
+        let suffix = b"\"\r\n\r\n\r\n--b--\r\n";
+        let mut body = prefix.to_vec();
+        body.extend(std::iter::repeat_n(b'x', MAX_PART_HEADER_BYTES));
+        body.extend_from_slice(suffix);
+        assert!(parse(&body, "b").is_err());
+    }
 
     #[test]
     fn boundary_parameter_is_found_with_or_without_quotes() {
