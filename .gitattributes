@@ -1,1 +1,2 @@
 tests/fixtures/native-worker/*.pdf binary
+tests/fixtures/layout_text/*.pdf binary
