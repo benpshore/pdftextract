@@ -1,40 +1,61 @@
-# Docling browser PDF checkpoint
+# Local Docling PDF API
 
-This is a local browser JavaScript API and small UI, not an HTTP conversion
-server, WASI module, deployment, or native Docling service. Upstream native
-`docling-serve` already exists; this branch adds no competing server.
-
-`/pdf-api/v1/api.js` exports `discoverPdf()`, `createPdfJob(input, options)`,
-`getPdfJob(id)`, `cancelPdfJob(id)`, `schemas`, and `API_VERSION`. The job owns
-`id`, `status`, `progress`, `subscribe(listener)`, `cancel()`, and `result`.
-`result` resolves a structured partial/failed/cancelled result. Invalid options
-and a concurrent job throw errors with a `code`. Input is File/Blob/Uint8Array/
-ArrayBuffer, copied before transfer; originals remain unchanged.
+`/pdf-api/v1/api.js` is a browser ES-module API. The workspace and
+`/pdf-api/v1/index.html` call the same implementation. It is not an HTTP server,
+WASI runtime, native Docling service or deployment. No PDF is uploaded by the
+standalone UI; the existing authenticated workspace still saves originals.
 
 ```js
-import { discoverPdf, createPdfJob } from '/pdf-api/v1/api.js';
+import {discoverPdf, createPdfJob, getPdfJob, cancelPdfJob, disposePdfRuntime}
+  from '/pdf-api/v1/api.js';
 console.log(await discoverPdf());
 const job = createPdfJob(file, {ocr: 'auto', pages: [1, 2], onProgress: console.log});
-const result = await job.result;
+const result = await job.result; // or cancelPdfJob(job.id)
+disposePdfRuntime();            // optional immediate release of idle model memory
 ```
 
-The default engine is `docling`; OCR supports `auto`, `always`, `off` and
-English only. Layout always runs in that engine. `engine: 'fast-text',
-ocr: 'off'` calls retained PDF Oxide; its order is explicitly unverified and
-it provides no OCR/layout. The workspace and standalone
-`/pdf-api/v1/index.html` call this same API. No PDF is uploaded by the standalone
-UI. The existing authenticated workspace still saves originals as before.
+The versioned exports also include `API_VERSION` and serializable control/result
+`schemas`. Input is File, Blob, Uint8Array or ArrayBuffer. The job exposes `id`,
+`status`, `progress`, `subscribe(listener)`, `cancel()`, and a `result` promise.
+The terminal statuses are `partial`, `failed`, `cancelled`. A successful model
+run remains partial because inference does not establish complete recovery.
+Invalid controls and concurrent jobs throw coded errors before claiming the
+active slot. Processing failures resolve a result with coded diagnostics.
+`signal` and `onProgress` are JavaScript lifecycle controls outside JSON schemas.
+The API remembers at most eight job handles. Callers own any results they retain.
 
-Docling.rs WASM **1.104.2**, source
-`29de9d1e842e6ebb35890c3f171ac0c38f273eed`, runs DigitalConverter/ScannedConverter
-with PDF.js 5.4.624 and ONNX Runtime Web 1.24.3. All sessions explicitly use
-single-thread CPU/WASM. No GPU implementation or experiment is included.
-Interop follows upstream MIT-licensed `crates/docling-wasm/www/pipeline.js`.
-The staging script retains dependency licenses and verifies npm archive
-SHA-512 and model SHA-256. It executes no package lifecycle hooks and changes
-no repository dependency/security policy.
+Default `engine: 'docling'` runs layout and supports English `ocr: 'auto'`,
+`'always'`, or `'off'`. Automatic routing uses the selected page's PDF.js text
+cells; fewer than 20 non-whitespace characters routes to OCR. This is a stated
+heuristic, not a guarantee that an existing text layer is correct. `always`
+allows explicit raster recognition. Automatic digital-page OCR only examines
+model-labelled picture regions and returns `DIGITAL_OCR_SCOPE`. A same-page
+vector/raster witness loses its raster text with `auto`; `always` recovers both
+independently expected copies. This limitation is recorded separately from
+passing coverage checks. Password-protected PDFs are unsupported.
+`engine: 'fast-text', ocr: 'off'` instead calls PDF Oxide with unverified order,
+no layout/OCR and no page selection. The engines do not run on the same job.
+Switching to fast text releases any idle Docling runtime first.
 
-From `web`, explicitly stage static assets, then opt into models once:
+Each page retains text, original page number, original Docling JSON,
+`doclingPageMap`, immutable PDF.js cells, model `layout`, `orderedBlocks`,
+`order`, order provenance, links, diagnostics, timings and resources.
+`doclingPageMap` maps local page numbers inside upstream per-page JSON back to
+original PDF page numbers. Coordinates retain the declared TOPLEFT/BOTTOMLEFT
+origin. JavaScript JSON numbers have browser precision limits. Result export
+and the workspace avoid nesting a second complete copy of all pages in metadata.
+
+## Pinned runtime and provisioning
+
+Docling.rs WASM **1.104.2** at
+[`29de9d1e842e6ebb35890c3f171ac0c38f273eed`](https://github.com/docling-project/docling.rs/tree/29de9d1e842e6ebb35890c3f171ac0c38f273eed/crates/docling-wasm)
+runs actual DigitalConverter/ScannedConverter with PDF.js 5.4.624 and ONNX Runtime
+Web 1.24.3. Interop follows upstream's MIT-licensed `www/pipeline.js`. Every ONNX
+session selects CPU `wasm`, one thread, with proxy execution disabled. There is
+no GPU implementation or experiment. No Tesseract call occurs on this path.
+
+From `web`, stage the checksum-pinned static artifacts, then explicitly opt into
+models. Package lifecycle hooks and repository security policies are unchanged.
 
 ```sh
 node scripts/copy-pdf-wasm.mjs
@@ -42,61 +63,128 @@ node scripts/stage-docling-assets.mjs
 node scripts/stage-docling-assets.mjs --models
 ```
 
-In this environment Node 24 needs `--use-env-proxy` for the staging fetches.
-Hugging Face returned 403; the upstream `models-v1` GitHub release assets worked.
-Models total **87,592,123 bytes**: layout 68,695,321, English recognition
-8,967,018, detector 9,929,594, dictionary 190. Staged runtime plus models is
-approximately 117 MiB. Models are omitted without `--models`; PDF jobs only
-request same-origin assets, use browser caching, and never fetch third-party
-models. Each owned worker still initializes its own ONNX sessions. RAM can be
-substantially greater than download size; phones/Safari are unqualified.
+This environment uses Node 24 `--use-env-proxy` for staging fetches. Hugging Face
+returned 403; upstream GitHub `models-v1` release assets worked. Archive SHA-512
+and model SHA-256 are pinned in source; licenses are staged with the runtime.
+Models total **87,592,123 bytes**: layout 68,695,321; English recognition 8,967,018;
+detector 9,929,594; dictionary 190. Runtime plus models is about 117 MiB on disk.
+Models are omitted without `--models`. Jobs fetch only same-origin runtime and
+model assets, never third-party models. Missing/invalid assets fail explicitly;
+there is no hidden recognition-only fallback when the detector is missing.
 TableFormer and multilingual OCR are unsupported.
 
-Host ceilings are 25 MiB input, 20 selected pages, 6 million rendered pixels
-at scale 2 per page, 8 MiB structured output, one active job, 120 seconds.
-Callers may lower limits. These are host admission/output/time controls, not
-a guarantee against allocations inside PDF.js, ONNX Runtime or Rust WASM.
-Missing/invalid models fail explicitly; a scanned page requires the detector.
-No detector timeout or recognition-only downgrade is hidden as success.
+## Parsers, copies and retained memory
 
-Results retain original Docling JSON, PDF.js text cells, original page identity,
-`doclingPageMap`, order/layout evidence, actual inference output shapes/timing,
-engine/provider/model identities, and diagnostics. All recovered output remains
-`partial`: successful inference does not prove every region was recovered.
-Docling JSON numbers follow browser JSON precision limits.
+The pinned browser `DigitalConverter::new(bytes, dict)` parses the document
+once in Rust via Docling's textparse/lopdf path. It has no exported constructor
+for external parsed cells. Native `PdfPage::from_cells` seams are not browser
+exports. Docling does not depend on PDF Oxide. The integration therefore uses:
 
-Actual Chromium 151 execution recovered the three handwritten expected
-sentences from the verified public-safe native control, its raster-only
-derivative, and a mixed two-page derivative. Originals were unchanged; routes
-were `1:digital,2:scanned`. Cancellation followed by a successful next job and
-selection of original page 2 passed. No third-party requests occurred.
+- one PDF.js document for page count, selected-page text evidence and rendering;
+- at most one Rust parse, delayed until the first digital page; none for
+  scanned-only jobs or `ocr: 'always'`;
+- zero PDF Oxide instances during a Docling job;
+- one selected page's raster at a time, with its RGBA buffer transferred to the
+  inference worker and the canvas backing store reset after pixel extraction.
 
-The two PR269 semantic witnesses were copied byte-for-byte from
-`850a66b577f03205ad4692d578319e1e7fe95417`; no legacy implementation was imported.
-Upstream model output merged each witness into a single region and kept scrambled
-stream order. A small independent browser adapter now orders repeated whitespace
-gutters only when the original PDF.js cell text and Docling output conserve the
-same character multiset and no tables are present. Both handwritten token
-sequence expectations passed real PDF/API execution. This heuristic is
-attributed separately from Docling, preserves both inputs, and remains partial.
-General scientific layout and scanned multi-column conformance are unqualified.
+A snapshot preserves caller bytes. Automatic/digital jobs copy that snapshot
+once for PDF.js and transfer the retained snapshot to Rust's worker only when
+needed. `always` transfers the single snapshot directly to PDF.js. wasm-bindgen
+copies byte slices into Rust linear memory; upstream preprocessing then copies
+normalized float arrays to JavaScript. ONNX Runtime owns its additional tensor
+and arena allocations. The adapter does not claim zero-copy interop. PDF.js
+parses only one document; classification and geometry reuse each selected
+page's single bounded text stream. A whole-document page ceiling also limits
+Rust parsing when callers select a subset of a large PDF.
 
-The initial full browser evidence is retained separately from the current
-expanded harness. Reproduce with Playwright and pdf-lib tools outside this
-project's dependency policy:
+One idle inference worker retains verified model sessions, not parsed documents.
+An end command frees DigitalConverter after each successful job. Session IDs,
+model asset IDs, output shapes and SHA-256 fingerprints make reuse observable.
+Idle expiry after 30 seconds, explicit `disposePdfRuntime()`, interruption,
+failed execution, or Rust linear capacity above 256 MiB discards the worker.
+Rust linear memory does not shrink when document objects are freed; worker
+termination drops its ownership, but immediate OS RSS reduction is not promised.
+
+## Bounds and foreign-runtime containment
+
+Host ceilings: 25 MiB input; 200 document pages; 20 selected pages; 6 million
+rendered pixels per page at scale 2; 100,000 text cells and 1,000,000 text
+characters per page; 8 MiB serialized result; 120 seconds; one active job per
+API instance. Callers can lower limits (output minimum 16 KiB). An overflowing
+page/result is withheld, with a failed status, rather than returned beyond the
+output limit. Model downloads use a fixed-size buffer and validate length and
+SHA-256 before ONNX session creation. These controls are not a hard cap on
+internal allocations by upstream PDF.js, Rust WASM, ONNX or the browser.
+
+The actual boundary is Rust/wasm-bindgen ↔ JavaScript typed arrays ↔ ONNX Runtime
+Web WASM. Async Rust conversion awaits each JS session callback. A single
+worker owns sessions and document state; commands and tensor operations are
+serialized. Each session run awaits completion before its arrays are consumed
+by Rust postprocessing. Shapes, float32 type and finite values are checked
+before decoding; output hashes are recorded without retaining tensor payloads.
+OCR off never passes a cached recognizer to DigitalConverter. No shared-memory
+payloads or application-managed concurrent inference threads are used.
+
+A lease binds messages to a job ID and worker identity. Busy commands are
+rejected. Cancellation terminates the owned worker, cancels rendering and closes
+PDF.js; queued events from an old worker cannot resolve a new job. Healthy
+completion frees document state only after pending conversion has completed.
+Faults discard the entire runtime so a subsequent job starts fresh. The browser
+harness tests active-inference cancellation, initialization cancellation,
+concurrent-call rejection, an injected worker crash and successful recovery.
+
+A Web Worker is **not OS process isolation**. WebAssembly bounds linear memory,
+but Rust's type guarantees do not prove ONNX's C/C++ implementation or the browser
+engine memory-safe. Upstream defects can still corrupt results, exhaust memory,
+trap or crash a renderer. The one-thread provider and ownership protocol contain
+application-level races; they do not certify foreign runtimes. Native ONNX FFI,
+Tesseract CLI and the separate image-OCR Tesseract WASM path are outside this
+implementation's evidence. Separate tabs/API instances have separate limits.
+
+## Browser evidence and reproducibility
+
+Only verified public-safe fixtures are used. The native control's SHA-256 is
+`099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8`.
+Scanned/mixed/six-page derivatives preserve its independently authored expected
+sentences. The two column witnesses and handwritten expectations were copied
+byte-for-byte from PR269 head `850a66b577f03205ad4692d578319e1e7fe95417`;
+no legacy implementation was imported. Their hashes are asserted by the harness.
+
+Upstream layout merged each tiny column witness into a single region and kept
+scrambled stream order. A small browser adapter supplies provisional gutter
+order only when it conserves the PDF.js cell/Docling character multiset and no
+tables are present. Original model layout stays intact and order provenance is
+separate. The two/three-column expectations pass actual PDF/model/API execution.
+This is not general scientific-layout or scanned multi-column qualification.
+Phones and Safari are unqualified; English-only synthetic OCR is limited evidence.
+
+The [recorded Chromium 151 run](evidence/docling-browser-owned-runtime.json)
+passes 110 API checks, both independent column-order witnesses, the real UI,
+missing/corrupt assets, an injected worker fault and idle expiry, with no unhandled
+page errors or external requests. Its [UI screenshot](evidence/docling-browser-owned-runtime.png)
+shows the same callable result. The run took about 5.5 s cold and 3.3 s warm for
+one digital page, 6.4 s for a scan, 9.4 s for two mixed pages and 18.5 s for six
+digital pages. Rust linear capacity was approximately 35–65 MiB. Aggregate
+browser-process RSS peaked near 1.3 GiB, counting shared mappings in each process;
+proportional-set size peaked near 1.07 GiB. Neither is an in-browser bound.
+Download size significantly understates browser RAM needs.
+
+CI installs test-only dependencies from `scripts/browser-tools/package-lock.json`,
+stages the exact assets, runs real Chromium and retains the JSON/screenshot
+artifact for the exact PR head. Local reproduction:
 
 ```sh
-PLAYWRIGHT_MODULE=/tmp/pdf-tools/node_modules/playwright/index.mjs \
-PDF_LIB_MODULE=/tmp/pdf-tools/node_modules/pdf-lib/cjs/index.js \
-CHROMIUM_PATH=/usr/bin/chromium EVIDENCE_PATH=/tmp/docling-evidence.json \
-node scripts/test-docling-browser.mjs
+npm ci --prefix scripts/browser-tools --ignore-scripts
+node scripts/browser-tools/node_modules/playwright/cli.js install chromium
+PLAYWRIGHT_MODULE=./browser-tools/node_modules/playwright/index.mjs \
+PDF_LIB_MODULE=./browser-tools/node_modules/pdf-lib/cjs/index.js \
+EVIDENCE_PATH=/tmp/docling-evidence.json node scripts/test-docling-browser.mjs
 ```
 
-Checkpoint handoff: TypeScript, Ruff, 210 Python tests, and import-flow tests
-passed. Expanded browser tests also passed: missing layout/detector, corrupted dictionary,
-malformed input, input/time budgets, initialization and active-model cancellation,
-subsequent success, fast-text provenance, and the standalone UI.
-The expanded evidence records actual per-model output dimensions and timing. The existing
-`scripts/test-web-workspace.cjs` loader needs an alias for `@/lib/pdf-api`.
-No hosted browser CI has been added yet; exact-head CI must still be followed.
-Local Rust/Swift/CMake tools are absent; uv audit cannot reach api.osv.dev.
+`CHROMIUM_PATH=/usr/bin/chromium` selects an existing browser. Evidence distinguishes
+actual tensor inference (shapes, finite ranges, hashes, timings, session IDs)
+from success logs. The same input must yield the same tensor fingerprint in a
+reused session; changed pixels must change it. Complete normalized expected text
+and handwritten column order are checked independently. Resource measurements
+sample only the launched test browser's process tree and exclude the Node
+fixture server. They are observations on that machine, not mobile guarantees.

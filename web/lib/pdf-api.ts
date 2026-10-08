@@ -11,5 +11,6 @@ export async function extractPdfWithOptions(file:File,options:PdfOptions,signal:
 function toExtracted(file:File,output:Result):Extracted{
   if(output.status==='cancelled')throw new DOMException('PDF extraction cancelled.','AbortError');
   if(output.status==='failed')throw new Error(output.diagnostics.map(d=>`${d.code}: ${d.message}`).join('\n'));
-  return {title:file.name,text:output.text,markdown:output.text,pages:output.pages,links:output.pages.flatMap(p=>(p.links||[]).map(link=>({...link,page:p.page,kind:'embedded PDF link'}))),warnings:[...output.diagnostics,...output.pages.flatMap(p=>p.diagnostics)].map(d=>`${d.code}: ${d.message}`),engine:output.engine.name+' '+output.engine.version+' (CPU/WASM)',status:'partial',metadata:{pdfApi:output}};
+  const {pages,text,...provenance}=output;
+  return {title:file.name,text,pages,links:pages.flatMap(p=>(p.links||[]).map(link=>({...link,page:p.page,kind:'embedded PDF link'}))),warnings:[...output.diagnostics,...pages.flatMap(p=>p.diagnostics)].map(d=>`${d.code}: ${d.message}`),engine:output.engine.name+' '+output.engine.version+' (CPU/WASM)',status:'partial',metadata:{pdfApi:provenance}};
 }

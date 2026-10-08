@@ -89,6 +89,8 @@ GITIGNORE_APPENDIX = b"""
 /.openai/
 /public/vendor/pdf-oxide/
 /public/vendor/docling/
+/docling-browser-evidence.json
+/docling-browser-evidence.png
 /public/ocr/
 *.tsbuildinfo
 __pycache__/

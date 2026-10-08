@@ -1,4 +1,4 @@
-import {createPdfJob,discoverPdf,cancelPdfJob} from './api.js';
+import {createPdfJob,discoverPdf,cancelPdfJob,disposePdfRuntime} from './api.js';
 const el=id=>document.getElementById(id);let job,result;
 el('extract').addEventListener('submit',async event=>{
   event.preventDefault();el('run').disabled=true;el('cancel').disabled=false;el('download').disabled=true;el('text').textContent='';
@@ -12,4 +12,5 @@ el('extract').addEventListener('submit',async event=>{
 el('cancel').addEventListener('click',()=>job&&cancelPdfJob(job.id));
 el('layout').addEventListener('change',()=>{const fast=el('layout').value==='fast-text';el('ocr').disabled=fast;el('pages').disabled=fast;if(fast){el('ocr').value='off';el('pages').value='';}});
 el('capabilities').addEventListener('click',async()=>{el('result').textContent=JSON.stringify(await discoverPdf(),null,2);});
+el('release').addEventListener('click',()=>{try{disposePdfRuntime();el('status').textContent='Model memory released.';}catch(error){el('status').textContent=error.message;}});
 el('download').addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='pdf-result.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});

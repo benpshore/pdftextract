@@ -42,4 +42,25 @@ jobs:
       - run: node ../scripts/test-web-workspace.cjs
       - run: node --experimental-strip-types ../scripts/test-site-mcp.mjs
       - run: node --experimental-strip-types ../scripts/test-site-uploads-workers.mjs
+      - name: Install pinned browser-test tools without package hooks
+        run: npm ci --prefix scripts/browser-tools --ignore-scripts
+      - name: Install test Chromium
+        run: node scripts/browser-tools/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Stage verified Docling CPU runtime and models explicitly
+        run: node scripts/stage-docling-assets.mjs --models
+      - name: Real browser PDF API, model inference, interruption and resource evidence
+        env:
+          PLAYWRIGHT_MODULE: ./browser-tools/node_modules/playwright/index.mjs
+          PDF_LIB_MODULE: ./browser-tools/node_modules/pdf-lib/cjs/index.js
+          EVIDENCE_PATH: docling-browser-evidence.json
+        run: node scripts/test-docling-browser.mjs
+      - name: Preserve actual browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: docling-browser-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            web/docling-browser-evidence.json
+            web/docling-browser-evidence.png
+          if-no-files-found: warn
       - run: pnpm run build
