@@ -51,9 +51,10 @@ export function browserMemorySampler(rootPid) {
   return {
     async begin(label) { current = { label, samples: 0,phases:{}, started: performance.now() }; await sample(); },
     mark(event){if(current){current.phase=event.phase+(event.model?':'+event.model:'');void sample();}},
+    checkpoint(){return current?{rssBytes:current.endRssBytes,pssBytes:current.endPssBytes,samples:current.samples,elapsedMs:performance.now()-current.started}:null;},
     async end() { await sample(); if (current) { const { started, ...result } = current; result.milliseconds = Math.round(performance.now() - started); results.push(result); current = null; return result; } },
     stop() { clearInterval(timer); },
     results,
-    method: '100 ms samples of owned Chromium process-tree Linux VmRSS and, when readable, smaps_rollup Pss. RSS counts shared mappings in each process; PSS allocates shared pages proportionally. Excludes fixture server/Node; peaks between samples can be missed. Neither measure is an in-browser memory bound.',
+    method: '100 ms samples of the owned test-browser process tree: Linux VmRSS and, when readable, smaps_rollup Pss. RSS counts shared mappings in each process; PSS allocates shared pages proportionally. Excludes fixture server/Node; peaks between samples can be missed. Neither measure is an in-browser memory bound.',
   };
 }

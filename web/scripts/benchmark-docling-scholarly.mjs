@@ -19,6 +19,7 @@ const server=createServer(async(req,res)=>{try{const path=new URL(req.url,'http:
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;let browser;
 try{
  browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});evidence.environment.browser=browser.version();
+ console.log('SCHOLARLY PDF CONFIG',JSON.stringify({title:evidence.title,sourceUrl:url,sha256:evidence.sha256,bytes:bytes.length,environment:evidence.environment,config:evidence.config}));
  const context=await browser.newContext();await context.route('**/*',route=>{if(route.request().url().startsWith(origin+'/'))return route.continue();evidence.externalRequests.push(route.request().url());return route.abort();});
  const page=await context.newPage();page.on('pageerror',e=>evidence.pageErrors.push(e.message));await page.goto(origin);
  for(const mode of ['cold','warm']){

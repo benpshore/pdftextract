@@ -55,11 +55,14 @@ export function createPdfJob(input,options={}) {
   const config=optionsFor(options);
   if(active)throw problem('BUSY','One PDF job is already running. Cancel or await it before starting another.');
   const controller=new AbortController(),listeners=new Set();if(options.onProgress)listeners.add(options.onProgress);
-  const job={id:crypto.randomUUID(),status:'queued',progress:null,result:null,cancel:()=>{if(['queued','running'].includes(job.status))controller.abort();},subscribe:listener=>{listeners.add(listener);return()=>listeners.delete(listener);}};
+  const job={id:crypto.randomUUID(),status:'queued',progress:null,result:null,cancel:()=>{if(['queued','running'].includes(job.status))controller.abort();},subscribe:listener=>{if(typeof listener!=='function')throw problem('INVALID_OPTIONS','Progress listener must be a function.');if(!['queued','running'].includes(job.status))return()=>{};listeners.add(listener);return()=>listeners.delete(listener);}};
   jobs.set(job.id,job);if(jobs.size>8)jobs.delete(jobs.keys().next().value);active=job;
   const relay=()=>controller.abort();options.signal?.addEventListener('abort',relay,{once:true});if(options.signal?.aborted)controller.abort();
   const emit=event=>{job.progress={jobId:job.id,...event};for(const listener of listeners){try{listener(job.progress);}catch{/* observers do not control the operation */}}};
-  job.result=(config.engine==='fast-text'?runFast:run)(input,config,controller,emit,job).finally(()=>{active=null;listeners.clear();options.signal?.removeEventListener('abort',relay);});return job;
+  // Job methods share this closure scope with the finalizer. Clearing only the
+  // listener Set leaves options.onProgress (and arbitrary caller state) alive
+  // through retained job handles after completion and runtime disposal.
+  job.result=(config.engine==='fast-text'?runFast:run)(input,config,controller,emit,job).finally(()=>{active=null;listeners.clear();options.signal?.removeEventListener('abort',relay);options=null;});return job;
 }
 function ordered(document){
   const blocks=[],refs=new Set();

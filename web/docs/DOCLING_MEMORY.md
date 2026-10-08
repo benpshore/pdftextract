@@ -4,6 +4,10 @@ The browser PDF path still needs substantial RAM. The measured changes reduce
 specific allocations and simultaneous ownership; they do not establish a mobile
 memory budget or prevent an upstream/browser out-of-memory failure.
 
+The [longer-document and lifecycle follow-up](DOCLING_LIFECYCLE.md) measures
+1/8/12-page dense scans, a 16-page timeout and repeated cancel/retry/dispose
+cycles. It also fixes a demonstrated completed-progress closure retention.
+
 [Comparison evidence](evidence/docling-memory-comparison.json) records two runs
 in opposite orders for each experiment, each profile in a fresh owned Chromium
 151 process tree. Every run executed real native, scanned and same-page mixed

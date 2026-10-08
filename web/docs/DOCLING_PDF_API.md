@@ -22,7 +22,11 @@ run remains partial because inference does not establish complete recovery.
 Invalid controls and concurrent jobs throw coded errors before claiming the
 active slot. Processing failures resolve a result with coded diagnostics.
 `signal` and `onProgress` are JavaScript lifecycle controls outside JSON schemas.
-The API remembers at most eight job handles. Callers own any results they retain.
+The API remembers at most eight job handles, including their resolved results
+(each result is byte-limited; JS object overhead is additional). Callers own any
+results they retain. Completed jobs release progress options/subscriptions;
+late subscriptions are not retained. Disposing the runtime releases models,
+not caller-owned results or the bounded job lookup history.
 
 Default `engine: 'docling'` runs layout and supports English `ocr: 'auto'`,
 `'always'`, or `'off'`. Automatic routing uses the selected page's PDF.js text

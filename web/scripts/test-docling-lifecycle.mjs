@@ -12,6 +12,8 @@ const playwright=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const {PDFDocument}=await import(process.env.PDF_LIB_MODULE||'pdf-lib');
 const web=resolve(dirname(fileURLToPath(import.meta.url)),'..'),kind=process.env.BROWSER||'chromium';
 assert(['chromium','webkit'].includes(kind));
+const counts=(process.env.LIFECYCLE_COUNTS??'1,8,12').split(',').filter(Boolean).map(Number),cycles=Number(process.env.LIFECYCLE_CYCLES??3);
+assert(counts.every(n=>[1,8,12,16].includes(n))&&Number.isInteger(cycles)&&cycles>=0&&cycles<=3);
 const native=await readFile(resolve(web,'../tests/fixtures/pdfium-unicode/native.pdf'));
 assert.equal(createHash('sha256').update(native).digest('hex'),'099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8');
 const sentence='Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.';
@@ -45,7 +47,7 @@ try{
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto(origin);
   await page.exposeFunction('markLifecycleMemory',event=>memory.mark(event));
-  await page.exposeFunction('recordLifecyclePage',sample=>{runs.at(-1)?.pageCompletions.push(sample);});
+  await page.exposeFunction('recordLifecyclePage',sample=>{runs.at(-1)?.pageCompletions.push({...sample,nearestProcessSample:memory.checkpoint()});});
   // Crop the three lines from actual PDF.js text bounds, then repeat those pixels
   // at readable original scale. All 16 images differ, defeating same-image reuse.
   const jpegs=await page.evaluate(async()=>{
@@ -64,7 +66,7 @@ try{
     }
     canvas.width=canvas.height=0;await pdf.destroy();return result;
   });
-  for(const count of [1,8,16]){
+  for(const count of [1,8,12,16]){
     const pdf=await PDFDocument.create();for(let i=0;i<count;i++)pdf.addPage([612,792]).drawImage(await pdf.embedJpg(Buffer.from(jpegs[i],'base64')),{x:0,y:0,width:612,height:792});fixtures.set(`scan-${count}.pdf`,Buffer.from(await pdf.save()));
   }
   evidence.fixtures=Object.fromEntries([...fixtures].map(([name,b])=>[name,{bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')}]));
@@ -83,7 +85,12 @@ try{
     console.log(JSON.stringify({label,status:result.status,pages:result.pages.length,ms:Math.round(result.milliseconds),peakRssMiB:record.memory.peakRssBytes/1048576,endPssMiB:record.memory.endPssBytes/1048576,rustMiB:result.pages.at(-1)?.resources.rustWasmCapacityBytes/1048576}));
     check(result.status===(cancelPage?'cancelled':'partial'),`${label}: expected terminal status`);
     check(result.pages.length===(cancelPage?cancelPage-1:count),`${label}: original completed-page count`);
-    check(result.pages.every((p,i)=>p.exact&&p.page===i+1&&p.ocr==='page'&&p.diagnostics.some(d=>d.code==='COVERAGE_UNVERIFIED')),`${label}: independent dense-scan text, order and incomplete coverage`);
+    check(result.pages.every((p,i)=>p.page===i+1&&p.ocr==='page'&&p.diagnostics.some(d=>d.code==='COVERAGE_UNVERIFIED')),`${label}: page identity, OCR provenance and incomplete coverage`);
+    // This control exposed an upstream OCR duplication on the initial block.
+    // Keep the independent expectation and failures visible while measuring
+    // length/ownership; this is not an assertion that OCR accuracy passed.
+    record.textOracle={expectedPerPage:expected,allPagesExact:result.pages.every(p=>p.exact),mismatchedPages:result.pages.filter(p=>!p.exact).map(p=>p.page)};
+    console.log('DENSE SCAN ORACLE',JSON.stringify({label,...record.textOracle}));
     if(cancelPage)check(!result.runtime.resident,`${label}: interrupted model worker terminated`);
     return result;
   }
@@ -91,20 +98,18 @@ try{
     const record={label,diagnosticOnly:true};runs.push(record);await memory.begin(label);
     if(dispose)await page.evaluate(async()=>{(await import('/pdf-api/v1/api.js')).disposePdfRuntime();});
     await page.waitForTimeout(1500);
-    record.beforeCollection=await memory.end();await memory.begin(label+':diagnostic-gc');
+    record.beforeCollection=await memory.end();
+    record.workersBeforeCollection=[];
+    for(const worker of page.workers())try{record.workersBeforeCollection.push(await worker.evaluate(()=>({url:self.location.pathname,livePageBuffers:(globalThis.__pageBuffers||[]).filter(x=>x.ref.deref()).map(({ref,...rest})=>rest)})));}catch{/* disposal raced worker notification */}
+    await memory.begin(label+':diagnostic-gc');
     record.workers=[];
     for(const worker of page.workers())try{record.workers.push(await worker.evaluate(()=>{const didCollect=typeof globalThis.gc==='function';if(didCollect)globalThis.gc();const refs=globalThis.__pageBuffers||[];return {url:self.location.pathname,didCollect,observedPageBuffers:refs.length,livePageBuffers:refs.filter(x=>x.ref.deref()).map(({ref,...rest})=>rest)};}));}catch(error){record.workers.push({terminated:true,message:error.message.slice(0,160)});}
-    record.main=await page.evaluate(async()=>{const didCollect=typeof globalThis.gc==='function';if(didCollect)globalThis.gc();return {didCollect,observerPayloadRetained:!!globalThis.__observerWeak?.deref(),runtime:(await(await import('/pdf-api/v1/api.js')).discoverPdf()).runtime};});
+    record.main=await page.evaluate(async()=>{const didCollect=typeof globalThis.gc==='function';if(didCollect)globalThis.gc();return {didCollect,observerPayloadRetained:!!globalThis.__observerWeak?.deref(),lateSubscriberPayloadRetained:!!globalThis.__lateObserverWeak?.deref(),runtime:(await(await import('/pdf-api/v1/api.js')).discoverPdf()).runtime};});
     await page.waitForTimeout(500);record.afterCollection=await memory.end();await save();console.log(JSON.stringify(record));return record;
   }
-  await run('cold-one','scan-1.pdf',1);
-  await diagnostic('cold-one-settled');
-  await run('eight-pages','scan-8.pdf',8);
-  await diagnostic('eight-pages-settled');
-  await run('sixteen-pages','scan-16.pdf',16);
-  await diagnostic('sixteen-pages-settled');
-  for(let i=0;i<3;i++){
-    await run(`cycle-${i}:warm`,'scan-1.pdf',1);
+  for(const count of counts){await run(`length-${count}`,`scan-${count}.pdf`,count);await diagnostic(`length-${count}:settled`);}
+  for(let i=0;i<cycles;i++){
+    await run(`cycle-${i}:extract`,'scan-1.pdf',1);
     await run(`cycle-${i}:cancel-page-three`,'scan-8.pdf',8,{cancelPage:3});
     await run(`cycle-${i}:retry`,'scan-1.pdf',1);
     const released=await diagnostic(`cycle-${i}:dispose`,true);check(!released.main.runtime.resident,`cycle-${i}: explicit dispose removes model owner`);
@@ -112,11 +117,16 @@ try{
   // Probe a progress closure's reachability independently of RSS/capacity.
   await page.evaluate(async()=>{
     const api=await import('/pdf-api/v1/api.js');
-    async function withObserver(){const payload={buffer:new ArrayBuffer(4*1024*1024)};globalThis.__observerWeak=new WeakRef(payload);const input=new File([await(await fetch('/native.pdf')).arrayBuffer()],'native.pdf');await api.createPdfJob(input,{ocr:'off',onProgress:()=>payload.buffer.byteLength}).result;}
+    async function withObserver(){const payload={buffer:new ArrayBuffer(4*1024*1024)};globalThis.__observerWeak=new WeakRef(payload);const input=new File([await(await fetch('/native.pdf')).arrayBuffer()],'native.pdf');const job=api.createPdfJob(input,{ocr:'off',onProgress:()=>payload.buffer.byteLength});await job.result;(function lateSubscriber(){const latePayload={buffer:new ArrayBuffer(4*1024*1024)};globalThis.__lateObserverWeak=new WeakRef(latePayload);job.subscribe(()=>latePayload.buffer.byteLength);})();}
     await withObserver();
   });
   const observer=await diagnostic('completed-observer-probe',true);
   evidence.observerProbe=observer.main.observerPayloadRetained;
+  if(observer.main.didCollect)check(!evidence.observerProbe,'Completed options do not retain the progress closure payload after diagnostic GC');
+  if(observer.main.didCollect)check(!observer.main.lateSubscriberPayloadRetained,'Completed jobs do not retain late subscriber payloads after diagnostic GC');
+  const ids=runs.filter(r=>r.output).map(r=>r.output.jobId);
+  evidence.retainedJobHandles=await page.evaluate(async ids=>{const api=await import('/pdf-api/v1/api.js');return ids.filter(id=>!!api.getPdfJob(id)).length;},ids);
+  check(evidence.retainedJobHandles<=8,'Completed job lookup remains bounded to eight handles');
   check(errors.length===0,'No unhandled browser errors');check(external.length===0,'No external job requests');
   evidence.complete=true;await save();console.log(JSON.stringify({complete:true,browser:kind,checks:checks.length,observerPayloadRetained:evidence.observerProbe}));
 }catch(error){evidence.failure={message:error.message,stack:error.stack};await save();throw error;}

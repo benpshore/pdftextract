@@ -15,7 +15,7 @@ concurrency:
 jobs:
   web:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: web
@@ -44,8 +44,8 @@ jobs:
       - run: node --experimental-strip-types ../scripts/test-site-uploads-workers.mjs
       - name: Install pinned browser-test tools without package hooks
         run: npm ci --prefix scripts/browser-tools --ignore-scripts
-      - name: Install test Chromium
-        run: node scripts/browser-tools/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Install test Chromium and desktop WebKit
+        run: node scripts/browser-tools/node_modules/playwright/cli.js install --with-deps chromium webkit
       - name: Stage verified Docling CPU runtime and models explicitly
         run: node scripts/stage-docling-assets.mjs --models
       - name: Real browser PDF API, model inference, interruption and resource evidence
@@ -76,5 +76,32 @@ jobs:
         with:
           name: docling-scholarly-${{ github.event.pull_request.head.sha || github.sha }}
           path: web/docling-scholarly-evidence.json
+          if-no-files-found: warn
+      - name: Measure scanned-document length and repeated cancellation/disposal
+        env:
+          PLAYWRIGHT_MODULE: ./browser-tools/node_modules/playwright/index.mjs
+          PDF_LIB_MODULE: ./browser-tools/node_modules/pdf-lib/cjs/index.js
+          LIFECYCLE_COUNTS: '12'
+          EVIDENCE_PATH: docling-lifecycle-evidence.json
+        run: node scripts/test-docling-lifecycle.mjs
+      - name: Desktop WebKit API compatibility observation
+        id: webkit
+        continue-on-error: true # Experimental observation; never an iOS readiness claim.
+        env:
+          PLAYWRIGHT_MODULE: ./browser-tools/node_modules/playwright/index.mjs
+          PDF_LIB_MODULE: ./browser-tools/node_modules/pdf-lib/cjs/index.js
+          BROWSER: webkit
+          LIFECYCLE_COUNTS: '1'
+          LIFECYCLE_CYCLES: '1'
+          EVIDENCE_PATH: docling-webkit-evidence.json
+        run: node scripts/test-docling-lifecycle.mjs
+      - name: Preserve lifecycle and WebKit observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: docling-lifecycle-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            web/docling-lifecycle-evidence.json
+            web/docling-webkit-evidence.json
           if-no-files-found: warn
       - run: pnpm run build
