@@ -11,7 +11,9 @@ import {recognizeImage} from '@/lib/image-ocr';
 import {extractOffice} from '@/lib/office';
 import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource} from '@/lib/upload-client';
 import {retainArticleImages} from '@/lib/article-assets';
-import {readWorkspace, writeWorkspace} from '@/lib/workspace-storage';
+import {beginWorkspaceDeletion, completeWorkspaceDeletion, readWorkspaceDeletions, readWorkspace, writeWorkspace} from '@/lib/workspace-storage';
+import {deleteStoredDocument} from '@/lib/document-client';
+import type {WorkspaceDeletion} from '@/lib/workspace-storage';
 import type {DocumentRow, Extracted} from '@/lib/types';
 
 type Phase = 'waiting'|'fetching'|'uploading'|'extracting'|'saving'|'saved'|'failed'|'cancelled'|'interrupted';
@@ -83,6 +85,9 @@ export default function Workspace({userId}:{userId:string}) {
   const [url,setUrl]=useState(''),[kind,setKind]=useState('file'),[paste,setPaste]=useState(''),[query,setQuery]=useState(''),[view,setView]=useState('text');
   const [error,setError]=useState(''),[recoveryWarning,setRecoveryWarning]=useState(''),[announcement,setAnnouncement]=useState(''),[queueOpen,setQueueOpen]=useState(true),[uploadOpen,setUploadOpen]=useState(false),[savedOpen,setSavedOpen]=useState(false),[dragging,setDragging]=useState(false),[loading,setLoading]=useState(false),[restored,setRestored]=useState(false);
   const queueRef=useRef<QueueItem[]>([]),selectionRef=useRef<Selection|null>(null),running=useRef(false),mounted=useRef(true),generation=useRef(0),listGeneration=useRef(0),dirtyDraft=useRef(false),recoveryReady=useRef(false);
+  const [deletions,setDeletions]=useState<WorkspaceDeletion[]>([]),[deletionBusy,setDeletionBusy]=useState(false);
+  const deletedDocuments=useRef(new Set<string>()),deletionOperation=useRef(false);
+  const syncDeletionsRef=useRef<()=>Promise<void>>(async()=>{});
   const pendingDisposals=useRef(new Map<string,()=>Promise<void>>()),composerValue=useRef(paste);composerValue.current=paste;
   const controllers=useRef(new Map<string,AbortController>()),completions=useRef(new Map<string,{resolve:(value:unknown)=>void;reject:(reason:unknown)=>void}>());
   const checkpointTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -97,13 +102,17 @@ export default function Workspace({userId}:{userId:string}) {
 
   function choose(value:Selection|null) {selectionRef.current=value;if(mounted.current)setSelection(value);}
   function update(id:string,patch:Partial<QueueItem>) {
+    if(patch.record&&deletedDocuments.current.has(patch.record.id)){
+      queueRef.current=queueRef.current.map(item=>item.id===id?{...item,record:patch.record}:item);
+      purgeDeletedDocuments();return;
+    }
     queueRef.current=queueRef.current.map(item=>item.id===id?{...item,...patch}:item);
     if(mounted.current)setQueue(queueRef.current);
   }
   const refresh=useCallback(async(search='')=>{
     const request=++listGeneration.current;
     const data=await json<{documents:DocumentRow[]}>(await fetch('/api/documents?q='+encodeURIComponent(search)));
-    if(request===listGeneration.current&&mounted.current)setDocuments(data.documents);
+    if(request===listGeneration.current&&mounted.current)setDocuments(data.documents.filter(record=>!deletedDocuments.current.has(record.id)));
   },[]);
   function historySelection(documentId?:string,queueId?:string,tab='text',replace=false) {
     const current={...(history.state||{}),tpe:{scroll:window.scrollY}};history.replaceState(current,'');
@@ -113,6 +122,8 @@ export default function Workspace({userId}:{userId:string}) {
     history[replace?'replaceState':'pushState']({...current,tpe:{scroll:replace?window.scrollY:0}},'',address);
   }
   function selectQueue(id:string,navigate=true) {
+    const candidate=queueRef.current.find(value=>value.id===id);
+    if(!candidate||candidate.record&&deletedDocuments.current.has(candidate.record.id))return;
     generation.current++;setLoading(false);choose({queueId:id});setView('text');
     const item=queueRef.current.find(value=>value.id===id);
     if(navigate)historySelection(item?.record?.id,id);
@@ -121,9 +132,10 @@ export default function Workspace({userId}:{userId:string}) {
   function fetchRecord(id:string):Promise<Response> {return fetch('/api/documents/'+encodeURIComponent(id));}
   async function openSaved(id:string,tab='text',scroll=0) {
     const request=++generation.current;setLoading(true);setError('');
+    if(deletedDocuments.current.has(id)){choose(null);setLoading(false);historySelection(undefined,undefined,tab,true);setError('This document has been marked for deletion.');return;}
     const existing=queueRef.current.find(item=>item.record?.id===id&&item.result);
     if(existing){choose({queueId:existing.id});setView(tab);setLoading(false);requestAnimationFrame(()=>window.scrollTo({top:scroll}));return;}
-    try {const data=await json<{record:DocumentRow;result:Extracted|null}>(await fetchRecord(id));if(request!==generation.current||!mounted.current)return;choose(data);setView(tab);requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:scroll})));}
+    try {const data=await json<{record:DocumentRow;result:Extracted|null}>(await fetchRecord(id));if(request!==generation.current||!mounted.current||deletedDocuments.current.has(id))return;choose(data);setView(tab);requestAnimationFrame(()=>requestAnimationFrame(()=>window.scrollTo({top:scroll})));}
     catch(reason){if(request===generation.current)setError(messageOf(reason));}
     finally{if(request===generation.current)setLoading(false);}
   }
@@ -139,7 +151,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
   function addFiles(files:Iterable<File>) {add(Array.from(files,file=>({source:{type:'file' as const,file},name:file.webkitRelativePath||file.name})));}
   function rereadOriginal() {
-    if(!selected||pending)return;
+    if(!selected||pending||deletedDocuments.current.has(selected.id))return;
     const id=add([{source:{type:'stored',name:selected.original_name,url:selected.source_url||undefined},name:selected.title}],false)[0];
     update(id,{record:selected,...(result?{result}:{}),message:'Waiting to re-read the saved original.'});
     selectQueue(id);queueMicrotask(()=>void pumpRef.current());
@@ -151,6 +163,7 @@ export default function Workspace({userId}:{userId:string}) {
   }
   async function retry(id:string,saveOnly=false) {
     const item=queueRef.current.find(value=>value.id===id);
+    if(!item||item.record&&deletedDocuments.current.has(item.record.id))return;
     if(item?.source.type==='file'&&item.source.member&&!item.record){
       try {const stored=await readWorkspace<Snapshot>(userId),copy=stored?.items.find(value=>value.id===id);if(copy?.source.type!=='file')throw new Error('Retry the original archive to recover this member.');update(id,{source:copy.source});}
       catch(reason){update(id,{error:messageOf(reason)});return;}
@@ -158,9 +171,12 @@ export default function Workspace({userId}:{userId:string}) {
     update(id,{phase:'waiting',error:undefined,message:saveOnly?'Waiting to retry the save.':'Waiting to retry.',progress:null,retrySave:saveOnly});queueMicrotask(()=>void pumpRef.current());
   }
   async function persistItem(id:string,record:DocumentRow,extracted:Extracted,signal?:AbortSignal) {
+    if(deletedDocuments.current.has(record.id))throw new Error('Document marked for deletion.');
     const value={...extracted,links:extracted.links.map(link=>({...link,doi:link.doi||doiFrom(link.url)}))};
     update(id,{result:value,savePending:true,phase:'saving',progress:0,message:'Saving the extracted result…'});
     await saveExtracted(record,value,{signal,onProgress:fraction=>update(id,{progress:100*fraction})});
+    signal?.throwIfAborted();
+    if(deletedDocuments.current.has(record.id))throw new Error('Document marked for deletion.');
     const savedRecord={...record,title:value.title,status:value.status,engine:value.engine};
     update(id,{record:savedRecord,savePending:false,result:value,progress:100});
     // Every saved-document entry points to the current committed result, while
@@ -204,8 +220,8 @@ export default function Workspace({userId}:{userId:string}) {
           signal.throwIfAborted();
           if('error'in member){const child=add([{source:{type:'stored',name:member.path},name:member.path,parentId:id}],false)[0];update(child,{phase:'failed',error:member.error,message:'Archive member could not be read.'});members.push({path:member.path,status:'failed',error:member.error});continue;}
           const child=add([{source:{type:'file',file:member.file,member:true},name:member.path,parentId:id}],false)[0];
-          try {await runItem(child,signal);const childItem=queueRef.current.find(value=>value.id===child)!;members.push({path:member.path,status:childItem.phase,documentId:childItem.record?.id,error:childItem.error});await checkpointRef.current();}
-          finally {if(queueRef.current.find(value=>value.id===child)?.record)await member.dispose?.();else if(member.dispose)pendingDisposals.current.set(child,member.dispose);}
+          try {await runItem(child,signal);const childItem=queueRef.current.find(value=>value.id===child);if(!childItem){members.push({path:member.path,status:'deleted'});continue;}members.push({path:member.path,status:childItem.phase,documentId:childItem.record?.id,error:childItem.error});await checkpointRef.current();}
+          finally {if(queueRef.current.find(value=>value.id===child)?.record)await member.dispose?.();else if(member.dispose){if(!queueRef.current.some(value=>value.id===child))await member.dispose();else pendingDisposals.current.set(child,member.dispose);}}
         }
         signal.throwIfAborted();
         extracted={title:file.name,text:members.map(member=>member.path+' — '+member.status).join('\n'),links:[],entries:members,metadata:{members},warnings:['Archive members are saved and processed separately. Review each member’s status.'],engine:'Archive expansion',status:'partial'};
@@ -233,7 +249,9 @@ export default function Workspace({userId}:{userId:string}) {
       update(id,{phase:'saved',message:'Original and result saved.',error:undefined});setAnnouncement(file.name+' saved.');
       completions.current.get(id)?.resolve({id:record.id,title:extracted.title,status:extracted.status,links:extracted.links.length});
     }catch(reason){
-      item=queueRef.current.find(value=>value.id===id)!;
+      const current=queueRef.current.find(value=>value.id===id);
+      if(!current||current.record&&deletedDocuments.current.has(current.record.id))return;
+      item=current;
       const cancelled=signal.aborted;const detail=cancelled?'Import cancelled.':messageOf(reason);
       if(item.record&&!item.savePending&&!reusingOriginal){
         const failed:Extracted={title:item.name,text:'',links:[],warnings:[detail],engine:'Import stopped before an extraction result was available',status:'failed'};
@@ -241,7 +259,7 @@ export default function Workspace({userId}:{userId:string}) {
       }
       update(id,{phase:cancelled?(mounted.current?'cancelled':'interrupted'):'failed',error:detail,progress:null,message:item.savePending?'The extracted result is retained here. Retry save or export it.':reusingOriginal?'The previously saved result is unchanged.':item.record?'The original remains saved.':cancelled?'Cancelled before an original was confirmed saved.':'The source could not be imported.'});
       setAnnouncement(item.name+': '+detail);completions.current.get(id)?.reject(new Error(detail));
-    }finally {parentSignal?.removeEventListener('abort',abort);controllers.current.delete(id);completions.current.delete(id);if(queueRef.current.find(value=>value.id===id)?.record&&pendingDisposals.current.has(id)){const dispose=pendingDisposals.current.get(id)!;pendingDisposals.current.delete(id);await dispose().catch(()=>{});}void checkpointRef.current();}
+    }finally {parentSignal?.removeEventListener('abort',abort);controllers.current.delete(id);completions.current.delete(id);if((!queueRef.current.some(value=>value.id===id)||queueRef.current.find(value=>value.id===id)?.record)&&pendingDisposals.current.has(id)){const dispose=pendingDisposals.current.get(id)!;pendingDisposals.current.delete(id);await dispose().catch(()=>{});}void checkpointRef.current();}
   }
   pumpRef.current=async()=>{
     if(running.current)return;running.current=true;
@@ -271,6 +289,50 @@ export default function Workspace({userId}:{userId:string}) {
     else addText(event.dataTransfer.getData('text/uri-list').split('\n').filter(line=>!line.startsWith('#')).join('\n')||event.dataTransfer.getData('text/plain'),event.dataTransfer.getData('text/html'));
   }
 
+  function purgeDeletedDocuments(entries?:WorkspaceDeletion[]) {
+    for(const entry of entries??[])deletedDocuments.current.add(entry.id);
+    const removed=queueRef.current.filter(item=>item.record&&deletedDocuments.current.has(item.record.id));
+    const removedIds=new Set(removed.map(item=>item.id));
+    for(const id of removedIds){
+      controllers.current.get(id)?.abort();
+      completions.current.get(id)?.reject(new Error('Document marked for deletion.'));completions.current.delete(id);
+      const dispose=pendingDisposals.current.get(id);if(dispose){pendingDisposals.current.delete(id);void dispose().catch(reason=>setRecoveryWarning('Temporary file cleanup failed: '+messageOf(reason)));}
+    }
+    queueRef.current=queueRef.current.filter(item=>!removedIds.has(item.id));setQueue(queueRef.current);
+    setDocuments(current=>current.filter(record=>!deletedDocuments.current.has(record.id)));
+    const current=selectionRef.current;
+    const address=new URL(window.location.href);
+    if(current&&('record'in current?deletedDocuments.current.has(current.record.id):removedIds.has(current.queueId))||deletedDocuments.current.has(address.searchParams.get('document')||'')){
+      generation.current++;setLoading(false);choose(null);historySelection(undefined,undefined,view,true);
+    }
+    if(entries)setDeletions(entries.filter(entry=>entry.pending));
+  }
+  useEffect(()=>{syncDeletionsRef.current=async()=>{const entries=await readWorkspaceDeletions(userId);if(mounted.current)purgeDeletedDocuments(entries);};});
+  async function removeDocument(record:{id:string;title:string},confirmed=false) {
+    if(deletionOperation.current||!restored)return;
+    if(!confirmed&&!window.confirm(`Permanently delete “${record.title}”? This removes its saved original, extracted text, images and recovery copy in this browser. This cannot be undone. Other documents, including separately imported archive members, are kept.`))return;
+    deletionOperation.current=true;setDeletionBusy(true);setError('');
+    try {
+      // Persist the confirmed intent before sending a destructive request. A
+      // closed tab or lost response retains a named, idempotent retry action.
+      const entries=await beginWorkspaceDeletion(userId,record);purgeDeletedDocuments(entries);
+      await deleteStoredDocument(record.id,{confirmDocumentId:record.id});
+      purgeDeletedDocuments(await completeWorkspaceDeletion(userId,record.id));
+      setAnnouncement(record.title+' deleted.');
+      if(savedOpenRef.current)savedClose.current?.focus({preventScroll:true});
+      else document.getElementById('reader')?.focus({preventScroll:true});
+    }catch(reason){setError('Deletion is not confirmed complete. '+messageOf(reason));}
+    finally{deletionOperation.current=false;setDeletionBusy(false);}
+  }
+  useEffect(()=>{
+    const sync=()=>{void syncDeletionsRef.current().catch(reason=>setRecoveryWarning('Could not check deletion recovery: '+messageOf(reason)));};
+    const channel=typeof BroadcastChannel==='undefined'?null:new BroadcastChannel('tpe-document-deletions');
+    if(channel)channel.onmessage=event=>{if(event.data===userId)sync();};
+    const visible=()=>{if(document.visibilityState==='visible')sync();};
+    window.addEventListener('focus',sync);window.addEventListener('pageshow',sync);document.addEventListener('visibilitychange',visible);
+    return()=>{channel?.close();window.removeEventListener('focus',sync);window.removeEventListener('pageshow',sync);document.removeEventListener('visibilitychange',visible);};
+  },[userId]);
+
   function snapshot():Snapshot {
     return {version:1,items:queueRef.current.map(item=>({ ...item,source:item.record&&item.source.type==='file'?{type:'stored',name:item.source.file.name,url:item.source.url,decoded:item.source.decoded,member:item.source.member}:item.source,result:item.savePending?item.result:undefined})),draft:{url,kind,paste,query},selection:selectionRef.current?'queueId'in selectionRef.current?{queueId:selectionRef.current.queueId}:{documentId:selectionRef.current.record.id}:null,view,scroll:window.scrollY};
   }
@@ -290,9 +352,9 @@ export default function Workspace({userId}:{userId:string}) {
       else if(fallback?.selection?.queueId&&queueRef.current.some(item=>item.id===fallback.selection!.queueId)){const item=queueRef.current.find(item=>item.id===fallback.selection!.queueId)!;historySelection(item.record?.id,item.id,tab,true);selectQueue(item.id,false);setView(tab);}
       else {generation.current++;setLoading(false);choose(null);setView(tab);}
     };
-    void readWorkspace<Snapshot>(userId).then(saved=>{
+    void readWorkspaceDeletions(userId).then(entries=>{if(mounted.current)purgeDeletedDocuments(entries);return readWorkspace<Snapshot>(userId);}).then(saved=>{
       if(!mounted.current)return;
-      if(saved?.version===1){const interrupted=saved.items.map(item=>activePhases.has(item.phase)?{...item,phase:'interrupted' as const,progress:null,message:'Interrupted when this page closed. Retry to continue.'}:item);const existing=new Set(queueRef.current.map(item=>item.id));queueRef.current=[...interrupted.filter(item=>!existing.has(item.id)),...queueRef.current];setQueue(queueRef.current);if(!dirtyDraft.current){setUrl(saved.draft.url);setKind(saved.draft.kind);setPaste(saved.draft.paste);setQuery(saved.draft.query);if(saved.draft.query)void refresh(saved.draft.query).catch(reason=>setError(messageOf(reason)));}if(!selectionRef.current)restoreLocation(saved);}
+      if(saved?.version===1){const interrupted=saved.items.filter(item=>!item.record||!deletedDocuments.current.has(item.record.id)).map(item=>activePhases.has(item.phase)?{...item,phase:'interrupted' as const,progress:null,message:'Interrupted when this page closed. Retry to continue.'}:item);const existing=new Set(queueRef.current.map(item=>item.id));queueRef.current=[...interrupted.filter(item=>!existing.has(item.id)),...queueRef.current];setQueue(queueRef.current);if(!dirtyDraft.current){setUrl(saved.draft.url);setKind(saved.draft.kind);setPaste(saved.draft.paste);setQuery(saved.draft.query);if(saved.draft.query)void refresh(saved.draft.query).catch(reason=>setError(messageOf(reason)));}if(!selectionRef.current)restoreLocation(saved);}
       else if(!selectionRef.current)restoreLocation();
     }).catch(reason=>{setRecoveryWarning('Local recovery is unavailable: '+messageOf(reason));restoreLocation();}).finally(()=>{recoveryReady.current=true;if(mounted.current)setRestored(true);});
     const pop=()=>{focusReader.current=false;if(savedOpenRef.current){afterSaved.current='trigger';setSavedOpen(false);}restoreLocation();};const checkpoint=()=>{history.replaceState({...history.state,tpe:{scroll:window.scrollY}},'');void checkpointRef.current();};
@@ -363,6 +425,7 @@ export default function Workspace({userId}:{userId:string}) {
   },[selection,loading]);
 
   const errorNotice=error&&<div className="notice error" role="alert"><AlertCircle/><p>{error}</p><button className="icon-button" onClick={()=>setError('')} aria-label="Dismiss message"><X/></button></div>;
+  const deletionNotice=!!deletions.length&&<section className="notice" aria-label="Pending document deletions"><div><p>Deletion is pending. The saved document may remain on the server until cleanup is confirmed.</p>{deletions.map(entry=><p key={entry.id}>{entry.title||'Document'} <Button variant="outline" disabled={deletionBusy||!restored} onClick={()=>void removeDocument({id:entry.id,title:entry.title||'Document'},true)}>Retry delete</Button></p>)}</div></section>;
   return <main onPaste={onPaste} onMouseDownCapture={shieldRepeat} onClickCapture={shieldRepeat} onDragOver={event=>{event.preventDefault();setDragging(true);}} onDragLeave={event=>{if(!(event.relatedTarget instanceof Node)||!event.currentTarget.contains(event.relatedTarget))setDragging(false);}} onDrop={event=>void drop(event)} className={dragging?'drop-active':''}>
     <a className="skip-link" href="#reader" inert={savedOpen||undefined}>Skip to reader</a>
     <header className="app-header" inert={savedOpen||undefined}><div className="header-start"><Tip label="Saved articles"><button ref={savedTrigger} type="button" className="icon-button menu-button" aria-label="Saved articles" aria-haspopup="dialog" aria-expanded={savedOpen} aria-controls="saved-panel" onClick={()=>setSavedOpen(true)}><MenuLines/></button></Tip><div className="brand"><FileText aria-hidden="true"/><h1>TPE</h1></div></div><span className="privacy"><LockKeyhole size={16} aria-hidden="true"/>Private</span></header>
@@ -377,12 +440,13 @@ export default function Workspace({userId}:{userId:string}) {
         <input ref={photoInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
       </form>
       {errorNotice}
+      {deletionNotice}
       {recoveryWarning&&<div className="notice" role="status"><AlertCircle/><p>{recoveryWarning}</p></div>}
       {!!queue.length&&<section className="queue-panel" aria-label="Imports"><button className="section-toggle" aria-expanded={queueOpen} onClick={()=>setQueueOpen(!queueOpen)}><span>{pending?'Importing…':'Recent imports'}</span><ChevronDown/></button>{queueOpen&&<ol className="queue-list">{queue.map(item=><li key={item.id} className={'queue-item '+(selectedItem?.id===item.id?'selected':'')}><div className="queue-row"><button className="queue-open" onClick={()=>selectQueue(item.id)} aria-current={selectedItem?.id===item.id?true:undefined}><strong>{item.name}</strong><span className={'queue-phase phase-'+item.phase}>{phaseLabel(item.phase)}</span></button>{activePhases.has(item.phase)&&<button className="icon-button" onClick={()=>cancelItem(item.id)} aria-label={'Cancel '+item.name}><X/></button>}{['failed','cancelled','interrupted'].includes(item.phase)&&(item.source.type!=='stored'||!!item.record)&&<Button variant="outline" onClick={()=>retry(item.id,!!item.savePending)}>{item.savePending?'Save again':'Retry'}</Button>}</div>{activePhases.has(item.phase)&&<><progress max={100} value={item.progress??undefined} aria-label={item.name+' progress'}/><p className="help">{item.message}</p></>}{item.error&&<p className="queue-error">{item.error}</p>}</li>)}</ol>}</section>}
     </aside><section id="reader" className="result-pane" aria-label="Document reader" aria-busy={loading} tabIndex={-1}>
       {loading&&<p role="status">Opening document…</p>}
       {!selection?<p className="empty-hint">Paste a link or text, or use Upload. Reopen saved originals with the Saved articles button.</p>:<>
-        <div className="reader-heading"><div><p className="help" role="status" aria-live="polite">{saveState}</p><h2 ref={resultHeading} tabIndex={-1}>{result?.title||selected?.title||selectedItem?.name||'Document'}</h2></div></div>
+        <div className="reader-heading"><div><p className="help" role="status" aria-live="polite">{saveState}</p><h2 ref={resultHeading} tabIndex={-1}>{result?.title||selected?.title||selectedItem?.name||'Document'}</h2></div>{selected&&<Button variant="outline" disabled={deletionBusy||!restored} onClick={()=>void removeDocument(selected)}>Delete saved document</Button>}</div>
         {selectedItem?.savePending&&<div className="notice"><p>Your result is ready here but has not been saved.</p><Button disabled={activePhases.has(selectedItem.phase)} onClick={()=>retry(selectedItem.id,true)}>Retry save</Button></div>}
         {selected?.kind==='image'&&<img className="original-image" src={'/api/documents/'+selected.id+'/media'} alt={selected.title} loading="lazy"/>}
         {selected&&['media','audio','video'].includes(selected.kind)&&(/\.(mp3|wav|m4a|aac|oga|flac|opus)$/i.test(selected.original_name)||selected.kind==='audio'?<audio className="original-media" controls preload="metadata" src={'/api/documents/'+selected.id+'/media'}/>:<video className="original-media" controls playsInline preload="metadata" src={'/api/documents/'+selected.id+'/media'}/>)}
@@ -395,6 +459,6 @@ export default function Workspace({userId}:{userId:string}) {
         </>:<div className="notice"><p>{selectedItem?.message||'The original is saved. No extraction result is available yet.'}</p>{selected&&<><Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}>Open original</a></Button>{!pending&&<Button variant="outline" onClick={rereadOriginal}>Re-read original</Button>}</>}</div>}
       </>}
     </section></div>
-    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div>{errorNotice}<form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><ul className="document-list">{documents.length?documents.map(record=><li key={record.id}><button aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong dir="auto">{record.title}</strong><span className="help">{[record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved',savedAt(record.created_at)].filter(Boolean).join(' · ')}</span></button></li>):<li className="help">Your saved sources appear here.</li>}</ul></div></div>
+    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div>{errorNotice}{deletionNotice}<form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><ul className="document-list">{documents.length?documents.map(record=><li key={record.id}><button aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong dir="auto">{record.title}</strong><span className="help">{[record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved',savedAt(record.created_at)].filter(Boolean).join(' · ')}</span></button><Button variant="outline" disabled={deletionBusy||!restored} aria-label={'Delete '+record.title} onClick={()=>void removeDocument(record)}>Delete</Button></li>):<li className="help">Your saved sources appear here.</li>}</ul></div></div>
   </main>;
 }
