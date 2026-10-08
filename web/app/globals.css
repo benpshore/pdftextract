@@ -163,6 +163,8 @@ progress::-webkit-progress-value { background: var(--ring); border-radius: 10px;
 progress::-moz-progress-bar { background: var(--ring); }
 .search-form { display: flex; align-items: center; gap: .4rem; margin: .4rem 0; }
 .document-list { list-style: none; margin: 0; padding: 0; max-height: 18rem; overflow: auto; overscroll-behavior: contain; }
+.document-list > li { display: flex; align-items: center; gap: .5rem; }
+.document-list .document-item { flex: 1; min-width: 0; }
 .document-item { display: block; width: 100%; text-align: left; padding: .65rem .4rem; border-radius: .5rem; }
 .document-item strong, .document-item span { display: block; overflow-wrap: anywhere; }
 .document-item strong { font-size: .95rem; font-weight: 550; }
