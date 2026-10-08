@@ -535,10 +535,10 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
-      "bytes": 11718,
+      "bytes": 12674,
       "mode": "0644",
       "path": "docs/DOCLING_PDF_API.md",
-      "sha256": "4dc7a0f6b037be85103e2916a2b7a0b5fae5040ebe74d5ef579ee58682da5cc8"
+      "sha256": "9171d9d1f4eeb4a3cf8446524bf26b7aa8ed09b02e2427552e141abf27ed3b43"
     },
     {
       "bytes": 5163,
@@ -569,6 +569,12 @@
       "mode": "0644",
       "path": "docs/evidence/docling-browser-owned-runtime.png",
       "sha256": "944a26a501057de9295ffdeb19cbbb2254cea2bff566658171db2a8bd8bc5819"
+    },
+    {
+      "bytes": 290819,
+      "mode": "0644",
+      "path": "docs/evidence/docling-browser-regions.json",
+      "sha256": "e233f55623f5561b01fae4e2d58d71696ad1bc8c156fb2b8826fadcdd5f4fb6b"
     },
     {
       "bytes": 148,
@@ -793,10 +799,10 @@
       "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9"
     },
     {
-      "bytes": 22911,
+      "bytes": 23772,
       "mode": "0644",
       "path": "public/pdf-api/v1/api.js",
-      "sha256": "04d7e7b34a1b55809324dd88101c77a1b5cd9f60d6152cf38c6d6e691f391dd7"
+      "sha256": "2358b669105bdc9fb08d628417fdbc6e17917ec9d594827ccb19d93ffb66042d"
     },
     {
       "bytes": 2579,
@@ -811,16 +817,22 @@
       "sha256": "49d993e5c413b0dabb656d03a89d816a254bf2f301a15aaa5311b4152a918b57"
     },
     {
-      "bytes": 9845,
+      "bytes": 10951,
       "mode": "0644",
       "path": "public/pdf-api/v1/inference-worker.js",
-      "sha256": "56993f5c55cbbe49d78c88df1f89605560b8fa31662533ed8448afe0cc0a83c3"
+      "sha256": "e06e69d18666838d7594a63cbec30009aa1d3a0e56182d77fb6332e79d5fb49e"
     },
     {
-      "bytes": 1077,
+      "bytes": 1094,
       "mode": "0644",
       "path": "public/pdf-api/v1/manifest.js",
-      "sha256": "03523f6dc37db180b5595371cd21140440c0e4b9ea9f93c5b7651b1aadf819c0"
+      "sha256": "6d2d40d6a7c08755140ffb9a740fae10708205ce85138062fbea84b371ab5492"
+    },
+    {
+      "bytes": 3745,
+      "mode": "0644",
+      "path": "public/pdf-api/v1/regions.js",
+      "sha256": "53d9a6b460672521e8f79aadcfd1e528697823732d278ba092ecb4b4618f57f0"
     },
     {
       "bytes": 3046,
@@ -1009,10 +1021,10 @@
       "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
     },
     {
-      "bytes": 17648,
+      "bytes": 18255,
       "mode": "0644",
       "path": "scripts/test-docling-browser.mjs",
-      "sha256": "2068fe6d8d51300f56be1b3913fa85e7870d006c481925830479eaf870919c7f"
+      "sha256": "1bdf62f23bd85d602a3706525da3d1092a7007f56fb58b6213c9742705267dc9"
     },
     {
       "bytes": 3497,

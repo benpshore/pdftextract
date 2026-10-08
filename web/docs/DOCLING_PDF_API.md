@@ -28,11 +28,18 @@ Default `engine: 'docling'` runs layout and supports English `ocr: 'auto'`,
 `'always'`, or `'off'`. Automatic routing uses the selected page's PDF.js text
 cells; fewer than 20 non-whitespace characters routes to OCR. This is a stated
 heuristic, not a guarantee that an existing text layer is correct. `always`
-allows explicit raster recognition. Automatic digital-page OCR only examines
-model-labelled picture regions and returns `DIGITAL_OCR_SCOPE`. A same-page
-vector/raster witness loses its raster text with `auto`; `always` recovers both
-independently expected copies. This limitation is recorded separately from
-passing coverage checks. Password-protected PDFs are unsupported.
+allows explicit raster recognition. Automatic digital-page OCR uses PDF.js's
+rendered image-operation bounds, including clipping and transforms, to crop
+raster regions independently of model labels. Intersecting image bounds are
+merged. Each crop masks the positions of existing native text before passing
+through Docling's ScannedConverter, detector and recognizer. DigitalConverter
+keeps the native text and performs layout without a second recognition pass.
+Results retain each original region document, crop coordinates, masked native
+cell IDs and native/OCR provenance. Repeated words at different positions survive.
+Bounds are quantized outward to 1/256 of the rendered page; these rectangles
+do not establish exact irregular clipping coverage. Vector outlines without a
+text layer or image operations still require explicit full-page OCR.
+Password-protected PDFs are unsupported.
 `engine: 'fast-text', ocr: 'off'` instead calls PDF Oxide with unverified order,
 no layout/OCR and no page selection. The engines do not run on the same job.
 Switching to fast text releases any idle Docling runtime first.
@@ -108,7 +115,7 @@ termination drops its ownership, but immediate OS RSS reduction is not promised.
 ## Bounds and foreign-runtime containment
 
 Host ceilings: 25 MiB input; 200 document pages; 20 selected pages; 6 million
-rendered pixels per page at scale 2; 100,000 text cells and 1,000,000 text
+rendered pixels per page at scale 2; 16 raster OCR regions; 100,000 text cells and 1,000,000 text
 characters per page; 8 MiB serialized result; 120 seconds; one active job per
 API instance. Callers can lower limits (output minimum 16 KiB). An overflowing
 page/result is withheld, with a failed status, rather than returned beyond the
@@ -145,7 +152,7 @@ implementation's evidence. Separate tabs/API instances have separate limits.
 
 Only verified public-safe fixtures are used. The native control's SHA-256 is
 `099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8`.
-Scanned/mixed/six-page derivatives preserve its independently authored expected
+Scanned/mixed/six-page and overlapping-layer derivatives preserve its independently authored expected
 sentences. The two column witnesses and handwritten expectations were copied
 byte-for-byte from PR269 head `850a66b577f03205ad4692d578319e1e7fe95417`;
 no legacy implementation was imported. Their hashes are asserted by the harness.
@@ -157,6 +164,12 @@ tables are present. Original model layout stays intact and order provenance is
 separate. The two/three-column expectations pass actual PDF/model/API execution.
 This is not general scientific-layout or scanned multi-column qualification.
 Phones and Safari are unqualified; English-only synthetic OCR is limited evidence.
+
+The [automatic-region checkpoint](evidence/docling-browser-regions.json) proves
+both expected text copies from the same-page native/raster mixture in automatic
+mode. A separate overlapping native/raster witness yields only one copy, with
+three native text cells spatially masked in the OCR crop. This replaces the
+earlier `DIGITAL_OCR_SCOPE` limitation; originals and prior evidence are retained.
 
 The [recorded Chromium 151 run](evidence/docling-browser-owned-runtime.json)
 passes 110 API checks, both independent column-order witnesses, the real UI,

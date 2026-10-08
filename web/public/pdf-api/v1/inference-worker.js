@@ -1,5 +1,6 @@
 // MIT session interop adapted from pinned upstream www/pipeline.js.
 import { ROOT, MODELS, VERSION } from './manifest.js';
+import {cropForOcr} from './regions.js';
 
 let docling, wasm, ort, digital, layout, rec, detector, dictionary, jobId;
 let documentOpen = false, execution = [], parses = 0, peakRustBytes = 0;
@@ -122,26 +123,42 @@ async function ensureDetector() {
     const t = out[s.outputNames[0]]; return { data: t.data, dims: Array.from(t.dims) };
   } };
 }
-async function page({ rgba, width, height, scale, index, route, ocr, name, maxOutputBytes }) {
+async function page({ rgba, width, height, scale, index, route, ocr, regions=[],nativeCells=[],name, maxOutputBytes }) {
   if (!documentOpen) throw fail('RUNTIME_STATE', 'No PDF document is open.');
   if (route === 'digital' && !digital) throw fail('RUNTIME_STATE', 'The digital PDF has not been parsed.');
   const started = performance.now();
   execution = [];
   await ensureLayout();
-  if (ocr !== 'off') await ensureRecognition();
+  if (route==='scanned'||regions.length) await ensureRecognition();
   let conv = digital;
   if (route === 'scanned') {
     if (ocr === 'off') throw fail('OCR_REQUIRED', `Page ${index + 1} needs OCR; OCR is disabled.`);
     await ensureDetector(); conv = new docling.ScannedConverter(dictionary); conv.setDetector(detector);
-  } else if (ocr !== 'off') digital.setDict(dictionary);
+  }
   try {
-    if (route === 'digital') await conv.add_page(index, new Uint8Array(rgba), width, height, scale, layout, ocr === 'off' ? undefined : rec);
+    if (route === 'digital') await conv.add_page(index, new Uint8Array(rgba), width, height, scale, layout, undefined);
     else await conv.add_page(new Uint8Array(rgba), width, height, scale, layout, rec);
     const json = conv.finish(name, 'json', 'placeholder');
     memory();
-    if (new TextEncoder().encode(json).byteLength > maxOutputBytes) throw fail('OUTPUT_LIMIT', 'Docling page JSON exceeded the result budget.');
-    return { document: JSON.parse(json), route, ocr: route === 'scanned' ? 'page' : ocr === 'off' ? 'off' : 'pictures',
-      execution, resources: { ...metrics(), pageMilliseconds: Math.round(performance.now() - started), rgbaBytes: rgba.byteLength } };
+    let resultBytes=new TextEncoder().encode(json).byteLength,peakCropRgbaBytes=0;
+    if (resultBytes > maxOutputBytes) throw fail('OUTPUT_LIMIT', 'Docling page JSON exceeded the result budget.');
+    const regionResults=[];
+    for(const region of regions){
+      await ensureDetector();
+      const crop=cropForOcr(new Uint8Array(rgba),width,region,nativeCells,scale);
+      peakCropRgbaBytes=Math.max(peakCropRgbaBytes,crop.pixels.byteLength);
+      const converter=new docling.ScannedConverter(dictionary);converter.setDetector(detector);
+      try{
+        status({phase:'region-ocr',region:region.id,message:`Recognizing raster region ${region.id} without native text`});
+        await converter.add_page(crop.pixels,crop.width,crop.height,scale,layout,rec);
+        const regionJson=converter.finish(name,'json','placeholder');
+        resultBytes+=new TextEncoder().encode(regionJson).length;
+        if(resultBytes>maxOutputBytes)throw fail('OUTPUT_LIMIT','Native and raster region JSON exceeded the result budget.');
+        regionResults.push({...region,maskedNativeCells:crop.maskedNativeCells,document:JSON.parse(regionJson)});
+      }finally{converter.free();}
+    }
+    return { document: JSON.parse(json),regions:regionResults,route,ocr:route==='scanned'?'page':regions.length?'regions':'off',
+      execution, resources: { ...metrics(), pageMilliseconds: Math.round(performance.now() - started), rgbaBytes: rgba.byteLength,peakCropRgbaBytes,ocrRegionCount:regions.length } };
   } finally { if (route === 'scanned') conv.free(); }
 }
 function end() {

@@ -8,5 +8,5 @@ export const MODELS = {
   detector: {file:'ocr_det.onnx', bytes:9929594, sha256:'090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f'},
   dictionary: {file:'en_dict.txt', bytes:190, sha256:'5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3'},
 };
-export const LIMITS = Object.freeze({maxBytes:25*1024*1024,maxPages:20,maxDocumentPages:200,maxPixels:6000000,maxTextCharacters:1000000,maxTextCells:100000,maxOutputBytes:8*1024*1024,timeoutMs:120000});
+export const LIMITS = Object.freeze({maxBytes:25*1024*1024,maxPages:20,maxDocumentPages:200,maxPixels:6000000,maxOcrRegions:16,maxTextCharacters:1000000,maxTextCells:100000,maxOutputBytes:8*1024*1024,timeoutMs:120000});
 export const RUNTIME_POLICY = Object.freeze({idleMs:30000,maxRetainedRustWasmBytes:256*1024*1024});

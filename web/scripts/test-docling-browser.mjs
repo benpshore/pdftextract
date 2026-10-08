@@ -52,12 +52,16 @@ try{
   samePageCanvas.drawPage((await samePage.embedPdf(native))[0],{x:0,y:792,width:612,height:792});
   samePageCanvas.drawImage(await samePage.embedJpg(Buffer.from(jpeg,'base64')),{x:0,y:0,width:612,height:792});
   fixtures.set('same-page.pdf',Buffer.from(await samePage.save()));
+  const overlay=await PDFDocument.create(),overlayPage=overlay.addPage([612,792]);
+  overlayPage.drawImage(await overlay.embedJpg(Buffer.from(jpeg,'base64')),{x:0,y:0,width:612,height:792});
+  overlayPage.drawPage((await overlay.embedPdf(native))[0],{x:0,y:0,width:612,height:792});
+  fixtures.set('overlay.pdf',Buffer.from(await overlay.save()));
   const result=await page.evaluate(async expected=>{
     const api=await import('/pdf-api/v1/api.js'),checks=[],runs=[];
     const check=(condition,message)=>{if(!condition)throw new Error(message);checks.push(message);console.log('PDF CHECK',message);};
     const file=async name=>new File([await(await fetch('/fixtures/'+name)).arrayBuffer()],name,{type:'application/pdf'});
     const discovery=await api.discoverPdf();check(discovery.engine.version==='1.104.2'&&discovery.capabilities.provider.configured==='wasm','Identifiable discovery declares CPU/WASM and schema');
-    for(const [name,options] of [['native.pdf',{ocr:'off'}],['native.pdf',{ocr:'off'}],['scanned.pdf',{}],['mixed.pdf',{}],['six-pages.pdf',{ocr:'off'}],['semantic-two.pdf',{ocr:'off'}],['semantic-three.pdf',{ocr:'off'}],['same-page.pdf',{}],['same-page.pdf',{ocr:'always'}]]){
+    for(const [name,options] of [['native.pdf',{ocr:'off'}],['native.pdf',{ocr:'off'}],['scanned.pdf',{}],['mixed.pdf',{}],['six-pages.pdf',{ocr:'off'}],['semantic-two.pdf',{ocr:'off'}],['semantic-three.pdf',{ocr:'off'}],['same-page.pdf',{}],['same-page.pdf',{ocr:'always'}],['overlay.pdf',{}]]){
       const input=await file(name),before=await input.arrayBuffer(),progress=[];
       await globalThis.beginResourceSample(`${name}:${runs.length}`);
       const started=performance.now();
@@ -70,13 +74,18 @@ try{
       check(output.engine.provider==='wasm'&&output.pages.length>0,`${name}: CPU provenance and page output`);
       check(progress.some(p=>p.phase==='inference')&&progress.some(p=>p.phase==='page-complete'),`${name}: real inference progress`);
       check((await input.arrayBuffer()).byteLength===before.byteLength&&new Uint8Array(await input.arrayBuffer()).every((b,i)=>b===new Uint8Array(before)[i]),`${name}: original unchanged`);
-      if(['native.pdf','scanned.pdf','mixed.pdf','six-pages.pdf'].includes(name))for(const p of output.pages)check(p.text.replace(/\s+/g,' ').trim()===expected.join(' '),`${name}: page ${p.page} exact independent expected text`);
+      if(['native.pdf','scanned.pdf','mixed.pdf','six-pages.pdf','overlay.pdf'].includes(name))for(const p of output.pages)check(p.text.replace(/\s+/g,' ').trim()===expected.join(' '),`${name}: page ${p.page} exact independent expected text`);
       check(output.resources.rustPdfParses===(name==='scanned.pdf'||options.ocr==='always'?0:1),`${name}: zero scan parses or one digital Rust parse`);
       check(output.resources.pdfOxideDocuments===0,`${name}: PDF Oxide is not loaded in a Docling job`);
       if(name==='scanned.pdf')check(output.pages[0].route==='scanned'&&output.pages[0].ocr==='page','Scan runs ScannedConverter with detector');
       if(name==='mixed.pdf')check(output.pages.map(p=>`${p.page}:${p.route}`).join(',')==='1:digital,2:scanned','Mixed PDF preserves digital/scanned routes and original page identity');
       if(name==='same-page.pdf'&&options.ocr==='always')check(output.text.replace(/\s+/g,' ').trim()===[...expected,...expected].join(' '),'Same-page vector/raster mixture: OCR always recovers both exact independent text copies');
-      if(name==='same-page.pdf'&&options.ocr!=='always')check(output.pages[0].diagnostics.some(d=>d.code==='DIGITAL_OCR_SCOPE'),'Same-page automatic picture-region OCR reports its coverage limitation');
+      if(name==='same-page.pdf'&&options.ocr!=='always'){
+        check(output.text.replace(/\s+/g,' ').trim()===[...expected,...expected].join(' '),'Same-page AUTO recovers native and raster content exactly without whole-page OCR');
+        check(output.pages[0].route==='digital'&&output.pages[0].ocr==='regions'&&output.pages[0].ocrRegions.length===1,'Same-page AUTO retains native document and recognizes one raster region');
+        check(output.pages[0].orderedBlocks.some(b=>b.source==='native text')&&output.pages[0].orderedBlocks.some(b=>b.source==='raster-region OCR'),'Mixed result keeps distinct native and raster provenance');
+      }
+      if(name==='overlay.pdf')check(output.pages[0].ocrRegions[0].maskedNativeCells.length===3,'Spatial native-text masks prevent duplicate recognition of an overlapping raster text layer');
     }
     check(runs[0].output.resources.runtimeId===runs[1].output.resources.runtimeId,'Successful jobs reuse the same owned model worker');
     check(runs[0].output.pages[0].execution[0].sessionId===runs[1].output.pages[0].execution[0].sessionId,'Warm job reuses the existing layout ONNX session');
@@ -113,9 +122,7 @@ try{
     const fast=await api.createPdfJob(await file('native.pdf'),{engine:'fast-text',ocr:'off'}).result;
     check(fast.status==='partial'&&expected.every(s=>fast.text.includes(s))&&fast.engine.readingOrder==='unverified','PDF Oxide remains callable fast text with unverified order: '+JSON.stringify(fast.diagnostics));
     const emptyJob=api.createPdfJob(await file('native.pdf'),{ocr:'off'});emptyJob.cancel();const immediate=await emptyJob.result;check(immediate.status==='cancelled','Cancellation during initialization settles job');
-    const automaticMixture=runs.find(r=>r.name==='same-page.pdf');
-    const knownLimitations=[{case:'same-page automatic OCR',expectedText:[...expected,...expected].join(' '),actualText:automaticMixture.output.text,fullCoverage:automaticMixture.output.text.replace(/\s+/g,' ').trim()===[...expected,...expected].join(' '),control:'OCR always is tested separately against both text copies'}];
-    return {checks,runs,knownLimitations,cancellation:aborted,subsequent:next,selection,discovery:await api.discoverPdf()};
+    return {checks,runs,cancellation:aborted,subsequent:next,selection,discovery:await api.discoverPdf()};
   },expected);
   const failures=[];
   for(const [asset,code,name] of [['layout_heron_int8.onnx','MODEL_MISSING','native.pdf'],['ocr_det.onnx','MODEL_MISSING','scanned.pdf'],['en_dict.txt','MODEL_INVALID','scanned.pdf']]){
