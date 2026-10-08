@@ -8,6 +8,7 @@ export function imageRegions(operators, bounds, OPS, width, height, limit) {
     if(!imageOps.has(op)||bounds.isEmpty(index))return;
     const box=[Math.max(0,Math.floor(bounds.minX(index)*width)),Math.max(0,Math.floor(bounds.minY(index)*height)),Math.min(width,Math.ceil(bounds.maxX(index)*width)),Math.min(height,Math.ceil(bounds.maxY(index)*height))];
     if(box[2]>box[0]&&box[3]>box[1])regions.push({box,operations:[index]});
+    if(regions.length>limit*16)throw Object.assign(new Error(`More than ${limit*16} rendered image operations exceed the bounded region-mapping budget.`),{code:'REGION_LIMIT'});
   });
   // Merge intersecting image footprints before recognition so each pixel is
   // routed once, even for tiled scans, repeated image operations and masks.

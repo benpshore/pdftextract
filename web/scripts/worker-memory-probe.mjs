@@ -4,7 +4,7 @@
 // process RSS. Holding these memories is harmless only in this bounded test.
 export function workerMemoryProbe(){
   const OriginalMemory=WebAssembly.Memory,memories=new Map();
-  WebAssembly.Memory=new Proxy(OriginalMemory,{construct(Target,args){const memory=Reflect.construct(Target,args);memories.set(memory,'constructed memory');return memory;}});
+  WebAssembly.Memory=new Proxy(OriginalMemory,{construct(Target,args){const memory=Reflect.construct(Target,args);memories.set(memory,(new Error().stack||'').includes('/ort/')?'onnxruntime (constructor location)':'constructed memory');return memory;}});
   function remember(value,hint){
     const exports=value?.instance?.exports||value?.exports;
     if(!exports)return;

@@ -2,6 +2,10 @@
 import { ROOT, MODELS, VERSION } from './manifest.js';
 import {cropForOcr} from './regions.js';
 
+// Measured against default prepacking with real layout/detector/recognizer runs.
+// Avoid retaining packed weight copies; keep the same models and CPU provider.
+const SESSION_OPTIONS = { executionProviders: ['wasm'], logSeverityLevel: 3, extra: { session: { disable_prepacking: '1' } } };
+
 let docling, wasm, ort, digital, layout, rec, detector, dictionary, jobId;
 let documentOpen = false, execution = [], parses = 0, peakRustBytes = 0;
 const runtimeId = crypto.randomUUID();
@@ -16,7 +20,7 @@ function memory() {
 }
 function metrics() {
   return { runtimeId, rustWasmCapacityBytes: memory(), peakRustWasmCapacityBytes: peakRustBytes,
-    rustPdfParses: parses, modelAssets: Object.fromEntries(loaded),
+    rustPdfParses: parses, modelAssets: Object.fromEntries(loaded),sessionOptions:SESSION_OPTIONS,
     memoryScope: 'Rust linear-memory capacity only; excludes ONNX, PDF.js, JS heap and browser overhead' };
 }
 async function asset(key) {
@@ -44,7 +48,7 @@ async function session(key) {
   status({ phase: 'assets', model: key, message: `Loading ${key} model (CPU/WASM)` });
   const started = performance.now();
   try {
-    const s = await ort.InferenceSession.create(await asset(key), { executionProviders: ['wasm'], logSeverityLevel: 3 });
+    const s = await ort.InferenceSession.create(await asset(key), structuredClone(SESSION_OPTIONS));
     loaded.set(key, { ...MODELS[key], provider: 'wasm', sessionId: crypto.randomUUID(), loadMilliseconds: Math.round(performance.now() - started) });
     status({phase:'model-ready',model:key,message:`${key} session ready`,resources:metrics()});
     return s;

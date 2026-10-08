@@ -139,6 +139,14 @@ async function run(input,{ocr,pages:selected,limits},controller,emit,job){
       const originalCells=textCells(text.items,page.getViewport({scale:1}));
       const regions=inspectImages?imageRegions(await wait(page.getOperatorList()),page.recordedBBoxes,pdfjs.OPS,width,height,limits.maxOcrRegions):[];
       const rgba=context.getImageData(0,0,width,height).data;canvas.width=canvas.height=0;
+      const annotations=await wait(page.getAnnotations());
+      const links=annotations.filter(a=>typeof a.url==='string').map(a=>({url:a.url,label:a.contentsObj?.str||'',rect:a.rect}));
+      page.cleanup();
+      if(pageNo===indices.at(-1)){
+        await wait(pdf.destroy());pdf=undefined;loading=undefined;bytes=null;
+        output.resources.pdfJsClosedBeforeFinalInference=true;
+        emit({phase:'renderer-released',page:pageNo,message:'PDF renderer released before final-page inference'});
+      }
       emit({phase:'inference',page:pageNo,completed:output.pages.length,total:indices.length,message:`${route==='scanned'?'OCR and layout':'Text and layout'} on page ${pageNo} (CPU)`});
       output.resources.peakRgbaBytes=Math.max(output.resources.peakRgbaBytes,rgba.byteLength);
       const result=await runtime.call('page',{rgba:rgba.buffer,width,height,scale:2,index:pageNo-1,route,ocr,regions,nativeCells:originalCells,name:output.source.name,maxOutputBytes:limits.maxOutputBytes},[rgba.buffer]);
@@ -149,6 +157,7 @@ async function run(input,{ocr,pages:selected,limits},controller,emit,job){
       for(const region of result.regions||[])modelLayout.push(...mappedRegionBlocks(ordered(region.document).blocks,region,pageNo,2));
       let blocks=modelLayout;
       const geometry=orderTextCells(originalCells);
+      if(!geometry.supported)diagnostics.push({code:'ORDER_UNSUPPORTED',message:geometry.reason||'Rotated or non-LTR cells are outside the horizontal column-order policy; model order is retained.'});
       let orderEngine='docling.rs-wasm document body';
       if(result.regions?.length){
         blocks=modelLayout.slice().sort((a,b)=>{const x=topLeftBox(a,viewport.height/2),y=topLeftBox(b,viewport.height/2);return x&&y?x[1]-y[1]||x[0]-y[0]:0;});
@@ -166,13 +175,11 @@ async function run(input,{ocr,pages:selected,limits},controller,emit,job){
       const pageText=blocks.map(b=>b.text).join('\n');
       if(!pageText.trim())diagnostics.push({code:'NO_TEXT',message:'No text recovered. This can be blank content or unsupported recognition; completeness is unverified.'});
       diagnostics.push({code:'COVERAGE_UNVERIFIED',message:'Model output is not a guarantee that every region or glyph was recovered.'});
-      const annotations=await page.getAnnotations();
-      const links=annotations.filter(a=>typeof a.url==='string').map(a=>({url:a.url,label:a.contentsObj?.str||'',rect:a.rect}));
       const completedPage={page:pageNo,width:viewport.width/2,height:viewport.height/2,rotation:viewport.rotation,route,ocr:result.ocr,status:'partial',text:pageText,orderEngine,order:blocks.map(b=>b.id),orderedBlocks:blocks,layout:modelLayout,originalTextCells:originalCells,docling:result.document,ocrRegions:result.regions||[],doclingPageMap:Object.fromEntries(Object.keys(result.document.pages||{}).map(key=>[key,pageNo])),execution:result.execution,resources:{...result.resources,totalPageMilliseconds:Math.round(performance.now()-pageStarted)},links,diagnostics};
       const previousText=output.text;
       output.pages.push(completedPage);output.text=output.pages.map(p=>p.text).join('\n\n');
       if(new TextEncoder().encode(JSON.stringify(output)).length>limits.maxOutputBytes){output.pages.pop();output.text=previousText;throw problem('OUTPUT_LIMIT','Structured output exceeded the output byte budget; the overflowing page was withheld.');}
-      page.cleanup();emit({phase:'page-complete',page:pageNo,completed:output.pages.length,total:indices.length,message:`Page ${pageNo} complete`});
+      emit({phase:'page-complete',page:pageNo,completed:output.pages.length,total:indices.length,message:`Page ${pageNo} complete`});
     }
     healthy=true;output.status='partial';const usedModels=new Set(output.pages.flatMap(p=>p.execution.map(e=>e.model)));if(usedModels.has('recognition'))usedModels.add('dictionary');output.engine.models=Object.fromEntries(Object.entries(MODELS).filter(([key])=>usedModels.has(key)));lastExecution={provider:'wasm',version:VERSION,pages:output.pages.length,completedAt:new Date().toISOString()};
   }catch(error){recordFailure(output,error,signal);}

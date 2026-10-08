@@ -58,7 +58,7 @@ Docling.rs WASM **1.104.2** at
 [`29de9d1e842e6ebb35890c3f171ac0c38f273eed`](https://github.com/docling-project/docling.rs/tree/29de9d1e842e6ebb35890c3f171ac0c38f273eed/crates/docling-wasm)
 runs actual DigitalConverter/ScannedConverter with PDF.js 5.4.624 and ONNX Runtime
 Web 1.24.3. Interop follows upstream's MIT-licensed `www/pipeline.js`. Every ONNX
-session selects CPU `wasm`, one thread, with proxy execution disabled. There is
+session selects CPU `wasm`, one thread, with proxy execution and weight prepacking disabled. There is
 no GPU implementation or experiment. No Tesseract call occurs on this path.
 
 From `web`, stage the checksum-pinned static artifacts, then explicitly opt into
@@ -103,6 +103,13 @@ and arena allocations. The adapter does not claim zero-copy interop. PDF.js
 parses only one document; classification and geometry reuse each selected
 page's single bounded text stream. A whole-document page ceiling also limits
 Rust parsing when callers select a subset of a large PDF.
+
+After the final selected page's text, raster, region bounds and links are
+collected, PDF.js is destroyed before inference. This limits simultaneous
+ownership without reparsing earlier pages. Page resources record whether that
+release occurred; model progress includes session-ready and inference-complete
+events. See the [measured memory breakdown and comparisons](DOCLING_MEMORY.md)
+for actual process RSS/PSS, both WASM heaps, raster copies and limitations.
 
 One idle inference worker retains verified model sessions, not parsed documents.
 An end command frees DigitalConverter after each successful job. Session IDs,
@@ -150,6 +157,14 @@ implementation's evidence. Separate tabs/API instances have separate limits.
 
 ## Browser evidence and reproducibility
 
+The [current final acceptance run](evidence/docling-browser-final.json) passes
+163 API checks, original and expanded column witnesses, automatic same-page
+mixed OCR, overlap deduplication, the shared UI, resource limits, interruption
+and recovery. It has no unhandled page errors or external requests. The
+[current screenshot](evidence/docling-browser-final.png) shows the callable UI.
+Historical checkpoints below preserve the before/after evidence. Memory options
+and renderer lifetimes are compared separately in [the memory report](DOCLING_MEMORY.md).
+
 Only verified public-safe fixtures are used. The native control's SHA-256 is
 `099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8`.
 Scanned/mixed/six-page and overlapping-layer derivatives preserve its independently authored expected
@@ -166,6 +181,10 @@ Spanning rows divide column runs. Word cells on the same ordered line are joined
 without changing the retained source cells. Repair requires conservation of the
 PDF.js cell/Docling character multiset and absence of model tables. Original
 model layout stays intact and diagnostics retain gutter positions and support.
+The geometry policy is bounded to 4096 cells; larger or non-horizontal/LTR inputs
+retain model order with `ORDER_UNSUPPORTED`. Region mapping accepts at most
+16 times the configured region count in rendered image operations before merging,
+bounding the overlap pass; exceeding either count returns `REGION_LIMIT`.
 The [expanded browser evidence](evidence/docling-browser-columns-memory-baseline.json)
 passes the original two/three-column expectations plus independently specified
 derivatives with changing column counts, staggered baselines and spanning
@@ -192,7 +211,9 @@ Download size significantly understates browser RAM needs.
 
 CI installs test-only dependencies from `scripts/browser-tools/package-lock.json`,
 stages the exact assets, runs real Chromium and retains the JSON/screenshot
-artifact for the exact PR head. Local reproduction:
+artifact for the exact PR head. Test-only WASM memory observation and owned
+process sampling are included; they are not installed by the application.
+Local reproduction:
 
 ```sh
 npm ci --prefix scripts/browser-tools --ignore-scripts

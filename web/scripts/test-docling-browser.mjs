@@ -63,6 +63,9 @@ try{
   overlayPage.drawImage(await overlay.embedJpg(Buffer.from(jpeg,'base64')),{x:0,y:0,width:612,height:792});
   overlayPage.drawPage((await overlay.embedPdf(native))[0],{x:0,y:0,width:612,height:792});
   fixtures.set('overlay.pdf',Buffer.from(await overlay.save()));
+  const pair=await PDFDocument.load(native),pairImage=await pair.embedJpg(Buffer.from(jpeg,'base64'));
+  pair.getPage(0).drawImage(pairImage,{x:0,y:0,width:300,height:388});pair.getPage(0).drawImage(pairImage,{x:312,y:0,width:300,height:388});
+  fixtures.set('two-images.pdf',Buffer.from(await pair.save()));
   const columnCases=await columnDerivatives(PDFDocument,StandardFonts,fixtures,expected);
   for(const fixture of columnCases)fixtures.set(fixture.name,Buffer.from(fixture.bytes));
   const result=await page.evaluate(async({expected,columnCases})=>{
@@ -87,6 +90,7 @@ try{
       if(['native.pdf','scanned.pdf','mixed.pdf','six-pages.pdf','overlay.pdf'].includes(name))for(const p of output.pages)check(p.text.replace(/\s+/g,' ').trim()===expected.join(' '),`${name}: page ${p.page} exact independent expected text`);
       check(output.resources.rustPdfParses===(name==='scanned.pdf'||options.ocr==='always'?0:1),`${name}: zero scan parses or one digital Rust parse`);
       check(output.resources.pdfOxideDocuments===0,`${name}: PDF Oxide is not loaded in a Docling job`);
+      check(output.resources.pdfJsClosedBeforeFinalInference===true,`${name}: renderer lifetime ends before final-page inference`);
       if(name==='scanned.pdf')check(output.pages[0].route==='scanned'&&output.pages[0].ocr==='page','Scan runs ScannedConverter with detector');
       if(name==='mixed.pdf')check(output.pages.map(p=>`${p.page}:${p.route}`).join(',')==='1:digital,2:scanned','Mixed PDF preserves digital/scanned routes and original page identity');
       if(name==='same-page.pdf'&&options.ocr==='always')check(output.text.replace(/\s+/g,' ').trim()===[...expected,...expected].join(' '),'Same-page vector/raster mixture: OCR always recovers both exact independent text copies');
@@ -122,6 +126,7 @@ try{
       ['six-pages.pdf',{pages:[1],limits:{maxDocumentPages:2}},'DOCUMENT_PAGE_LIMIT'],
       ['native.pdf',{limits:{maxPixels:100}},'PIXEL_LIMIT'],
       ['native.pdf',{limits:{maxTextCells:1}},'TEXT_LIMIT'],
+      ['two-images.pdf',{limits:{maxOcrRegions:1}},'REGION_LIMIT'],
       ['six-pages.pdf',{ocr:'off',limits:{maxOutputBytes:16384}},'OUTPUT_LIMIT'],
       ['six-pages.pdf',{engine:'fast-text',ocr:'off',limits:{maxPages:2}},'PAGE_LIMIT'],
     ]){

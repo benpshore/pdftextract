@@ -2,6 +2,7 @@
 // gutters. A wide vertical gap starts a new band, whose column count may differ.
 // Preserve every input cell; model layout is retained separately by the API.
 export function orderTextCells(cells) {
+  if(cells.length>4096)return {cells,columns:1,supported:false,bands:[],policy:'horizontal-ltr-repeated-gutters-v2',reason:'More than 4096 cells exceed the bounded column-order policy; upstream model order is retained.'};
   const sorted=cells.filter(c=>c.text.trim()).slice().sort((a,b)=>a.bbox[1]-b.bbox[1]||a.bbox[0]-b.bbox[0]||a.index-b.index);
   const unsupported=sorted.some(c=>c.direction&&c.direction!=='ltr'||c.transform&&(Math.abs(c.transform[1])>0.01||Math.abs(c.transform[2])>0.01)||!c.bbox.every(Number.isFinite));
   const rows=[];

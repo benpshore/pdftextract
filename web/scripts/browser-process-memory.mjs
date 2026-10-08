@@ -5,6 +5,7 @@ import { readdir, readFile } from 'node:fs/promises';
 export function browserMemorySampler(rootPid) {
   let current, sampling = false;
   const results = [];
+  const processKeys=new Map();
   async function sample() {
     if (sampling || !current) return;
     sampling = true;
@@ -24,7 +25,8 @@ export function browserMemorySampler(rootPid) {
         let type=p.pid===rootPid?'browser':'child',pss=null,privateBytes=null;
         try{const cmd=await readFile(`/proc/${p.pid}/cmdline`,'utf8');type=cmd.match(/--type=([^\0 ]+)/)?.[1]||type;}catch{}
         try{const smaps=await readFile(`/proc/${p.pid}/smaps_rollup`,'utf8');pss=Number(smaps.match(/^Pss:\s+(\d+)/m)?.[1])*1024;privateBytes=[...smaps.matchAll(/^Private_(?:Clean|Dirty):\s+(\d+)/gm)].reduce((n,m)=>n+Number(m[1])*1024,0);}catch{}
-        return {type,rssBytes:p.rss,pssBytes:pss,privateBytes};
+        if(!processKeys.has(p.pid))processKeys.set(p.pid,`process-${processKeys.size+1}`);
+        return {process:processKeys.get(p.pid),type,rssBytes:p.rss,pssBytes:pss,privateBytes};
       }));
       const rss=details.reduce((n,p)=>n+p.rssBytes,0),pss=details.map(p=>p.pssBytes);
       if (owner !== current) return;

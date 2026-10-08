@@ -7,10 +7,10 @@
       "sha256": "1f58444c6a9c99f22499bcd7910414bfc50415c81f192764084373b8e3693caa"
     },
     {
-      "bytes": 6137,
+      "bytes": 6269,
       "mode": "0644",
       "path": "README.md",
-      "sha256": "a435835d0ed2064f4d543797c0e80fff796e9f3d651df73a02268175f4a0bccb"
+      "sha256": "a06a93f317d7bfae528476c6a0340ccecfef72829b81532b89440d3b94170918"
     },
     {
       "bytes": 996,
@@ -535,10 +535,16 @@
       "sha256": "a589bc30edfb99cc2fb6061eb06c3089f3afce2a9c472a9f3afe35268c17d736"
     },
     {
-      "bytes": 13291,
+      "bytes": 8363,
+      "mode": "0644",
+      "path": "docs/DOCLING_MEMORY.md",
+      "sha256": "ef94c3de2252d466bc404177df7bd1ade5ac19b409264c889ed1701ff77f46d6"
+    },
+    {
+      "bytes": 14763,
       "mode": "0644",
       "path": "docs/DOCLING_PDF_API.md",
-      "sha256": "dbe7b4f71a6b89c9d7261de893a72c4ce3a30503cbb1e593957c445afb7bfb42"
+      "sha256": "6f7ba798510b4fccb1de6702ddda9e4e485d82aae8b33083009661f71cc0f0b4"
     },
     {
       "bytes": 5163,
@@ -557,6 +563,18 @@
       "mode": "0644",
       "path": "docs/evidence/docling-browser-expanded.json",
       "sha256": "7ca95f5c9127c483ae7a7b250aff950d4ca82cd1ce60ed81223660afffefce7c"
+    },
+    {
+      "bytes": 693431,
+      "mode": "0644",
+      "path": "docs/evidence/docling-browser-final.json",
+      "sha256": "c22e670413e33e6026fd6dfd7625b509bb5a9661973867ce913ab7309efad60a"
+    },
+    {
+      "bytes": 81013,
+      "mode": "0644",
+      "path": "docs/evidence/docling-browser-final.png",
+      "sha256": "944a26a501057de9295ffdeb19cbbb2254cea2bff566658171db2a8bd8bc5819"
     },
     {
       "bytes": 71633,
@@ -581,6 +599,12 @@
       "mode": "0644",
       "path": "docs/evidence/docling-browser-regions.json",
       "sha256": "e233f55623f5561b01fae4e2d58d71696ad1bc8c156fb2b8826fadcdd5f4fb6b"
+    },
+    {
+      "bytes": 642304,
+      "mode": "0644",
+      "path": "docs/evidence/docling-memory-comparison.json",
+      "sha256": "1aa75d95bf9de8e76b8888b85877e9d94c3f27a18bbaf2ef6c17675b4ec37875"
     },
     {
       "bytes": 148,
@@ -805,16 +829,16 @@
       "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9"
     },
     {
-      "bytes": 23650,
+      "bytes": 24162,
       "mode": "0644",
       "path": "public/pdf-api/v1/api.js",
-      "sha256": "1c9c6df217be84689468ae480dde2388e68cd7ee7f5048aa6706ac881fd9a785"
+      "sha256": "984cf00f75a9daaa3946b74fecfb1c91c9e8b83a0f9b321c76b7fd9c3249cb11"
     },
     {
-      "bytes": 4611,
+      "bytes": 4833,
       "mode": "0644",
       "path": "public/pdf-api/v1/geometry-order.js",
-      "sha256": "7e92583f4dc4fbdb5effb4bda37e1c719e7d73381ef396a1858eb31846eb9588"
+      "sha256": "2d40ac8436c3051e10cd7f9af4701f73401f4d2a4f1ae6a7935578c5622e35c9"
     },
     {
       "bytes": 2061,
@@ -823,10 +847,10 @@
       "sha256": "49d993e5c413b0dabb656d03a89d816a254bf2f301a15aaa5311b4152a918b57"
     },
     {
-      "bytes": 11147,
+      "bytes": 11448,
       "mode": "0644",
       "path": "public/pdf-api/v1/inference-worker.js",
-      "sha256": "5b9a9efe1fded38418b22b824a85a1f7def05a02efbb2c4e5fefab2df39ad8d8"
+      "sha256": "66ea04ae1897a713174f0ce831a8c0c520bc7e13f07dfd9770c5d71ce500c757"
     },
     {
       "bytes": 1094,
@@ -835,10 +859,10 @@
       "sha256": "6d2d40d6a7c08755140ffb9a740fae10708205ce85138062fbea84b371ab5492"
     },
     {
-      "bytes": 3745,
+      "bytes": 3923,
       "mode": "0644",
       "path": "public/pdf-api/v1/regions.js",
-      "sha256": "53d9a6b460672521e8f79aadcfd1e528697823732d278ba092ecb4b4618f57f0"
+      "sha256": "5297ba82958726d2d69eb4ce3b64e94d731cbcc1f127b9c0d02b9ada4c39ef22"
     },
     {
       "bytes": 3046,
@@ -865,16 +889,16 @@
       "sha256": "decf1cf7bb22b5c99c4857cfcd5718ce5465c4454166317589c83fc73df74b66"
     },
     {
-      "bytes": 6651,
+      "bytes": 7113,
       "mode": "0644",
       "path": "scripts/benchmark-docling-memory.mjs",
-      "sha256": "37bfbb5d76a9d84d86093b1f0e0d36fc18b55c9e0daa13681ea2e6b515568eab"
+      "sha256": "b81cf1430cf92e79c14b41fd11887ed100af5904316cf10bd56f104ef89ce1fb"
     },
     {
-      "bytes": 3681,
+      "bytes": 3834,
       "mode": "0644",
       "path": "scripts/browser-process-memory.mjs",
-      "sha256": "4263888552da271d63ac59ddd9db000cd9039859a2b74231ccd1a7277abcc3cc"
+      "sha256": "1327d6a8963e66b2fd6bb7bd47c013abe5a29d2f959b08197fb78139ca4c19cd"
     },
     {
       "bytes": 3562,
@@ -1039,10 +1063,10 @@
       "sha256": "13cf1ecc970e2e0cec7489c6a8a1fa3e928f9fcdf7fb4fb9fbe9bf04453c912c"
     },
     {
-      "bytes": 19704,
+      "bytes": 20213,
       "mode": "0644",
       "path": "scripts/test-docling-browser.mjs",
-      "sha256": "f654c122959e6d29023467ef17b17870269260c1122ebf7bb3c254750be1883d"
+      "sha256": "2dc8f1efc1d51136fb1ce26d5e4ce2e587390eb9cd813e81f07e2118d7fece51"
     },
     {
       "bytes": 3497,
@@ -1069,10 +1093,10 @@
       "sha256": "c8c4b7dbe1875795bd3f789baebce5c031c82488994f000a09dc842a1c895817"
     },
     {
-      "bytes": 2042,
+      "bytes": 2121,
       "mode": "0644",
       "path": "scripts/worker-memory-probe.mjs",
-      "sha256": "39a7d14ea175305fea072f85cb5d7162a24f2277557baf9d771adbd33547feb4"
+      "sha256": "f056fc57e2dbc7fdbc72d9f1f286607e65fb9ed3d98c8781dfd729d8422256c0"
     },
     {
       "bytes": 800,

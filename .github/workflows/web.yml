@@ -53,6 +53,7 @@ jobs:
           PLAYWRIGHT_MODULE: ./browser-tools/node_modules/playwright/index.mjs
           PDF_LIB_MODULE: ./browser-tools/node_modules/pdf-lib/cjs/index.js
           EVIDENCE_PATH: docling-browser-evidence.json
+          MEMORY_PROBE: '1'
         run: node scripts/test-docling-browser.mjs
       - name: Preserve actual browser evidence
         if: always()

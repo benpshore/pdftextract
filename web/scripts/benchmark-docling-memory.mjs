@@ -14,7 +14,7 @@ const web=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const native=await readFile(resolve(web,'../tests/fixtures/pdfium-unicode/native.pdf'));
 assert.equal(createHash('sha256').update(native).digest('hex'),'099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8');
 const expected='Faithful native text remains available. Existing OCR already reads this sentence. Numbers 12345 and alpha beta gamma.';
-const profiles={default:{},noPrepack:{extra:{session:{disable_prepacking:'1'}}},arena:{enableCpuMemArena:true,enableMemPattern:true},basic:{graphOptimizationLevel:'basic'}};
+const profiles={default:{},noPrepack:{extra:{session:{disable_prepacking:'1'}}},noPrepackKeepRenderer:{extra:{session:{disable_prepacking:'1'}}}};
 const chosen=(process.env.MEMORY_PROFILES||'default,noPrepack').split(',');
 for(const name of chosen)assert(Object.hasOwn(profiles,name),'Unknown memory profile');
 const fixtures=new Map([['native.pdf',native]]),results=[];
@@ -34,11 +34,16 @@ try{
     try{
       const context=await browser.newContext();
       await context.route('**/*',route=>route.request().url().startsWith(origin+'/')?route.continue():route.abort());
+      if(profile==='noPrepackKeepRenderer')await context.route('**/pdf-api/v1/api.js',async route=>{
+        const source=await readFile(resolve(web,'public/pdf-api/v1/api.js'),'utf8'),needle='if(pageNo===indices.at(-1))';
+        assert(source.includes(needle),'Pinned renderer-retention experiment changed');
+        await route.fulfill({contentType:'text/javascript',body:source.replace(needle,'if(false)')});
+      });
       await context.route('**/pdf-api/v1/inference-worker.js',async route=>{
         let source=await readFile(resolve(web,'public/pdf-api/v1/inference-worker.js'),'utf8');
-        const needle="{ executionProviders: ['wasm'], logSeverityLevel: 3 }";
-        assert(source.includes(needle),'Pinned benchmark injection point changed');
-        source=source.replace(needle,JSON.stringify({executionProviders:['wasm'],logSeverityLevel:3,...profiles[profile]}));
+        const needle=/^const SESSION_OPTIONS = .+;$/m;
+        assert(needle.test(source),'Pinned benchmark injection point changed');
+        source=source.replace(needle,'const SESSION_OPTIONS = '+JSON.stringify({executionProviders:['wasm'],logSeverityLevel:3,...profiles[profile]})+';');
         await route.fulfill({contentType:'text/javascript',body:`(${workerMemoryProbe.toString()})();\n${source}`});
       });
       const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
@@ -65,7 +70,7 @@ try{
         await globalThis.beginMemory('explicit-release');api.disposePdfRuntime();await new Promise(r=>setTimeout(r,1500));runs.push({name:'explicit-release',memory:await globalThis.endMemory()});
         return runs;
       },expected);
-      assert.deepEqual(errors,[]);results.push({profile,sessionOptions:profiles[profile],browser:browser.version(),method:memory.method,runs});
+      assert.deepEqual(errors,[]);results.push({profile,sessionOptions:profiles[profile],rendererRetainedUntilJobEnd:profile==='noPrepackKeepRenderer',browser:browser.version(),method:memory.method,runs});
       if(process.env.EVIDENCE_PATH)await writeFile(process.env.EVIDENCE_PATH,JSON.stringify({results},null,2)+'\n');
       console.log(JSON.stringify({profile,runs:runs.map(r=>({name:r.name,milliseconds:Math.round(r.milliseconds||0),peakRssMiB:r.memory.peakRssBytes/1048576,peakPssMiB:r.memory.peakPssBytes/1048576,endPssMiB:r.memory.endPssBytes/1048576,wasm:r.output?.pages[0].resources.testOnlyWasmMemory}))}));
     }finally{memory.stop();await browser.close();await launch.close();}
