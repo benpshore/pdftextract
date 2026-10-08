@@ -97,7 +97,40 @@ every page. The whole-process RSS (first table) is an order of magnitude above
 either, so most of the engine's footprint is outside the object source
 (worker baseline, spans, ledger); that remainder has not been attributed yet.
 
-## Consequences (**P**, to be confirmed by a wasm build on the target)
+## Sustained extraction in one process (**M**)
+
+`scripts/sustain` runs the full pipeline (`tpe::pipeline::run_job`, `lopdf`
+backend, after `warm_up()`) or one object source over a file list for N
+passes in a single process under the counting allocator, and prints heap
+retained after every document and the running peak. Ten pdf.js files
+(the seven above plus issue2074, issue4650, issue7891_bc1), 20 passes,
+200 extractions per mode:
+
+| mode | retained after pass 1 | retained after pass 20 | delta per pass | peak above baseline |
+| --- | ---: | ---: | ---: | ---: |
+| full pipeline, lopdf backend | 7.496 MiB | 7.496 MiB | 0.0000 MiB | 20.46 MiB |
+| lopdf object source only | 0.019 MiB | 0.019 MiB | 0.0000 MiB | 3.21 MiB |
+| hayro-syntax object source only | 0.001 MiB | 0.001 MiB | 0.0000 MiB | 1.12 MiB |
+
+The pipeline's retained heap rises to 7.5 MiB during the first pass (one-time
+state after warm-up; 7.28 MiB after the first document, 7.50 after the ninth)
+and is then flat to the byte for the remaining 190 extractions. The counting
+allocator records bytes requested, not allocator fragmentation, so these are
+lower bounds for what a wasm instance's linear memory would hold.
+
+## What this does and does not establish
+
+Established (**M**): on these inputs, natively, the engine does not retain
+memory across documents, and its heap high-water mark is about 20 MiB above
+process baseline. Not established: any browser bound. A wasm instance's
+linear memory is grow-only, its allocator fragments differently, and its
+reclaim depends on the browser; none of that is measured here. The
+measurement that establishes a browser bound is linear-memory size under
+sustained extraction in Safari (macOS and iOS) for both lifecycles
+(one instance reused; one instance per document), which needs a wasm32 build
+on the target and is the next step, not a consequence of this document.
+
+## Consequences (**P**, hypotheses for the Safari measurement to confirm or reject)
 
 1. A fixed-footprint browser build needs an on-demand object source. With
    the eager source, the retained set is file-size-bound before the first
@@ -118,7 +151,7 @@ either, so most of the engine's footprint is outside the object source
 
 ## Not measured
 
-- Any wasm32 build (no target available on the measurement host).
+- Any wasm32 build (no target available on the measurement host), so no linear-memory growth, allocator fragmentation, or browser reclaim behaviour.
 - Image-heavy files, files above 1 MB, and scanned documents.
 - Peak heap of the full engine per page (only the object source was isolated).
 - Browser reclaim timing after `Worker.terminate()` / `self.close()`.
@@ -133,6 +166,10 @@ cd scripts/memproto && cargo build --release
 ./target/release/memproto lopdf FILE.pdf
 ./target/release/memproto hayro FILE.pdf
 ./target/release/memproto hayro-cached FILE.pdf
+cd ../sustain && cargo build --release
+./target/release/sustain tpe 20 FILE.pdf [FILE.pdf …]
+./target/release/sustain lopdf 20 FILE.pdf [FILE.pdf …]
+./target/release/sustain hayro 20 FILE.pdf [FILE.pdf …]
 ```
 
 Fixture sources: `https://raw.githubusercontent.com/mozilla/pdf.js/master/test/pdfs/<name>`

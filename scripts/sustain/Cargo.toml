@@ -1,0 +1,16 @@
+[package]
+name = "sustain"
+version = "0.0.0"
+edition = "2021"
+publish = false
+# Sustained-extraction heap measurement: not product code (counting GlobalAlloc is unsafe).
+
+[dependencies]
+tpe = { package = "text-processing-engine", path = "../.." }
+hayro-syntax = { version = "=0.8.0" }
+lopdf = { version = "=0.45.0", default-features = false }
+
+[profile.release]
+opt-level = 3
+
+[workspace]

@@ -1,5 +1,5 @@
 [workspace]
-exclude = ["scripts/memproto"]
+exclude = ["scripts/memproto", "scripts/sustain"]
 members = [".", "crates/*"]
 resolver = "3"
 
