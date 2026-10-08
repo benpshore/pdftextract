@@ -34,6 +34,17 @@ jobs:
       - run: node scripts/copy-pdf-wasm.mjs
       - run: node scripts/copy-ocr-assets.mjs
       - run: pnpm exec tsc --noEmit
+      - run: pnpm exec eslint lib/image-ocr.ts scripts/test-ocr-lifecycle.mjs scripts/test-browser-ocr.mjs
+      - run: node scripts/test-ocr-lifecycle.mjs
+      - name: Install pinned browser test driver
+        run: npm install --prefix "$RUNNER_TEMP/tpe-playwright" --no-package-lock --ignore-scripts playwright@1.58.2
+      - name: Upload control through real browser OCR and local D1/R2
+        run: |
+          test -x /usr/bin/google-chrome
+          pnpm dev > "$RUNNER_TEMP/tpe-ocr-app.log" 2>&1 &
+          app_pid=$!
+          trap 'kill "$app_pid" || true' EXIT
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/tpe-playwright/node_modules/playwright/index.mjs" PLAYWRIGHT_EXECUTABLE_PATH=/usr/bin/google-chrome OCR_REPORT_PATH="$RUNNER_TEMP/tpe-browser-ocr.json" node scripts/test-browser-ocr.mjs
       - run: node scripts/test-clip.mjs
       - run: node scripts/test-web-extraction-review.mjs
       - run: node scripts/test-import-flow.mjs
