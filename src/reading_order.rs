@@ -91,6 +91,8 @@ const MAX_LINES: usize = 20_000;
 /// Maximum estimated character/member inspections spent composing accents
 /// on one page. Above this bound the glyphs are kept verbatim instead.
 const MAX_ACCENT_WORK: usize = 1_000_000;
+/// Shared scan budget for page-wide gutter evidence, independent of span count.
+const MAX_GUTTER_WORK: usize = 1_000_000;
 /// Maximum prior vertical groups examined on one page. Once exhausted,
 /// remaining spans stay separate rather than allowing hostile geometry to
 /// make grouping quadratic.
@@ -1016,6 +1018,8 @@ fn split_fused_rows(
     builds: Vec<LineBuild>,
     fallback: f32,
     width: f32,
+    work: &mut usize,
+    limited: &mut bool,
 ) -> Vec<LineBuild> {
     if builds.is_empty() {
         return builds;
@@ -1050,6 +1054,11 @@ fn split_fused_rows(
         if gap_right - gap_left <= space {
             continue;
         }
+        if *work < builds.len().saturating_mul(2) {
+            *limited = true;
+            break;
+        }
+        *work -= builds.len() * 2;
         // A repeated gutter is stronger evidence than the page midpoint or
         // word count. Three-column pages have two off-centre gutters, and a
         // short paragraph tail (even one word) still belongs to its column.
@@ -1120,6 +1129,7 @@ struct Grouped {
     unattached: usize,
     accent_skipped: bool,
     vertical_limited: bool,
+    gutter_limited: bool,
     horizontal_limit: Option<line_index::Limit>,
 }
 
@@ -1250,7 +1260,26 @@ fn group_spans_with_horizontal_budget(
             tails.push((*i, cut, marks));
         }
     }
-    let mut builds = split_fused_rows(spans, builds, fallback, width);
+    let mut gutter_limited = false;
+    let mut gutter_work = MAX_GUTTER_WORK;
+    let mut builds = split_fused_rows(
+        spans,
+        builds,
+        fallback,
+        width,
+        &mut gutter_work,
+        &mut gutter_limited,
+    );
+    // A three-column row can carry two gutters. Revisit at most once; share
+    // the same scan budget instead of multiplying worst-case work by passes.
+    builds = split_fused_rows(
+        spans,
+        builds,
+        fallback,
+        width,
+        &mut gutter_work,
+        &mut gutter_limited,
+    );
 
     // The letter under a trailing accent was kerned back under it, so its
     // span overlaps the tail of the accent's span: no slack, and the
@@ -1338,6 +1367,7 @@ fn group_spans_with_horizontal_budget(
         unattached,
         accent_skipped: !compose_accents,
         vertical_limited,
+        gutter_limited,
         horizontal_limit: line_index.limit,
     }
 }
@@ -2160,6 +2190,7 @@ pub fn order_page(page: &mut PageText) {
         unattached,
         accent_skipped,
         vertical_limited,
+        gutter_limited,
         horizontal_limit,
     } = group_spans(
         turned.as_deref().unwrap_or(page.spans.as_slice()),
@@ -2174,6 +2205,13 @@ pub fn order_page(page: &mut PageText) {
         push_warning(
             page,
             "resource_limit: vertical grouping budget exhausted; remaining spans kept separate"
+                .to_string(),
+        );
+    }
+    if gutter_limited {
+        push_warning(
+            page,
+            "resource_limit: gutter evidence budget exhausted; reading order is uncertain"
                 .to_string(),
         );
     }
@@ -2201,6 +2239,30 @@ pub fn order_page(page: &mut PageText) {
         push_warning(page, msg);
     }
     let ordered = order_lines(grouped, width);
+    let interleaved = ordered
+        .windows(2)
+        .filter(|pair| {
+            let (Some(a), Some(b)) = (pair[0].bbox, pair[1].bbox) else {
+                return false;
+            };
+            (a.y0 - b.y0).abs() <= 3.0
+                && (a.x1 <= b.x0 || b.x1 <= a.x0)
+                && a.x1 - a.x0 >= width * 0.2
+                && b.x1 - b.x0 >= width * 0.2
+                && a.x1.max(b.x1) - a.x0.min(b.x0) >= width * 0.5
+                && pair
+                    .iter()
+                    .all(|line| line.text.chars().filter(|c| !c.is_whitespace()).count() >= 25)
+        })
+        .count();
+    if interleaved >= 5 {
+        push_warning(
+            page,
+            format!(
+                "extraction_incomplete: reading order unresolved: {interleaved} adjacent side-by-side prose lines"
+            ),
+        );
+    }
     let mut heights: Vec<f32> = ordered
         .iter()
         .filter_map(|l| l.bbox)

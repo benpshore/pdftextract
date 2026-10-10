@@ -251,6 +251,7 @@ impl Extractor for LopdfBackend {
         config.insert("ligatures".to_string(), LIGATURE_POLICY.to_string());
         config.insert("content".to_string(), CONTENT_POLICY.to_string());
         config.insert("encodings".to_string(), ENCODING_POLICY.to_string());
+        config.insert("widths".to_string(), "standard-metrics-v1".to_string());
         config.insert("cff_recovery".to_string(), CFF_RECOVERY.to_string());
         BackendIdentity {
             name: "lopdf".to_string(),
@@ -1477,8 +1478,12 @@ fn standard_font_widths(doc: &Document, dict: &Dictionary) -> Option<(Vec<f32>, 
         return Some((vec![600.0; 256], alias));
     }
     let metrics = standard_widths::metrics(standard)?;
-    let mut encoding = dict.clone();
-    encoding.remove(b"ToUnicode");
+    let mut encoding = Dictionary::new();
+    for key in [b"Type".as_slice(), b"Subtype", b"BaseFont", b"Encoding"] {
+        if let Ok(value) = dict.get(key) {
+            encoding.set(key, value.clone());
+        }
+    }
     let entries = own_table(doc, &encoding)
         .map(|table| table.entries)
         .or_else(|| {
@@ -4357,6 +4362,7 @@ mod tests {
         config.insert("max_xobject_depth".to_string(), "8".to_string());
         config.insert("ligatures".to_string(), "expand".to_string());
         config.insert("content".to_string(), "9".to_string());
+        config.insert("widths".to_string(), "standard-metrics-v1".to_string());
         config.insert("encodings".to_string(), "6".to_string());
         config.insert("cff_recovery".to_string(), CFF_RECOVERY.to_string());
         assert_eq!(identity.config_digest, config_digest(&config));
@@ -6427,7 +6433,12 @@ end
             } else {
                 let page = page.unwrap();
                 assert_eq!(span_texts(&page), ["abc"], "{route}");
-                assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()], "{route}");
+                let expected = if route == "unicode" {
+                    Vec::new()
+                } else {
+                    vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
+                };
+                assert_eq!(page.warnings, expected, "{route}");
             }
         }
     }
