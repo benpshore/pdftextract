@@ -4446,7 +4446,14 @@ mod tests {
         let hello = &page.spans[0];
         let hello_box = hello.bbox.unwrap();
         assert!(close(hello_box.x0, 100.0), "x0 {}", hello_box.x0);
-        assert!(close(hello_box.x1, 130.0), "x1 {}", hello_box.x1);
+        assert!(
+            close(
+                hello_box.x1,
+                100.0 + 12.0 * (722.0 + 556.0 + 222.0 + 222.0 + 556.0) / 1000.0
+            ),
+            "x1 {}",
+            hello_box.x1
+        );
         assert!(close(hello_box.y0, 597.6), "y0 {}", hello_box.y0);
         assert!(close(hello_box.y1, 609.6), "y1 {}", hello_box.y1);
         assert!(close(hello.size.unwrap(), 12.0));
@@ -4456,7 +4463,14 @@ mod tests {
         let world = &page.spans[1];
         let world_box = world.bbox.unwrap();
         assert!(close(world_box.x0, 100.0), "x0 {}", world_box.x0);
-        assert!(close(world_box.x1, 160.0), "x1 {}", world_box.x1);
+        assert!(
+            close(
+                world_box.x1,
+                100.0 + 24.0 * (944.0 + 556.0 + 333.0 + 222.0 + 556.0) / 1000.0
+            ),
+            "x1 {}",
+            world_box.x1
+        );
         assert!(close(world_box.y0, 555.2), "y0 {}", world_box.y0);
         assert!(close(world_box.y1, 579.2), "y1 {}", world_box.y1);
         assert!(close(world.size.unwrap(), 24.0));
@@ -4501,9 +4515,9 @@ mod tests {
         let left_box = page.spans[0].bbox.unwrap();
         let right_box = page.spans[1].bbox.unwrap();
         assert!(close(left_box.x0, 50.0), "A x0 {}", left_box.x0);
-        assert!(close(left_box.x1, 55.0), "A x1 {}", left_box.x1);
+        assert!(close(left_box.x1, 56.67), "A x1 {}", left_box.x1);
         // -500/1000 * 10 pt moves the next glyph 5 pt to the right.
-        assert!(close(right_box.x0, 60.0), "B x0 {}", right_box.x0);
+        assert!(close(right_box.x0, 61.67), "B x0 {}", right_box.x0);
     }
 
     #[test]
@@ -4771,7 +4785,7 @@ mod tests {
         assert_eq!(page.spans[0].text, "\u{E9}\u{FFFD}");
         assert_eq!(
             page.warnings,
-            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string()]
+            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string(), "extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
         );
         let font = session.cache.fonts.values().next().unwrap();
         assert!(matches!(font.decode, Decode::Table(_)));
@@ -4844,7 +4858,7 @@ end
         );
         let mapped = show_with_font(b"AC", make_font);
         assert_eq!(mapped.spans[0].text, "fiC");
-        assert!(mapped.warnings.is_empty(), "{:?}", mapped.warnings);
+        assert_eq!(mapped.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -4996,7 +5010,7 @@ end
             assert_eq!(page.spans.len(), 1);
             // Not "2k" and a dropped byte, as `StandardEncoding` gives.
             assert_eq!(page.spans[0].text, "\u{2208}\u{2016}\u{2212}{}\u{2212}");
-            assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+            assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
         }
     }
 
@@ -5026,7 +5040,7 @@ end
             }
         });
         assert_eq!(page.spans[0].text, "\u{2208}\u{2016}4");
-        assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -5064,7 +5078,7 @@ end
         assert_eq!(page.spans[0].text, "\u{FFFD}\u{E9}");
         assert_eq!(
             page.warnings,
-            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string()]
+            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string(), "extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
         );
     }
 
@@ -5074,7 +5088,7 @@ end
             dictionary! { "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "CMR10" }
         });
         assert_eq!(page.spans[0].text, "find\u{2013}\u{2014}");
-        assert_eq!(page.warnings, vec!["ligatures expanded: 1".to_string()]);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string(), "ligatures expanded: 1".to_string()]);
     }
 
     #[test]
@@ -5098,7 +5112,7 @@ end
             }
         });
         assert_eq!(page.spans[0].text, "\u{2208}\u{2016}");
-        assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -6413,7 +6427,7 @@ end
             } else {
                 let page = page.unwrap();
                 assert_eq!(span_texts(&page), ["abc"], "{route}");
-                assert!(page.warnings.is_empty(), "{route}: {:?}", page.warnings);
+                assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()], "{route}");
             }
         }
     }

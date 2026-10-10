@@ -104,7 +104,9 @@ const SPACE_GAP: f32 = 0.15;
 /// Vertical whitespace wider than this many median line heights splits rows.
 const ROW_GAP: f32 = 1.0;
 /// Horizontal whitespace wider than this many median character widths splits columns.
-const COLUMN_GAP: f32 = 2.0;
+// Narrow justified prose gutters can be one character wide (e.g. three-column
+// notices). A cut still needs coexisting blocks; ordinary word spacing is less.
+const COLUMN_GAP: f32 = 1.0;
 /// Vertical gap inside a block wider than this many median line heights is a paragraph.
 const PARAGRAPH_GAP: f32 = 1.5;
 /// Font size assumed when nothing on the page carries a size or a height.
@@ -949,6 +951,7 @@ fn gutter_band(
     skip: usize,
     centre: f32,
     min_gap: f32,
+    min_line_width: f32,
 ) -> Option<(f32, f32)> {
     let (mut left_count, mut right_count, mut row_count) = (0_usize, 0_usize, 0_usize);
     let mut left_edge = f32::NEG_INFINITY;
@@ -959,10 +962,10 @@ fn gutter_band(
             continue;
         }
         let b = line.bbox;
-        if b.x1 <= centre {
+        if b.x1 <= centre && b.x1 - b.x0 >= min_line_width {
             left_count += 1;
             left_edge = left_edge.max(b.x1);
-        } else if b.x0 >= centre {
+        } else if b.x0 >= centre && b.x1 - b.x0 >= min_line_width {
             right_count += 1;
             right_edge = right_edge.min(b.x0);
         } else if let Some((_, gap_left, gap_right)) = gaps[k]
@@ -1050,7 +1053,14 @@ fn split_fused_rows(
         // A repeated gutter is stronger evidence than the page midpoint or
         // word count. Three-column pages have two off-centre gutters, and a
         // short paragraph tail (even one word) still belongs to its column.
-        let band = gutter_band(&builds, &gaps, k, gap_left.midpoint(gap_right), space);
+        let band = gutter_band(
+            &builds,
+            &gaps,
+            k,
+            gap_left.midpoint(gap_right),
+            space,
+            width * 0.2,
+        );
         let supported = band.is_some_and(|(left, right)| {
             right - left > space && (left..=right).contains(&gap_left.midpoint(gap_right))
         });
@@ -1066,13 +1076,16 @@ fn split_fused_rows(
             continue;
         }
         let spanning = build.bbox.x1 - build.bbox.x0 > SPANNING_PAGE * width;
-        if spanning && !supported {
+        if spanning {
             let centre = gap_left.midpoint(gap_right);
-            let Some((band_left, band_right)) = gutter_band(&builds, &gaps, k, centre, min_gap)
+            let Some((band_left, band_right)) =
+                gutter_band(&builds, &gaps, k, centre, min_gap, 0.0)
             else {
                 continue;
             };
-            if gap_left > band_left + GUTTER_COVER || gap_right < band_right - GUTTER_COVER {
+            if (!supported || build.size > 1.1 * fallback)
+                && (gap_left > band_left + GUTTER_COVER || gap_right < band_right - GUTTER_COVER)
+            {
                 continue;
             }
         }
