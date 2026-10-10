@@ -43,8 +43,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-15
-            target: aarch64-apple-darwin
+          # macOS CI paused during engine development; uncomment to restore.
+          # - os: macos-15
+          #   target: aarch64-apple-darwin
           - os: ubuntu-24.04-arm
             target: aarch64-unknown-linux-gnu
           - os: ubuntu-latest
