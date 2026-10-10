@@ -4821,6 +4821,53 @@ mod tests {
     }
 
     #[test]
+    fn standard_advances_respect_rendering_differences_and_explicit_widths() {
+        // Code A renders an i. Its Helvetica advance is 222, not the 667
+        // advance for A, and not the old generic 500-unit guess.
+        let page = show_with_font(b"AA", |_| {
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "Encoding" => dictionary! {"BaseEncoding" => "WinAnsiEncoding",
+                    "Differences" => vec![65.into(), "i".into()]},
+            }
+        });
+        assert_eq!(page.spans[0].text, "ii");
+        let bbox = page.spans[0].bbox.unwrap();
+        assert!((bbox.x1 - bbox.x0 - 2.0 * 222.0 * 0.012).abs() < 0.001);
+        assert_eq!(page.extraction_status(), crate::schema::Status::Complete);
+
+        let explicit = show_with_font(b"AA", |_| {
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "FirstChar" => 65, "Widths" => vec![900.into()],
+            }
+        });
+        let bbox = explicit.spans[0].bbox.unwrap();
+        assert!((bbox.x1 - bbox.x0 - 21.6).abs() < 0.001);
+    }
+
+    #[test]
+    fn missing_custom_and_substituted_widths_are_partial_without_losing_text() {
+        for name in ["Custom", "ArialMT", "TimesNewRomanPSMT"] {
+            let page = show_with_font(b"Read this text", |_| {
+                dictionary! {
+                    "Type" => "Font", "Subtype" => "Type1", "BaseFont" => name,
+                    "Encoding" => "WinAnsiEncoding",
+                }
+            });
+            assert_eq!(page.spans[0].text, "Read this text");
+            assert_eq!(page.extraction_status(), crate::schema::Status::Partial);
+            assert!(page.warnings.iter().any(|w| w.contains("glyph widths")));
+        }
+        let embedded = show_with_font(b"Read this text", |doc| {
+            let program = doc.add_object(Stream::new(dictionary! {}, Vec::new()));
+            dictionary! {"Type" => "Font", "Subtype" => "TrueType", "BaseFont" => "Helvetica",
+            "Encoding" => "WinAnsiEncoding", "FontDescriptor" => dictionary! {"FontFile2" => program}}
+        });
+        assert_eq!(embedded.extraction_status(), crate::schema::Status::Partial);
+    }
+
+    #[test]
     fn sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings() {
         let make_font = |doc: &mut Document| {
             let cmap = doc.add_object(Stream::new(
