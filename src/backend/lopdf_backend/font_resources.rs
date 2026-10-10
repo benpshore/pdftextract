@@ -121,7 +121,12 @@ pub(super) fn preflight(
         .is_ok_and(|name| name == b"Type0");
     // Standard-metric recovery retains 256 advances and temporarily builds
     // bounded encoding/character lookup tables (at most 315 named metrics).
-    if !composite && !dict.has(b"Widths") {
+    if !composite
+        && !dict
+            .get_deref(b"Widths", doc)
+            .and_then(Object::as_array)
+            .is_ok_and(|widths| !widths.is_empty())
+    {
         work.reserve(32 * 1024)?;
     }
     if !composite && let Ok(Object::Array(widths)) = dict.get_deref(b"Widths", doc) {
@@ -135,8 +140,8 @@ pub(super) fn preflight(
     {
         array_charge(doc, widths, work)?;
     }
+    // Width recovery reads rendering Differences even when text uses ToUnicode.
     if !composite
-        && dict.get(b"ToUnicode").is_err()
         && let Ok(Object::Dictionary(encoding)) = dict.get_deref(b"Encoding", doc)
         && let Ok(Object::Array(differences)) = encoding.get_deref(b"Differences", doc)
     {

@@ -96,7 +96,7 @@ pdf-extract = { version = "=0.12.1", default-features = false, optional = true }
 cff-parser = { version = "=0.2.0", optional = true }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-rustix = { version = "1", features = ["process", "param", "stdio", "fs"] }
+rustix = { version = "1", features = ["process", "param", "stdio"] }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dev-dependencies]
 rustix = { version = "1", features = ["mm", "fs", "pipe"] }

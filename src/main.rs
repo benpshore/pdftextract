@@ -27,7 +27,6 @@ use tpe::pipeline::{self, PipelineError, Progress};
 use tpe::schema::{ExtractionResult, Job, Metadata};
 
 mod cli_worker;
-mod inventory_cli;
 
 /// Disposable native workers abort on a null allocation once their OS limits
 /// are installed (`worker_allocator::enforce`); until then this is `System`.
@@ -54,10 +53,6 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Cmd {
-    /// Inventory explicit source copies into a separate checksum database; no extraction.
-    Inventory(inventory_cli::InventoryArgs),
-    /// Process a bounded batch from a completed inventory, reusing verified outputs.
-    Batch(inventory_cli::BatchArgs),
     /// Send one PDF to the explicitly configured GROBID server; return TEI evidence.
     #[cfg(feature = "grobid")]
     Grobid(grobid_cli::Args),
@@ -293,8 +288,6 @@ struct EvalArgs {
 fn main() -> anyhow::Result<ExitCode> {
     let cli = Cli::parse();
     match cli.command {
-        Cmd::Inventory(args) => inventory_cli::inventory(&args),
-        Cmd::Batch(args) => inventory_cli::batch(&args),
         #[cfg(feature = "grobid")]
         Cmd::Grobid(args) => grobid_cli::run(&args),
         Cmd::Extract(args) => cli_worker::run(&args),

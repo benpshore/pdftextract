@@ -8,8 +8,10 @@ use tpe::schema::{Job, sha256_hex};
 #[ignore = "requires the four public, SHA-pinned PDFs; run in layout witness CI"]
 fn visual_real_file_reading_order_witnesses() {
     let root = PathBuf::from(std::env::var_os("TPE_LAYOUT_CORPUS").expect("TPE_LAYOUT_CORPUS"));
-    let corpus: serde_json::Value =
-        serde_json::from_str(include_str!("fixtures/layout-witnesses/corpus.json")).unwrap();
+    let corpus: serde_json::Value = serde_json::from_str(include_str!(
+        "../docs/analysis/layout-eval-2026-10-09/corpus.json"
+    ))
+    .unwrap();
     let truth: serde_json::Value =
         serde_json::from_str(include_str!("fixtures/layout-witnesses/expected.json")).unwrap();
     for case in truth["cases"].as_array().unwrap() {
