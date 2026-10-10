@@ -1,0 +1,682 @@
+{
+ "fedreg-3col": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 48812,
+   "chars_poppler": 49654,
+   "chars_proto": 49653,
+   "rows_cells_exact": 568,
+   "rows_exact": 611,
+   "rows_poppler": 703,
+   "rows_proto": 675,
+   "words_lcs": 8847,
+   "words_poppler": 8960,
+   "words_proto": 8959
+  },
+  "linespans": {
+   "chars_lcs": 48736,
+   "chars_poppler": 49654,
+   "chars_proto": 48949,
+   "rows_cells_exact": 565,
+   "rows_exact": 640,
+   "rows_poppler": 703,
+   "rows_proto": 677,
+   "words_lcs": 8842,
+   "words_poppler": 8960,
+   "words_proto": 8876
+  },
+  "pages": 15,
+  "spans": {
+   "chars_lcs": 48798,
+   "chars_poppler": 49654,
+   "chars_proto": 48949,
+   "rows_cells_exact": 455,
+   "rows_exact": 622,
+   "rows_poppler": 703,
+   "rows_proto": 679,
+   "words_lcs": 8842,
+   "words_poppler": 8960,
+   "words_proto": 8879
+  }
+ },
+ "latex-twocol": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 8001,
+   "chars_poppler": 8184,
+   "chars_proto": 8149,
+   "rows_cells_exact": 55,
+   "rows_exact": 59,
+   "rows_poppler": 119,
+   "rows_proto": 117,
+   "words_lcs": 1391,
+   "words_poppler": 1467,
+   "words_proto": 1430
+  },
+  "linespans": {
+   "chars_lcs": 8182,
+   "chars_poppler": 8184,
+   "chars_proto": 8184,
+   "rows_cells_exact": 109,
+   "rows_exact": 114,
+   "rows_poppler": 119,
+   "rows_proto": 117,
+   "words_lcs": 1463,
+   "words_poppler": 1467,
+   "words_proto": 1465
+  },
+  "pages": 3,
+  "spans": {
+   "chars_lcs": 8180,
+   "chars_poppler": 8184,
+   "chars_proto": 8184,
+   "rows_cells_exact": 44,
+   "rows_exact": 114,
+   "rows_poppler": 119,
+   "rows_proto": 118,
+   "words_lcs": 1462,
+   "words_poppler": 1467,
+   "words_proto": 1467
+  }
+ },
+ "pwl01": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 82974,
+   "chars_poppler": 84181,
+   "chars_proto": 84075,
+   "rows_cells_exact": 739,
+   "rows_exact": 750,
+   "rows_poppler": 1115,
+   "rows_proto": 1111,
+   "words_lcs": 15088,
+   "words_poppler": 15831,
+   "words_proto": 15628
+  },
+  "linespans": {
+   "chars_lcs": 83838,
+   "chars_poppler": 84181,
+   "chars_proto": 84183,
+   "rows_cells_exact": 913,
+   "rows_exact": 927,
+   "rows_poppler": 1115,
+   "rows_proto": 1106,
+   "words_lcs": 15306,
+   "words_poppler": 15831,
+   "words_proto": 15710
+  },
+  "pages": 16,
+  "spans": {
+   "chars_lcs": 83769,
+   "chars_poppler": 84181,
+   "chars_proto": 84184,
+   "rows_cells_exact": 919,
+   "rows_exact": 934,
+   "rows_poppler": 1115,
+   "rows_proto": 1123,
+   "words_lcs": 15334,
+   "words_poppler": 15831,
+   "words_proto": 15703
+  }
+ },
+ "pwl02": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 19308,
+   "chars_poppler": 19308,
+   "chars_proto": 19308,
+   "rows_cells_exact": 192,
+   "rows_exact": 280,
+   "rows_poppler": 287,
+   "rows_proto": 285,
+   "words_lcs": 3716,
+   "words_poppler": 3719,
+   "words_proto": 3722
+  },
+  "linespans": {
+   "chars_lcs": 19308,
+   "chars_poppler": 19308,
+   "chars_proto": 19308,
+   "rows_cells_exact": 272,
+   "rows_exact": 282,
+   "rows_poppler": 287,
+   "rows_proto": 285,
+   "words_lcs": 3718,
+   "words_poppler": 3719,
+   "words_proto": 3720
+  },
+  "pages": 7,
+  "spans": {
+   "chars_lcs": 19302,
+   "chars_poppler": 19308,
+   "chars_proto": 19308,
+   "rows_cells_exact": 264,
+   "rows_exact": 277,
+   "rows_poppler": 287,
+   "rows_proto": 291,
+   "words_lcs": 3713,
+   "words_poppler": 3719,
+   "words_proto": 3729
+  }
+ },
+ "pwl03": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 25417,
+   "chars_poppler": 25565,
+   "chars_proto": 25462,
+   "rows_cells_exact": 337,
+   "rows_exact": 343,
+   "rows_poppler": 516,
+   "rows_proto": 513,
+   "words_lcs": 4349,
+   "words_poppler": 4547,
+   "words_proto": 4471
+  },
+  "linespans": {
+   "chars_lcs": 25486,
+   "chars_poppler": 25565,
+   "chars_proto": 25533,
+   "rows_cells_exact": 464,
+   "rows_exact": 471,
+   "rows_poppler": 516,
+   "rows_proto": 514,
+   "words_lcs": 4496,
+   "words_poppler": 4547,
+   "words_proto": 4543
+  },
+  "pages": 15,
+  "spans": {
+   "chars_lcs": 25486,
+   "chars_poppler": 25565,
+   "chars_proto": 25533,
+   "rows_cells_exact": 460,
+   "rows_exact": 477,
+   "rows_poppler": 516,
+   "rows_proto": 519,
+   "words_lcs": 4503,
+   "words_poppler": 4547,
+   "words_proto": 4548
+  }
+ },
+ "pwl04": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 31558,
+   "chars_poppler": 31896,
+   "chars_proto": 31812,
+   "rows_cells_exact": 283,
+   "rows_exact": 327,
+   "rows_poppler": 588,
+   "rows_proto": 591,
+   "words_lcs": 6738,
+   "words_poppler": 7889,
+   "words_proto": 7091
+  },
+  "linespans": {
+   "chars_lcs": 31824,
+   "chars_poppler": 31896,
+   "chars_proto": 31896,
+   "rows_cells_exact": 362,
+   "rows_exact": 413,
+   "rows_poppler": 588,
+   "rows_proto": 594,
+   "words_lcs": 6908,
+   "words_poppler": 7889,
+   "words_proto": 7182
+  },
+  "pages": 8,
+  "spans": {
+   "chars_lcs": 31794,
+   "chars_poppler": 31896,
+   "chars_proto": 31896,
+   "rows_cells_exact": 360,
+   "rows_exact": 432,
+   "rows_poppler": 588,
+   "rows_proto": 585,
+   "words_lcs": 6924,
+   "words_poppler": 7889,
+   "words_proto": 7191
+  }
+ },
+ "pwl05": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 44253,
+   "chars_poppler": 44256,
+   "chars_proto": 44253,
+   "rows_cells_exact": 642,
+   "rows_exact": 662,
+   "rows_poppler": 668,
+   "rows_proto": 668,
+   "words_lcs": 8032,
+   "words_poppler": 8038,
+   "words_proto": 8035
+  },
+  "linespans": {
+   "chars_lcs": 44256,
+   "chars_poppler": 44256,
+   "chars_proto": 44256,
+   "rows_cells_exact": 648,
+   "rows_exact": 668,
+   "rows_poppler": 668,
+   "rows_proto": 668,
+   "words_lcs": 8038,
+   "words_poppler": 8038,
+   "words_proto": 8038
+  },
+  "pages": 16,
+  "spans": {
+   "chars_lcs": 44256,
+   "chars_poppler": 44256,
+   "chars_proto": 44256,
+   "rows_cells_exact": 666,
+   "rows_exact": 668,
+   "rows_poppler": 668,
+   "rows_proto": 668,
+   "words_lcs": 8038,
+   "words_poppler": 8038,
+   "words_proto": 8038
+  }
+ },
+ "pwl06": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 56453,
+   "chars_poppler": 58421,
+   "chars_proto": 58141,
+   "rows_cells_exact": 330,
+   "rows_exact": 365,
+   "rows_poppler": 893,
+   "rows_proto": 862,
+   "words_lcs": 10245,
+   "words_poppler": 11032,
+   "words_proto": 10763
+  },
+  "linespans": {
+   "chars_lcs": 58188,
+   "chars_poppler": 58421,
+   "chars_proto": 58387,
+   "rows_cells_exact": 710,
+   "rows_exact": 744,
+   "rows_poppler": 893,
+   "rows_proto": 862,
+   "words_lcs": 10828,
+   "words_poppler": 11032,
+   "words_proto": 11004
+  },
+  "pages": 14,
+  "spans": {
+   "chars_lcs": 58159,
+   "chars_poppler": 58421,
+   "chars_proto": 58387,
+   "rows_cells_exact": 685,
+   "rows_exact": 750,
+   "rows_poppler": 893,
+   "rows_proto": 873,
+   "words_lcs": 10844,
+   "words_poppler": 11032,
+   "words_proto": 10991
+  }
+ },
+ "pwl07": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 55138,
+   "chars_poppler": 57299,
+   "chars_proto": 57010,
+   "rows_cells_exact": 306,
+   "rows_exact": 316,
+   "rows_poppler": 848,
+   "rows_proto": 826,
+   "words_lcs": 10473,
+   "words_poppler": 11462,
+   "words_proto": 11099
+  },
+  "linespans": {
+   "chars_lcs": 56734,
+   "chars_poppler": 57299,
+   "chars_proto": 57149,
+   "rows_cells_exact": 658,
+   "rows_exact": 673,
+   "rows_poppler": 848,
+   "rows_proto": 823,
+   "words_lcs": 11027,
+   "words_poppler": 11462,
+   "words_proto": 11334
+  },
+  "pages": 14,
+  "spans": {
+   "chars_lcs": 56865,
+   "chars_poppler": 57299,
+   "chars_proto": 57153,
+   "rows_cells_exact": 667,
+   "rows_exact": 683,
+   "rows_poppler": 848,
+   "rows_proto": 847,
+   "words_lcs": 11081,
+   "words_poppler": 11462,
+   "words_proto": 11395
+  }
+ },
+ "pwl08": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 49302,
+   "chars_poppler": 50579,
+   "chars_proto": 50530,
+   "rows_cells_exact": 406,
+   "rows_exact": 434,
+   "rows_poppler": 969,
+   "rows_proto": 898,
+   "words_lcs": 9461,
+   "words_poppler": 10472,
+   "words_proto": 10291
+  },
+  "linespans": {
+   "chars_lcs": 49801,
+   "chars_poppler": 50579,
+   "chars_proto": 50559,
+   "rows_cells_exact": 491,
+   "rows_exact": 522,
+   "rows_poppler": 969,
+   "rows_proto": 903,
+   "words_lcs": 9617,
+   "words_poppler": 10472,
+   "words_proto": 10353
+  },
+  "pages": 11,
+  "spans": {
+   "chars_lcs": 49224,
+   "chars_poppler": 50579,
+   "chars_proto": 50559,
+   "rows_cells_exact": 483,
+   "rows_exact": 500,
+   "rows_poppler": 969,
+   "rows_proto": 960,
+   "words_lcs": 9464,
+   "words_poppler": 10472,
+   "words_proto": 10514
+  }
+ },
+ "pwl09": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 103296,
+   "chars_poppler": 104348,
+   "chars_proto": 104137,
+   "rows_cells_exact": 1266,
+   "rows_exact": 1278,
+   "rows_poppler": 2258,
+   "rows_proto": 2250,
+   "words_lcs": 21015,
+   "words_poppler": 23599,
+   "words_proto": 22686
+  },
+  "linespans": {
+   "chars_lcs": 103505,
+   "chars_poppler": 104348,
+   "chars_proto": 104369,
+   "rows_cells_exact": 1647,
+   "rows_exact": 1659,
+   "rows_poppler": 2258,
+   "rows_proto": 2255,
+   "words_lcs": 21510,
+   "words_poppler": 23599,
+   "words_proto": 22899
+  },
+  "pages": 60,
+  "spans": {
+   "chars_lcs": 103397,
+   "chars_poppler": 104348,
+   "chars_proto": 104369,
+   "rows_cells_exact": 1685,
+   "rows_exact": 1693,
+   "rows_poppler": 2258,
+   "rows_proto": 2344,
+   "words_lcs": 21543,
+   "words_poppler": 23599,
+   "words_proto": 22990
+  }
+ },
+ "pwl10": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 79948,
+   "chars_poppler": 80217,
+   "chars_proto": 80601,
+   "rows_cells_exact": 877,
+   "rows_exact": 951,
+   "rows_poppler": 1516,
+   "rows_proto": 1520,
+   "words_lcs": 14811,
+   "words_poppler": 16903,
+   "words_proto": 15932
+  },
+  "linespans": {
+   "chars_lcs": 80022,
+   "chars_poppler": 80217,
+   "chars_proto": 80739,
+   "rows_cells_exact": 1078,
+   "rows_exact": 1158,
+   "rows_poppler": 1516,
+   "rows_proto": 1525,
+   "words_lcs": 15095,
+   "words_poppler": 16903,
+   "words_proto": 15999
+  },
+  "pages": 34,
+  "spans": {
+   "chars_lcs": 79606,
+   "chars_poppler": 80217,
+   "chars_proto": 80739,
+   "rows_cells_exact": 1125,
+   "rows_exact": 1135,
+   "rows_poppler": 1516,
+   "rows_proto": 1657,
+   "words_lcs": 15176,
+   "words_poppler": 16903,
+   "words_proto": 16289
+  }
+ },
+ "pwl11": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 26139,
+   "chars_poppler": 26851,
+   "chars_proto": 26773,
+   "rows_cells_exact": 170,
+   "rows_exact": 203,
+   "rows_poppler": 454,
+   "rows_proto": 478,
+   "words_lcs": 5255,
+   "words_poppler": 5771,
+   "words_proto": 5727
+  },
+  "linespans": {
+   "chars_lcs": 26476,
+   "chars_poppler": 26851,
+   "chars_proto": 26839,
+   "rows_cells_exact": 232,
+   "rows_exact": 288,
+   "rows_poppler": 454,
+   "rows_proto": 476,
+   "words_lcs": 5392,
+   "words_poppler": 5771,
+   "words_proto": 5731
+  },
+  "pages": 8,
+  "spans": {
+   "chars_lcs": 26212,
+   "chars_poppler": 26851,
+   "chars_proto": 26839,
+   "rows_cells_exact": 214,
+   "rows_exact": 292,
+   "rows_poppler": 454,
+   "rows_proto": 533,
+   "words_lcs": 5454,
+   "words_poppler": 5771,
+   "words_proto": 5869
+  }
+ },
+ "pwl12": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 50160,
+   "chars_poppler": 56164,
+   "chars_proto": 57014,
+   "rows_cells_exact": 232,
+   "rows_exact": 233,
+   "rows_poppler": 957,
+   "rows_proto": 923,
+   "words_lcs": 10477,
+   "words_poppler": 13149,
+   "words_proto": 13183
+  },
+  "linespans": {
+   "chars_lcs": 50537,
+   "chars_poppler": 56164,
+   "chars_proto": 57087,
+   "rows_cells_exact": 318,
+   "rows_exact": 319,
+   "rows_poppler": 957,
+   "rows_proto": 923,
+   "words_lcs": 10652,
+   "words_poppler": 13149,
+   "words_proto": 13280
+  },
+  "pages": 10,
+  "spans": {
+   "chars_lcs": 50482,
+   "chars_poppler": 56164,
+   "chars_proto": 57087,
+   "rows_cells_exact": 316,
+   "rows_exact": 319,
+   "rows_poppler": 957,
+   "rows_proto": 1002,
+   "words_lcs": 10669,
+   "words_poppler": 13149,
+   "words_proto": 13320
+  }
+ },
+ "pwl13": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 52837,
+   "chars_poppler": 55446,
+   "chars_proto": 55405,
+   "rows_cells_exact": 233,
+   "rows_exact": 284,
+   "rows_poppler": 924,
+   "rows_proto": 972,
+   "words_lcs": 10047,
+   "words_poppler": 12379,
+   "words_proto": 12244
+  },
+  "linespans": {
+   "chars_lcs": 53751,
+   "chars_poppler": 55446,
+   "chars_proto": 55457,
+   "rows_cells_exact": 283,
+   "rows_exact": 323,
+   "rows_poppler": 924,
+   "rows_proto": 961,
+   "words_lcs": 10231,
+   "words_poppler": 12379,
+   "words_proto": 12063
+  },
+  "pages": 12,
+  "spans": {
+   "chars_lcs": 53484,
+   "chars_poppler": 55446,
+   "chars_proto": 55457,
+   "rows_cells_exact": 278,
+   "rows_exact": 323,
+   "rows_poppler": 924,
+   "rows_proto": 941,
+   "words_lcs": 10283,
+   "words_poppler": 12379,
+   "words_proto": 12291
+  }
+ },
+ "pwl14": {
+  "engine_status": "complete",
+  "lines": {
+   "chars_lcs": 32168,
+   "chars_poppler": 32302,
+   "chars_proto": 32292,
+   "rows_cells_exact": 784,
+   "rows_exact": 789,
+   "rows_poppler": 879,
+   "rows_proto": 865,
+   "words_lcs": 6425,
+   "words_poppler": 6644,
+   "words_proto": 6574
+  },
+  "linespans": {
+   "chars_lcs": 32044,
+   "chars_poppler": 32302,
+   "chars_proto": 32071,
+   "rows_cells_exact": 808,
+   "rows_exact": 808,
+   "rows_poppler": 879,
+   "rows_proto": 858,
+   "words_lcs": 6417,
+   "words_poppler": 6644,
+   "words_proto": 6504
+  },
+  "pages": 35,
+  "spans": {
+   "chars_lcs": 32040,
+   "chars_poppler": 32302,
+   "chars_proto": 32071,
+   "rows_cells_exact": 777,
+   "rows_exact": 820,
+   "rows_poppler": 879,
+   "rows_proto": 865,
+   "words_lcs": 6436,
+   "words_poppler": 6644,
+   "words_proto": 6520
+  }
+ },
+ "tracemonkey": {
+  "engine_status": "partial",
+  "lines": {
+   "chars_lcs": 67108,
+   "chars_poppler": 69395,
+   "chars_proto": 69256,
+   "rows_cells_exact": 571,
+   "rows_exact": 598,
+   "rows_poppler": 927,
+   "rows_proto": 917,
+   "words_lcs": 12959,
+   "words_poppler": 13484,
+   "words_proto": 13301
+  },
+  "linespans": {
+   "chars_lcs": 67881,
+   "chars_poppler": 69395,
+   "chars_proto": 69396,
+   "rows_cells_exact": 764,
+   "rows_exact": 795,
+   "rows_poppler": 927,
+   "rows_proto": 917,
+   "words_lcs": 13235,
+   "words_poppler": 13484,
+   "words_proto": 13437
+  },
+  "pages": 14,
+  "spans": {
+   "chars_lcs": 67908,
+   "chars_poppler": 69395,
+   "chars_proto": 69396,
+   "rows_cells_exact": 771,
+   "rows_exact": 805,
+   "rows_poppler": 927,
+   "rows_proto": 925,
+   "words_lcs": 13242,
+   "words_poppler": 13484,
+   "words_proto": 13426
+  }
+ }
+}

@@ -1,0 +1,282 @@
+{
+ "fedreg-3col": {
+  "engine_status": "complete",
+  "engine_words": 4979,
+  "most_common_unknown": [
+   "noninstead"
+  ],
+  "unknown_words": 1
+ },
+ "latex-twocol": {
+  "engine_status": "partial",
+  "engine_words": 1059,
+  "most_common_unknown": [
+   "Journal"
+  ],
+  "unknown_words": 1
+ },
+ "pwl01": {
+  "engine_status": "complete",
+  "engine_words": 9194,
+  "most_common_unknown": [
+   "sealed",
+   "CONJ",
+   "DISTRIBUTION",
+   "MODUS",
+   "PONENS",
+   "HANDOFF",
+   "NECESSITATION",
+   "INTRODUCTION",
+   "short",
+   "MOTIVATION",
+   "FOUNDATIONS",
+   "certificate"
+  ],
+  "unknown_words": 46
+ },
+ "pwl02": {
+  "engine_status": "complete",
+  "engine_words": 2208,
+  "most_common_unknown": [
+   "translation",
+   "invariant",
+   "highest",
+   "scoring"
+  ],
+  "unknown_words": 4
+ },
+ "pwl03": {
+  "engine_status": "partial",
+  "engine_words": 2832,
+  "most_common_unknown": [
+   "erent",
+   "cients",
+   "erently",
+   "ects",
+   "data",
+   "structure",
+   "rollo",
+   "erence",
+   "Rollo",
+   "erences",
+   "cult",
+   "memory"
+  ],
+  "unknown_words": 25
+ },
+ "pwl04": {
+  "engine_status": "complete",
+  "engine_words": 3499,
+  "most_common_unknown": [
+   "fail",
+   "stat",
+   "tion",
+   "word",
+   "tions",
+   "words",
+   "numbers",
+   "proper",
+   "gorithm",
+   "tional",
+   "transi",
+   "Glenn"
+  ],
+  "unknown_words": 136
+ },
+ "pwl05": {
+  "engine_status": "complete",
+  "engine_words": 4973,
+  "most_common_unknown": [
+   "self",
+   "supporting"
+  ],
+  "unknown_words": 2
+ },
+ "pwl06": {
+  "engine_status": "complete",
+  "engine_words": 6680,
+  "most_common_unknown": [
+   "server",
+   "True",
+   "send",
+   "blocking",
+   "lock",
+   "free",
+   "purpose",
+   "analysis",
+   "transac",
+   "phase",
+   "investigate",
+   "single"
+  ],
+  "unknown_words": 23
+ },
+ "pwl07": {
+  "engine_status": "partial",
+  "engine_words": 6533,
+  "most_common_unknown": [
+   "logbN",
+   "framasv",
+   "egsg",
+   "denial",
+   "perb",
+   "condition",
+   "driventraffic",
+   "decid",
+   "resource",
+   "Planet",
+   "routing",
+   "bypdividing"
+  ],
+  "unknown_words": 18
+ },
+ "pwl08": {
+  "engine_status": "partial",
+  "engine_words": 5183,
+  "most_common_unknown": [
+   "OuSZ",
+   "mpression",
+   "absi",
+   "filesize",
+   "rates",
+   "DESCRIPTION",
+   "comp",
+   "dimensional",
+   "variable",
+   "length",
+   "layer",
+   "orig"
+  ],
+  "unknown_words": 41
+ },
+ "pwl09": {
+  "engine_status": "partial",
+  "engine_words": 11013,
+  "most_common_unknown": [
+   "Vigenere",
+   "TiTj",
+   "piHi",
+   "TiRj",
+   "psqN",
+   "qspN",
+   "INTRODUCTION",
+   "tion",
+   "TmRn",
+   "psTs",
+   "piLi",
+   "SUMMARY"
+  ],
+  "unknown_words": 102
+ },
+ "pwl10": {
+  "engine_status": "complete",
+  "engine_words": 7727,
+  "most_common_unknown": [
+   "sparse",
+   "polynomial",
+   "Stream",
+   "lined",
+   "fimj",
+   "almost",
+   "inverse",
+   "meet",
+   "FijGij",
+   "ijkG",
+   "ijklGij",
+   "Post"
+  ],
+  "unknown_words": 13
+ },
+ "pwl11": {
+  "engine_status": "complete",
+  "engine_words": 3183,
+  "most_common_unknown": [
+   "tain",
+   "configured",
+   "illustrated",
+   "parameter",
+   "resection",
+   "sults",
+   "mesquery",
+   "sages",
+   "tombdiscards",
+   "stone",
+   "mesthe",
+   "sage"
+  ],
+  "unknown_words": 68
+ },
+ "pwl12": {
+  "engine_status": "partial",
+  "engine_words": 6567,
+  "most_common_unknown": [
+   "signed",
+   "func",
+   "ucket",
+   "buck",
+   "msle",
+   "vine",
+   "interv",
+   "plies",
+   "proba",
+   "bility",
+   "orem",
+   "stract"
+  ],
+  "unknown_words": 94
+ },
+ "pwl13": {
+  "engine_status": "complete",
+  "engine_words": 5116,
+  "most_common_unknown": [
+   "tion",
+   "tions",
+   "ents",
+   "estimatex",
+   "served",
+   "bles",
+   "transi",
+   "eory",
+   "ment",
+   "urement",
+   "quirements",
+   "timation"
+  ],
+  "unknown_words": 462
+ },
+ "pwl14": {
+  "engine_status": "complete",
+  "engine_words": 3449,
+  "most_common_unknown": [
+   "PropCost",
+   "Mileage",
+   "FiftyThou",
+   "False",
+   "MakeModel",
+   "True",
+   "MaryCalls",
+   "Fiftythou",
+   "numberofnonevidencevariables"
+  ],
+  "unknown_words": 22
+ },
+ "tracemonkey": {
+  "engine_status": "partial",
+  "engine_words": 8154,
+  "most_common_unknown": [
+   "Monkey",
+   "REQUIRESSTACK",
+   "ORCESSTACK",
+   "Spider",
+   "suspend",
+   "carried",
+   "spectral",
+   "raytrace",
+   "tofte",
+   "fannkuch",
+   "floating",
+   "point"
+  ],
+  "unknown_words": 20
+ }
+}

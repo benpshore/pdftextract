@@ -1,0 +1,190 @@
+{
+ "fedreg-3col": {
+  "simple_fonts": 9,
+  "without_widths": [
+   {
+    "base_font": "Helvetica",
+    "embedded": false
+   }
+  ]
+ },
+ "latex-twocol": {
+  "simple_fonts": 9,
+  "without_widths": []
+ },
+ "pwl01": {
+  "simple_fonts": 60,
+  "without_widths": []
+ },
+ "pwl02": {
+  "simple_fonts": 6,
+  "without_widths": []
+ },
+ "pwl03": {
+  "simple_fonts": 23,
+  "without_widths": []
+ },
+ "pwl04": {
+  "simple_fonts": 5,
+  "without_widths": [
+   {
+    "base_font": "Arial,Bold",
+    "embedded": false
+   },
+   {
+    "base_font": "TimesNewRoman",
+    "embedded": false
+   },
+   {
+    "base_font": "TimesNewRoman,Bold",
+    "embedded": false
+   },
+   {
+    "base_font": "TimesNewRoman,BoldItalic",
+    "embedded": false
+   },
+   {
+    "base_font": "TimesNewRoman,Italic",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl05": {
+  "simple_fonts": 0,
+  "without_widths": []
+ },
+ "pwl06": {
+  "simple_fonts": 19,
+  "without_widths": []
+ },
+ "pwl07": {
+  "simple_fonts": 37,
+  "without_widths": [
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Courier",
+    "embedded": false
+   },
+   {
+    "base_font": "Times-Roman",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl08": {
+  "simple_fonts": 36,
+  "without_widths": [
+   {
+    "base_font": "Times-Roman",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl09": {
+  "simple_fonts": 33,
+  "without_widths": [
+   {
+    "base_font": "Helvetica",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl10": {
+  "simple_fonts": 26,
+  "without_widths": []
+ },
+ "pwl11": {
+  "simple_fonts": 20,
+  "without_widths": [
+   {
+    "base_font": "Helvetica",
+    "embedded": false
+   },
+   {
+    "base_font": "ZapfDingbats",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl12": {
+  "simple_fonts": 7,
+  "without_widths": []
+ },
+ "pwl13": {
+  "simple_fonts": 8,
+  "without_widths": [
+   {
+    "base_font": "Helvetica",
+    "embedded": false
+   },
+   {
+    "base_font": "Helvetica-Bold",
+    "embedded": false
+   },
+   {
+    "base_font": "Times-Bold",
+    "embedded": false
+   },
+   {
+    "base_font": "Times-Italic",
+    "embedded": false
+   },
+   {
+    "base_font": "Times-Roman",
+    "embedded": false
+   }
+  ]
+ },
+ "pwl14": {
+  "simple_fonts": 13,
+  "without_widths": [
+   {
+    "base_font": "Helvetica",
+    "embedded": false
+   }
+  ]
+ },
+ "tracemonkey": {
+  "simple_fonts": 24,
+  "without_widths": []
+ }
+}
