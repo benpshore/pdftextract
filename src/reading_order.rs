@@ -1052,9 +1052,7 @@ fn split_fused_rows(
         // short paragraph tail (even one word) still belongs to its column.
         let band = gutter_band(&builds, &gaps, k, gap_left.midpoint(gap_right), space);
         let supported = band.is_some_and(|(left, right)| {
-            right - left > space
-                && gap_left <= left + GUTTER_COVER
-                && gap_right >= right - GUTTER_COVER
+            right - left > space && (left..=right).contains(&gap_left.midpoint(gap_right))
         });
         if !supported && (!straddles || gap_right - gap_left <= min_gap) {
             continue;
@@ -1068,7 +1066,7 @@ fn split_fused_rows(
             continue;
         }
         let spanning = build.bbox.x1 - build.bbox.x0 > SPANNING_PAGE * width;
-        if spanning {
+        if spanning && !supported {
             let centre = gap_left.midpoint(gap_right);
             let Some((band_left, band_right)) = gutter_band(&builds, &gaps, k, centre, min_gap)
             else {
@@ -1886,7 +1884,21 @@ impl XyCut<'_> {
                 let masked =
                     masked_column_cut(boxes, &by_top, &by_left, params.column_gap, &mut self.marks);
                 let margin = if masked {
-                    spanning_row_cut(boxes, &by_top, params.bridge_gap, None)
+                    spanning_row_cut(boxes, &by_top, params.row_gap, None).or_else(|| {
+                        // Only relax tight heading spacing when the first body
+                        // row has text on both sides, not for the short final
+                        // line of a spanning paragraph.
+                        let (head, _) = margin_runs(boxes, &by_top);
+                        let at = spanning_row_cut(boxes, &by_top, params.bridge_gap, None)?;
+                        let next = *by_top.get(at)?;
+                        let paired = by_top[at + 1..].iter().any(|&other| {
+                            boxes[other].y0 < boxes[next].y1
+                                && boxes[other].y1 > boxes[next].y0
+                                && (boxes[other].x0 > boxes[next].x1
+                                    || boxes[other].x1 < boxes[next].x0)
+                        });
+                        (at == head && paired).then_some(at)
+                    })
                 } else {
                     None
                 };
