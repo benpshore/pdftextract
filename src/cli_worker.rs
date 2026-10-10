@@ -31,6 +31,8 @@ const DIAGNOSTIC_BYTES: u64 = 16 * 1024;
 struct ExtractRequest {
     job: Job,
     progress: bool,
+    #[serde(default)]
+    expected_sha256: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -71,6 +73,7 @@ struct Receipt {
     version: u32,
     status: Status,
     output_bytes: u64,
+    output_paths: Vec<PathBuf>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -315,7 +318,7 @@ pub(super) fn run(args: &ExtractArgs) -> anyhow::Result<ExitCode> {
                         break;
                     };
                     let started = Instant::now();
-                    let result = extract(args, &path, started, cancelled);
+                    let result = extract(args, &path, started, cancelled, None);
                     if sender
                         .send(Outcome {
                             path,
@@ -388,6 +391,30 @@ pub(super) fn run(args: &ExtractArgs) -> anyhow::Result<ExitCode> {
     ))
 }
 
+/// Inventory-driven job: one source, immutable expected bytes, fresh destination.
+/// Every parser/publisher is disposable; the controller retains only two paths.
+pub(super) fn inventory_job(
+    args: &ExtractArgs,
+    expected_sha256: &str,
+    cancelled: &AtomicBool,
+) -> anyhow::Result<(Status, Vec<PathBuf>)> {
+    let paths = input_paths(args)?;
+    ensure!(paths.len() == 1, "inventory job requires exactly one input");
+    let started = Instant::now();
+    let capture = extract(args, &paths[0], started, cancelled, Some(expected_sha256))?;
+    let (status, _published) = publish(args, &paths[0], &capture, started, cancelled)?;
+    let receipt: Receipt = serde_json::from_slice(&read_limited(
+        &capture.directory.path().join("receipt.json"),
+        REQUEST_BYTES,
+        true,
+    )?)?;
+    ensure!(
+        receipt.output_paths.len() == 2,
+        "inventory job lacks output pair"
+    );
+    Ok((status, receipt.output_paths))
+}
+
 struct CancelOnExit<'a> {
     flag: &'a AtomicBool,
     armed: bool,
@@ -401,10 +428,10 @@ impl Drop for CancelOnExit<'_> {
     }
 }
 
-struct CancelSignals(Vec<signal_hook::SigId>);
+pub(super) struct CancelSignals(Vec<signal_hook::SigId>);
 
 impl CancelSignals {
-    fn install(cancelled: &Arc<AtomicBool>) -> anyhow::Result<Self> {
+    pub(super) fn install(cancelled: &Arc<AtomicBool>) -> anyhow::Result<Self> {
         let mut registered = Self(Vec::new());
         for signal in [signal_hook::consts::SIGINT, signal_hook::consts::SIGTERM] {
             registered
@@ -445,6 +472,7 @@ fn extract(
     path: &Path,
     started: Instant,
     cancelled: &AtomicBool,
+    expected_sha256: Option<&str>,
 ) -> anyhow::Result<Capture> {
     let request = ExtractRequest {
         job: Job {
@@ -459,6 +487,7 @@ fn extract(
             figures_dir: None,
         },
         progress: args.progress,
+        expected_sha256: expected_sha256.map(str::to_owned),
     };
     supervise(
         args,
@@ -835,6 +864,12 @@ fn extract_worker(request: &ExtractRequest, limits: LimitEvidence) -> anyhow::Re
         pipeline::run_job_observed(&request.job, &mut observe)
     }))
     .map_err(|payload| anyhow::anyhow!("panic: {}", super::panic_message(&*payload)))??;
+    if let Some(expected) = &request.expected_sha256 {
+        ensure!(
+            &result.document.hash.0 == expected,
+            "input changed since inventory; extraction was not published"
+        );
+    }
     serde_json::to_writer(
         io::stdout().lock(),
         &Response {
@@ -935,6 +970,7 @@ fn publish_worker(request: &PublishRequest, limits: &LimitEvidence) -> anyhow::R
             version: 1,
             status: result.status,
             output_bytes: output.len() as u64,
+            output_paths: paths.to_vec(),
         })
         .map_err(|e| e.to_string())?;
         // Prepare the receipt before commit as well: a receipt alone does not
