@@ -1044,19 +1044,19 @@ fn split_fused_rows(
         let straddles = middles
             .iter()
             .any(|m| (gap_left - slack..=gap_right + slack).contains(m));
-        if gap_right - gap_left <= min_gap {
+        if gap_right - gap_left <= space {
             continue;
         }
         // A repeated gutter is stronger evidence than the page midpoint or
         // word count. Three-column pages have two off-centre gutters, and a
         // short paragraph tail (even one word) still belongs to its column.
-        let band = gutter_band(&builds, &gaps, k, gap_left.midpoint(gap_right), min_gap);
+        let band = gutter_band(&builds, &gaps, k, gap_left.midpoint(gap_right), space);
         let supported = band.is_some_and(|(left, right)| {
-            right - left > min_gap
+            right - left > space
                 && gap_left <= left + GUTTER_COVER
                 && gap_right >= right - GUTTER_COVER
         });
-        if !straddles && !supported {
+        if !supported && (!straddles || gap_right - gap_left <= min_gap) {
             continue;
         }
         let members = &sorted[k];
@@ -1886,7 +1886,7 @@ impl XyCut<'_> {
                 let masked =
                     masked_column_cut(boxes, &by_top, &by_left, params.column_gap, &mut self.marks);
                 let margin = if masked {
-                    spanning_row_cut(boxes, &by_top, params.row_gap, None)
+                    spanning_row_cut(boxes, &by_top, params.bridge_gap, None)
                 } else {
                     None
                 };

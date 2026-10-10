@@ -1397,7 +1397,8 @@ fn type3_glyph_scale(doc: &Document, dict: &Dictionary) -> f32 {
 
 fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
     let subtype = dict.get(b"Subtype").and_then(Object::as_name);
-    let glyph_scale = if subtype.is_ok_and(|name| name == b"Type3") {
+    let type3 = subtype.is_ok_and(|name| name == b"Type3");
+    let glyph_scale = if type3 {
         type3_glyph_scale(doc, dict)
     } else {
         THOUSANDTH
@@ -1425,7 +1426,7 @@ fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
         missing = missing_obj.as_float().ok();
     }
     let mut substituted = false;
-    if widths.is_empty() && !subtype.is_ok_and(|name| name == b"Type3") {
+    if widths.is_empty() && !type3 {
         if let Some((fallback, alias)) = standard_font_widths(doc, dict) {
             first_char = 0;
             widths = fallback;
