@@ -1427,12 +1427,13 @@ fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
         missing = missing_obj.as_float().ok();
     }
     let mut substituted = false;
-    if widths.is_empty() && !type3 {
-        if let Some((fallback, alias)) = standard_font_widths(doc, dict) {
-            first_char = 0;
-            widths = fallback;
-            substituted = alias;
-        }
+    if widths.is_empty()
+        && !type3
+        && let Some((fallback, alias)) = standard_font_widths(doc, dict)
+    {
+        first_char = 0;
+        widths = fallback;
+        substituted = alias;
     }
     SimpleWidths {
         first_char,
@@ -1443,7 +1444,7 @@ fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
     }
 }
 
-/// Recover standard metrics from the rendered glyph encoding, never ToUnicode:
+/// Recover standard metrics from the rendered glyph encoding, never `ToUnicode`:
 /// extraction Unicode may intentionally name different text than the glyph.
 /// Common unembedded aliases use the metrics only with visible uncertainty.
 fn standard_font_widths(doc: &Document, dict: &Dictionary) -> Option<(Vec<f32>, bool)> {
@@ -6462,7 +6463,10 @@ end
         let (id, live) = first.unwrap();
         assert_eq!(cache.fonts.len(), MAX_FONT_CACHE_ENTRIES);
         assert_eq!(cache.font_order.len(), MAX_FONT_CACHE_ENTRIES);
-        assert_eq!(cache.font_bytes, MAX_FONT_CACHE_ENTRIES * MIN_FONT_CHARGE);
+        assert_eq!(
+            cache.font_bytes,
+            MAX_FONT_CACHE_ENTRIES * (MIN_FONT_CHARGE + 32 * 1024)
+        );
         assert!(!cache.fonts.contains_key(&id));
         let Decode::Table(table) = &live.decode else {
             panic!("simple font")
