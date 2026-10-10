@@ -1,0 +1,36 @@
+\documentclass[twocolumn,10pt]{article}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{lipsum,booktabs,amsmath}
+\title{A Controlled Two-Column Fixture With a Table and Display Math}
+\author{A. Author \and B. Author}
+\begin{document}
+\maketitle
+\begin{abstract}\lipsum[1]\end{abstract}
+\section{Introduction}
+\lipsum[2-3]
+\begin{equation} E = mc^2 + \sum_{i=1}^{n} \alpha_i x_i^2 \end{equation}
+\lipsum[4]
+\begin{table}[t]\centering\caption{Dose by cohort (synthetic numbers).}
+\begin{tabular}{lrrr}\toprule
+Cohort & N & Mean & SD \\ \midrule
+Alpha & 120 & 4.25 & 0.91 \\
+Beta & 87 & 13.50 & 2.04 \\
+Gamma delta & 1045 & 0.07 & 0.01 \\ \bottomrule
+\end{tabular}\end{table}
+\section{Methods}
+\lipsum[5-8]
+\begin{table*}[t]\centering\caption{A table spanning both columns.}
+\begin{tabular}{llrrrr}\toprule
+Site & Arm & Enrolled & Completed & Rate & p \\ \midrule
+Denver & Treatment & 210 & 198 & 0.943 & 0.012 \\
+Denver & Control & 205 & 171 & 0.834 & -- \\
+Salt Lake City & Treatment & 96 & 90 & 0.938 & 0.210 \\
+Salt Lake City & Control & 99 & 88 & 0.889 & -- \\ \bottomrule
+\end{tabular}\end{table*}
+\section{Results}
+\lipsum[9-14]
+\begin{thebibliography}{9}
+\bibitem{a} A. Author and B. Author. A first reference title. \emph{Journal of Examples}, 12(3):45--67, 2019.
+\bibitem{b} C. Writer. Another reference with a longer title that wraps onto a second line in the column. \emph{Proceedings of Something}, pages 1--10, 2021.
+\end{thebibliography}
+\end{document}
