@@ -1,0 +1,165 @@
+{
+  "note": "PDF bytes are not committed. Each document is pinned by SHA-256.",
+  "documents": [
+    {
+      "id": "fedreg-3col",
+      "sha256": "ac419e4e084ea7a7a33a7be3f129dd07bc705b1a9e45ad751e33357f17d60f5c",
+      "pages": 15,
+      "producer": "iText\u00ae 5.5.13 \u00a92000-2018 iText Group NV (Government Publishing Office; licensed version)",
+      "source_repo": "jsvine/pdfplumber",
+      "source_commit": "4c64b92d5caccd71c645e98e0fabb0c4dba7ff45",
+      "source_path": "tests/pdfs/federal-register-2020-17221.pdf",
+      "selection": "hand-picked"
+    },
+    {
+      "id": "pwl01",
+      "sha256": "1bbb26fbbae6f8a148595a3539decafc3459d256d5639b1e559c4c1796b828d7",
+      "pages": 16,
+      "producer": "pdfTeX-1.40.14",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "security/macaroons-cookies-with-contextual-caveats.pdf",
+      "selection": "seeded sample, position 1 of 14"
+    },
+    {
+      "id": "pwl02",
+      "sha256": "c0701d84d1164e7fd3ee8210f40c06bad5703a1f6f889fe1974b65df069d680c",
+      "pages": 7,
+      "producer": "Acrobat Distiller 5.0 (Windows)",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "audio_comp_sci/shazam-audio-search-algorithm.pdf",
+      "selection": "seeded sample, position 2 of 14"
+    },
+    {
+      "id": "pwl03",
+      "sha256": "9d64e08cfac24678e1f9fa3a20077416b05ef06b67fea0a7b44cb81f8c040b9c",
+      "pages": 15,
+      "producer": "Mac OS X 10.4.5 Quartz PDFContext",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "audio_comp_sci/marsyas.pdf",
+      "selection": "seeded sample, position 3 of 14"
+    },
+    {
+      "id": "pwl04",
+      "sha256": "f04940c07d2a12726bce4147fd4217e876cd969ddf44094ad90c866893deed34",
+      "pages": 8,
+      "producer": null,
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "pattern_matching/aho-corasick-string-matching.pdf",
+      "selection": "seeded sample, position 4 of 14"
+    },
+    {
+      "id": "pwl05",
+      "sha256": "30c6a62cd14151c8a53248656bc97603bb3f100dbc3047fe8f1b1ff7e4400fc2",
+      "pages": 16,
+      "producer": "Mac OS X 10.8.3 Quartz PDFContext",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "comp_sci_fundamentals_and_history/story-of-squeak-a-practical-smalltalk-written-in-itself.pdf",
+      "selection": "seeded sample, position 5 of 14"
+    },
+    {
+      "id": "pwl06",
+      "sha256": "8cf30f4b379da5873dc9f7d82595d5cdc402083091cfff0e7beb00fd84473ea5",
+      "pages": 14,
+      "producer": "pdfTeX-1.40.12",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "datastores/spanner-google's-globally-distributed-database.pdf",
+      "selection": "seeded sample, position 6 of 14"
+    },
+    {
+      "id": "pwl07",
+      "sha256": "10a2c6c5442e4c2ca6f939dab4c0350afa94126012297b871ee13b137387f95c",
+      "pages": 14,
+      "producer": "GNU Ghostscript 7.05",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "distributed_systems/beehive-lookup-performance-for-power-law-query-distributions-in-peer-to-peer-overlays.pdf",
+      "selection": "seeded sample, position 7 of 14"
+    },
+    {
+      "id": "pwl08",
+      "sha256": "e41ec399bf2f0ede5f5526b8f4ecb789858f6f10aca2b0062ebf1088b24a2798",
+      "pages": 11,
+      "producer": "pdfTeX-1.40.17",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "data_compression/Significantly_Improving_Lossy_Compression_for_Scientific_Data_Sets_Based_on_Multidimensional_Prediction_and_Error-Controlled_Quantization.pdf",
+      "selection": "seeded sample, position 8 of 14"
+    },
+    {
+      "id": "pwl09",
+      "sha256": "2b9fee6a15fade84f35c378e645f3d1c397ebc9954deb345e7e32de88716390a",
+      "pages": 60,
+      "producer": "ESP Ghostscript 7.07",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "cryptography/communication-theory-of-secrecy-systems.pdf",
+      "selection": "seeded sample, position 9 of 14"
+    },
+    {
+      "id": "pwl10",
+      "sha256": "431bb53b436cf8c2d3182115b0e26cecf5859f3eee03cb5dc38162ac6a0cfaf0",
+      "pages": 34,
+      "producer": "pdfTeX-1.40.13",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "cryptography/ntru-prime.pdf",
+      "selection": "seeded sample, position 10 of 14"
+    },
+    {
+      "id": "pwl11",
+      "sha256": "8c32da43249a92748e710d9a1659490d7b2e6de468db1fa47288c48a505700e4",
+      "pages": 8,
+      "producer": "pdfTeX-1.40.15",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "data_structures/b-trees-write-optimization.pdf",
+      "selection": "seeded sample, position 11 of 14"
+    },
+    {
+      "id": "pwl12",
+      "sha256": "73a08b8f2ef127790bae99419ee84560c4a171da4ed9ee2e23ff88658386e6a1",
+      "pages": 10,
+      "producer": "Aladdin Ghostscript 6.0",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "distributed_systems/consistent-hashing-and-random-trees.pdf",
+      "selection": "seeded sample, position 12 of 14"
+    },
+    {
+      "id": "pwl13",
+      "sha256": "a36953169e269d3100e21005eb0c3e071c78b77342eff9b5a87b794da49db220",
+      "pages": 12,
+      "producer": "Acrobat Distiller 5.0.5 (Windows)",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "data_fusion/a-new-approach-to-linear-filtering-and-prediction-problems.pdf",
+      "selection": "seeded sample, position 13 of 14"
+    },
+    {
+      "id": "pwl14",
+      "sha256": "944d60cb2b1d10f00aa5b73de4826839ced599401dcad05d3a6740df5c780874",
+      "pages": 35,
+      "producer": "AFPL Ghostscript 8.14",
+      "source_repo": "papers-we-love/papers-we-love",
+      "source_commit": "9b92363eac4d4fbea0f5fdc7766ef68d22037ca8",
+      "source_path": "artificial_intelligence/3-bayesian-network-inference-algorithm.pdf",
+      "selection": "seeded sample, position 14 of 14"
+    },
+    {
+      "id": "tracemonkey",
+      "sha256": "3662ff519e485810520552bf301d8c3b2b917fd2f83303f4965d7abed367e113",
+      "pages": 14,
+      "producer": "pdfeTeX-1.21a",
+      "source_repo": "mozilla/pdf.js",
+      "source_commit": "519c1ba8ea02023e005dfc68c9442db1fed3fc01",
+      "source_path": "web/compressed.tracemonkey-pldi-09.pdf",
+      "selection": "hand-picked"
+    }
+  ]
+}

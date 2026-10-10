@@ -273,25 +273,29 @@ fn protect_sources(paths: &[PathBuf], db: &Path) -> anyhow::Result<PathBuf> {
     Ok(canonical)
 }
 
+fn plan(args: &ExtractArgs, paths: Vec<PathBuf>) -> ExitCode {
+    // Stop before signal handlers, temporary captures, workers or SQLite.
+    // Backend validation above inspects compiled features only. Runtime
+    // libraries, permissions, PDF validity, hashes and OCR are unchecked.
+    for path in paths {
+        println!(
+            "{}",
+            serde_json::json!({
+                "status": "planned", "path": path, "backend": args.backend,
+                "db": args.db, "out": args.out,
+                "unchecked": ["source contents/checksum", "PDF validity/encryption",
+                    "runtime backend availability", "destination write permission", "OCR"],
+                "network": false, "writes": false
+            })
+        );
+    }
+    ExitCode::SUCCESS
+}
+
 pub(super) fn run(args: &ExtractArgs) -> anyhow::Result<ExitCode> {
     let paths = input_paths(args)?;
     if args.dry_run {
-        // Stop before signal handlers, temporary captures, workers or SQLite.
-        // Backend validation above inspects compiled features only. Runtime
-        // libraries, permissions, PDF validity, hashes and OCR are unchecked.
-        for path in paths {
-            println!(
-                "{}",
-                serde_json::json!({
-                    "status": "planned", "path": path, "backend": args.backend,
-                    "db": args.db, "out": args.out,
-                    "unchecked": ["source contents/checksum", "PDF validity/encryption",
-                        "runtime backend availability", "destination write permission", "OCR"],
-                    "network": false, "writes": false
-                })
-            );
-        }
-        return Ok(ExitCode::SUCCESS);
+        return Ok(plan(args, paths));
     }
     let cancelled = Arc::new(AtomicBool::new(false));
     let _signals = CancelSignals::install(&cancelled)?;

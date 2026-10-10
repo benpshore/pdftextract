@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
-use anyhow::{Context, bail, ensure};
+use anyhow::{Context, ensure};
 use clap::Args;
 use rusqlite::{Connection, OpenFlags, OptionalExtension, params};
 use serde::{Deserialize, Serialize};
@@ -18,7 +18,7 @@ use sha2::{Digest, Sha256};
 
 use crate::{ExtractArgs, cli_worker};
 
-const APPLICATION_ID: i64 = 0x54504549;
+const APPLICATION_ID: i64 = 0x5450_4549;
 const MAX_ENTRIES: usize = 1_000_000;
 const MAX_DEPTH: usize = 64;
 const BUFFER: usize = 64 * 1024;
@@ -43,6 +43,9 @@ pub(super) struct InventoryArgs {
     /// Bound elapsed time for each file hash.
     #[arg(long, default_value_t = 60_000)]
     timeout_ms: u64,
+    /// Rehash unchanged files during an explicit integrity reconciliation.
+    #[arg(long)]
+    rehash: bool,
 }
 
 #[derive(Args)]
@@ -99,7 +102,7 @@ fn identity(meta: &fs::Metadata) -> anyhow::Result<Identity> {
         })
     }
     #[cfg(not(unix))]
-    bail!("inventory identity currently requires macOS or Linux")
+    anyhow::bail!("inventory identity currently requires macOS or Linux")
 }
 
 fn read_identity(path: &Path) -> anyhow::Result<Identity> {
@@ -135,7 +138,7 @@ fn hash_file(
         "source changed before read"
     );
     let mut digest = Sha256::new();
-    let mut buffer = [0; BUFFER];
+    let mut buffer = vec![0; BUFFER].into_boxed_slice();
     let mut total = 0_u64;
     loop {
         ensure!(!cancelled.load(Ordering::Relaxed), "cancelled");
@@ -213,6 +216,11 @@ fn open_owned(path: &Path, create: bool) -> anyhow::Result<(File, Connection)> {
     #[cfg(unix)]
     rustix::fs::flock(&lock, rustix::fs::FlockOperation::NonBlockingLockExclusive)
         .context("another inventory/batch writer owns this database")?;
+    if !fresh {
+        // Validate immutably before opening read-write: SQLite may otherwise
+        // recover a hot journal belonging to an unrelated existing database.
+        open_readonly(path)?;
+    }
     let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_WRITE)?;
     if fresh {
         conn.execute_batch("PRAGMA application_id=1414546761; PRAGMA user_version=1;
@@ -226,6 +234,9 @@ fn open_owned(path: &Path, create: bool) -> anyhow::Result<(File, Connection)> {
             CREATE INDEX attempt_source ON attempts(observation,processing,id);")?;
     }
     validate_db(&conn)?;
+    if fresh {
+        File::open(path.parent().unwrap_or(Path::new(".")))?.sync_all()?;
+    }
     Ok((lock, conn))
 }
 
@@ -275,7 +286,7 @@ fn kind(path: &Path) -> &'static str {
     }
 }
 
-fn report(value: serde_json::Value) -> anyhow::Result<()> {
+fn report(value: &serde_json::Value) -> anyhow::Result<()> {
     let mut out = std::io::stdout().lock();
     serde_json::to_writer(&mut out, &value)?;
     writeln!(out)?;
@@ -295,7 +306,7 @@ pub(super) fn inventory(args: &InventoryArgs) -> anyhow::Result<ExitCode> {
     if args.dry_run {
         for path in &args.paths {
             report(
-                serde_json::json!({"status":"planned","root":path,"db":args.db,
+                &serde_json::json!({"status":"planned","root":path,"db":args.db,
                 "writes":false,"network":false,"unchecked":["contents/checksums","inventory database","Photos/Zotero authorization","destination write access"]}),
             )?;
         }
@@ -304,8 +315,14 @@ pub(super) fn inventory(args: &InventoryArgs) -> anyhow::Result<ExitCode> {
     let roots: Vec<PathBuf> = args
         .paths
         .iter()
-        .map(|p| p.canonicalize())
-        .collect::<Result<_, _>>()?;
+        .map(|p| {
+            ensure!(
+                !fs::symlink_metadata(p)?.file_type().is_symlink(),
+                "source root may not be a symlink"
+            );
+            Ok(p.canonicalize()?)
+        })
+        .collect::<anyhow::Result<_>>()?;
     let db = separate(&args.db, &roots)?;
     let (_lock, conn) = open_owned(&db, true)?;
     let cancelled = Arc::new(AtomicBool::new(false));
@@ -322,44 +339,7 @@ pub(super) fn inventory(args: &InventoryArgs) -> anyhow::Result<ExitCode> {
     let result = (|| -> anyhow::Result<()> {
         for root in &roots {
             visit(root, 0, &mut count, args, &cancelled, &mut |path| {
-                let text = path.to_str().context("source path must be UTF-8")?;
-                let previous: Option<(String, String)> = conn.query_row(
-                    "SELECT identity,sha256 FROM observations WHERE path=?1 AND status='inventoried' ORDER BY id DESC LIMIT 1",
-                    [text], |row| Ok((row.get(0)?, row.get(1)?))).optional()?;
-                let observed = (|| -> anyhow::Result<(Identity, String, bool)> {
-                    let current = read_identity(path)?;
-                    if let Some((old, hash)) = previous {
-                        let old: Identity = serde_json::from_str(&old)?;
-                        if old == current {
-                            return Ok((current, hash, false));
-                        }
-                    }
-                    let (id, hash) = hash_file(
-                        path,
-                        args.max_bytes,
-                        Instant::now() + Duration::from_millis(args.timeout_ms),
-                        &cancelled,
-                    )?;
-                    Ok((id, hash, true))
-                })();
-                let (id, hash, status, detail) = match observed {
-                    Ok((id, hash, hashed)) => (
-                        Some(serde_json::to_string(&id)?),
-                        Some(hash),
-                        "inventoried",
-                        if hashed {
-                            "hashed".to_string()
-                        } else {
-                            "metadata_unchanged; checksum reused, not reverified".to_string()
-                        },
-                    ),
-                    Err(error) => (None, None, "failed", format!("{error:#}")),
-                };
-                conn.execute("INSERT INTO observations(scan,path,identity,sha256,kind,status,detail) VALUES (?1,?2,?3,?4,?5,?6,?7)",
-                    params![scan,text,id,hash,kind(path),status,detail])?;
-                report(
-                    serde_json::json!({"scan":scan,"path":path,"status":status,"sha256":hash,"kind":kind(path),"detail":detail}),
-                )
+                observe(&conn, scan, path, args, &cancelled)
             })?;
         }
         ensure!(!cancelled.load(Ordering::Relaxed), "cancelled");
@@ -375,6 +355,11 @@ pub(super) fn inventory(args: &InventoryArgs) -> anyhow::Result<ExitCode> {
         params![status, scan],
     )?;
     result?;
+    conn.execute("INSERT INTO observations(scan,path,kind,status,detail)
+        SELECT ?1,o.path,o.kind,'missing','absent during completed namespace reconciliation'
+        FROM observations o WHERE o.scan=(SELECT max(id) FROM scans WHERE id<?1 AND roots=?2 AND status='complete')
+        AND o.status!='missing' AND NOT EXISTS(SELECT 1 FROM observations n WHERE n.scan=?1 AND n.path=o.path)",
+        params![scan,serde_json::to_string(&roots)?])?;
     let failed: i64 = conn.query_row(
         "SELECT count(*) FROM observations WHERE scan=?1 AND status='failed'",
         [scan],
@@ -385,6 +370,53 @@ pub(super) fn inventory(args: &InventoryArgs) -> anyhow::Result<ExitCode> {
     } else {
         ExitCode::FAILURE
     })
+}
+
+fn observe(
+    conn: &Connection,
+    scan: i64,
+    path: &Path,
+    args: &InventoryArgs,
+    cancelled: &AtomicBool,
+) -> anyhow::Result<()> {
+    let text = path.to_str().context("source path must be UTF-8")?;
+    let previous: Option<(String, String)> = conn.query_row(
+                    "SELECT identity,sha256 FROM observations WHERE path=?1 AND status='inventoried' ORDER BY id DESC LIMIT 1",
+                    [text], |row| Ok((row.get(0)?, row.get(1)?))).optional()?;
+    let observed = (|| -> anyhow::Result<(Identity, String, bool)> {
+        let current = read_identity(path)?;
+        if let Some((old, hash)) = previous {
+            let old: Identity = serde_json::from_str(&old)?;
+            if !args.rehash && old == current {
+                return Ok((current, hash, false));
+            }
+        }
+        let (id, hash) = hash_file(
+            path,
+            args.max_bytes,
+            Instant::now() + Duration::from_millis(args.timeout_ms),
+            cancelled,
+        )?;
+        Ok((id, hash, true))
+    })();
+    let (id, hash, status, detail) = match observed {
+        Ok((id, hash, hashed)) => (
+            Some(serde_json::to_string(&id)?),
+            Some(hash),
+            "inventoried",
+            if hashed {
+                "hashed".to_string()
+            } else {
+                "metadata_unchanged; checksum reused, not reverified".to_string()
+            },
+        ),
+        Err(error) => (None, None, "failed", format!("{error:#}")),
+    };
+    conn.execute("INSERT INTO observations(scan,path,identity,sha256,kind,status,detail) VALUES (?1,?2,?3,?4,?5,?6,?7)",
+                    params![scan,text,id,hash,kind(path),status,detail])?;
+    report(
+        &serde_json::json!({"scan":scan,"path":path,"status":status,"sha256":hash,"kind":kind(path),"detail":detail}),
+    )
 }
 
 /// A depth-first iterator keeps at most 64 directory handles and one path;
@@ -486,9 +518,30 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
         "lopdf:{executable_hash}:pages=all:memory={}:timeout={}:output={}",
         args.max_memory_growth_mib, args.timeout_ms, args.max_output_bytes
     );
+    drain(conn, scan, &out, &processing, args, &cancelled)
+}
+
+fn drain(
+    conn: &Connection,
+    scan: i64,
+    out: &Path,
+    processing: &str,
+    args: &BatchArgs,
+    cancelled: &AtomicBool,
+) -> anyhow::Result<ExitCode> {
+    let mut errors = conn.prepare(
+        "SELECT path,status,detail FROM observations WHERE scan=?1 AND status!='inventoried'",
+    )?;
+    let mut rows = errors.query([scan])?;
+    let mut failed = false;
+    while let Some(row) = rows.next()? {
+        report(
+            &serde_json::json!({"path":row.get::<_,String>(0)?,"status":row.get::<_,String>(1)?,"detail":row.get::<_,String>(2)?}),
+        )?;
+        failed = true;
+    }
     let mut cursor = 0_i64;
     let mut attempts = 0;
-    let mut failed = false;
     loop {
         if cancelled.load(Ordering::Relaxed) {
             return Ok(ExitCode::FAILURE);
@@ -502,7 +555,7 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
         cursor = id;
         if kind != "pdf" {
             report(
-                serde_json::json!({"path":path,"status":"unsupported","kind":kind,"detail":"inventory only; no parser or archive expansion invoked"}),
+                &serde_json::json!({"path":path,"status":"unsupported","kind":kind,"detail":"inventory only; no parser or archive expansion invoked"}),
             )?;
             failed = true;
             continue;
@@ -512,7 +565,7 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
             params![path,hash,processing], |r|Ok((r.get(0)?,r.get(1)?))).optional()?;
         if args.dry_run {
             report(
-                serde_json::json!({"path":path,"status":"planned","prior_status":previous.as_ref().map(|p|&p.0),
+                &serde_json::json!({"path":path,"status":"planned","prior_status":previous.as_ref().map(|p|&p.0),
                 "writes":false,"network":false,"unchecked":["changed since inventory","output integrity","PDF validity","runtime availability"]}),
             )?;
             continue;
@@ -520,7 +573,7 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
         let expected: Identity = serde_json::from_str(&identity_json)?;
         if read_identity(Path::new(&path)).ok().as_ref() != Some(&expected) {
             report(
-                serde_json::json!({"path":path,"status":"changed_since_inventory","detail":"run inventory again; no extraction performed"}),
+                &serde_json::json!({"path":path,"status":"changed_since_inventory","detail":"run inventory again; no extraction performed"}),
             )?;
             failed = true;
             continue;
@@ -529,92 +582,30 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
             if status == "complete"
                 && artifacts
                     .as_ref()
-                    .is_some_and(|a| verify_artifacts(a, args, &cancelled).is_ok())
+                    .is_some_and(|a| verify_artifacts(a, args, cancelled).is_ok())
             {
-                report(serde_json::json!({"path":path,"status":"reused","sha256":hash}))?;
+                report(&serde_json::json!({"path":path,"status":"reused","sha256":hash}))?;
                 continue;
             }
-            if status != "complete" && status != "running" && !args.retry {
+            if status != "complete" && status != "running" && status != "interrupted" && !args.retry
+            {
                 report(
-                    serde_json::json!({"path":path,"status":status,"detail":"retained; use --retry for a new attempt"}),
+                    &serde_json::json!({"path":path,"status":status,"detail":"retained; use --retry for a new attempt"}),
                 )?;
                 failed = true;
                 continue;
             }
         }
         if attempts >= args.limit {
+            report(
+                &serde_json::json!({"status":"pending","detail":"attempt limit reached; rerun batch to continue","next_path":path}),
+            )?;
+            failed = true;
             break;
         }
         attempts += 1;
-        fs::create_dir_all(&out)?;
-        conn.execute("INSERT INTO attempts(observation,processing,status,directory,detail) VALUES (?1,?2,'running','','')", params![id,processing])?;
-        let attempt = conn.last_insert_rowid();
-        // Never adopt a directory left by an interrupted publisher. Fresh
-        // create_dir plus no-clobber publication preserves orphan evidence.
-        let directory = out.join(format!("attempt-{attempt}"));
-        fs::create_dir(&directory)
-            .context("attempt destination exists; preserved, not overwritten")?;
-        conn.execute(
-            "UPDATE attempts SET directory=?1 WHERE id=?2",
-            params![directory.to_str(), attempt],
-        )?;
-        report(serde_json::json!({"path":path,"status":"running","attempt":attempt}))?;
-        let extraction = ExtractArgs {
-            dry_run: false,
-            paths: vec![PathBuf::from(&path)],
-            db: directory.join("extraction.sqlite"),
-            backend: "lopdf".to_string(),
-            out: Some(directory.clone()),
-            json: false,
-            password: None,
-            pages: None,
-            jobs: 1,
-            max_bytes: Some(expected.size.max(1)),
-            timeout_ms: args.timeout_ms,
-            max_memory_growth_mib: args.max_memory_growth_mib,
-            max_output_bytes: Some(args.max_output_bytes),
-            max_files: 1,
-            figures_dir: None,
-            progress: false,
-        };
-        let result = cli_worker::inventory_job(&extraction, &hash, &cancelled).and_then(
-            |(status, paths)| {
-                ensure!(
-                    read_identity(Path::new(&path))? == expected,
-                    "source changed during job; outputs retained but not complete"
-                );
-                let artifacts = paths
-                    .iter()
-                    .map(|path| {
-                        let (id, hash) = hash_file(
-                            path,
-                            args.max_output_bytes,
-                            Instant::now() + Duration::from_millis(args.timeout_ms),
-                            &cancelled,
-                        )?;
-                        File::open(path)?.sync_all()?;
-                        Ok(Artifact {
-                            path: path.clone(),
-                            sha256: hash,
-                            size: id.size,
-                        })
-                    })
-                    .collect::<anyhow::Result<Vec<_>>>()?;
-                File::open(&directory)?.sync_all()?;
-                Ok((status.to_string(), serde_json::to_string(&artifacts)?))
-            },
-        );
-        let (status, artifacts, detail) = match result {
-            Ok((status, artifacts)) => (status, Some(artifacts), String::new()),
-            Err(error) => ("failed".to_string(), None, format!("{error:#}")),
-        };
-        conn.execute(
-            "UPDATE attempts SET status=?1,artifacts=?2,detail=?3 WHERE id=?4",
-            params![status, artifacts, detail, attempt],
-        )?;
-        failed |= status != "complete";
-        report(
-            serde_json::json!({"path":path,"status":status,"attempt":attempt,"detail":detail,"directory":directory}),
+        failed |= !attempt(
+            conn, id, &path, &hash, &expected, out, processing, args, cancelled,
         )?;
     }
     Ok(if failed {
@@ -622,6 +613,115 @@ pub(super) fn batch(args: &BatchArgs) -> anyhow::Result<ExitCode> {
     } else {
         ExitCode::SUCCESS
     })
+}
+
+// The worker and publisher terminate before this scope records a durable result.
+#[allow(clippy::too_many_arguments)]
+fn attempt(
+    conn: &Connection,
+    id: i64,
+    path: &str,
+    hash: &str,
+    expected: &Identity,
+    out: &Path,
+    processing: &str,
+    args: &BatchArgs,
+    cancelled: &AtomicBool,
+) -> anyhow::Result<bool> {
+    fs::create_dir_all(out)?;
+    conn.execute("INSERT INTO attempts(observation,processing,status,directory,detail) VALUES (?1,?2,'running','','')", params![id,processing])?;
+    let attempt = conn.last_insert_rowid();
+    // Never adopt a directory left by an interrupted publisher. Fresh
+    // create_dir plus no-clobber publication preserves orphan evidence.
+    let directory = out.join(format!("attempt-{attempt}"));
+    fs::create_dir(&directory).context("attempt destination exists; preserved, not overwritten")?;
+    File::open(out)?.sync_all()?;
+    conn.execute(
+        "UPDATE attempts SET directory=?1 WHERE id=?2",
+        params![directory.to_str(), attempt],
+    )?;
+    report(&serde_json::json!({"path":path,"status":"running","attempt":attempt}))?;
+    let extraction = ExtractArgs {
+        dry_run: false,
+        paths: vec![PathBuf::from(&path)],
+        db: directory.join("extraction.sqlite"),
+        backend: "lopdf".to_string(),
+        out: Some(directory.clone()),
+        json: false,
+        password: None,
+        pages: None,
+        jobs: 1,
+        max_bytes: Some(expected.size.max(1)),
+        timeout_ms: args.timeout_ms,
+        max_memory_growth_mib: args.max_memory_growth_mib,
+        max_output_bytes: Some(args.max_output_bytes),
+        max_files: 1,
+        figures_dir: None,
+        progress: false,
+    };
+    let result =
+        cli_worker::inventory_job(&extraction, hash, cancelled).and_then(|(status, paths)| {
+            finish(path, expected, &directory, status, &paths, args, cancelled)
+        });
+    let (status, artifacts, detail) = match result {
+        Ok((status, artifacts)) => (status, Some(artifacts), String::new()),
+        Err(error) => (
+            if cancelled.load(Ordering::Relaxed) {
+                "interrupted"
+            } else {
+                "failed"
+            }
+            .to_string(),
+            None,
+            format!("{error:#}"),
+        ),
+    };
+    conn.execute(
+        "UPDATE attempts SET status=?1,artifacts=?2,detail=?3 WHERE id=?4",
+        params![status, artifacts, detail, attempt],
+    )?;
+
+    report(
+        &serde_json::json!({"path":path,"status":status,"attempt":attempt,"detail":detail,"directory":directory}),
+    )?;
+    Ok(status == "complete")
+}
+
+fn finish(
+    source: &str,
+    expected: &Identity,
+    directory: &Path,
+    status: tpe::schema::Status,
+    paths: &[PathBuf],
+    args: &BatchArgs,
+    cancelled: &AtomicBool,
+) -> anyhow::Result<(String, String)> {
+    ensure!(
+        read_identity(Path::new(source))? == *expected,
+        "source changed during job; outputs retained but not complete"
+    );
+    let artifacts = paths
+        .iter()
+        .map(|path| {
+            let (id, hash) = hash_file(
+                path,
+                args.max_output_bytes,
+                Instant::now() + Duration::from_millis(args.timeout_ms),
+                cancelled,
+            )?;
+            File::open(path)?.sync_all()?;
+            Ok(Artifact {
+                path: path.clone(),
+                sha256: hash,
+                size: id.size,
+            })
+        })
+        .collect::<anyhow::Result<Vec<_>>>()?;
+    File::open(directory)?.sync_all()?;
+    Ok((
+        status.as_str().to_string(),
+        serde_json::to_string(&artifacts)?,
+    ))
 }
 
 fn verify_artifacts(json: &str, args: &BatchArgs, cancelled: &AtomicBool) -> anyhow::Result<()> {
