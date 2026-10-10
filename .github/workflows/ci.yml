@@ -21,6 +21,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify tested commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - name: No junk, databases or secrets committed
         run: |
           bad=$(git ls-files | grep -Ei '(^|/)(\.DS_Store|\.env(\..+)?|[^/]+\.(db|sqlite3?|duckdb|pem|key|p12|pfx))$' | grep -v '\.env\.example$' || true)
@@ -33,6 +38,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify tested commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
         with:
           enable-cache: true
@@ -48,8 +58,8 @@ jobs:
   rust:
     # x86-64 Linux plus native ARM64 Linux (aarch64-unknown-linux-gnu).
     # Cross-compiling is not runtime verification, so each target runs its
-    # own tests. No macOS runners: aarch64-apple-darwin is verified on a
-    # developer machine (AGENTS.md), not in Actions.
+    # own tests. The Build binaries workflow separately verifies the shipped
+    # aarch64-apple-darwin release CLI on native macOS.
     strategy:
       fail-fast: false
       matrix:
@@ -60,6 +70,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify tested commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - run: rustup show active-toolchain
       - run: rustc --version --verbose && uname -m
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -89,12 +104,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify tested commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - run: swift build
       - run: swift test
 
   # The CMake targets need Objective-C++ and the Foundation framework, so they
-  # only build on macOS; run `cmake -S . -B build && cmake --build build &&
-  # ctest --test-dir build` locally (AGENTS.md). No macOS runners in Actions.
+  # only build on macOS; Build binaries runs these checks on its macOS runner.
 
   # The single required check in the branch ruleset. It passes only if every job above passed.
   ci:

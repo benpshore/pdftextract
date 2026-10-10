@@ -36,6 +36,22 @@ fn visual_real_file_reading_order_witnesses() {
             figures_dir: None,
         })
         .unwrap();
+        if matches!(id, "pwl04" | "pwl11" | "pwl13") {
+            assert_eq!(result.status, tpe::schema::Status::Partial, "{id}");
+        }
+        if id == "pwl13" {
+            // These two visibly interleaved, equation-heavy pages remain
+            // unresolved. Keep their text/evidence, but never certify Complete.
+            for number in [4_usize, 8] {
+                let page = &result.pages[number - 1];
+                assert_eq!(page.extraction_status(), tpe::schema::Status::Partial);
+                assert!(
+                    page.warnings
+                        .iter()
+                        .any(|w| w.contains("reading order unresolved"))
+                );
+            }
+        }
         let page = usize::try_from(case["page"].as_u64().unwrap() - 1).unwrap();
         let normalized = result.pages[page]
             .text
