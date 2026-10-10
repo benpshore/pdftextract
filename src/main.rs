@@ -122,6 +122,9 @@ impl Split {
 
 #[derive(Args)]
 struct ExtractArgs {
+    /// Plan local PDF selection without reading contents, creating files or contacting services.
+    #[arg(long, short = 'n')]
+    dry_run: bool,
     /// PDF files or folders (regular PDFs, nonrecursive).
     #[arg(required = true, value_name = "PATH")]
     paths: Vec<PathBuf>,
