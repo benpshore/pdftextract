@@ -1,0 +1,242 @@
+{
+  "baseline": "4dfff54d6f638ea3d70079bf4e471cb73bc2aece",
+  "engine_checkpoint": "74aba244a4f7dfd39ba7fa3663708635254625d6",
+  "available_documents": 16,
+  "available_pages": 289,
+  "unavailable_original_control": "latex-twocol: no archived reproducible PDF bytes",
+  "before_flagged_pages": 29,
+  "after_flagged_pages": 2,
+  "documents": [
+    {
+      "id": "fedreg-3col",
+      "sha256": "ac419e4e084ea7a7a33a7be3f129dd07bc705b1a9e45ad751e33357f17d60f5c",
+      "pages": 15,
+      "before_interleaving": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        15
+      ],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl01",
+      "sha256": "1bbb26fbbae6f8a148595a3539decafc3459d256d5639b1e559c4c1796b828d7",
+      "pages": 16,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl02",
+      "sha256": "c0701d84d1164e7fd3ee8210f40c06bad5703a1f6f889fe1974b65df069d680c",
+      "pages": 7,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl03",
+      "sha256": "9d64e08cfac24678e1f9fa3a20077416b05ef06b67fea0a7b44cb81f8c040b9c",
+      "pages": 15,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl04",
+      "sha256": "f04940c07d2a12726bce4147fd4217e876cd969ddf44094ad90c866893deed34",
+      "pages": 8,
+      "before_interleaving": [
+        1,
+        2,
+        3,
+        5,
+        6,
+        8
+      ],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl05",
+      "sha256": "30c6a62cd14151c8a53248656bc97603bb3f100dbc3047fe8f1b1ff7e4400fc2",
+      "pages": 16,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl06",
+      "sha256": "8cf30f4b379da5873dc9f7d82595d5cdc402083091cfff0e7beb00fd84473ea5",
+      "pages": 14,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl07",
+      "sha256": "10a2c6c5442e4c2ca6f939dab4c0350afa94126012297b871ee13b137387f95c",
+      "pages": 14,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl08",
+      "sha256": "e41ec399bf2f0ede5f5526b8f4ecb789858f6f10aca2b0062ebf1088b24a2798",
+      "pages": 11,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl09",
+      "sha256": "2b9fee6a15fade84f35c378e645f3d1c397ebc9954deb345e7e32de88716390a",
+      "pages": 60,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl10",
+      "sha256": "431bb53b436cf8c2d3182115b0e26cecf5859f3eee03cb5dc38162ac6a0cfaf0",
+      "pages": 34,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "pwl11",
+      "sha256": "8c32da43249a92748e710d9a1659490d7b2e6de468db1fa47288c48a505700e4",
+      "pages": 8,
+      "before_interleaving": [
+        2,
+        3,
+        4,
+        6,
+        7
+      ],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl12",
+      "sha256": "73a08b8f2ef127790bae99419ee84560c4a171da4ed9ee2e23ff88658386e6a1",
+      "pages": 10,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl13",
+      "sha256": "a36953169e269d3100e21005eb0c3e071c78b77342eff9b5a87b794da49db220",
+      "pages": 12,
+      "before_interleaving": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "after_interleaving": [
+        4,
+        8
+      ],
+      "before_status": "complete",
+      "after_status": "partial"
+    },
+    {
+      "id": "pwl14",
+      "sha256": "944d60cb2b1d10f00aa5b73de4826839ced599401dcad05d3a6740df5c780874",
+      "pages": 35,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "complete",
+      "after_status": "complete"
+    },
+    {
+      "id": "tracemonkey",
+      "sha256": "3662ff519e485810520552bf301d8c3b2b917fd2f83303f4965d7abed367e113",
+      "pages": 14,
+      "before_interleaving": [],
+      "after_interleaving": [],
+      "before_status": "partial",
+      "after_status": "partial"
+    }
+  ],
+  "visual_witnesses": [
+    {
+      "id": "fedreg-3col",
+      "page": 2,
+      "before": {
+        "passes": false,
+        "first_missing_or_out_of_order_anchor": "On November 7, 2018, the FAA issued"
+      },
+      "after": {
+        "passes": true,
+        "first_missing_or_out_of_order_anchor": null
+      }
+    },
+    {
+      "id": "pwl04",
+      "page": 2,
+      "before": {
+        "passes": false,
+        "first_missing_or_out_of_order_anchor": "then the machine emits the set"
+      },
+      "after": {
+        "passes": true,
+        "first_missing_or_out_of_order_anchor": null
+      }
+    },
+    {
+      "id": "pwl11",
+      "page": 3,
+      "before": {
+        "passes": false,
+        "first_missing_or_out_of_order_anchor": "Write optimization."
+      },
+      "after": {
+        "passes": true,
+        "first_missing_or_out_of_order_anchor": null
+      }
+    },
+    {
+      "id": "pwl13",
+      "page": 2,
+      "before": {
+        "passes": false,
+        "first_missing_or_out_of_order_anchor": "Solution of the Wiener Problem."
+      },
+      "after": {
+        "passes": true,
+        "first_missing_or_out_of_order_anchor": null
+      }
+    }
+  ],
+  "warning": "Detector flags and visual prose anchors do not certify semantic completeness, math, tables or unseen files."
+}

@@ -31,6 +31,10 @@ on:
       - tests/lopdf_unicode_status.rs
       - tests/worker_startup.rs
       - tests/end_to_end.rs
+      - tests/layout_real_corpus.rs
+      - tests/cli_dry_run.rs
+      - tests/fixtures/layout-witnesses/**
+      - scripts/fetch_layout_witnesses.py
       - tests/common/**
       - tests/fixtures/native-worker/**
 
@@ -58,6 +62,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify tested commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
       - run: rustup show active-toolchain
       - run: rustc --version --verbose && uname -m
       - name: Runner architecture matches the target
@@ -88,10 +97,21 @@ jobs:
         run: cargo test --release --locked -p text-processing-engine --test worker_startup -- --test-threads=2 --nocapture
       - name: Native release CLI boundary
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
-        run: cargo test --release --locked -p text-processing-engine --test cli_containment --test end_to_end --test bibliography_input_safety --test lopdf_unicode_status -- --test-threads=2 --nocapture
+        run: cargo test --release --locked -p text-processing-engine --test cli_containment --test end_to_end --test bibliography_input_safety --test lopdf_unicode_status --test cli_dry_run -- --test-threads=2 --nocapture
+      - name: Fetch SHA-pinned public visual witnesses
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        run: python3 scripts/fetch_layout_witnesses.py "$RUNNER_TEMP/layout-witnesses"
+      - name: Real-file visual reading-order regressions
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        env:
+          TPE_LAYOUT_CORPUS: ${{ runner.temp }}/layout-witnesses
+        run: cargo test --release --locked --test layout_real_corpus -- --ignored --nocapture
       - name: Native release identity and Cargo cache
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         run: cargo test --release --locked -p text-processing-engine --test build_identity -- --nocapture
+      - name: macOS CMake smoke
+        if: ${{ matrix.os == 'macos-15' }}
+        run: cmake -S . -B build && cmake --build build && ctest --test-dir build --output-on-failure
       - name: Smoke test
         run: |
           set -eu

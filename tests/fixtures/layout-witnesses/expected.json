@@ -1,0 +1,9 @@
+{
+  "note": "Ordered anchors manually transcribed from rendered pages before final validation. These witness column order, not full text/math accuracy. PDFs stay outside git; source hashes are in corpus.json.",
+  "cases": [
+    {"id":"fedreg-3col","page":2,"ordered":["Hatta International Airport in Jakarta,", "Indonesia, resulting in 189 fatalities.", "Following the Lion Air Flight 610", "These effects include stall warning", "altitude disagree alert,", "On November 7, 2018, the FAA issued", "On March 10, 2019, a Boeing Model", "and the Ethiopian Civil Aviation", "Authority (ECAA).", "The data from the flight data", "To address the unsafe condition, the"]},
+    {"id":"pwl04","page":2,"ordered":["The behavior of the pattern", "matching machine is dictated by three functions:", "Figure 1 shows the functions", "One state (usually 0) is designated", "The failure function", "An operating cycle", "then the machine emits the set", "The operating cycle is now complete.", "Initially, the current state of the machine", "Consider the operating cycle"]},
+    {"id":"pwl11","page":3,"ordered":["interest is in data sets too large to fit into", "RAM. Thus, the first-order performance impact", "Performance model.", "This model focuses on the principal performance", "The point-query complexities", "Range queries incur a logarithmic search cost", "times faster than a B-tree.", "Write optimization.", "flushing strategy is designed", "Caching.", "The impact of node size"]},
+    {"id":"pwl13","page":2,"ordered":["natural and also necessary in order to take advantage", "Solution of the Wiener Problem.", "difficulty (3) disappears.", "The Dual Problem.", "Applications.", "Notation Conventions", "The scalar product is clearly a scalar", "Similarly, the quadratic form associated", "For ease of reference", "Orthogonal Projections", "Models for Random Processes", "Solution of the Wiener Problem", "To have a concrete description or the type of problems"]}
+  ]
+}
