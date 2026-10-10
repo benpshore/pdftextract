@@ -1,0 +1,11 @@
+          REPORT
+
+L1                  R1
+  L2                R2
+
+item                R3
+
+          TABLE
+A         B         C
+
+END
