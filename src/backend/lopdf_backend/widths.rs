@@ -13,6 +13,8 @@ use super::{DEFAULT_WIDTH, THOUSANDTH};
 /// Glyph widths of a simple (single-byte) font.
 pub(super) struct SimpleWidths {
     pub(super) first_char: u32,
+    /// Substituted non-standard font metrics cannot certify geometry.
+    pub(super) substituted: bool,
     /// `/Widths`, in glyph space.
     pub(super) widths: Vec<f32>,
     /// `/MissingWidth`, in glyph space.
@@ -26,10 +28,23 @@ impl SimpleWidths {
     pub(super) fn unknown() -> Self {
         Self {
             first_char: 0,
+            substituted: false,
             widths: Vec::new(),
             missing: None,
             glyph_scale: THOUSANDTH,
         }
+    }
+
+    fn known_width(&self, code: u32) -> Option<f32> {
+        let index = usize::try_from(code.checked_sub(self.first_char)?).ok()?;
+        self.widths
+            .get(index)
+            .copied()
+            .filter(|width| width.is_finite())
+    }
+
+    fn uncertain(&self, code: u32) -> bool {
+        self.substituted || (self.known_width(code).is_none() && self.missing.is_none())
     }
 
     /// Advance of `code` in text space (1.0 = the font size).
@@ -38,16 +53,8 @@ impl SimpleWidths {
             Some(missing) => missing * self.glyph_scale,
             None => DEFAULT_WIDTH * THOUSANDTH,
         };
-        let Some(offset) = code.checked_sub(self.first_char) else {
-            return fallback;
-        };
-        let Ok(index) = usize::try_from(offset) else {
-            return fallback;
-        };
-        match self.widths.get(index) {
-            Some(glyph_width) => glyph_width * self.glyph_scale,
-            None => fallback,
-        }
+        self.known_width(code)
+            .map_or(fallback, |width| width * self.glyph_scale)
     }
 }
 
@@ -144,6 +151,10 @@ pub(super) enum Widths {
 }
 
 impl Widths {
+    pub(super) fn uncertain(&self, code: u32) -> bool {
+        matches!(self, Self::Simple(simple) if simple.uncertain(code))
+    }
+
     /// Advance of `code` in text space (1.0 = the font size).
     pub(super) fn text_width(&self, code: u32) -> f32 {
         match self {
@@ -335,6 +346,7 @@ mod tests {
     #[test]
     fn simple_widths_keep_missing_width_and_type3_scaling() {
         let simple = SimpleWidths {
+            substituted: false,
             first_char: 65,
             widths: vec![100.0, 200.0],
             missing: Some(300.0),

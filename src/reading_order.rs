@@ -1044,13 +1044,26 @@ fn split_fused_rows(
         let straddles = middles
             .iter()
             .any(|m| (gap_left - slack..=gap_right + slack).contains(m));
-        if gap_right - gap_left <= min_gap || !straddles {
+        if gap_right - gap_left <= min_gap {
+            continue;
+        }
+        // A repeated gutter is stronger evidence than the page midpoint or
+        // word count. Three-column pages have two off-centre gutters, and a
+        // short paragraph tail (even one word) still belongs to its column.
+        let band = gutter_band(&builds, &gaps, k, gap_left.midpoint(gap_right), min_gap);
+        let supported = band.is_some_and(|(left, right)| {
+            right - left > min_gap
+                && gap_left <= left + GUTTER_COVER
+                && gap_right >= right - GUTTER_COVER
+        });
+        if !straddles && !supported {
             continue;
         }
         let members = &sorted[k];
         let (head, tail) = members.split_at(pos);
-        if word_count(spans, head, fallback) < GUTTER_WORDS
-            || word_count(spans, tail, fallback) < GUTTER_WORDS
+        if !supported
+            && (word_count(spans, head, fallback) < GUTTER_WORDS
+                || word_count(spans, tail, fallback) < GUTTER_WORDS)
         {
             continue;
         }

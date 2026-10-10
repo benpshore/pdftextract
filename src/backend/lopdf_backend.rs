@@ -77,6 +77,7 @@ use crate::schema::{BBox, BackendIdentity, Link, PageText, Span, config_digest};
 mod cff_recovery;
 mod content;
 mod graphics;
+mod standard_widths;
 mod widths;
 
 use content::{OpKind, TextProgram, is_pdf_space, lex_content};
@@ -1423,12 +1424,88 @@ fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
     {
         missing = missing_obj.as_float().ok();
     }
+    let mut substituted = false;
+    if widths.is_empty() && !subtype.is_ok_and(|name| name == b"Type3") {
+        if let Some((fallback, alias)) = standard_font_widths(doc, dict) {
+            first_char = 0;
+            widths = fallback;
+            substituted = alias;
+        }
+    }
     SimpleWidths {
         first_char,
+        substituted,
         widths,
         missing,
         glyph_scale,
     }
+}
+
+/// Recover standard metrics from the rendered glyph encoding, never ToUnicode:
+/// extraction Unicode may intentionally name different text than the glyph.
+/// Common unembedded aliases use the metrics only with visible uncertainty.
+fn standard_font_widths(doc: &Document, dict: &Dictionary) -> Option<(Vec<f32>, bool)> {
+    let raw = dict.get(b"BaseFont").ok()?.as_name().ok()?;
+    let name = std::str::from_utf8(raw).ok()?;
+    let (standard, alias) = match name {
+        "TimesNewRoman" | "TimesNewRomanPSMT" => ("Times-Roman", true),
+        "TimesNewRoman,Bold" | "TimesNewRomanPS-BoldMT" => ("Times-Bold", true),
+        "TimesNewRoman,Italic" | "TimesNewRomanPS-ItalicMT" => ("Times-Italic", true),
+        "TimesNewRoman,BoldItalic" | "TimesNewRomanPS-BoldItalicMT" => ("Times-BoldItalic", true),
+        "Arial" | "ArialMT" => ("Helvetica", true),
+        "Arial,Bold" | "Arial-BoldMT" => ("Helvetica-Bold", true),
+        "Arial,Italic" | "Arial-ItalicMT" => ("Helvetica-Oblique", true),
+        "Arial,BoldItalic" | "Arial-BoldItalicMT" => ("Helvetica-BoldOblique", true),
+        other => (other, false),
+    };
+    // An embedded program with omitted widths is malformed: do not assume
+    // the program has standard metrics just because it uses a familiar name.
+    if let Ok(descriptor) = dict
+        .get_deref(b"FontDescriptor", doc)
+        .and_then(Object::as_dict)
+        && [b"FontFile".as_slice(), b"FontFile2", b"FontFile3"]
+            .iter()
+            .any(|key| descriptor.has(key))
+    {
+        return None;
+    }
+    if matches!(
+        standard,
+        "Courier" | "Courier-Bold" | "Courier-Oblique" | "Courier-BoldOblique"
+    ) {
+        return Some((vec![600.0; 256], alias));
+    }
+    let metrics = standard_widths::metrics(standard)?;
+    let mut encoding = dict.clone();
+    encoding.remove(b"ToUnicode");
+    let entries = own_table(doc, &encoding)
+        .map(|table| table.entries)
+        .or_else(|| {
+            encoding
+                .get_font_encoding(doc)
+                .ok()
+                .map(|enc| ByteTable::build(&enc).entries)
+        })?;
+    let mut by_char = std::collections::BTreeMap::new();
+    for &(glyph, width) in metrics {
+        if let Some(ch) = glyph_char(doc, glyph.as_bytes()) {
+            by_char.insert(ch, f32::from(width));
+        }
+    }
+    let widths = entries
+        .iter()
+        .map(|entry| {
+            let Some(text) = entry else { return f32::NAN };
+            let mut chars = text.chars();
+            let ch = chars.next();
+            if chars.next().is_some() {
+                return f32::NAN;
+            }
+            ch.and_then(|ch| by_char.get(&ch).copied())
+                .unwrap_or(f32::NAN)
+        })
+        .collect();
+    Some((widths, alias))
 }
 
 fn composite_widths(doc: &Document, dict: &Dictionary) -> CompositeWidths {
@@ -1891,6 +1968,16 @@ impl<'a> Interpreter<'a> {
             }
         };
         let text = self.decode(name, &font, bytes);
+        if !font.composite
+            && bytes
+                .iter()
+                .any(|&code| font.widths.uncertain(u32::from(code)))
+        {
+            self.warn(format!(
+                "extraction_incomplete: font {} has missing or substituted glyph widths; positions and reading order are uncertain",
+                lossy(name)
+            ));
+        }
         let advance = self.advance(&font, bytes);
         let base_font = font.base_font.clone();
         self.emit(text, advance, base_font);
