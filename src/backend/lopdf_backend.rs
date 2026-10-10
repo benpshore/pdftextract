@@ -6480,7 +6480,7 @@ end
         cache.insert_font((9001, 0), &live);
         assert_eq!(cache.fonts.len(), 1);
         assert_eq!(cache.font_order.len(), 1);
-        assert_eq!(cache.font_bytes, MIN_FONT_CHARGE);
+        assert_eq!(cache.font_bytes, MIN_FONT_CHARGE + 32 * 1024);
         let mut work = FontWork::default();
         work.reserve(MAX_FONT_CACHE_BYTES).unwrap();
         assert!(resolve_font(&doc, &mut cache, &mut work, &id.into()).is_err());
