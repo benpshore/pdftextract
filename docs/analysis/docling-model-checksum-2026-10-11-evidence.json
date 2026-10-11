@@ -1,0 +1,116 @@
+{
+  "investigated_head": "f3fbe828f1531f1d62c346586ea8a24f0406fc37",
+  "release": {
+    "id": 351549900,
+    "immutable": false,
+    "published_at": "2026-07-09T13:36:22Z"
+  },
+  "asset": {
+    "url": "https://api.github.com/repos/docling-project/docling.rs/releases/assets/627624021",
+    "id": 627624021,
+    "node_id": "RA_kwDOTG8jTM4laMhV",
+    "name": "layout_heron_int8.onnx",
+    "label": "",
+    "uploader": {
+      "login": "github-actions[bot]",
+      "id": 41898282,
+      "node_id": "MDM6Qm90NDE4OTgyODI=",
+      "avatar_url": "https://avatars.githubusercontent.com/in/15368?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/github-actions%5Bbot%5D",
+      "html_url": "https://github.com/apps/github-actions",
+      "followers_url": "https://api.github.com/users/github-actions%5Bbot%5D/followers",
+      "following_url": "https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}",
+      "gists_url": "https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/github-actions%5Bbot%5D/subscriptions",
+      "organizations_url": "https://api.github.com/users/github-actions%5Bbot%5D/orgs",
+      "repos_url": "https://api.github.com/users/github-actions%5Bbot%5D/repos",
+      "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
+      "type": "Bot",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "content_type": "application/octet-stream",
+    "state": "uploaded",
+    "size": 68695321,
+    "digest": "sha256:87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a",
+    "download_count": 168,
+    "created_at": "2026-10-10T10:07:06Z",
+    "updated_at": "2026-10-10T10:07:08Z",
+    "browser_download_url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx"
+  },
+  "log_excerpts": {
+    "old-publish-log": [
+      "2026-09-15T19:41:08.6422356Z Successfully installed MarkupSafe-3.0.3 annotated-doc-0.0.5 anyio-4.15.1 certifi-2026.7.22 click-8.5.0 cuda-bindings-13.4.1 cuda-pathfinder-1.8.1 cuda-toolkit-13.0.3.0 filelock-3.32.6 fsspec-2026.7.0 h11-0.16.0 hf-xet-1.6.0 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.31.0 idna-3.19 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 ml_dtypes-0.6.0 mpmath-1.3.0 networkx-3.6.1 numpy-2.4.6 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.52 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 onnx-1.22.0 packaging-26.3 protobuf-7.36.1 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.10 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 sympy-1.14.0 tokenizers-0.23.2 torch-2.14.0 tqdm-4.70.1 transformers-5.17.0 triton-3.8.0 typer-0.27.2 typing-extensions-4.16.0",
+      "2026-09-15T19:41:08.8638551Z ##[group]Run python scripts/install/export_layout.py .models/layout_heron.onnx",
+      "2026-09-15T19:41:08.8639174Z \u001b[36;1mpython scripts/install/export_layout.py .models/layout_heron.onnx\u001b[0m",
+      "2026-09-15T19:41:20.4526934Z wrote .models/layout_heron.onnx",
+      "2026-09-15T19:41:27.4099525Z Successfully installed Pillow-12.3.0 docling_ibm_models-4.0.2 flatbuffers-25.12.19 onnx_ir-1.0.0 onnxruntime-1.30.0 onnxscript-0.7.2 opencv-python-headless-5.0.0.93 torchvision-0.29.0",
+      "2026-09-15T19:41:52.3892205Z Successfully installed onnxruntime-1.27.0 pypdfium2-5.12.0",
+      "2026-09-15T19:41:59.0108515Z layout: 52 calibration samples",
+      "2026-09-15T19:42:39.3502608Z layout: done -> /home/runner/work/docling.rs/docling.rs/.models/layout_heron_int8.onnx (68.7 MB)",
+      "2026-09-15T19:43:29.2263875Z layout gate: 505 confident fp32 detections, 0 lost by int8 (0.00%), 0 tables",
+      "2026-09-15T19:43:29.2264252Z layout gate: PASSED",
+      "2026-09-15T19:45:33.6436588Z \u001b[36;1mstage .models/layout_heron.onnx layout_heron.onnx\u001b[0m",
+      "2026-09-15T19:45:33.6436893Z \u001b[36;1mstage .models/layout_heron_int8.onnx layout_heron_int8.onnx\u001b[0m",
+      "2026-09-15T19:45:36.3438242Z -rw-r--r--  1 runner runner 172208540 Sep 15 19:45 layout_heron.onnx",
+      "2026-09-15T19:45:36.3438705Z -rw-r--r--  1 runner runner  68695321 Sep 15 19:45 layout_heron_int8.onnx",
+      "2026-09-15T19:45:36.4618586Z \u001b[36;1m  gh release upload \"$TAG\" release-assets/* --repo \"docling-project/docling.rs\" --clobber\u001b[0m"
+    ],
+    "mismatch-publish-log": [
+      "2026-10-06T10:14:18.4740015Z Successfully installed MarkupSafe-3.0.4 annotated-doc-0.0.5 anyio-4.15.1 certifi-2026.7.22 click-8.5.0 cuda-bindings-13.4.3 cuda-pathfinder-1.8.3 cuda-toolkit-13.0.3.0 filelock-4.0.12 fsspec-2026.9.0 h11-0.16.0 hf-xet-1.6.0 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.33.0 idna-3.20 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 ml_dtypes-0.6.0 mpmath-1.3.0 networkx-3.6.1 numpy-2.4.6 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.92 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 onnx-1.23.2 packaging-26.3 protobuf-7.36.2 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.29 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 sympy-1.14.0 tokenizers-0.23.2 torch-2.14.1 tqdm-4.70.1 transformers-5.18.0 triton-3.8.0 typer-0.27.2 typing-extensions-4.16.0",
+      "2026-10-06T10:14:19.2961108Z ##[group]Run python scripts/install/export_layout.py .models/layout_heron.onnx",
+      "2026-10-06T10:14:19.2961823Z \u001b[36;1mpython scripts/install/export_layout.py .models/layout_heron.onnx\u001b[0m",
+      "2026-10-06T10:14:32.9286410Z wrote .models/layout_heron.onnx",
+      "2026-10-06T10:14:38.6558788Z Successfully installed Pillow-12.3.0 docling_ibm_models-4.0.3 flatbuffers-25.12.19 onnx_ir-1.0.0 onnxruntime-1.30.0 onnxscript-0.7.2 opencv-python-headless-5.0.0.93 torchvision-0.29.1",
+      "2026-10-06T10:15:09.9268601Z Successfully installed onnx-1.22.0 onnxruntime-1.27.0 pypdfium2-5.12.0",
+      "2026-10-06T10:15:17.1440502Z layout: 53 calibration samples",
+      "2026-10-06T10:16:05.7764781Z layout: done -> /home/runner/work/docling.rs/docling.rs/.models/layout_heron_int8.onnx (68.7 MB)",
+      "2026-10-06T10:17:03.5096566Z layout gate: 539 confident fp32 detections, 0 lost by int8 (0.00%), 0 tables",
+      "2026-10-06T10:17:03.5097026Z layout gate: PASSED",
+      "2026-10-06T10:19:26.9855946Z \u001b[36;1mstage .models/layout_heron.onnx layout_heron.onnx\u001b[0m",
+      "2026-10-06T10:19:26.9856254Z \u001b[36;1mstage .models/layout_heron_int8.onnx layout_heron_int8.onnx\u001b[0m",
+      "2026-10-06T10:19:30.1064863Z -rw-r--r--  1 runner runner 172208540 Oct  6 10:19 layout_heron.onnx",
+      "2026-10-06T10:19:30.1065179Z -rw-r--r--  1 runner runner  68695321 Oct  6 10:19 layout_heron_int8.onnx",
+      "2026-10-06T10:19:30.1430730Z \u001b[36;1m  gh release upload \"$TAG\" release-assets/* --repo \"docling-project/docling.rs\" --clobber\u001b[0m"
+    ],
+    "current-publish-log": [
+      "2026-10-10T10:00:52.9887358Z Successfully installed MarkupSafe-3.0.4 annotated-doc-0.0.5 anyio-4.15.1 click-8.5.0 cuda-bindings-13.4.3 cuda-pathfinder-1.8.3 cuda-toolkit-13.0.3.0 filelock-4.1.0 fsspec-2026.9.0 h11-0.16.0 hf-xet-1.7.0 httpcore2-2.13.1 httpx2-2.13.1 huggingface-hub-2.2.0 idna-3.20 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 ml_dtypes-0.6.0 mpmath-1.3.0 networkx-3.6.1 numpy-2.4.6 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.92 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 onnx-1.23.2 packaging-26.3 protobuf-7.36.2 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.29 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 sympy-1.14.0 tokenizers-0.23.3 torch-2.14.1 tqdm-4.70.1 transformers-5.19.0 triton-3.8.0 truststore-0.10.4 typer-0.27.3 typing-extensions-4.16.0",
+      "2026-10-10T10:00:53.3401832Z ##[group]Run python scripts/install/export_layout.py .models/layout_heron.onnx",
+      "2026-10-10T10:00:53.3402509Z \u001b[36;1mpython scripts/install/export_layout.py .models/layout_heron.onnx\u001b[0m",
+      "2026-10-10T10:01:07.9570245Z wrote .models/layout_heron.onnx",
+      "2026-10-10T10:01:14.2728340Z Successfully installed Pillow-12.3.0 certifi-2026.7.22 docling_ibm_models-4.0.3 flatbuffers-25.12.19 httpcore-1.0.9 httpx-0.28.1 huggingface_hub-1.33.0 onnx_ir-1.0.0 onnxruntime-1.31.0 onnxscript-0.7.2 opencv-python-headless-5.0.0.93 torchvision-0.29.1",
+      "2026-10-10T10:01:50.3008473Z Successfully installed onnx-1.22.0 onnxruntime-1.27.0 pypdfium2-5.12.0",
+      "2026-10-10T10:01:56.0042897Z layout: 53 calibration samples",
+      "2026-10-10T10:02:55.1185333Z layout: done -> /home/runner/work/docling.rs/docling.rs/.models/layout_heron_int8.onnx (68.7 MB)",
+      "2026-10-10T10:04:13.9486889Z layout gate: 539 confident fp32 detections, 0 lost by int8 (0.00%), 0 tables",
+      "2026-10-10T10:04:13.9487519Z layout gate: PASSED",
+      "2026-10-10T10:06:47.3199782Z \u001b[36;1mstage .models/layout_heron.onnx layout_heron.onnx\u001b[0m",
+      "2026-10-10T10:06:47.3200183Z \u001b[36;1mstage .models/layout_heron_int8.onnx layout_heron_int8.onnx\u001b[0m",
+      "2026-10-10T10:06:48.7068930Z -rw-r--r--  1 runner runner 172208540 Oct 10 10:06 layout_heron.onnx",
+      "2026-10-10T10:06:48.7069385Z -rw-r--r--  1 runner runner  68695321 Oct 10 10:06 layout_heron_int8.onnx",
+      "2026-10-10T10:06:48.7703699Z \u001b[36;1m  gh release upload \"$TAG\" release-assets/* --repo \"docling-project/docling.rs\" --clobber\u001b[0m"
+    ],
+    "initial-native-log": [
+      "2026-09-28T14:34:51.2495784Z Cache not found for input keys: native-assets-ubuntu-24.04-arm-1eb59248de4cc58e9c2e55d3262de8f674cf650b7dc51ca66d48cb554cb4be68",
+      "2026-09-28T14:34:51.7688987Z   > https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "2026-09-28T14:34:53.2985401Z downloaded,verified    .models/layout_heron_int8.onnx      68695321  d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5  -"
+    ],
+    "native-log": [
+      "2026-10-10T01:28:14.0769737Z Successfully installed uv version 0.13.0",
+      "2026-10-10T01:28:22.6403332Z Cache not found for input keys: native-assets-ubuntu-24.04-arm-1eb59248de4cc58e9c2e55d3262de8f674cf650b7dc51ca66d48cb554cb4be68",
+      "2026-10-10T01:28:22.9781102Z   > https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "2026-10-10T01:28:23.5687003Z error: .models/layout_heron_int8.onnx: sha256 387be1f67bd58ec7fc575c53966492890d91af0810866bb383af45a18cc66161, manifest pins d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5",
+      "2026-10-10T01:28:24.2897567Z MISMATCH               .models/layout_heron_int8.onnx      68695321  387be1f67bd58ec7fc575c53966492890d91af0810866bb383af45a18cc66161  -"
+    ],
+    "biblio-log": [
+      "2026-10-10T01:28:20.3614156Z Successfully installed uv version 0.13.0",
+      "2026-10-10T01:28:21.1352800Z Cache not found for input keys: native-assets-ubuntu-24.04-arm-1eb59248de4cc58e9c2e55d3262de8f674cf650b7dc51ca66d48cb554cb4be68",
+      "2026-10-10T01:28:21.4613750Z   > https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "2026-10-10T01:28:22.1902830Z error: .models/layout_heron_int8.onnx: sha256 387be1f67bd58ec7fc575c53966492890d91af0810866bb383af45a18cc66161, manifest pins d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5",
+      "2026-10-10T01:28:22.8921418Z MISMATCH               .models/layout_heron_int8.onnx      68695321  387be1f67bd58ec7fc575c53966492890d91af0810866bb383af45a18cc66161  -"
+    ]
+  }
+}
