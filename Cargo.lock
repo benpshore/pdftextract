@@ -1130,9 +1130,9 @@ dependencies = [
 
 [[package]]
 name = "cef"
-version = "154.2.0+154.0.28"
+version = "154.4.0+154.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5b58469710177fffc21edb0b24ffa035c862f82d275bd90fc7b4ed3c81f74d5"
+checksum = "1297b1c1d6c6606fdf4e1a5789bc0db34461d7fcfbbc4ba803b228c75f176e07"
 dependencies = [
  "anyhow",
  "cargo_metadata",
@@ -1150,9 +1150,9 @@ dependencies = [
 
 [[package]]
 name = "cef-dll-sys"
-version = "154.2.0+154.0.28"
+version = "154.5.0+154.0.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52918263b95a701338a534c7cfbb7c9bf06a2dd8ef5079eb595c3754735ecb46"
+checksum = "a52b7101d21b13aaa09e5047510bc6b6720140de0ee2a65d132b9fd70fbf5f69"
 dependencies = [
  "anyhow",
  "cc",
@@ -2219,9 +2219,9 @@ dependencies = [
 
 [[package]]
 name = "docling-asr"
-version = "1.69.2"
+version = "1.96.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c161b3674ae00aa74076b96e41b6a1ec82c0fbd95dcbab9e9b65a7dddf58728"
+checksum = "4bf5651c7a44eefadbe00cff4623d9a0a2f3f49e8fb46554ffa5a0f79e16223d"
 dependencies = [
  "docling-core",
  "docling-onnx",
@@ -2232,19 +2232,20 @@ dependencies = [
 
 [[package]]
 name = "docling-core"
-version = "1.69.2"
+version = "1.96.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5cb745538bcdccbd71a6aab23870fb019b76aa8c12e2b2e0f776eccf89743dd"
+checksum = "d9b5a048220b5027b616c407da4ef79dae2d2869c4b7b85fccb5183e2f22ec9c"
 dependencies = [
+ "png 0.18.1",
  "serde_json",
  "sha2 0.10.9",
 ]
 
 [[package]]
 name = "docling-onnx"
-version = "1.69.2"
+version = "1.96.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d582d6ba220477f0878113379dc5f4fab1f4fbd2f7111cfbbf78f9508ec170ad"
+checksum = "6b99e8ecd4c8351cf079e74631c4fd927b1b2bdbecc3e9b3b9e1589432001d08"
 dependencies = [
  "docling-core",
  "ort",
@@ -2252,22 +2253,25 @@ dependencies = [
 
 [[package]]
 name = "docling-pdf"
-version = "1.69.2"
+version = "1.96.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8adac50848aebe6b473661c01b5304271aefc399ca63da7fd3d478c6431fca48"
+checksum = "95014d847c2f79efdb374cb845287c51f0ddab815cd9ec385f353574ac1c33a2"
 dependencies = [
  "docling-core",
  "docling-onnx",
  "fast_image_resize",
  "flate2",
  "image",
+ "libloading 0.8.9",
  "lopdf 0.44.0",
  "ort",
- "pdfium-render",
  "regex",
  "tar",
  "time",
+ "tiny-skia 0.12.0",
  "tokenizers 0.20.4",
+ "ttf-parser 0.25.1",
+ "weezl 0.2.1",
 ]
 
 [[package]]
@@ -2796,7 +2800,7 @@ version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbc773e24e02d4ddd8395fd30dc147524273a83e54e0f312d986ea30de5f5646"
 dependencies = [
- "roxmltree",
+ "roxmltree 0.20.0",
 ]
 
 [[package]]
@@ -4406,9 +4410,9 @@ checksum = "34b357333733e8260735ba5894eb928c02ecc69c78715f01a8019e7fa7f2db4c"
 
 [[package]]
 name = "libc"
-version = "0.2.189"
+version = "0.2.190"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
+checksum = "ce5d3ddc6d3fa000eb1536d85e147bfe31aacaba692ed6a876f95cb7c855be78"
 
 [[package]]
 name = "libflate"
@@ -5414,16 +5418,16 @@ dependencies = [
 
 [[package]]
 name = "office_oxide"
-version = "0.1.9"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e07e156a6bc62caaa66fc698daad7405dd62e86f5292fd22898c1a55f154748d"
+checksum = "22582556784e5c9005e12e2c2e78c2959674ca082edf806d939fff4ffceca9de"
 dependencies = [
  "atoi_simd",
  "encoding_rs",
  "fast-float2",
- "libc",
+ "flate2",
  "log",
- "quick-xml 0.41.0",
+ "quick-xml 0.42.0",
  "serde",
  "serde_json",
  "thiserror 2.0.21",
@@ -5750,9 +5754,9 @@ dependencies = [
 
 [[package]]
 name = "pdfium-render"
-version = "0.8.37"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6553f6604a52b3203db7b4e9d51eb4dd193cf455af9e56d40cab6575b547b679"
+checksum = "8948a803616a9e936b15a6637af2cd48c5fb8ae0fcdeb3c32eac3a540e255a19"
 dependencies = [
  "bitflags 2.13.2",
  "bytemuck",
@@ -5760,7 +5764,6 @@ dependencies = [
  "chrono",
  "console_error_panic_hook",
  "console_log",
- "image",
  "itertools 0.15.0",
  "js-sys",
  "libloading 0.9.0",
@@ -6255,7 +6258,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
 dependencies = [
  "memchr",
- "serde",
 ]
 
 [[package]]
@@ -6265,6 +6267,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
 dependencies = [
  "memchr",
+ "serde",
 ]
 
 [[package]]
@@ -6771,7 +6774,7 @@ dependencies = [
  "pico-args",
  "rgb",
  "svgtypes",
- "tiny-skia",
+ "tiny-skia 0.11.4",
  "usvg 0.44.0",
  "zune-jpeg 0.4.21",
 ]
@@ -6786,7 +6789,7 @@ dependencies = [
  "pico-args",
  "rgb",
  "svgtypes",
- "tiny-skia",
+ "tiny-skia 0.11.4",
  "usvg 0.45.1",
 ]
 
@@ -6833,6 +6836,15 @@ name = "roxmltree"
 version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c20b6793b5c2fa6553b250154b78d6d0db37e72700ae35fad9387a46f487c97"
+
+[[package]]
+name = "roxmltree"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1964b10c76125c36f8afe190065a4bf9a87bf324842c05701330bba9f1cacbb"
+dependencies = [
+ "memchr",
+]
 
 [[package]]
 name = "rsqlite-vfs"
@@ -7396,9 +7408,9 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "signal-hook"
-version = "0.3.18"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d881a16cf4426aa584979d30bd82cb33429027e42122b169753d6ef1085ed6e2"
+checksum = "b29ffa27d3d59a049bb328258de100f8012848d1b08d444e08bbc02ac468435e"
 dependencies = [
  "libc",
  "signal-hook-registry",
@@ -8199,7 +8211,7 @@ dependencies = [
  "pdf_oxide",
  "pdfium-render",
  "regex",
- "roxmltree",
+ "roxmltree 0.21.1",
  "rusqlite",
  "rustix 1.1.5",
  "serde",
@@ -8320,7 +8332,21 @@ dependencies = [
  "cfg-if",
  "log",
  "png 0.17.16",
- "tiny-skia-path",
+ "tiny-skia-path 0.11.4",
+]
+
+[[package]]
+name = "tiny-skia"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47ffee5eaaf5527f630fb0e356b90ebdec84d5d18d937c5e440350f88c5a91ea"
+dependencies = [
+ "arrayref",
+ "arrayvec",
+ "bytemuck",
+ "cfg-if",
+ "log",
+ "tiny-skia-path 0.12.0",
 ]
 
 [[package]]
@@ -8328,6 +8354,17 @@ name = "tiny-skia-path"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c9e7fc0c2e86a30b117d0462aa261b72b7a99b7ebd7deb3a14ceda95c5bdc93"
+dependencies = [
+ "arrayref",
+ "bytemuck",
+ "strict-num",
+]
+
+[[package]]
+name = "tiny-skia-path"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "edca365c3faccca67d06593c5980fa6c57687de727a03131735bb85f01fdeeb9"
 dependencies = [
  "arrayref",
  "bytemuck",
@@ -8416,9 +8453,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.53.1"
+version = "1.53.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed"
+checksum = "e95f91fcc7a621e8b030f6aa23c71fe9838ae2fb4d8118b75602a328f5144044"
 dependencies = [
  "bytes",
  "libc",
@@ -8689,7 +8726,7 @@ version = "0.2.0"
 dependencies = [
  "block2",
  "libc",
- "libloading 0.8.9",
+ "libloading 0.9.0",
  "objc",
  "objc2",
  "objc2-avf-audio",
@@ -8704,7 +8741,7 @@ dependencies = [
  "clap",
  "fastembed",
  "rusqlite",
- "sha2 0.10.9",
+ "sha2 0.11.0",
  "tempfile",
  "thiserror 2.0.21",
  "usearch",
@@ -9033,9 +9070,9 @@ dependencies = [
 
 [[package]]
 name = "usearch"
-version = "2.26.2"
+version = "2.26.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b43f3a7c8d3b100d53c1a34e9ce4cd76cc83627bdb4fcd035d4e82102778aeee"
+checksum = "3ae1c08a924aecdf8280c6d14f8bcc3677092a1f33d7c254f0f70fdc632ae694"
 dependencies = [
  "cxx",
  "cxx-build",
@@ -9056,13 +9093,13 @@ dependencies = [
  "kurbo 0.11.3",
  "log",
  "pico-args",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustybuzz 0.18.0",
  "simplecss",
  "siphasher",
  "strict-num",
  "svgtypes",
- "tiny-skia-path",
+ "tiny-skia-path 0.11.4",
  "unicode-bidi",
  "unicode-script",
  "unicode-vo",
@@ -9083,13 +9120,13 @@ dependencies = [
  "kurbo 0.11.3",
  "log",
  "pico-args",
- "roxmltree",
+ "roxmltree 0.20.0",
  "rustybuzz 0.20.1",
  "simplecss",
  "siphasher",
  "strict-num",
  "svgtypes",
- "tiny-skia-path",
+ "tiny-skia-path 0.11.4",
  "unicode-bidi",
  "unicode-script",
  "unicode-vo",
