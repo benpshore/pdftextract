@@ -2,6 +2,7 @@
 
 import json
 import os
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -46,14 +47,15 @@ def test_exec_failure_has_nonzero_status(monkeypatch, capsys):
 
 @pytest.mark.skipif(os.name != "posix", reason="POSIX process replacement contract")
 @pytest.mark.parametrize("entrypoint", ["module", "console"])
-def test_real_launcher_preserves_process_io_and_status(tmp_path, entrypoint):
+@pytest.mark.parametrize("termination", ["exit", "signal"])
+def test_real_launcher_preserves_process_io_and_status(tmp_path, entrypoint, termination):
     engine = tmp_path / "tpe"
     engine.write_text(
         f"#!{sys.executable}\n"
-        "import json, os, sys\n"
-        "print(json.dumps([os.getpid(), sys.argv[1:], sys.stdin.read()]))\n"
-        "print('native diagnostic', file=sys.stderr)\n"
-        "sys.exit(23)\n"
+        "import json, os, signal, sys\n"
+        "print(json.dumps([os.getpid(), sys.argv[1:], sys.stdin.read()]), flush=True)\n"
+        "print('native diagnostic', file=sys.stderr, flush=True)\n"
+        + ("sys.exit(23)\n" if termination == "exit" else "os.kill(os.getpid(), signal.SIGTERM)\n")
     )
     engine.chmod(0o700)
     command = (
@@ -71,6 +73,6 @@ def test_real_launcher_preserves_process_io_and_status(tmp_path, entrypoint):
         text=True,
     ) as process:
         stdout, stderr = process.communicate("input stream", timeout=10)
-        assert process.returncode == 23
+        assert process.returncode == (23 if termination == "exit" else -signal.SIGTERM)
         assert json.loads(stdout) == [process.pid, arguments, "input stream"]
         assert stderr == "native diagnostic\n"

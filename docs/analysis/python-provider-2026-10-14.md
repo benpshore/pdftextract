@@ -32,6 +32,13 @@ Build binaries successful; Native and PDFium Unicode failed. These are historica
 head checks, not checks of this branch. The `gh` API returned Forbidden; git
 transport and the connected reader worked.
 
+A subsequent focused history check found the same signedness repair in held
+PR #234, head `1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe`, in the pre-split
+`src/backend/native_provider.rs` (`u8::from_ne_bytes(value.to_ne_bytes())`).
+This branch's independently implemented repair is a narrow current-main
+adaptation in `tpe-ffi`, not a new discovery or import of that broader hardening
+stack. Coordinate these overlapping changes if either draft is integrated.
+
 - [Native run](https://github.com/benpshore/pdftextract/actions/runs/38169034277),
   job 114557539328: strict model provisioning, build, Clippy, tests and all four
   backend evaluations succeeded. Validation then rejected every report with
@@ -51,11 +58,12 @@ Pinned Rust 1.98.1 and Python 3.14.7 were provisioned under /tmp; no system
 credentials or default toolchain settings were altered. Rust builds use two jobs.
 
 - Baseline Python: 210 passed.
-- Changed Python: Ruff format/check and 214 tests passed; wheel and sdist built.
+- Changed Python: Ruff format/check and 216 tests passed; wheel and sdist built
+  before the final test-only additions.
 - Real-process launcher tests check PID continuity, arguments containing shell
-  metacharacters, inherited stdin/stdout/stderr and nonzero exit status for both
+  metacharacters, inherited stdin/stdout/stderr, SIGTERM and nonzero exit status for both
   entry points. They use an executable test double, not real PDF extraction.
-- Provider Rust: seven tests passed on x86-64; one existing doctest ignored.
+- Provider Rust: eight tests passed on x86-64; one existing doctest ignored.
   Clippy passed for all provider targets on x86-64 and ARM64 cross compilation.
   Cross compilation does not establish ARM64 runtime behavior.
 - An initial focused Clippy run found an existing test's wrapping `as c_char`
@@ -65,5 +73,14 @@ credentials or default toolchain settings were altered. Rust builds use two jobs
 - Swift and CMake commands could not start (tools absent). The CMake app targets
   additionally require macOS. No app runtime/macOS verification is claimed.
 
-Full root Rust checks and final exact-head checks are recorded in the PR/handoff.
+- Full root `cargo clippy --locked --all-targets -- -D warnings` and
+  `cargo test --locked` passed. The latter includes the 2 GiB expansion-pressure
+  test and worker deadline/cancellation/publication tests. Optional backend
+  tests disabled by default features are not claimed as executed.
+- Real Python-to-Rust integration: a malformed PDF followed by the native fixture
+  produced `failed`, then `complete`, and exit status 1. The native fixture's
+  SHA-256 remained `099a620bd29179e329704c152808ad8e3e34f0d5388894c43d17fb3340d373c8`.
+  The ledger lived in a disposable directory; no input data was committed.
+
+Final exact-head checks are recorded in the PR/handoff.
 No benchmark or fidelity improvement is inferred from these tests.

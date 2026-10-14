@@ -349,6 +349,19 @@ mod tests {
     }
 
     #[test]
+    fn identity_read_stops_at_the_exact_byte_bound() {
+        let mut buffer = [c_char::from_ne_bytes(*b"x"); 256];
+        // SAFETY: all 256 bytes are readable, even without a NUL terminator.
+        assert!(unsafe { bounded_string(buffer.as_ptr()) }.is_err());
+        buffer[255] = 0;
+        // SAFETY: a readable array ending in NUL.
+        assert_eq!(
+            unsafe { bounded_string(buffer.as_ptr()) }.unwrap(),
+            "x".repeat(255)
+        );
+    }
+
+    #[test]
     fn provider_strings_preserve_high_bytes() {
         let text = c"échec 日本語";
         // SAFETY: a static NUL-terminated string literal.
