@@ -720,3 +720,215 @@ def test_dependency_change_does_not_hide_missing_historical_pin(inputs):
         MODULE.load_reviewed_partials(
             manifest, "pinned", policy, provenance, "dev", "pdfium", {}, {"a"}, current_pins
         )
+
+
+def evidence_case(inputs, *, model_changed=True, lock_changed=False):
+    manifest, report, policy, provenance = reviewed_inputs(inputs)
+    dumps = retained_dumps(report)
+    outcome = policy["papers"]["pdfium"]["a"]
+    dumps["a"].update(
+        warnings=deepcopy(outcome["warnings"]),
+        page_warnings=deepcopy(outcome["resource_page_warnings"]),
+    )
+    if model_changed:
+        provenance["native_manifest_sha256"] = "new-model-manifest"
+    if lock_changed:
+        provenance["cargo_lock_sha256"] = "b" * 64
+    current = {key: provenance[key] for key in policy["provenance_pins"]}
+    return manifest, report, policy, provenance, dumps, current
+
+
+def evaluate_case(case):
+    manifest, report, policy, provenance, dumps, current = case
+    return MODULE.evaluate_evidence(
+        manifest, "pinned", report, policy, provenance, "dev", "pdfium", dumps, current
+    )
+
+
+@pytest.mark.parametrize("lock_changed", [False, True])
+@pytest.mark.parametrize("status", ["partial", "complete"])
+def test_model_drift_reports_current_outcomes_but_preserves_historical_rejection(
+    inputs, lock_changed, status
+):
+    case = evidence_case(inputs, lock_changed=lock_changed)
+    _, report, _, _, dumps, _ = case
+    if status == "complete":
+        report["papers"][0].update(status="complete", warnings=0)
+        dumps["a"].update(warnings=[], page_warnings=[])
+    original = deepcopy(case)
+    result = evaluate_case(case)
+    assert result["historical_eligibility_errors"] == [
+        "reviewed-partial provenance mismatch: native_manifest_sha256"
+    ]
+    assert result["historical_exceptions_applied"] == 0
+    assert result["retained_baselines"] == ["a"]
+    assert result["baseline_errors"] == result["dump_errors"] == []
+    assert result["strict_current_errors"] == (
+        ["incomplete paper a: status 'partial'"] if status == "partial" else []
+    )
+    assert result["errors"]  # Even otherwise clean Complete cannot bypass eligibility rejection.
+    assert case == original
+
+
+@pytest.mark.parametrize("lock_changed", [False, True])
+@pytest.mark.parametrize("status", ["partial", "complete"])
+def test_model_drift_preserves_page_and_zero_reference_regressions(inputs, lock_changed, status):
+    case = evidence_case(inputs, lock_changed=lock_changed)
+    _, report, _, _, dumps, _ = case
+    row = report["papers"][0]
+    row.update(status=status, pages=19, extracted_refs=0, matched_refs=0)
+    dumps["a"].update(pages=19, extracted=[])
+    dumps["a"]["matches"][0]["extracted_index"] = None
+    row["matches"] = deepcopy(dumps["a"]["matches"])
+    result = evaluate_case(case)
+    errors = result["strict_current_errors"]
+    assert "reviewed input page count mismatch: a" in errors
+    assert "reviewed-partial reference regression: a" in errors
+    assert any("reference extraction failed for a" in error for error in errors)
+    assert result["historical_exceptions_applied"] == 0
+    assert result["errors"]
+
+
+@pytest.mark.parametrize("model_changed", [False, True])
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"id": "tampered"},
+        {"truth": []},
+        {"extracted": []},
+        {"matches": []},
+        {"page_warnings": None},
+        {"pages": 19},
+    ],
+)
+def test_tampered_evidence_cannot_apply_exceptions_or_hide_strict_outcomes(
+    inputs, model_changed, change
+):
+    case = evidence_case(inputs, model_changed=model_changed)
+    case[4]["a"].update(change)
+    result = evaluate_case(case)
+    assert result["dump_errors"]
+    assert result["historical_exceptions_applied"] == 0
+    assert "incomplete paper a: status 'partial'" in result["strict_current_errors"]
+    assert result["errors"]
+
+
+@pytest.mark.parametrize("malformed", [None, [], {}, {"version": True}])
+def test_malformed_policy_does_not_mask_current_diagnostics(inputs, malformed):
+    case = list(evidence_case(inputs))
+    case[2] = malformed
+    case[1]["papers"][0]["matched_refs"] = 0
+    result = evaluate_case(case)
+    assert result["historical_eligibility_errors"]
+    assert result["baseline_errors"]
+    assert result["historical_exceptions_applied"] == 0
+    assert result["retained_baselines"] == []
+    assert any("reference extraction failed" in error for error in result["strict_current_errors"])
+    assert result["dump_errors"]
+
+
+@pytest.mark.parametrize(
+    "field", ["metric_source_sha256", "truth_source_sha256", "corpus_manifest_sha256"]
+)
+def test_baseline_comparison_rejects_noncomparable_truth_or_scorer(inputs, field):
+    case = evidence_case(inputs)
+    case[3][field] = case[5][field] = "changed"
+    result = evaluate_case(case)
+    assert result["baseline_errors"]
+    assert result["retained_baselines"] == []
+    assert result["historical_exceptions_applied"] == 0
+    assert result["errors"]
+
+
+def test_valid_historical_allowance_still_has_separate_strict_diagnostics(inputs):
+    case = evidence_case(inputs, model_changed=False)
+    result = evaluate_case(case)
+    assert result["errors"] == []
+    assert result["historical_exceptions_applied"] == 1
+    assert result["strict_current_errors"] == ["incomplete paper a: status 'partial'"]
+
+
+@pytest.mark.parametrize("lock_changed", [False, True])
+def test_cli_persists_independent_diagnostics_and_never_overwrites_evidence(
+    inputs, tmp_path, monkeypatch, capsys, lock_changed
+):
+    manifest, report, policy, provenance, dumps, current = evidence_case(
+        inputs, lock_changed=lock_changed
+    )
+    manifest_bytes = json.dumps(manifest).encode()
+    manifest_hash = MODULE.hashlib.sha256(manifest_bytes).hexdigest()
+    for record in (policy["provenance_pins"], provenance, current):
+        record["corpus_manifest_sha256"] = manifest_hash
+    provenance["git_commit"] = "verified-source-head"
+    expected = {**current, "git_commit": provenance["git_commit"]}
+    monkeypatch.setattr(MODULE, "source_provenance", lambda *_: expected)
+    paths = {}
+    for name, value in [
+        ("manifest", manifest),
+        ("report", report),
+        ("policy", policy),
+        ("provenance", provenance),
+    ]:
+        paths[name] = tmp_path / f"{name}.json"
+        paths[name].write_text(json.dumps(value))
+    dump_dir = tmp_path / "dumps"
+    dump_dir.mkdir()
+    for paper_id, dump in dumps.items():
+        (dump_dir / MODULE.dump_name(paper_id)).write_text(json.dumps(dump))
+    original = {path: path.read_bytes() for path in tmp_path.rglob("*.json")}
+    destination = tmp_path / "validation.json"
+    argv = [
+        "--manifest",
+        str(paths["manifest"]),
+        "--report",
+        str(paths["report"]),
+        "--reviewed-partials",
+        str(paths["policy"]),
+        "--provenance",
+        str(paths["provenance"]),
+        "--dumps",
+        str(dump_dir),
+        "--split",
+        "dev",
+        "--backend",
+        "pdfium",
+        "--diagnostics-json",
+        str(destination),
+    ]
+    assert MODULE.main(argv) == 1
+    captured = capsys.readouterr()
+    assert "zero exceptions applied" in captured.err
+    assert "Current-source diagnostics" in captured.err
+    assert "coverage validated" not in captured.out
+    result = json.loads(destination.read_text())
+    assert result["source_provenance"] == expected
+    assert result["policy_sha256"] == MODULE.hashlib.sha256(original[paths["policy"]]).hexdigest()
+    assert result["historical_exceptions_applied"] == 0
+    assert result["historical_eligibility_errors"]
+    assert result["strict_current_errors"] == ["incomplete paper a: status 'partial'"]
+    assert result["retained_baselines"] == ["a"]
+    saved = destination.read_bytes()
+    assert MODULE.main(argv) == 1
+    assert "File exists" in capsys.readouterr().err
+    assert destination.read_bytes() == saved
+    # An output alias must never truncate an existing policy, report or dump.
+    for path in original:
+        assert MODULE.main([*argv[:-1], str(path)]) == 1
+        assert path.read_bytes() == original[path]
+    # An artifact from another source revision cannot claim current diagnostics.
+    provenance["git_commit"] = "tampered"
+    paths["provenance"].write_text(json.dumps(provenance))
+    unverified = tmp_path / "unverified.json"
+    assert MODULE.main([*argv[:-1], str(unverified)]) == 1
+    assert not unverified.exists()
+    assert "current-source provenance mismatch: git_commit" in capsys.readouterr().err
+
+
+def test_wrong_paper_input_hash_cannot_be_used_as_diagnostic_baseline(inputs):
+    case = evidence_case(inputs)
+    case[3]["paper_inputs"]["a"]["pdf_sha256"] = "tampered"
+    result = evaluate_case(case)
+    assert result["retained_baselines"] == []
+    assert result["baseline_errors"] == ["diagnostic baseline input provenance mismatch"]
+    assert result["historical_exceptions_applied"] == 0
+    assert result["errors"]
