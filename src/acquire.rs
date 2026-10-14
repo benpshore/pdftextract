@@ -136,11 +136,15 @@ fn read_observed(
     // provide that process boundary. Keep valid regular-file symlinks working.
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     let mut file = File::from(
-        rustix::fs::open(
-            path,
-            rustix::fs::OFlags::RDONLY | rustix::fs::OFlags::CLOEXEC | rustix::fs::OFlags::NONBLOCK,
-            rustix::fs::Mode::empty(),
-        )
+        rustix::io::retry_on_intr(|| {
+            rustix::fs::open(
+                path,
+                rustix::fs::OFlags::RDONLY
+                    | rustix::fs::OFlags::CLOEXEC
+                    | rustix::fs::OFlags::NONBLOCK,
+                rustix::fs::Mode::empty(),
+            )
+        })
         .map_err(std::io::Error::from)?,
     );
     #[cfg(not(any(target_os = "linux", target_os = "macos")))]
