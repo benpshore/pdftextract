@@ -289,8 +289,8 @@ impl Drop for Output<'_> {
 /// Read a provider identity string.
 ///
 /// # Safety
-/// `pointer` is null or readable through its NUL terminator, which must occur
-/// within 256 bytes.
+/// `pointer` is null or readable through its first NUL terminator or 256 bytes,
+/// whichever comes first.
 unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     if pointer.is_null() {
         return Err("provider returned a null identity string".to_string());
@@ -299,7 +299,9 @@ unsafe fn bounded_string(pointer: *const c_char) -> Result<String, String> {
     for offset in 0..256 {
         // SAFETY: the caller guarantees readability up to the NUL, which this
         // loop stops at; `offset` never exceeds 255.
-        let byte = unsafe { *pointer.add(offset) }.cast_unsigned();
+        // c_char is signed on some targets and unsigned on others (Linux
+        // ARM64). Preserve its byte representation on both.
+        let byte = unsafe { *pointer.add(offset) }.to_ne_bytes()[0];
         if byte == 0 {
             return String::from_utf8(bytes).map_err(|e| e.to_string());
         }
@@ -314,7 +316,7 @@ pub fn error_message(error: &[c_char]) -> String {
         &error
             .iter()
             .take_while(|&&b| b != 0)
-            .map(|b| b.cast_unsigned())
+            .map(|b| b.to_ne_bytes()[0])
             .collect::<Vec<_>>(),
     )
     .into_owned()
@@ -341,9 +343,30 @@ mod tests {
     fn error_messages_stop_at_nul() {
         let mut buffer = [0 as c_char; 8];
         for (slot, byte) in buffer.iter_mut().zip(b"abc\0def") {
-            *slot = *byte as c_char;
+            *slot = c_char::from_ne_bytes([*byte]);
         }
         assert_eq!(error_message(&buffer), "abc");
+    }
+
+    #[test]
+    fn provider_strings_preserve_high_bytes() {
+        let text = c"échec 日本語";
+        // SAFETY: a static NUL-terminated string literal.
+        assert_eq!(
+            unsafe { bounded_string(text.as_ptr()) }.unwrap(),
+            "échec 日本語"
+        );
+        let buffer: Vec<c_char> = text
+            .to_bytes_with_nul()
+            .iter()
+            .map(|&byte| c_char::from_ne_bytes([byte]))
+            .collect();
+        assert_eq!(error_message(&buffer), "échec 日本語");
+
+        let invalid = [c_char::from_ne_bytes([0xff]), 0];
+        // SAFETY: a readable array with a terminating NUL.
+        assert!(unsafe { bounded_string(invalid.as_ptr()) }.is_err());
+        assert_eq!(error_message(&invalid), "\u{fffd}");
     }
 
     #[test]
