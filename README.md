@@ -38,6 +38,13 @@ tpe stats --db corpus.sqlite
 tpe --help
 ```
 
+The Python package also exposes `text-processing-engine` and
+`python -m text_processing_engine`. Both forward all arguments to the separately
+installed `tpe` on `PATH`, inheriting its streams and exit behavior. They do not
+download a binary or bundle a PDF parser. A missing native executable fails with
+an installation hint and exit code 127. On POSIX the launcher replaces its own
+process, so `extract` retains the native worker supervision and signal handling.
+
 `extract` stores a run in SQLite and optionally exports structured JSON and
 page text. `bibliography` searches backward for the final qualifying reference
 list and emits one JSON record per PDF without requiring a ledger. It retains
