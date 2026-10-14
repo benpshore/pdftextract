@@ -512,6 +512,7 @@ def main(argv: list[str] | None = None) -> int:
         help="checkout that produced the evaluated artifact (defaults to this checkout)",
     )
     args = parser.parse_args(argv)
+    errors = []
     try:
         manifest_bytes = args.manifest.read_bytes()
         manifest = json.loads(manifest_bytes)
@@ -584,7 +585,7 @@ def main(argv: list[str] | None = None) -> int:
         ValueError,
         subprocess.CalledProcessError,
     ) as error:
-        errors = [str(error)]
+        errors.append(str(error))
     if errors:
         for error in errors:
             print(f"Native evaluation invalid: {error}", file=sys.stderr)

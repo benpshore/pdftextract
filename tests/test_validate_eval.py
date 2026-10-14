@@ -909,7 +909,10 @@ def test_cli_persists_independent_diagnostics_and_never_overwrites_evidence(
     assert result["retained_baselines"] == ["a"]
     saved = destination.read_bytes()
     assert MODULE.main(argv) == 1
-    assert "File exists" in capsys.readouterr().err
+    output_errors = capsys.readouterr().err
+    assert "File exists" in output_errors
+    assert "reviewed-partial provenance mismatch: native_manifest_sha256" in output_errors
+    assert "incomplete paper a: status 'partial'" in output_errors
     assert destination.read_bytes() == saved
     # An output alias must never truncate an existing policy, report or dump.
     for path in original:
