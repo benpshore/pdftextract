@@ -1,0 +1,218 @@
+[
+  {
+    "name": "copy-pdf",
+    "started": "2026-10-04T12:25:08.327Z",
+    "elapsed_ms": 48,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "copy-ocr",
+    "started": "2026-10-04T12:25:08.379Z",
+    "elapsed_ms": 135,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "typescript",
+    "started": "2026-10-04T12:25:08.514Z",
+    "elapsed_ms": 7506,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-clip",
+    "started": "2026-10-04T12:25:16.021Z",
+    "elapsed_ms": 4834,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-extraction-review",
+    "started": "2026-10-04T12:25:20.855Z",
+    "elapsed_ms": 1041,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-flow",
+    "started": "2026-10-04T12:25:21.896Z",
+    "elapsed_ms": 138,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-queue",
+    "started": "2026-10-04T12:25:22.034Z",
+    "elapsed_ms": 75,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-controls",
+    "started": "2026-10-04T12:25:22.109Z",
+    "elapsed_ms": 1240,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-workspace-storage",
+    "started": "2026-10-04T12:25:23.349Z",
+    "elapsed_ms": 154,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-text-import",
+    "started": "2026-10-04T12:25:23.503Z",
+    "elapsed_ms": 125,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-citations",
+    "started": "2026-10-04T12:25:23.629Z",
+    "elapsed_ms": 6060,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-adapter",
+    "started": "2026-10-04T12:25:29.689Z",
+    "elapsed_ms": 271,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-resolution",
+    "started": "2026-10-04T12:25:29.960Z",
+    "elapsed_ms": 140,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-controls",
+    "started": "2026-10-04T12:25:30.100Z",
+    "elapsed_ms": 1092,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-client",
+    "started": "2026-10-04T12:25:31.192Z",
+    "elapsed_ms": 111,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-office",
+    "started": "2026-10-04T12:25:31.303Z",
+    "elapsed_ms": 1049,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-node-imports",
+    "started": "2026-10-04T12:25:32.352Z",
+    "elapsed_ms": 2370,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "scholarly-workers",
+    "started": "2026-10-04T12:25:34.722Z",
+    "elapsed_ms": 2125,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "scholarly-runtime",
+    "started": "2026-10-04T12:25:36.847Z",
+    "elapsed_ms": 2791,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-workspace",
+    "started": "2026-10-04T12:25:39.638Z",
+    "elapsed_ms": 2783,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-reader",
+    "started": "2026-10-04T12:25:42.421Z",
+    "elapsed_ms": 2806,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-upload-menu",
+    "started": "2026-10-04T12:25:45.228Z",
+    "elapsed_ms": 2652,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-workspace-lifecycle",
+    "started": "2026-10-04T12:25:47.880Z",
+    "elapsed_ms": 4005,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-mcp",
+    "started": "2026-10-04T12:25:51.886Z",
+    "elapsed_ms": 430,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-uploads-workers",
+    "started": "2026-10-04T12:25:52.316Z",
+    "elapsed_ms": 1011,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-lifecycle-workers",
+    "started": "2026-10-04T12:25:53.327Z",
+    "elapsed_ms": 1803,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "build",
+    "started": "2026-10-04T12:25:55.130Z",
+    "elapsed_ms": 8592,
+    "status": 0,
+    "signal": null,
+    "error": null
+  }
+]

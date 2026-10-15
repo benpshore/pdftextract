@@ -1,0 +1,226 @@
+[
+  {
+    "name": "copy-pdf",
+    "started": "2026-10-04T12:31:31.318Z",
+    "elapsed_ms": 50,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "copy-ocr",
+    "started": "2026-10-04T12:31:31.371Z",
+    "elapsed_ms": 142,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "typescript",
+    "started": "2026-10-04T12:31:31.513Z",
+    "elapsed_ms": 7765,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-clip",
+    "started": "2026-10-04T12:31:39.278Z",
+    "elapsed_ms": 5977,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-extraction-review",
+    "started": "2026-10-04T12:31:45.255Z",
+    "elapsed_ms": 1144,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-flow",
+    "started": "2026-10-04T12:31:46.399Z",
+    "elapsed_ms": 140,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-queue",
+    "started": "2026-10-04T12:31:46.539Z",
+    "elapsed_ms": 83,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-import-controls",
+    "started": "2026-10-04T12:31:46.622Z",
+    "elapsed_ms": 1461,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-workspace-storage",
+    "started": "2026-10-04T12:31:48.083Z",
+    "elapsed_ms": 140,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-text-import",
+    "started": "2026-10-04T12:31:48.224Z",
+    "elapsed_ms": 127,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-citations",
+    "started": "2026-10-04T12:31:48.351Z",
+    "elapsed_ms": 6202,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-adapter",
+    "started": "2026-10-04T12:31:54.553Z",
+    "elapsed_ms": 279,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-resolution",
+    "started": "2026-10-04T12:31:54.832Z",
+    "elapsed_ms": 130,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-controls",
+    "started": "2026-10-04T12:31:54.962Z",
+    "elapsed_ms": 1123,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "network-capabilities",
+    "started": "2026-10-04T12:31:56.086Z",
+    "elapsed_ms": 1003,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-scholarly-client",
+    "started": "2026-10-04T12:31:57.089Z",
+    "elapsed_ms": 93,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-office",
+    "started": "2026-10-04T12:31:57.183Z",
+    "elapsed_ms": 1491,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-node-imports",
+    "started": "2026-10-04T12:31:58.675Z",
+    "elapsed_ms": 4371,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "scholarly-workers",
+    "started": "2026-10-04T12:32:03.047Z",
+    "elapsed_ms": 2639,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "scholarly-runtime",
+    "started": "2026-10-04T12:32:05.687Z",
+    "elapsed_ms": 2937,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-workspace",
+    "started": "2026-10-04T12:32:08.624Z",
+    "elapsed_ms": 2882,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-reader",
+    "started": "2026-10-04T12:32:11.506Z",
+    "elapsed_ms": 2925,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-upload-menu",
+    "started": "2026-10-04T12:32:14.433Z",
+    "elapsed_ms": 2805,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-web-workspace-lifecycle",
+    "started": "2026-10-04T12:32:17.240Z",
+    "elapsed_ms": 4099,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-mcp",
+    "started": "2026-10-04T12:32:21.339Z",
+    "elapsed_ms": 446,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-uploads-workers",
+    "started": "2026-10-04T12:32:21.785Z",
+    "elapsed_ms": 1050,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "test-site-lifecycle-workers",
+    "started": "2026-10-04T12:32:22.835Z",
+    "elapsed_ms": 1844,
+    "status": 0,
+    "signal": null,
+    "error": null
+  },
+  {
+    "name": "build",
+    "started": "2026-10-04T12:32:24.679Z",
+    "elapsed_ms": 8517,
+    "status": 0,
+    "signal": null,
+    "error": null
+  }
+]

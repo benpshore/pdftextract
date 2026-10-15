@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "agents": [
+    {
+      "identity": {
+        "agent_id": "pdftextract-busybody-bob-20261004",
+        "task_id": "pdftextract/stewardship/2026-10-04/busybody-bob",
+        "provider": "OpenAI",
+        "model": null,
+        "config_version": 1,
+        "created_at": "2026-10-04T11:46:35Z"
+      },
+      "fingerprint": "2b6c731a6eed3711be7c08910d82c6a5fd60b74c96b9cceec0464400a53d1e6f",
+      "display_name": "Busybody Bob",
+      "aliases": [
+        "Mara Keel"
+      ],
+      "configurations": [
+        {
+          "version": 1,
+          "settings": {
+            "requested_model": "gpt-6.1-sol",
+            "requested_speed": "STANDARD",
+            "requested_effort": "xhigh",
+            "runtime_model": null,
+            "runtime_speed": null,
+            "no_children": true,
+            "provenance": "current delegation only; runtime configuration unavailable"
+          },
+          "sha256": "4c95bc39e9e3ba047139418455b3f6bdc3e61174472c9f614205a7aa124b2cb3"
+        }
+      ],
+      "roles": [
+        "steward"
+      ],
+      "git_emails": [
+        "busybody-bob@agents.invalid"
+      ],
+      "delegation": {
+        "parent_task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb",
+        "authorization": "Ben Shore delegated scope in source thread 01a0fe84-0716-7474-b2b7-709e4359b0fb; maintenance epic #225",
+        "child_task_ids": []
+      }
+    },
+    {
+      "identity": {
+        "agent_id": "chatgptwork-parent-01a0fe84-0716-7474-b2b7-709e4359b0fb",
+        "task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb",
+        "provider": "OpenAI",
+        "model": null,
+        "config_version": 1,
+        "created_at": "2026-10-04T11:46:35Z"
+      },
+      "fingerprint": "ba5b63428a39d7c87b19d7e79f92d9aeb799d46f85b262d5d23c1a3b2dc3354a",
+      "display_name": "ChatGPTWork",
+      "aliases": [],
+      "configurations": [
+        {
+          "version": 1,
+          "settings": {
+            "requested_model": null,
+            "requested_speed": null,
+            "requested_effort": null,
+            "runtime_model": null,
+            "runtime_speed": null,
+            "no_children": true,
+            "provenance": "current delegation only; runtime configuration unavailable"
+          },
+          "sha256": "ace1a64ba3409df57617008c186597185f4477fe370ed4a097dc7ecdb112ae8c"
+        }
+      ],
+      "roles": [
+        "parent"
+      ],
+      "git_emails": [],
+      "delegation": {
+        "parent_task_id": null,
+        "authorization": "Ben Shore delegated scope in source thread 01a0fe84-0716-7474-b2b7-709e4359b0fb; maintenance epic #225",
+        "child_task_ids": [
+          "pdftextract/stewardship/2026-10-04/busybody-bob"
+        ]
+      }
+    },
+    {
+      "identity": {
+        "agent_id": "archie-audit",
+        "config_version": 1,
+        "created_at": "2026-10-04T15:30:22Z",
+        "model": null,
+        "provider": "OpenAI",
+        "task_id": "pdftextract/architecture-review/2026-10-04/archie-audit"
+      },
+      "fingerprint": "deef29712113504ee895295d78a14ffe8833a686fd98ba4519c1b947a59293e2",
+      "display_name": "Archie Audit",
+      "aliases": [],
+      "configurations": [
+        {
+          "settings": {
+            "base": "72890e6f9d23b1c10ee2cd9d368c7c0817319c10",
+            "formal_security_assessment": false,
+            "head": "82f95ad99185b6641023169f8dd99d6f92438ac1",
+            "implementation_authority": false,
+            "repository": "benpshore/pdftextract",
+            "requested_reasoning_effort": "xhigh",
+            "role": "independent architecture reviewer",
+            "runtime_model": null,
+            "runtime_service_tier": null
+          },
+          "version": 1,
+          "sha256": "59b2695e7ab0d5d6cf3cf10f1723a260c1ea9e7285eebce53f31740345a22a45"
+        }
+      ],
+      "roles": [
+        "independent architecture reviewer",
+        "review-only"
+      ],
+      "git_emails": [],
+      "delegation": {
+        "parent_task_id": "01a0fe84-0716-7474-b2b7-709e4359b0fb",
+        "authorization": "Parent forwards independently authored read-only review and exact canonical JSON; Ben 15:00 UTC reviewer authorization supplied by parent. Registered by Bob after receipt, not claimed published before review.",
+        "child_task_ids": []
+      },
+      "registration_limits": "Parent-forwarded declaration. Review occurred 15:30\u201315:39 UTC on exact82f95ad. Model/tier/usage unknown; hashes are not signatures; no formal security/approval authority."
+    }
+  ]
+}
