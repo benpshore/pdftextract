@@ -146,6 +146,85 @@ fn replacement_glyphs_are_retained_without_global_span_configuration() {
     );
 }
 
+/// `fixture` with the shown bytes replaced by `\x80nite \x81ow` and a
+/// `ToUnicode` map that sends code `80` to U+FB01 (`ﬁ`) and `81` to U+FB02
+/// (`ﬂ`), the way typeset papers map ligature glyphs.
+fn ligature_fixture() -> Vec<u8> {
+    let mut document = Document::load_mem(&fixture(None, false)).unwrap();
+    let cmap = document.add_object(Stream::new(
+        dictionary! {},
+        b"/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n\
+        /CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n\
+        /CMapName /Ligatures def\n/CMapType 2 def\n\
+        1 begincodespacerange\n<00><FF>\nendcodespacerange\n\
+        2 beginbfchar\n<80><FB01>\n<81><FB02>\nendbfchar\n\
+        1 beginbfrange\n<20><7E><0020>\nendbfrange\n\
+        endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n"
+            .to_vec(),
+    ));
+    for object in document.objects.values_mut() {
+        if let Ok(font) = object.as_dict_mut()
+            && font.has_type(b"Font")
+        {
+            font.set("ToUnicode", cmap);
+        }
+    }
+    let page = *document.get_pages().get(&1).unwrap();
+    let content = document.get_page_contents(page).into_iter().next().unwrap();
+    let operations = vec![
+        Operation::new("BT", vec![]),
+        Operation::new("Tf", vec!["F1".into(), 12.into()]),
+        Operation::new("Td", vec![72.into(), 700.into()]),
+        Operation::new(
+            "Tj",
+            vec![Object::string_literal(b"\x80nite \x81ow".to_vec())],
+        ),
+        Operation::new("ET", vec![]),
+    ];
+    let encoded = Content { operations }.encode().unwrap();
+    *document.get_object_mut(content).unwrap() = Stream::new(dictionary! {}, encoded).into();
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+#[test]
+fn ligatures_are_expanded_like_lopdf_and_counted() {
+    let bytes = ligature_fixture();
+    let page_of =
+        |backend: &dyn Extractor| backend.open(&bytes, None).unwrap().page_text(1).unwrap();
+    let joined = |page: &tpe::schema::PageText| {
+        page.spans
+            .iter()
+            .map(|span| span.text.as_str())
+            .collect::<String>()
+    };
+    let lopdf = page_of(by_name("lopdf").unwrap().as_ref());
+    let oxide = page_of(&PdfOxideBackend);
+    assert_eq!(joined(&lopdf), "finite flow");
+    assert_eq!(joined(&oxide), "finite flow");
+    assert!(
+        !oxide
+            .spans
+            .iter()
+            .any(|span| span.text.contains('\u{FB01}')),
+        "{:?}",
+        oxide.spans
+    );
+    for page in [&lopdf, &oxide] {
+        assert!(
+            page.warnings.iter().any(|w| w == "ligatures expanded: 2"),
+            "{:?}",
+            page.warnings
+        );
+    }
+    // The expansion changes the text the adapter produces, so it is part of
+    // the backend identity: cached runs from before it cannot be confused
+    // with runs after it.
+    let digest = PdfOxideBackend.identity().config_digest;
+    assert_ne!(digest, by_name("lopdf").unwrap().identity().config_digest);
+}
+
 #[test]
 fn uri_annotation_keeps_actual_target_and_indirect_rectangle() {
     let mut document = Document::load_mem(&fixture(None, false)).unwrap();
