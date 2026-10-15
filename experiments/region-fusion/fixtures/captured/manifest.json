@@ -1,0 +1,346 @@
+{
+  "binary": {
+    "path": "/workspace/targets/root/debug/tpe",
+    "sha256": "2674dbc4712d65b7f41ddee341086fb3ee1be8a5497fd4c5b18c07272b5ec498",
+    "size": 165246176,
+    "version_output": "tpe git-e27e1fb"
+  },
+  "build_source_basis": "Parent-provided unchanged main source e27e1fb28a5b40dbca7f517c6fe396e6f11ed4ec and main Cargo.lock; this script records binary identity, not a rebuild.",
+  "cases": [
+    {
+      "fixture": "positive-stream-cmap",
+      "input": {
+        "sha256": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f",
+        "size": 10736
+      },
+      "renders": {
+        "mupdf": {
+          "path": "captured/positive-stream-cmap/page-1-mupdf.png",
+          "sha256": "3164d458097f50a137f5b555915c60dd7258d26b9ab97fab008e0781ce18c85d",
+          "size": 22306
+        },
+        "pdfium": {
+          "path": "captured/positive-stream-cmap/page-1-pdfium.png",
+          "sha256": "3393417e193601a57936304e97db75480492e8cc2f5dbf5cef863dc4fe65e665",
+          "size": 27809
+        }
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/positive-stream-cmap/lopdf/97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f.json",
+            "sha256": "6260a666972c4c8f5a9c09ecc8680b2c3ddcf908220c1a762934a55c52d2ecc4",
+            "size": 3065
+          },
+          "backend_identity": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/positive-stream-cmap.pdf",
+            "--backend",
+            "lopdf",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/positive-stream-cmap/lopdf",
+            "--json"
+          ],
+          "exit_code": 1,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+          "status": "partial",
+          "warnings": [
+            "page 1: unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+          ]
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/positive-stream-cmap/pdfium/97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f.json",
+            "sha256": "8d7ae135cfeaca12c151502ff485b41fc50b6c4ab48e5da87c6b768dd9d62698",
+            "size": 2866
+          },
+          "backend_identity": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/positive-stream-cmap.pdf",
+            "--backend",
+            "pdfium",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/positive-stream-cmap/pdfium",
+            "--json"
+          ],
+          "exit_code": 0,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\nRECOVER ALPHA 2026",
+          "status": "complete",
+          "warnings": []
+        }
+      }
+    },
+    {
+      "fixture": "control-named-cmap",
+      "input": {
+        "sha256": "ce061489c99fb500e1663bb9b3afa85196cec3306c96108762f48e49a054d324",
+        "size": 10742
+      },
+      "renders": {
+        "mupdf": {
+          "path": "captured/control-named-cmap/page-1-mupdf.png",
+          "sha256": "3164d458097f50a137f5b555915c60dd7258d26b9ab97fab008e0781ce18c85d",
+          "size": 22306
+        },
+        "pdfium": {
+          "path": "captured/control-named-cmap/page-1-pdfium.png",
+          "sha256": "3393417e193601a57936304e97db75480492e8cc2f5dbf5cef863dc4fe65e665",
+          "size": 27809
+        }
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/control-named-cmap/lopdf/ce061489c99fb500e1663bb9b3afa85196cec3306c96108762f48e49a054d324.json",
+            "sha256": "f60559084fdeac38a25ad8d5659eb5f27bc5f8d4c0231f45ab250b41ebd2c3eb",
+            "size": 2832
+          },
+          "backend_identity": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/control-named-cmap.pdf",
+            "--backend",
+            "lopdf",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/control-named-cmap/lopdf",
+            "--json"
+          ],
+          "exit_code": 0,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\nRECOVER ALPHA 2026",
+          "status": "complete",
+          "warnings": []
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/control-named-cmap/pdfium/ce061489c99fb500e1663bb9b3afa85196cec3306c96108762f48e49a054d324.json",
+            "sha256": "0753db9f98eebaf179c2fea90cc10a217b54cc135360bfe6a5bcd5204a852eac",
+            "size": 2884
+          },
+          "backend_identity": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/control-named-cmap.pdf",
+            "--backend",
+            "pdfium",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/control-named-cmap/pdfium",
+            "--json"
+          ],
+          "exit_code": 0,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\nRECOVER ALPHA 2026",
+          "status": "complete",
+          "warnings": []
+        }
+      }
+    },
+    {
+      "fixture": "negative-empty-tounicode",
+      "input": {
+        "sha256": "ef40d5b45f720ff59a633b5690a407516a8e9f51eeb46baf277b8557132de46b",
+        "size": 10530
+      },
+      "renders": {
+        "mupdf": {
+          "path": "captured/negative-empty-tounicode/page-1-mupdf.png",
+          "sha256": "3164d458097f50a137f5b555915c60dd7258d26b9ab97fab008e0781ce18c85d",
+          "size": 22306
+        },
+        "pdfium": {
+          "path": "captured/negative-empty-tounicode/page-1-pdfium.png",
+          "sha256": "3393417e193601a57936304e97db75480492e8cc2f5dbf5cef863dc4fe65e665",
+          "size": 27809
+        }
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/negative-empty-tounicode/lopdf/ef40d5b45f720ff59a633b5690a407516a8e9f51eeb46baf277b8557132de46b.json",
+            "sha256": "8c9c45b3d36e208dbcc97554b8a7532b914550db2fbcff1840b3c47d9ab1cdcb",
+            "size": 3093
+          },
+          "backend_identity": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/negative-empty-tounicode.pdf",
+            "--backend",
+            "lopdf",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/negative-empty-tounicode/lopdf",
+            "--json"
+          ],
+          "exit_code": 1,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+          "status": "partial",
+          "warnings": [
+            "page 1: unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+          ]
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/negative-empty-tounicode/pdfium/ef40d5b45f720ff59a633b5690a407516a8e9f51eeb46baf277b8557132de46b.json",
+            "sha256": "daac3efd73e8e457b456a191a92a333f37092850e035bbad1d0c54b1d3c835f1",
+            "size": 3405
+          },
+          "backend_identity": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/negative-empty-tounicode.pdf",
+            "--backend",
+            "pdfium",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/negative-empty-tounicode/pdfium",
+            "--json"
+          ],
+          "exit_code": 1,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\n5(&29(5\u0003$/3+$\u0003\u0015\u0013\u0015\u0019",
+          "status": "partial",
+          "warnings": [
+            "page 1: unicode_mapping: pdfium map_errors=18, zero_unicode=0, unavailable_flags=0; first affected character indices=[36, 37, 38, 39, 40, 41, 42, 43] (zero-based, generated separators excluded)"
+          ]
+        }
+      }
+    },
+    {
+      "fixture": "repeated-stream-cmap",
+      "input": {
+        "sha256": "43086e368ca75ba07e762048726dd46d8f6e6b97a71606f8840b780baccfd881",
+        "size": 10854
+      },
+      "renders": {
+        "mupdf": {
+          "path": "captured/repeated-stream-cmap/page-1-mupdf.png",
+          "sha256": "38a416653628d52b37a8c538c6336686b46bb43539c30635fd4e3bda37b71190",
+          "size": 29837
+        },
+        "pdfium": {
+          "path": "captured/repeated-stream-cmap/page-1-pdfium.png",
+          "sha256": "d19e0d73a0d8a2999e9a46fd87ef33d5e702f2e2e17fea9dd900009b57be0aa8",
+          "size": 38753
+        }
+      },
+      "runs": {
+        "lopdf": {
+          "artifact": {
+            "path": "captured/repeated-stream-cmap/lopdf/43086e368ca75ba07e762048726dd46d8f6e6b97a71606f8840b780baccfd881.json",
+            "sha256": "350f257fbeda67db2f19ee5835e0ae7db7d063417601e0b2cda7f46b768cc666",
+            "size": 3756
+          },
+          "backend_identity": {
+            "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba",
+            "name": "lopdf",
+            "version": "0.45.0"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/repeated-stream-cmap.pdf",
+            "--backend",
+            "lopdf",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/repeated-stream-cmap/lopdf",
+            "--json"
+          ],
+          "exit_code": 1,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\n\n\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+          "status": "partial",
+          "warnings": [
+            "page 1: unicode_mapping: font Recovery: undecodable; U+FFFD substituted"
+          ]
+        },
+        "pdfium": {
+          "artifact": {
+            "path": "captured/repeated-stream-cmap/pdfium/43086e368ca75ba07e762048726dd46d8f6e6b97a71606f8840b780baccfd881.json",
+            "sha256": "2880363d6c51e2897aabc595b60ff639ce30bd9797ea5b6765c361a9515b95a0",
+            "size": 3484
+          },
+          "backend_identity": {
+            "config_digest": "a1b78992e04a11540092f2c53cb8ecbbe40927546dfd794514bee4753f30c540",
+            "name": "pdfium",
+            "version": "dynamic-binding-0.8.37"
+          },
+          "command": [
+            "<binary>",
+            "extract",
+            "<fixtures>/repeated-stream-cmap.pdf",
+            "--backend",
+            "pdfium",
+            "--db",
+            "<temporary>/ledger.sqlite",
+            "--out",
+            "<captured>/repeated-stream-cmap/pdfium",
+            "--json"
+          ],
+          "exit_code": 0,
+          "page_text": "BASELINE REGION RETAINS THIS TEXT.\n\nRECOVER ALPHA 2026\n\nRECOVER ALPHA 2026",
+          "status": "complete",
+          "warnings": []
+        }
+      }
+    }
+  ],
+  "mupdf_renderer": {
+    "mupdf": "1.26.11",
+    "pymupdf": "1.26.6"
+  },
+  "pdfium_runtime": {
+    "path": "/workspace/runtimes/pdfium-8066/lib/libpdfium.so",
+    "release": "chromium/8066",
+    "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+    "size": 7833208
+  },
+  "render_config": {
+    "height_pixels": 1584,
+    "page_index": 0,
+    "pdfium_flags": 0,
+    "rotation": 0,
+    "scale_pixels_per_point": 2,
+    "width_pixels": 1224
+  },
+  "schema": "region-fusion-fixture-capture-v1"
+}
