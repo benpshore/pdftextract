@@ -1,0 +1,156 @@
+{
+  "environment": "Chromium against actual local browser app, real Workers D1/R2 and CPU/WASM worker",
+  "browser": "151.0.7922.173",
+  "sourceIdentity": {
+    "checkoutCommit": "1bc92ccb7b566f11a3b750f21007cfeb310593b2",
+    "checkoutTree": "f1cf4293bdbc3b694297b6a86dd95532df6e9570",
+    "files": [
+      {
+        "path": "app/workspace.tsx",
+        "sha256": "a15059d2fc7aa3a18f5a40602e2e9fc7ff5057a3ef95134ec55294f628eb7fb6"
+      },
+      {
+        "path": "lib/image-ocr.ts",
+        "sha256": "d7c09aed18bcd65b40de003948c8376669544417c495a01fd46d735f285dd380"
+      },
+      {
+        "path": "scripts/test-browser-ocr.mjs",
+        "sha256": "38fc66531cb1acf12f43e3acce837a6929f945358c46ed00c407b519cc0ef5f7"
+      }
+    ],
+    "ocrAssetManifestSha256": "4198991d05c0ca3248dac0f362d30a1e72a5a4e87fd69ad99c875e30b39a29a2",
+    "app": "Local pnpm dev from this web checkout; production Site not tested"
+  },
+  "checks": [
+    "14px blurred, tilted JPEG reaches actual Upload, OCR, saved output and visible reader",
+    "Sparse fallback recovers a witnessed empty first pass",
+    "OCR uncertainty is visible beside the transcription",
+    "18px blurred, tilted JPEG reaches actual Upload, OCR, saved output and visible reader",
+    "Sparse fallback recovers a witnessed empty first pass",
+    "OCR uncertainty is visible beside the transcription",
+    "image/png still-image OCR recovers known words and exact DOI (punctuation may be misread)",
+    "Recognized DOI remains unverified evidence",
+    "image/jpeg still-image OCR recovers known words and exact DOI (punctuation may be misread)",
+    "Recognized DOI remains unverified evidence",
+    "image/webp still-image OCR recovers known words and exact DOI (punctuation may be misread)",
+    "Recognized DOI remains unverified evidence",
+    "Blank image stays empty after exactly two OCR passes",
+    "Empty recognition is explicit in the reader",
+    "Unsupported image produces an explicit OCR error with its original retained",
+    "Corrupt JPEG reports failure without fabricated text",
+    "Real worker recognition emits intermediate progress",
+    "Recovered transcription survives reopening its saved result",
+    "Empty OCR notice survives reopening the saved record",
+    "Every owned OCR worker is terminated at the terminal state",
+    "No uncaught browser errors",
+    "Missing same-origin worker asset surfaces a readable error and preserves original",
+    "Next upload succeeds after asset failure",
+    "Every owned OCR worker is terminated at the terminal state",
+    "No uncaught browser errors",
+    "Cancel during stalled real core loading terminates worker and preserves original",
+    "Next upload succeeds after initialization cancellation",
+    "Cancel button during actual recognition progress stops OCR without late success",
+    "Next upload succeeds after recognition cancellation",
+    "Every owned OCR worker is terminated at the terminal state",
+    "No uncaught browser errors",
+    "App and OCR use only same-origin network requests",
+    "Actual pinned English model and WASM core are fetched"
+  ],
+  "witnesses": [
+    {
+      "name": "synthetic-14px.jpg",
+      "bytes": 9829,
+      "sha256": "d10e6d5a97ac4ed9edbf3ac4cdd6d7e3d9e37d120eb50a26b69ec1b4b72e6c12",
+      "text": "PHOTO OCR CHECK",
+      "ocr": {
+        "language": "eng",
+        "confidence": 94,
+        "outcome": "text",
+        "attempts": [
+          {
+            "segmentation": "auto",
+            "characters": 0,
+            "confidence": null
+          },
+          {
+            "segmentation": "sparse",
+            "characters": 15,
+            "confidence": 94
+          }
+        ],
+        "timeoutMs": 120000,
+        "originalWidth": 1500,
+        "originalHeight": 700,
+        "processedWidth": 1500,
+        "processedHeight": 700,
+        "downscaled": false,
+        "runtime": "cpu-wasm",
+        "model": "eng best_int 1.0.0"
+      }
+    },
+    {
+      "name": "synthetic-18px.jpg",
+      "bytes": 10070,
+      "sha256": "c545e5ef6c3fc3fd32685c69e6951aeda2c07222d2c76132e643b10d623f0bf2",
+      "text": "PHOTO OCR CHECK",
+      "ocr": {
+        "language": "eng",
+        "confidence": 95,
+        "outcome": "text",
+        "attempts": [
+          {
+            "segmentation": "auto",
+            "characters": 0,
+            "confidence": null
+          },
+          {
+            "segmentation": "sparse",
+            "characters": 15,
+            "confidence": 95
+          }
+        ],
+        "timeoutMs": 120000,
+        "originalWidth": 1500,
+        "originalHeight": 700,
+        "processedWidth": 1500,
+        "processedHeight": 700,
+        "downscaled": false,
+        "runtime": "cpu-wasm",
+        "model": "eng best_int 1.0.0"
+      }
+    }
+  ],
+  "assets": [
+    "/ocr/7.0.0/worker.min.js",
+    "/ocr/7.0.0/core/tesseract-core-relaxedsimd-lstm.wasm.js",
+    "/ocr/7.0.0/lang/eng.traineddata.gz"
+  ],
+  "snapshot_note": "The checkout commit is the main baseline. The file SHA-256 values identify the patched working source tested before committing the checkpoint; final PR checks are bound to the published head.",
+  "baseline": {
+    "head": "1bc92ccb7b566f11a3b750f21007cfeb310593b2",
+    "browser": "151.0.7922.173",
+    "14px_heading_text": "",
+    "18px_heading_text": "",
+    "24px_heading_text": "PHOTO OCR CHECK",
+    "32px_heading_text": "PHOTO OCR CHECK",
+    "source": "Actual Upload/Add photos flow before patch; synthetic JPEG, blur 0.8px, tilt 3 degrees, quality 0.55"
+  },
+  "validation": {
+    "browser_checks": 33,
+    "lifecycle_checks": 29,
+    "python_tests": 210,
+    "source_tests": 28,
+    "typescript": "passed",
+    "focused_eslint": "passed",
+    "web_build": "passed",
+    "existing_web_suites": "clip, extraction-review, import-flow, office, Node/WASM imports, workspace, MCP and Workers upload contracts passed",
+    "source_manifest": "158 files verified",
+    "full_workspace_eslint": "five pre-existing react-hooks/refs errors and two warnings in workspace.tsx; no ref lines changed",
+    "local_unavailable": [
+      "Cargo, Swift, CMake are not installed",
+      "uv audit could not reach api.osv.dev through network proxy"
+    ],
+    "deployment": "Not performed or tested; current Site build identity and its reported broken buttons remain unverified",
+    "review": "Hold draft; parent obtains independent Astra review and coordinates clean rebuild"
+  }
+}
