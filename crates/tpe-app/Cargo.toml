@@ -22,6 +22,7 @@ tempfile = "3"
 thiserror = "2"
 tpe-common = { path = "../tpe-common" }
 ureq = "3"
+url = "2"
 
 
 # GPUI is a macOS-only dependency. Its default features (`x11`, `wayland`,
