@@ -1,0 +1,1857 @@
+{
+  "schema": 1,
+  "status": "Source inventory and implementation obligations; no row asserts integration completion or passed tests.",
+  "default_evidence_state": "source_reviewed_implementation_pending",
+  "owners": {
+    "integration": "root: existing engine schema, bounded worker, extraction, diagnostics, aggregate verification",
+    "creation_office": "oxide_create_office: creation, conversion and Office adapter",
+    "editing_forms": "oxide_edit_forms: editor, forms, annotations and document queries",
+    "rendering_ocr": "oxide_render_ocr: rendering, OCR and barcode feature paths",
+    "security": "oxide_security: encryption, redaction, sanitization, compliance and signatures",
+    "inventory": "oxide_inventory: pinned source index and review obligations",
+    "python_external": "Parent-coordinated Python worker; no writes from this task",
+    "query": "oxide_query: bounded document/page/granular extraction/search/classification/path/resource queries"
+  },
+  "universal_obligations": [
+    "Use the existing supervised worker for untrusted parsing; bound acquired input, pages/items, output, elapsed time and process memory. A resource boundary alone is not a filesystem/network/process sandbox.",
+    "Preserve original source bytes and extraction; describe every derivative/transformation and its source/page identity. Never overwrite the input or publish partial artifacts after failure.",
+    "Use fallible APIs and explicit Unsupported/Partial/Limit/error states. Successful serialization, empty results, or smoke tests do not prove complete extraction, fidelity, compliance, or security.",
+    "No private keys, real signatures, credentials, persistent MCP service, model downloads, arbitrary external resources or user-controlled filesystem paths are implicitly authorized.",
+    "Keep one integration owner/checkpoint branch. Existing backlog PR heads, repository visibility/license, protected branches, releases and parent holds remain unchanged.",
+    "Test only approved synthetic/repository/public fixtures in disposable workers with finite deadlines and memory caps. No destructive/unbounded host tests."
+  ],
+  "capabilities": [
+    {
+      "id": "intake.parse_auth",
+      "group": "intake",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "from_bytes",
+        "authenticate",
+        "page_count"
+      ],
+      "obligation": "Bound immutable bytes before parse; use fallible page count; distinguish malformed/encrypted/wrong-password/unsupported cipher and zero-page input.",
+      "tests": [
+        "malformed/truncated PDF",
+        "encrypted empty/correct/wrong password over private request channel",
+        "zero pages",
+        "oversized input and huge page range"
+      ]
+    },
+    {
+      "id": "intake.parser_config",
+      "group": "intake",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/parser_config.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "ParserOptions",
+        "open_with_config"
+      ],
+      "obligation": "ParserOptions exists, but PdfDocument::open_with_config ignores its argument. Do not advertise effective tunable document limits from this hook.",
+      "tests": [
+        "limit enforcement in adapter/worker independent of parser options"
+      ]
+    },
+    {
+      "id": "intake.object_graph",
+      "group": "intake",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/object.rs",
+        "pdf_oxide:src/parser.rs",
+        "pdf_oxide:src/xref.rs"
+      ],
+      "apis": [
+        "catalog",
+        "trailer",
+        "load_object",
+        "resolve_references",
+        "check_for_circular_references"
+      ],
+      "obligation": "Expose only bounded necessary object summaries; preserve object-reference provenance without following arbitrary paths or recursive cycles.",
+      "tests": [
+        "cyclic references",
+        "oversized dictionaries/arrays",
+        "xref/object-stream corruption"
+      ]
+    },
+    {
+      "id": "intake.geometry",
+      "group": "intake",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/geometry.rs"
+      ],
+      "apis": [
+        "get_page_media_box",
+        "get_page_visible_box",
+        "get_page_rotation",
+        "get_page_info"
+      ],
+      "obligation": "Retain finite source geometry and rotation with explicit one-based engine versus zero-based upstream page mapping.",
+      "tests": [
+        "inherited boxes",
+        "rotations",
+        "nonfinite and inverted rectangles",
+        "out-of-range pages"
+      ]
+    },
+    {
+      "id": "extract.characters",
+      "group": "extraction",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/layout/text_block.rs"
+      ],
+      "apis": [
+        "extract_chars",
+        "extract_chars_filtered"
+      ],
+      "obligation": "Retain text, source glyph uncertainty, geometry, font, size and sequence; bound character and string totals.",
+      "tests": [
+        "ActualText",
+        "missing ToUnicode",
+        "replacement glyphs",
+        "sparse mappings",
+        "damaged streams",
+        "font-width witnesses"
+      ]
+    },
+    {
+      "id": "extract.spans_words_lines",
+      "group": "extraction",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "extract_spans",
+        "extract_words",
+        "extract_text_lines",
+        "extract_page_text"
+      ],
+      "obligation": "Map each granular representation honestly and preserve extraction settings and geometry; do not equate word/span counts with correctness.",
+      "tests": [
+        "Unicode/ligatures/RTL/CJK",
+        "rotated text",
+        "superscripts",
+        "overlapping spans",
+        "table columns"
+      ]
+    },
+    {
+      "id": "extract.text",
+      "group": "extraction",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "extract_text",
+        "extract_text_with_options",
+        "extract_all_text"
+      ],
+      "obligation": "Prefer bounded selected-page processing; whole-document text accumulation must obey finite limits and preserve partial/error status.",
+      "tests": [
+        "empty/scanned pages",
+        "large document",
+        "per-page failure",
+        "UTF-8 boundary handling"
+      ]
+    },
+    {
+      "id": "extract.reading_order",
+      "group": "extraction",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/pipeline/reading_order/mod.rs",
+        "pdf_oxide:src/pipeline/reading_order/xycut.rs",
+        "pdf_oxide:src/pipeline/reading_order/structure_tree.rs",
+        "pdf_oxide:src/pipeline/reading_order/geometric.rs",
+        "pdf_oxide:src/pipeline/reading_order/simple.rs",
+        "pdf_oxide:src/pipeline/reading_order/article_thread.rs"
+      ],
+      "apis": [],
+      "obligation": "Inventory independent geometric, XY-cut, structure-tree, simple and article-thread behavior; route only with evidence and retain selected strategy.",
+      "tests": [
+        "known two/three-column witnesses",
+        "tagged versus untagged",
+        "vertical writing",
+        "running headers versus body",
+        "cyclic article thread"
+      ]
+    },
+    {
+      "id": "extract.structured_regions",
+      "group": "structured_regions",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/structured.rs",
+        "pdf_oxide:src/extractors/hierarchical.rs",
+        "pdf_oxide:src/extractors/structured.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "extract_structured",
+        "extract_structured_with_column_mode",
+        "extract_hierarchical_content"
+      ],
+      "obligation": "Preserve region roles, source page/boxes and reading order; heuristic role labels remain uncertain.",
+      "tests": [
+        "headers/footers/tables/figures/citations",
+        "mixed columns",
+        "rotations",
+        "empty structures"
+      ]
+    },
+    {
+      "id": "extract.region_filters",
+      "group": "structured_regions",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/layout/area_filter.rs",
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "apis": [
+        "extract_text_in_rect",
+        "extract_chars_in_rect",
+        "extract_tables_in_rect",
+        "extract_images_in_rect",
+        "within"
+      ],
+      "obligation": "Validate finite rectangles and filter semantics; preserve original extraction and report whether containment or intersection was requested.",
+      "tests": [
+        "boundary-touching glyph/image",
+        "rotated page crop",
+        "empty/outside rectangle",
+        "many exclusion regions"
+      ]
+    },
+    {
+      "id": "extract.tables",
+      "group": "structured_regions",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/structure/table_extractor.rs"
+      ],
+      "apis": [
+        "extract_tables",
+        "extract_tables_with_config"
+      ],
+      "obligation": "Use direct rows/cells with headers, row/col spans, boxes and MCIDs; do not substitute Markdown or line-role labels. Bound tables/cells/text.",
+      "tests": [
+        "ruled and unruled tables",
+        "empty cells",
+        "merged cells",
+        "multi-line cells",
+        "prose false positives",
+        "multilingual cells"
+      ]
+    },
+    {
+      "id": "extract.paths",
+      "group": "structured_regions",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/extractors/paths.rs",
+        "pdf_oxide:src/elements.rs"
+      ],
+      "apis": [
+        "extract_paths",
+        "extract_rects",
+        "extract_lines"
+      ],
+      "obligation": "Preserve path operations/transforms/style without treating vector counts as complete rendering; bound path operations.",
+      "tests": [
+        "curves and clipping",
+        "nested Form XObjects",
+        "malformed paths",
+        "large coordinate/operation counts"
+      ]
+    },
+    {
+      "id": "extract.classification_auto",
+      "group": "extraction",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/extractors/auto.rs",
+        "pdf_oxide:src/extractors/status.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "classify_page",
+        "classify_document",
+        "extract_text_auto",
+        "AutoExtractor"
+      ],
+      "obligation": "Retain classification signals, reasons, source, Partial/OCR-required statuses; no implicit model downloads or unsupported OCR success.",
+      "tests": [
+        "native/scan/mixed/invisible OCR layer",
+        "small meaningful text",
+        "garbled Unicode",
+        "missing models"
+      ]
+    },
+    {
+      "id": "extract.diagnostics",
+      "group": "extraction",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/extractors/warnings.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "structured_warnings",
+        "take_structured_warnings",
+        "Warning",
+        "WarningCategory"
+      ],
+      "obligation": "Retain actual category/message plus known adapter stage/page provenance; never fabricate region provenance absent upstream data.",
+      "tests": [
+        "fallback warning retained in JSON/ledger",
+        "page-stage warning association",
+        "warning count/text bounds"
+      ]
+    },
+    {
+      "id": "extract.fonts_layers_inks",
+      "group": "metadata",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/optional_content.rs"
+      ],
+      "apis": [
+        "page_font_stats",
+        "extract_embedded_fonts",
+        "extract_embedded_fonts_with_unicode_maps_and_widths",
+        "get_layers",
+        "get_page_inks_deep"
+      ],
+      "obligation": "Bound returned font bytes and nested resources; preserve embedded-font/width/Unicode provenance and dependency/font notices.",
+      "tests": [
+        "missing/substituted fonts",
+        "nested spot inks/layers",
+        "large embedded font",
+        "invalid font program"
+      ]
+    },
+    {
+      "id": "query.search",
+      "group": "search",
+      "owner": "query",
+      "sources": [
+        "pdf_oxide:src/search/text_search.rs",
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "TextSearcher",
+        "search",
+        "search_page",
+        "prepare_search",
+        "clear_search_index"
+      ],
+      "obligation": "Bound pattern length, pages, matches and cache lifetime; preserve boxes and case/regex options without hidden whole-document scans.",
+      "tests": [
+        "invalid regex",
+        "Unicode/case behavior",
+        "cross-span matches",
+        "match overflow",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "query.outlines",
+      "group": "metadata",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/outline.rs"
+      ],
+      "apis": [
+        "OutlineItem",
+        "Destination"
+      ],
+      "obligation": "Use bounded traversal of outline Next/First references; destinations remain data, not actions.",
+      "tests": [
+        "Next/First cycles",
+        "deep outline",
+        "remote/URI action",
+        "missing destination"
+      ]
+    },
+    {
+      "id": "query.page_labels",
+      "group": "metadata",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/extractors/page_labels.rs",
+        "pdf_oxide:src/writer/page_labels.rs"
+      ],
+      "apis": [
+        "PageLabelExtractor",
+        "PageLabelsBuilder"
+      ],
+      "obligation": "Distinguish label text from source page number; existing-document label mutation has no direct editor setter in reviewed surface.",
+      "tests": [
+        "roman/alphabetic/prefixed labels",
+        "malformed number tree",
+        "missing labels"
+      ]
+    },
+    {
+      "id": "query.metadata",
+      "group": "metadata",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/extractors/xmp.rs",
+        "pdf_oxide:src/writer/xmp_metadata.rs"
+      ],
+      "apis": [
+        "DocumentInfo",
+        "XmpExtractor",
+        "XmpMetadata",
+        "XmpWriter"
+      ],
+      "obligation": "Preserve Info and XMP separately with bounded XML/text; do not merge inconsistent values silently.",
+      "tests": [
+        "Info/XMP disagreement",
+        "malformed XMP",
+        "Unicode metadata",
+        "large XML/entity declarations"
+      ]
+    },
+    {
+      "id": "convert.page_text_markdown",
+      "group": "conversion",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/mod.rs",
+        "pdf_oxide:src/converters/markdown.rs"
+      ],
+      "apis": [
+        "to_markdown",
+        "to_plain_text",
+        "ConversionOptions"
+      ],
+      "obligation": "Use pinned &ConversionOptions signatures and bounded page-wise conversion; retain original output and transformation settings.",
+      "tests": [
+        "tables/links/Unicode",
+        "page identity/order",
+        "individual/total byte limits",
+        "partial extraction"
+      ]
+    },
+    {
+      "id": "convert.page_html",
+      "group": "conversion",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/html.rs"
+      ],
+      "apis": [
+        "to_html"
+      ],
+      "obligation": "Application owns escaped wrappers and deterministic page IDs. Sanitize untrusted HTML/links/image sources; no scripts/event handlers/external fetch. image_output_dir must never be document/model chosen.",
+      "tests": [
+        "quotes in paths/metadata",
+        "javascript/data/event attributes",
+        "external resource URL",
+        "bounded per-page HTML",
+        "image omission status"
+      ]
+    },
+    {
+      "id": "cleanup.whitespace",
+      "group": "cleanup",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/converters/whitespace.rs",
+        "pdf_oxide:src/pipeline/text_processing/whitespace.rs"
+      ],
+      "apis": [
+        "normalize_whitespace",
+        "cleanup_markdown",
+        "remove_page_artifacts"
+      ],
+      "obligation": "Optional derived transformation only; preserve original text/spans and record exact options. Whitespace/code/table formatting changes may lose meaning.",
+      "tests": [
+        "code indentation",
+        "table whitespace",
+        "citations",
+        "meaningful repeated prose",
+        "Unicode spaces"
+      ]
+    },
+    {
+      "id": "cleanup.header_footer_artifacts",
+      "group": "cleanup",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "remove_headers",
+        "remove_footers",
+        "remove_artifacts",
+        "erase_region",
+        "clear_erase_regions"
+      ],
+      "obligation": "Use a separate document for cleanup masks; bound whole-document scans and require conservative positive thresholds. Tagged early return can leave mixed pages untreated. Masks are not destructive redaction.",
+      "tests": [
+        "mixed tagged/untagged pages",
+        "repeated meaningful prose/table headers/citations",
+        "threshold zero rejected",
+        "cross-request contamination",
+        "original output unchanged"
+      ]
+    },
+    {
+      "id": "images.extract_memory",
+      "group": "images",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/extractors/images.rs"
+      ],
+      "apis": [
+        "extract_images",
+        "page_image_handles",
+        "PdfImage",
+        "PdfImageHandle",
+        "to_png_bytes"
+      ],
+      "obligation": "Bound count, decoded pixels and individual/total encoded bytes plus process memory. Default filters/HTML max pixels do not universally limit inline decoding. Empty list does not prove image-free. Pinned PdfImage has no to_jpeg_bytes helper; preserve original JPEG data or verify a separate encoder.",
+      "tests": [
+        "original JPEG versus decoded pixels",
+        "inline/repeated/masked/transparent/CMYK image",
+        "malformed streams",
+        "pixel/count/output overflow",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "images.extract_disk",
+      "group": "images",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "extract_images_to_files"
+      ],
+      "obligation": "Raw upstream disk-writing helper must not accept arbitrary paths. Optional artifact publication uses app-confined staging and atomic publication, preserving image provenance.",
+      "tests": [
+        "path traversal/alias",
+        "write failure",
+        "cancellation leaves no outputs"
+      ]
+    },
+    {
+      "id": "create.text",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "apis": [
+        "from_text",
+        "PdfBuilder",
+        "PdfConfig"
+      ],
+      "obligation": "Bound input text, geometry, page count and generated bytes; save fallibly in memory and identify font/encoding limits.",
+      "tests": [
+        "empty/Unicode text",
+        "pagination",
+        "invalid geometry",
+        "output overflow",
+        "reopen rendered result"
+      ]
+    },
+    {
+      "id": "create.markdown",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/pipeline/input_parsers/markdown.rs"
+      ],
+      "apis": [
+        "from_markdown",
+        "from_markdown_with_fonts"
+      ],
+      "obligation": "Bound Markdown parsing/layout and supplied fonts; verify actual supported syntax and report unsupported image/link behavior.",
+      "tests": [
+        "nested lists",
+        "tables/code",
+        "Unicode/ligatures",
+        "links and image paths",
+        "deep nesting"
+      ]
+    },
+    {
+      "id": "create.html_simple",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/pipeline/input_parsers/html.rs"
+      ],
+      "apis": [
+        "from_html"
+      ],
+      "obligation": "Simple HTML conversion is distinct from HTML/CSS layout; do not claim browser fidelity or run scripts/resources.",
+      "tests": [
+        "script/event/URL input inert",
+        "escaping",
+        "unsupported CSS reported",
+        "nested markup limits"
+      ]
+    },
+    {
+      "id": "create.html_css",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/html_css/mod.rs",
+        "pdf_oxide:src/html_css/paint.rs"
+      ],
+      "apis": [
+        "from_html_css",
+        "from_html_css_with_fonts"
+      ],
+      "obligation": "Separate supported CSS layout path with explicitly supplied font bytes. Current image callback handles data URIs only and can omit invalid images; bounded parsing/rendering and omission diagnostics required.",
+      "tests": [
+        "CSS nesting/calc/variables",
+        "page breaks/multicol/tables",
+        "invalid data URI",
+        "resource no-fetch",
+        "font/input/pixel bounds"
+      ]
+    },
+    {
+      "id": "create.images",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/writer/image_handler.rs"
+      ],
+      "apis": [
+        "from_image_bytes",
+        "from_image_data_multiple",
+        "ImageData"
+      ],
+      "obligation": "Prefer byte APIs with prevalidated format/dimensions; do not accept arbitrary image paths. Preserve encoding/alpha/color warnings.",
+      "tests": [
+        "JPEG/PNG",
+        "CMYK/alpha",
+        "oversize dimensions",
+        "many images",
+        "malformed image"
+      ]
+    },
+    {
+      "id": "create.document_graphics",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/writer/document_builder.rs",
+        "pdf_oxide:src/writer/content_stream.rs",
+        "pdf_oxide:src/writer/graphics_state.rs",
+        "pdf_oxide:src/writer/shading.rs",
+        "pdf_oxide:src/writer/pattern.rs"
+      ],
+      "apis": [
+        "DocumentBuilder",
+        "ContentStreamBuilder"
+      ],
+      "obligation": "Expose bounded typed pages/text/path/image/graphics operations with finite numeric inputs and fallible byte output.",
+      "tests": [
+        "reopen and source render",
+        "transforms/clipping/opacity",
+        "nonfinite parameters",
+        "operation/page/output budgets"
+      ]
+    },
+    {
+      "id": "create.tables",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/writer/table_renderer.rs",
+        "pdf_oxide:src/writer/streaming_table.rs"
+      ],
+      "apis": [
+        "StreamingTable",
+        "StreamingTableConfig"
+      ],
+      "obligation": "Separate table creation from detection. Bound cells/rows/layout, repeated headers and streaming buffers.",
+      "tests": [
+        "merged/multiline cells",
+        "page breaks/repeated header",
+        "empty cells",
+        "long content",
+        "row backpressure"
+      ]
+    },
+    {
+      "id": "create.fonts",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/writer/font_manager.rs",
+        "pdf_oxide:src/writer/font_discovery.rs",
+        "pdf_oxide:src/writer/font_shaping.rs"
+      ],
+      "apis": [],
+      "obligation": "Distinguish supplied/embedded/system fallback fonts and subsetting/shaping. Preserve font licenses; disallow arbitrary private filesystem reads.",
+      "tests": [
+        "missing fallback",
+        "CJK/RTL/ligatures",
+        "malformed font",
+        "font byte limits",
+        "host-font provenance"
+      ]
+    },
+    {
+      "id": "create.outline_labels_layers",
+      "group": "creation",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/writer/outline_builder.rs",
+        "pdf_oxide:src/writer/page_labels.rs",
+        "pdf_oxide:src/writer/layers.rs",
+        "pdf_oxide:src/writer/page_template.rs"
+      ],
+      "apis": [
+        "PageLabelsBuilder",
+        "PageTemplate"
+      ],
+      "obligation": "Creation-only setters must not be misrepresented as existing-document editing. Bound trees/destinations and active actions.",
+      "tests": [
+        "reopen bookmarks/labels/layers",
+        "invalid destination",
+        "deep tree",
+        "template overflow"
+      ]
+    },
+    {
+      "id": "create.barcodes",
+      "group": "creation",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/writer/barcode.rs",
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "apis": [
+        "from_qrcode",
+        "from_barcode"
+      ],
+      "features": [
+        "barcodes"
+      ],
+      "obligation": "Bound payload/dimensions/output and report supported barcode types; generation does not provide barcode scanning/decoding.",
+      "tests": [
+        "valid QR/Code128/EAN-13/UPC-A",
+        "invalid length/check digit",
+        "payload/pixel overflow"
+      ]
+    },
+    {
+      "id": "edit.pages",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "EditableDocument",
+        "select_pages",
+        "set_page_rotation",
+        "set_page_crop_box",
+        "set_page_media_box"
+      ],
+      "obligation": "Preserve original and return distinct derivative; validate page selections, duplicates, rotations and geometry before work.",
+      "tests": [
+        "select/reorder/duplicate/delete",
+        "invalid indices/rotation",
+        "crop inheritance",
+        "reopen derivative",
+        "atomic publication"
+      ]
+    },
+    {
+      "id": "edit.merge_split",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/api/mod.rs"
+      ],
+      "apis": [
+        "merge_from_bytes",
+        "extract_pages_to_bytes",
+        "extract_page_ranges_to_bytes"
+      ],
+      "obligation": "Bound total input/pages and process outputs sequentially; avoid eager expansion of huge user ranges and raw path helpers.",
+      "tests": [
+        "merge resource collisions",
+        "split selected pages",
+        "duplicate ranges",
+        "malformed second input",
+        "aggregate output limit"
+      ]
+    },
+    {
+      "id": "edit.split_bookmarks",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/split_bookmarks.rs"
+      ],
+      "apis": [],
+      "obligation": "Review bounded outline traversal, normalized filenames, depth/range handling and output count before exposing bookmark splitting.",
+      "tests": [
+        "cyclic outlines",
+        "repeated/unsafe titles",
+        "overlapping destinations",
+        "many outputs",
+        "publication failure"
+      ]
+    },
+    {
+      "id": "edit.dom_text_paths_tables",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/dom.rs",
+        "pdf_oxide:src/editor/resource_manager.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "PdfText",
+        "PdfPath",
+        "PdfTable",
+        "PageEditor",
+        "edit_page",
+        "save_page"
+      ],
+      "obligation": "Typed DOM/query/edit surface must preserve selected elements/resources and disclose structural reconstruction uncertainty; bound queries/edits.",
+      "tests": [
+        "text replace Unicode/fonts",
+        "path/table edit",
+        "unselected content unchanged",
+        "reopen/render",
+        "missing element"
+      ]
+    },
+    {
+      "id": "edit.images",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/editor/dom.rs"
+      ],
+      "apis": [
+        "get_page_images",
+        "reposition_image",
+        "resize_image",
+        "set_image_bounds",
+        "add_image_bytes_to_page"
+      ],
+      "obligation": "Bound image data/dimensions and transforms, retain identity and distinguish placement edits from pixel replacement.",
+      "tests": [
+        "repeated/shared XObject",
+        "inline image unsupported state",
+        "alpha/CMYK",
+        "invalid bounds",
+        "output byte limits"
+      ]
+    },
+    {
+      "id": "edit.metadata",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "set_title",
+        "set_author",
+        "set_subject",
+        "set_keywords",
+        "set_creation_date"
+      ],
+      "obligation": "Record which Info fields changed, preserve unchanged fields; XMP updates require separate verified API support.",
+      "tests": [
+        "Unicode round trip",
+        "empty versus unset",
+        "Info/XMP disagreement",
+        "original hash unchanged"
+      ]
+    },
+    {
+      "id": "edit.save_modes",
+      "group": "editing",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/writer/linearization.rs"
+      ],
+      "apis": [
+        "SaveOptions",
+        "save_to_bytes",
+        "save_to_bytes_with_options"
+      ],
+      "obligation": "Full rewrite/incremental/linearized output are distinct obligations; no fallback to silent Pdf::into_bytes or predictable temporary-file helper. Never promise secure erasure from incremental save.",
+      "tests": [
+        "reopen full/incremental outputs",
+        "serialization failure",
+        "xref chains",
+        "source unchanged",
+        "signature invalidation reported"
+      ]
+    },
+    {
+      "id": "forms.acroform",
+      "group": "forms",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/extractors/forms.rs",
+        "pdf_oxide:src/editor/form_fields.rs",
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/writer/form_fields/mod.rs"
+      ],
+      "apis": [
+        "get_form_fields",
+        "get_form_field_value",
+        "set_form_field_value",
+        "add_form_field",
+        "remove_form_field"
+      ],
+      "obligation": "Bound fields/Kids traversal and values; support explicit text/check/radio/choice semantics and properties without evaluating actions/scripts.",
+      "tests": [
+        "duplicate/hierarchical names",
+        "cycles",
+        "checkbox/radio/choice values",
+        "Unicode and max length",
+        "appearance persistence"
+      ]
+    },
+    {
+      "id": "forms.flatten",
+      "group": "forms",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "flatten_forms",
+        "flatten_forms_on_page",
+        "flatten_warnings"
+      ],
+      "obligation": "Retain flatten warnings and verify visible appearances/AcroForm removal; success alone does not prove preservation.",
+      "tests": [
+        "missing appearance",
+        "selected-page flatten",
+        "radio/checkbox appearance",
+        "reopen/render comparison"
+      ]
+    },
+    {
+      "id": "forms.fdf_xfdf",
+      "group": "forms",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/fdf.rs"
+      ],
+      "apis": [
+        "FdfWriter",
+        "XfdfWriter"
+      ],
+      "obligation": "Use bounded in-memory writers and staged field state. Review FDF names escaping and XFDF arrays; file export helpers may read original source instead of pending edits.",
+      "tests": [
+        "delimiters/quotes/Unicode",
+        "array values",
+        "staged edits reflected",
+        "unsupported value explicit",
+        "XML limits"
+      ]
+    },
+    {
+      "id": "forms.xfa",
+      "group": "forms",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/xfa.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "has_xfa",
+        "analyze_xfa",
+        "convert_xfa_to_acroform"
+      ],
+      "obligation": "Bound XML, packet/field counts and conversion; scripts/calculations/dynamic layout must remain unsupported unless specifically implemented and verified.",
+      "tests": [
+        "static/dynamic XFA",
+        "DOCTYPE/entity declaration",
+        "deep XML",
+        "unsupported script",
+        "conversion fidelity"
+      ]
+    },
+    {
+      "id": "annotations.inspect_edit",
+      "group": "annotations",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/annotations.rs",
+        "pdf_oxide:src/annotation_types.rs",
+        "pdf_oxide:src/editor/dom.rs",
+        "pdf_oxide:src/writer/annotation_builder.rs"
+      ],
+      "apis": [
+        "Annotation",
+        "AnnotationWrapper",
+        "AnnotationSubtype",
+        "LinkAction"
+      ],
+      "obligation": "Preserve subtype/geometry/target provenance and support only explicitly bounded mutations. URI/action values remain untrusted inert data.",
+      "tests": [
+        "text/markup/link/shape/free-text/ink/stamp",
+        "missing appearance",
+        "unsafe actions",
+        "cyclic references",
+        "annotation count limits"
+      ]
+    },
+    {
+      "id": "annotations.flatten",
+      "group": "annotations",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "flatten_page_annotations",
+        "flatten_all_annotations"
+      ],
+      "obligation": "Return warnings and verify appearance preservation; do not call an overlay redaction or security sanitization.",
+      "tests": [
+        "missing/invalid appearance",
+        "page selection",
+        "render before/after",
+        "failed save leaves no output"
+      ]
+    },
+    {
+      "id": "annotations.rich_media",
+      "group": "annotations",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/writer/movie.rs",
+        "pdf_oxide:src/writer/sound.rs",
+        "pdf_oxide:src/writer/richmedia.rs",
+        "pdf_oxide:src/writer/threed.rs",
+        "pdf_oxide:src/writer/screen.rs"
+      ],
+      "apis": [],
+      "obligation": "Public construction types exist; exposing active media/actions is separate from inert inspection. No playback, external execution or resource loading; explicit unsupported operations until bounded handling is verified.",
+      "tests": [
+        "embedded/external media reference inert",
+        "byte and count limits",
+        "unsupported action status"
+      ]
+    },
+    {
+      "id": "attachments.embed_extract",
+      "group": "annotations",
+      "owner": "editing_forms",
+      "sources": [
+        "pdf_oxide:src/writer/embedded_files.rs",
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "extract_embedded_files",
+        "embed_file",
+        "embed_file_with_options"
+      ],
+      "obligation": "Attachment names are metadata, never paths; bound name/count/individual/total bytes and never open/execute extracted data.",
+      "tests": [
+        "unsafe names",
+        "duplicate names",
+        "compressed payload limits",
+        "malformed embedded file",
+        "reopen derivative"
+      ]
+    },
+    {
+      "id": "security.permissions_auth",
+      "group": "security",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/encryption.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "apis": [
+        "permissions",
+        "authenticate",
+        "is_authenticated"
+      ],
+      "obligation": "Report encryption/authentication and declared PDF permissions separately from application authorization; passwords stay out of argv/logs.",
+      "tests": [
+        "correct/wrong/empty password",
+        "owner versus user",
+        "legacy cipher disabled",
+        "private request cleanup"
+      ]
+    },
+    {
+      "id": "security.encrypt_decrypt",
+      "group": "security",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/encryption.rs"
+      ],
+      "apis": [
+        "EncryptionConfig",
+        "EncryptionAlgorithm",
+        "SaveOptions"
+      ],
+      "obligation": "Support explicit fallible byte transforms and authenticated full rewrites; preserve original, record changed encryption and avoid claiming policy enforcement by PDF permission bits.",
+      "tests": [
+        "AES-256 round trip",
+        "wrong password",
+        "malformed encryption dictionary",
+        "unsupported cipher",
+        "no password in logs/argv"
+      ]
+    },
+    {
+      "id": "security.redaction",
+      "group": "security",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/redaction.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "apply_redactions_destructive",
+        "RedactionOptions",
+        "RedactionReport"
+      ],
+      "obligation": "Separate true destructive rewrite from erase masks/annotations. Reject unsupported XObjects/inline images/marked alternate text/tagged structures/annotations where complete removal is not verified.",
+      "tests": [
+        "selected text removed from bytes/extraction/render",
+        "unselected text preserved",
+        "ActualText/tagged content rejection",
+        "unsupported images",
+        "incremental save rejected"
+      ]
+    },
+    {
+      "id": "security.sanitization",
+      "group": "security",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/redaction.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "apis": [
+        "sanitize_document"
+      ],
+      "obligation": "Precisely report sanitized object classes and remaining content; limited catalog/Info cleanup must not claim complete sanitization or malware removal.",
+      "tests": [
+        "JavaScript/OpenAction/embedded content",
+        "nested action trees",
+        "source unchanged",
+        "remaining structures reported"
+      ]
+    },
+    {
+      "id": "security.crypto_provider",
+      "group": "security",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/crypto/mod.rs",
+        "pdf_oxide:src/crypto/policy.rs",
+        "pdf_oxide:src/crypto/cbom.rs"
+      ],
+      "apis": [
+        "CryptoProvider",
+        "SecurityPolicy",
+        "cbom_json"
+      ],
+      "obligation": "Inventory provider/policy/algorithm metadata; do not mutate global security settings or load HSM/KMS credentials in this task. FIPS build flag alone is not a deployment certification.",
+      "tests": [
+        "policy rejection",
+        "legacy/fips compile conflict",
+        "provider unavailable",
+        "algorithm inventory bounded"
+      ]
+    },
+    {
+      "id": "signatures.inspect",
+      "group": "signatures",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/signatures/enumerate.rs",
+        "pdf_oxide:src/signatures/types.rs"
+      ],
+      "apis": [
+        "enumerate_signatures",
+        "count_signatures"
+      ],
+      "features": [
+        "signatures"
+      ],
+      "obligation": "Use bounded field traversal and bounded signature bytes; original upstream Kids recursion needs cycle/depth containment.",
+      "tests": [
+        "unsigned PDF",
+        "cyclic/deep Kids",
+        "malformed ByteRange/Contents",
+        "multiple signatures"
+      ]
+    },
+    {
+      "id": "signatures.verify",
+      "group": "signatures",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/signatures/verifier.rs",
+        "pdf_oxide:src/signatures/cms_verify.rs"
+      ],
+      "apis": [
+        "SignatureVerifier",
+        "verify_signer",
+        "verify_signer_detached"
+      ],
+      "features": [
+        "signatures"
+      ],
+      "obligation": "Report structural/digest/cryptographic checks distinctly; no implied chain trust, current revocation, trusted timestamp, or system-root validation.",
+      "tests": [
+        "synthetic public fixture valid/tampered",
+        "malformed CMS",
+        "unsupported algorithm",
+        "invalid ByteRange",
+        "bounded certificates"
+      ]
+    },
+    {
+      "id": "signatures.sign_pades",
+      "group": "signatures",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/signatures/sign_bytes.rs",
+        "pdf_oxide:src/signatures/signer.rs",
+        "pdf_oxide:src/signatures/pades/mod.rs"
+      ],
+      "apis": [
+        "sign_pdf_bytes",
+        "sign_pdf_bytes_pades",
+        "PdfSigner"
+      ],
+      "features": [
+        "signatures"
+      ],
+      "obligation": "Source capability inventory only until explicit authorized key-material contract and bounded synthetic verification. No private-key access or real document signing is authorized.",
+      "tests": [
+        "no-key refusal",
+        "bounded placeholders",
+        "no accidental signing/credential lookup"
+      ]
+    },
+    {
+      "id": "signatures.timestamp",
+      "group": "signatures",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/signatures/tsa_client.rs",
+        "pdf_oxide:src/signatures/timestamp.rs"
+      ],
+      "apis": [
+        "TsaClient",
+        "TsaClientConfig",
+        "Timestamp"
+      ],
+      "features": [
+        "tsa-client"
+      ],
+      "obligation": "HTTP timestamp client is network- and credential-capable; do not enable/call implicitly. Local timestamp parsing is separate from external TSA acquisition.",
+      "tests": [
+        "disabled feature status",
+        "no external network request",
+        "bounded timestamp DER"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfa",
+      "group": "compliance",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/compliance/pdf_a.rs",
+        "pdf_oxide:src/compliance/types.rs"
+      ],
+      "apis": [
+        "validate_pdf_a",
+        "PdfAValidator",
+        "PdfALevel"
+      ],
+      "obligation": "Return exact upstream checks/errors/warnings by requested level; no formal certification or validator weakening.",
+      "tests": [
+        "all 8 declared A levels",
+        "missing fonts/XMP/output intent",
+        "encrypted input",
+        "independent validator comparison where available"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfua",
+      "group": "compliance",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/compliance/pdf_ua.rs"
+      ],
+      "apis": [
+        "validate_pdf_ua",
+        "PdfUaLevel"
+      ],
+      "obligation": "Preserve accessibility check scope and limitations; declared tagging/alt text does not establish usable reading order.",
+      "tests": [
+        "UA1/UA2",
+        "untagged PDF",
+        "missing alt/language/table headers",
+        "tag cycles"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfx",
+      "group": "compliance",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/compliance/pdf_x/mod.rs",
+        "pdf_oxide:src/compliance/pdf_x/types.rs"
+      ],
+      "apis": [
+        "validate_pdf_x",
+        "PdfXLevel"
+      ],
+      "obligation": "Report exact print-production checks by level, output intents and missing dependencies; do not claim press fidelity.",
+      "tests": [
+        "all declared X levels",
+        "transparency/spot/ICC",
+        "external references",
+        "nonfinite boxes"
+      ]
+    },
+    {
+      "id": "compliance.convert_pdfa",
+      "group": "compliance",
+      "owner": "security",
+      "sources": [
+        "pdf_oxide:src/compliance/converter.rs"
+      ],
+      "apis": [
+        "convert_to_pdf_a",
+        "PdfAConverter",
+        "ConversionResult"
+      ],
+      "obligation": "Return conversion action report AND fresh unmodified validation result. Converter warning downgrade or placeholder output intent is not compliance proof.",
+      "tests": [
+        "missing fonts",
+        "failed conversion",
+        "post-conversion validation",
+        "reopen/render preservation",
+        "output limit"
+      ]
+    },
+    {
+      "id": "render.page_region_fit",
+      "group": "rendering",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/rendering/mod.rs",
+        "pdf_oxide:src/rendering/page_renderer.rs"
+      ],
+      "apis": [
+        "render_page",
+        "render_page_region",
+        "render_page_fit",
+        "PageRenderer",
+        "RenderOptions"
+      ],
+      "features": [
+        "rendering"
+      ],
+      "obligation": "Validate page/DPI/pixels/bytes before allocation and expose actual rendering omissions. Public renderer loads host fonts; requires reviewed font confinement or explicit supported environment before enablement.",
+      "tests": [
+        "native/scan/transparency/CMYK/font fixtures",
+        "crop/rotation",
+        "invalid DPI/oversize",
+        "missing fonts",
+        "cancellation/memory cap"
+      ]
+    },
+    {
+      "id": "render.separations",
+      "group": "rendering",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/rendering/separation_renderer.rs",
+        "pdf_oxide:src/rendering/mod.rs"
+      ],
+      "apis": [
+        "render_separation",
+        "render_separations",
+        "SeparationPlate"
+      ],
+      "features": [
+        "rendering"
+      ],
+      "obligation": "Bound plate count and aggregate pixels/bytes; report spot/process color handling and ICC dependencies.",
+      "tests": [
+        "CMYK/spot/overprint",
+        "large plate count",
+        "missing ICC",
+        "render bounds"
+      ]
+    },
+    {
+      "id": "render.flatten",
+      "group": "rendering",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/rendering/mod.rs"
+      ],
+      "apis": [
+        "flatten_to_images"
+      ],
+      "features": [
+        "rendering"
+      ],
+      "obligation": "Upstream helper uses PID-named temporary files and accumulates all page paths. Do not expose it as in-memory/no-disk; implement bounded staged alternative or explicit unsupported status.",
+      "tests": [
+        "temporary-path collision avoided",
+        "failed page leaves no outputs",
+        "pixel/page/output limits",
+        "annotations/forms retained visually"
+      ]
+    },
+    {
+      "id": "render.debug",
+      "group": "rendering",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/debug/mod.rs"
+      ],
+      "apis": [
+        "DebugVisualizer",
+        "DebugOptions"
+      ],
+      "features": [
+        "rendering"
+      ],
+      "obligation": "Diagnostic overlays are bounded derivatives, never canonical extraction or source render proof by themselves.",
+      "tests": [
+        "boxes/labels provenance",
+        "many elements",
+        "output and pixel bounds"
+      ]
+    },
+    {
+      "id": "ocr.image_page",
+      "group": "ocr_ml",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/ocr/engine.rs",
+        "pdf_oxide:src/ocr/backend.rs",
+        "pdf_oxide:src/ocr/mod.rs"
+      ],
+      "apis": [
+        "OcrEngine",
+        "OcrConfig",
+        "ocr_page",
+        "extract_text_with_ocr"
+      ],
+      "features_any": [
+        "ocr",
+        "ocr-tract"
+      ],
+      "obligation": "Explicit feature/model/runtime contract, hash-verified authorized model bytes, pixel/time/memory limits and missing-model errors; no automatic downloads.",
+      "tests": [
+        "missing/wrong-hash model",
+        "synthetic scan with known text",
+        "mixed native/OCR spans",
+        "invalid tensor/huge image",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "ocr.provisioning_languages",
+      "group": "ocr_ml",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/extractors/auto.rs"
+      ],
+      "apis": [
+        "OcrLanguage",
+        "model_manifest",
+        "prefetch_models",
+        "prefetch_available"
+      ],
+      "features": [
+        "ocr"
+      ],
+      "obligation": "Model manifest may be exposed as inert metadata. Prefetch performs network/cache writes and unbounded read_to_end; retain disabled status in this adapter.",
+      "tests": [
+        "prefetch never called",
+        "unknown language",
+        "offline/missing model diagnostics",
+        "no cache write"
+      ]
+    },
+    {
+      "id": "ml.hybrid_layout",
+      "group": "ocr_ml",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/hybrid/mod.rs",
+        "pdf_oxide:src/hybrid/smart_analyzer.rs",
+        "pdf_oxide:src/layout/clustering.rs"
+      ],
+      "apis": [
+        "SmartLayoutAnalyzer",
+        "AnalyzerCapabilities"
+      ],
+      "features": [
+        "ml"
+      ],
+      "obligation": "Distinguish classical fallback from ML execution, model/runtime availability and selected strategy; no accuracy claim without fixture evidence.",
+      "tests": [
+        "fallback reason",
+        "model missing",
+        "complex columns",
+        "bounded features/tensors"
+      ]
+    },
+    {
+      "id": "ml.table_models",
+      "group": "ocr_ml",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:Cargo.toml",
+        "pdf_oxide:src/structure/mod.rs"
+      ],
+      "apis": [],
+      "features": [
+        "table-ml"
+      ],
+      "obligation": "Feature pulls ml and pdfium-render; native PDFium/model dependencies and actual callable model path require separate verified availability. Do not substitute heuristic tables as ML success.",
+      "tests": [
+        "missing PDFium/model",
+        "declared feature compile",
+        "table cell comparisons",
+        "bounded render/tensor memory"
+      ]
+    },
+    {
+      "id": "ml.gpu",
+      "group": "ocr_ml",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:Cargo.toml",
+        "pdf_oxide:src/ocr/backend.rs"
+      ],
+      "apis": [],
+      "features": [
+        "gpu"
+      ],
+      "obligation": "GPU/ORT dependencies are optional and platform-dependent; no GPU execution claim from feature names or CPU fallback.",
+      "tests": [
+        "provider unavailable",
+        "runtime load failure",
+        "explicit CPU fallback provenance",
+        "device memory bound evidence"
+      ]
+    },
+    {
+      "id": "color.icc_codecs",
+      "group": "rendering",
+      "owner": "rendering_ocr",
+      "sources": [
+        "pdf_oxide:src/color/mod.rs",
+        "pdf_oxide:src/decoders/mod.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "apis": [],
+      "features_any": [
+        "icc-qcms",
+        "icc-lcms2",
+        "jpeg2000"
+      ],
+      "obligation": "Record qcms versus native lcms2 and JPEG2000/JBIG2 support. No silent CMYK/profile substitution; missing codec must be explicit.",
+      "tests": [
+        "ICC malformed/missing",
+        "CMYK/spot profile",
+        "JPEG2000/JBIG2 unsupported/build variants",
+        "decompression bounds"
+      ]
+    },
+    {
+      "id": "office.to_pdf_ooxml",
+      "group": "office",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/converters/office/mod.rs",
+        "office_oxide:src/core/opc.rs",
+        "office_oxide:src/core/xml.rs"
+      ],
+      "apis": [
+        "OfficeConverter",
+        "convert_docx_bytes",
+        "convert_xlsx_bytes",
+        "convert_pptx_bytes"
+      ],
+      "obligation": "DOCX/XLSX/PPTX byte conversion requires ZIP entry/total/decompression/XML-depth/sheet/image budgets and rejection of macros/OLE/ActiveX/external relationships; preserve font/system dependency provenance.",
+      "tests": [
+        "minimal DOCX/XLSX/PPTX",
+        "CRC/path/duplicate ZIP rejection",
+        "ZIP/XML bomb bounded",
+        "external relationship/macro/OLE rejected",
+        "Unicode/fonts"
+      ]
+    },
+    {
+      "id": "office.from_pdf",
+      "group": "office",
+      "owner": "creation_office",
+      "sources": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/pdf_to_ir.rs",
+        "pdf_oxide:src/converters/docx_layout.rs",
+        "pdf_oxide:src/converters/pptx_layout.rs",
+        "pdf_oxide:src/converters/xlsx_layout.rs"
+      ],
+      "apis": [
+        "to_docx_bytes",
+        "to_docx_bytes_flow",
+        "to_docx_bytes_layout",
+        "to_pptx_bytes",
+        "to_xlsx_bytes"
+      ],
+      "obligation": "All outputs allocate owned ZIP bytes. Record positioned versus flow strategy and transition thresholds: DOCX/PPTX above 30 pages, XLSX above 200. Editable elements do not establish fidelity.",
+      "tests": [
+        "30/31 and 200/201 pages",
+        "tables/images/layout round trip",
+        "Unicode/CJK",
+        "output/entry bounds",
+        "reopen converted package"
+      ]
+    },
+    {
+      "id": "office.legacy_binary",
+      "group": "office",
+      "owner": "creation_office",
+      "sources": [
+        "office_oxide:src/cfb.rs",
+        "office_oxide:src/doc/mod.rs",
+        "office_oxide:src/xls/mod.rs",
+        "office_oxide:src/ppt/mod.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "apis": [
+        "Document"
+      ],
+      "obligation": "Dependency has legacy DOC/XLS/PPT readers; current PDF adapter byte methods do not establish legacy support. Guard CFB sector chains/macros/OLE and fidelity before exposing.",
+      "tests": [
+        "explicit unsupported adapter response",
+        "CFB cycle/depth/count budgets",
+        "macro-bearing legacy fixture rejected"
+      ]
+    },
+    {
+      "id": "office.direct_create_edit_ir",
+      "group": "office",
+      "owner": "creation_office",
+      "sources": [
+        "office_oxide:src/create.rs",
+        "office_oxide:src/edit.rs",
+        "office_oxide:src/ir.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "apis": [
+        "DocumentIR",
+        "Document"
+      ],
+      "obligation": "Direct Office dependency includes creation/editing/IR interfaces beyond PDF bridge; inventory separately, with format-specific limits and no implied direct adapter coverage.",
+      "tests": [
+        "DOCX/XLSX/PPTX create/edit round trip",
+        "formula versus cached value",
+        "unsupported format state",
+        "ZIP/XML bounds"
+      ]
+    },
+    {
+      "id": "batch.bounded_queue",
+      "group": "batch",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/batch.rs",
+        "pdf_oxide:src/parallel.rs"
+      ],
+      "apis": [
+        "BatchProcessor",
+        "ParallelExtractor"
+      ],
+      "obligation": "Use existing bounded application queue and per-file failure/backpressure. Upstream helpers return whole-corpus/page Vecs and arbitrary path IO; do not expose unbounded collection as streaming.",
+      "tests": [
+        "more inputs than worker slots",
+        "slow consumer backpressure",
+        "one failed file does not drop others",
+        "cancel queued/active work",
+        "worker kill/reap"
+      ]
+    },
+    {
+      "id": "batch.cache_threads",
+      "group": "batch",
+      "owner": "integration",
+      "sources": [
+        "pdf_oxide:src/fonts/global_cache.rs",
+        "pdf_oxide:src/fonts/cmap.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "apis": [
+        "set_global_font_cache_capacity",
+        "clear_global_font_cache",
+        "clear_cmap_cache"
+      ],
+      "obligation": "Bound threads/cache/document lifetime. Office may spawn parsing threads with a 16 MiB stack; root process budgets and existing worker limits must include them.",
+      "tests": [
+        "repeat documents memory plateau",
+        "cancellation while parsing",
+        "cache isolation/provenance",
+        "thread-count bounds"
+      ]
+    },
+    {
+      "id": "bindings.c_ffi",
+      "group": "bindings",
+      "owner": "inventory",
+      "sources": [
+        "pdf_oxide:src/ffi.rs",
+        "office_oxide:src/ffi.rs"
+      ],
+      "apis": [],
+      "platform": "not wasm32 (PDF); not wasm target family (Office)",
+      "obligation": "C ABI exports are separate from the engine's Rust API; pointer ownership/error/length contracts and native packaging require dedicated tests. No binding parity claim.",
+      "tests": [
+        "null/invalid handle and lengths",
+        "buffer lifetime/free",
+        "error propagation",
+        "ABI smoke per platform"
+      ]
+    },
+    {
+      "id": "bindings.python",
+      "group": "bindings",
+      "owner": "python_external",
+      "sources": [
+        "pdf_oxide:src/python.rs",
+        "office_oxide:src/python.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "apis": [],
+      "features": [
+        "python"
+      ],
+      "obligation": "Parent-coordinated Python integration needs standard Python 3.14 parity evidence; feature pulls rendering, parallel, logging, signatures, tsa-client and barcodes. Free-threaded parity is unverified.",
+      "tests": [
+        "same frozen fixtures/API outcomes",
+        "Python 3.14 success/failure",
+        "GIL/free-threaded distinction",
+        "optional feature/network behavior"
+      ]
+    },
+    {
+      "id": "bindings.wasm",
+      "group": "bindings",
+      "owner": "inventory",
+      "sources": [
+        "pdf_oxide:src/wasm.rs",
+        "office_oxide:src/wasm.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "apis": [],
+      "features": [
+        "wasm"
+      ],
+      "platform": "wasm32 or test for PDF module",
+      "obligation": "WASM/wasm-ocr have distinct runtime/memory/host interfaces; native supervisor and filesystem controls do not transfer automatically.",
+      "tests": [
+        "target compile",
+        "JS ownership/errors",
+        "bounded memory/UTF-8",
+        "browser/Node distinction",
+        "model loading explicit"
+      ]
+    },
+    {
+      "id": "bindings.cli_mcp",
+      "group": "bindings",
+      "owner": "inventory",
+      "sources": [
+        "pdf_oxide:Cargo.toml"
+      ],
+      "apis": [],
+      "obligation": "Published library crate does not include the companion CLI/MCP packages. User-requested MCP exposure remains a separate pinned-source design/review: write-capable tools, confined paths, no installation/registration/persistent service or @latest.",
+      "tests": [
+        "separate CLI/MCP version/source inventory",
+        "one-based CLI page mapping",
+        "write-capable tool policy",
+        "path confinement before any exposure"
+      ]
+    },
+    {
+      "id": "developer.low_level_primitives",
+      "group": "developer",
+      "owner": "inventory",
+      "sources": [
+        "pdf_oxide:src/lexer.rs",
+        "pdf_oxide:src/objstm.rs",
+        "pdf_oxide:src/xref_reconstruction.rs",
+        "pdf_oxide:src/functions/mod.rs",
+        "pdf_oxide:src/filename.rs"
+      ],
+      "apis": [],
+      "obligation": "Low-level parser/decoder/function/filename utilities are indexed as support APIs, not automatically remote operations. Do not expose arbitrary objects, native pointers or execution-like calculators without a bounded request contract.",
+      "tests": [
+        "finite function evaluator steps/stack",
+        "decoder bomb limits",
+        "filename normalization",
+        "malformed low-level objects"
+      ]
+    }
+  ]
+}

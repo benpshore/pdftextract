@@ -152,6 +152,9 @@ CREATE TABLE IF NOT EXISTS pages (
     spans_json TEXT NOT NULL,
     lines_json TEXT NOT NULL,
     warnings_json TEXT NOT NULL,
+    tables_json TEXT NOT NULL DEFAULT '[]',
+    diagnostics_json TEXT NOT NULL DEFAULT '[]',
+    supplements_json TEXT NOT NULL DEFAULT 'null',
     PRIMARY KEY (run_id, page)
 );
 CREATE TABLE IF NOT EXISTS chunks (
@@ -274,7 +277,8 @@ const INSERT_RUN: &str = "INSERT INTO runs (hash, backend_name, backend_version,
     schema_version, status, started_at, finished_at, timings_json, warnings_json) \
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)";
 const INSERT_PAGE: &str = "INSERT INTO pages (run_id, page, width, height, rotation, text, \
-    spans_json, lines_json, warnings_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)";
+    spans_json, lines_json, warnings_json, tables_json, diagnostics_json, supplements_json) \
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)";
 const INSERT_FIGURE: &str = "INSERT INTO figures (run_id, page, idx, kind, mime, width_px, \
     height_px, sha256, file, caption, x0, y0, x1, y1) \
     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)";
@@ -306,7 +310,7 @@ const SELECT_DOCUMENT: &str = "SELECT size, pages FROM documents WHERE hash = ?1
 const SELECT_SOURCES: &str = "SELECT path, inode, device, mtime_unix, size FROM sources \
     WHERE hash = ?1 ORDER BY id";
 const SELECT_PAGES: &str = "SELECT page, width, height, rotation, text, spans_json, lines_json, \
-    warnings_json FROM pages WHERE run_id = ?1 ORDER BY page";
+    warnings_json, tables_json, diagnostics_json, supplements_json FROM pages WHERE run_id = ?1 ORDER BY page";
 const SELECT_FIGURES: &str = "SELECT page, idx, kind, mime, width_px, height_px, sha256, file, \
     caption, x0, y0, x1, y1 FROM figures WHERE run_id = ?1 ORDER BY page, idx";
 const SELECT_CHUNKS: &str = "SELECT chunk_index, first_page, last_page, status, text_sha256, ms \
@@ -364,13 +368,37 @@ impl Ledger {
                 conn.execute(INSERT_VERSION, params![SCHEMA_VERSION])?;
             }
             Some(SCHEMA_VERSION) => {}
-            // v5 adds optional biomedical IDs and permits a null resolved DOI.
-            // All v4 JSON remains readable; retain old run versions/provenance.
-            Some(4) if SCHEMA_VERSION == 5 => {
-                conn.execute(
-                    "UPDATE schema_meta SET version = ?1 WHERE version = 4",
+            // Additive migration: keep all old rows, identities and versions.
+            // v5's biomedical fields are optional when reading v4 JSON.
+            Some(4 | 5) => {
+                let tx = conn.unchecked_transaction()?;
+                let columns = tx
+                    .prepare("PRAGMA table_info(pages)")?
+                    .query_map([], |row| row.get::<_, String>(1))?
+                    .collect::<Result<Vec<_>, _>>()?;
+                for (name, sql) in [
+                    (
+                        "tables_json",
+                        "ALTER TABLE pages ADD COLUMN tables_json TEXT NOT NULL DEFAULT '[]'",
+                    ),
+                    (
+                        "diagnostics_json",
+                        "ALTER TABLE pages ADD COLUMN diagnostics_json TEXT NOT NULL DEFAULT '[]'",
+                    ),
+                    (
+                        "supplements_json",
+                        "ALTER TABLE pages ADD COLUMN supplements_json TEXT NOT NULL DEFAULT 'null'",
+                    ),
+                ] {
+                    if !columns.iter().any(|column| column == name) {
+                        tx.execute_batch(sql)?;
+                    }
+                }
+                tx.execute(
+                    "UPDATE schema_meta SET version = ?1 WHERE version IN (4, 5)",
                     params![SCHEMA_VERSION],
                 )?;
+                tx.commit()?;
             }
             Some(found) => {
                 return Err(LedgerError::SchemaMismatch {
@@ -591,6 +619,9 @@ struct PageRow {
     spans_json: String,
     lines_json: String,
     warnings_json: String,
+    tables_json: String,
+    diagnostics_json: String,
+    supplements_json: String,
 }
 
 /// One `chunks` row before its status is parsed.
@@ -670,6 +701,9 @@ fn insert_pages(conn: &Connection, run_id: RunId, pages: &[PageText]) -> Result<
         let spans_json = serde_json::to_string(&page.spans)?;
         let lines_json = serde_json::to_string(&page.lines)?;
         let warnings_json = serde_json::to_string(&page.warnings)?;
+        let tables_json = serde_json::to_string(&page.tables)?;
+        let diagnostics_json = serde_json::to_string(&page.diagnostics)?;
+        let supplements_json = serde_json::to_string(&page.supplements)?;
         stmt.execute(params![
             run_id,
             page.page,
@@ -680,6 +714,9 @@ fn insert_pages(conn: &Connection, run_id: RunId, pages: &[PageText]) -> Result<
             spans_json,
             lines_json,
             warnings_json,
+            tables_json,
+            diagnostics_json,
+            supplements_json,
         ])?;
     }
     Ok(())
@@ -882,6 +919,9 @@ fn load_pages(conn: &Connection, run: RunId) -> Result<Vec<PageText>, LedgerErro
             spans_json: row.get(5)?,
             lines_json: row.get(6)?,
             warnings_json: row.get(7)?,
+            tables_json: row.get(8)?,
+            diagnostics_json: row.get(9)?,
+            supplements_json: row.get(10)?,
         })
     })?;
     let mut pages = Vec::new();
@@ -895,6 +935,9 @@ fn load_pages(conn: &Connection, run: RunId) -> Result<Vec<PageText>, LedgerErro
             spans: serde_json::from_str(&row.spans_json)?,
             figures: figures_by_page.remove(&row.page).unwrap_or_default(),
             links: Vec::new(),
+            tables: serde_json::from_str(&row.tables_json)?,
+            diagnostics: serde_json::from_str(&row.diagnostics_json)?,
+            supplements: serde_json::from_str(&row.supplements_json)?,
             lines: serde_json::from_str(&row.lines_json)?,
             text: row.text,
             warnings: serde_json::from_str(&row.warnings_json)?,
@@ -1487,6 +1530,27 @@ mod tests {
     fn in_memory_ledger_starts_empty() {
         let ledger = Ledger::open_in_memory().unwrap();
         assert_eq!(ledger.stats().unwrap(), LedgerStats::default());
+    }
+
+    #[test]
+    fn version_five_migration_adds_columns_without_restamping_runs() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("v5.sqlite");
+        let mut ledger = Ledger::open(&path).unwrap();
+        let mut old = sample_result();
+        old.schema_version = 5;
+        let run = ledger.write_result(&old).unwrap();
+        ledger.conn.execute_batch("ALTER TABLE pages DROP COLUMN tables_json; ALTER TABLE pages DROP COLUMN diagnostics_json; ALTER TABLE pages DROP COLUMN supplements_json; UPDATE schema_meta SET version = 5;").unwrap();
+        drop(ledger);
+        let mut upgraded = Ledger::open(&path).unwrap();
+        assert_eq!(upgraded.load_result(run).unwrap(), old);
+        let new = sample_result();
+        let new_run = upgraded.write_result(&new).unwrap();
+        assert_ne!(new_run, run);
+        assert_eq!(upgraded.load_result(new_run).unwrap(), new);
+        assert_eq!(upgraded.load_result(run).unwrap().schema_version, 5);
+        drop(upgraded);
+        assert_eq!(Ledger::open(&path).unwrap().load_result(run).unwrap(), old);
     }
 
     #[test]

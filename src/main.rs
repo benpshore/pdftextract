@@ -58,6 +58,9 @@ enum Cmd {
     Grobid(grobid_cli::Args),
     /// Extract text, metadata and citations from PDF files into a ledger.
     Extract(ExtractArgs),
+    /// Run an allowlisted PDF Oxide operation from a bounded private JSON request.
+    #[cfg(feature = "pdf-oxide")]
+    Oxide(cli_worker::oxide::Args),
     #[command(hide = true)]
     NativeWorker {
         request: PathBuf,
@@ -137,9 +140,24 @@ struct ExtractArgs {
     /// Print one JSON object per file instead of a tab-separated line.
     #[arg(long)]
     json: bool,
-    /// Password for encrypted documents.
-    #[arg(long)]
+    /// Password for encrypted documents (visible in argv; prefer --password-file).
+    #[arg(long, conflicts_with = "password_file")]
     password: Option<String>,
+    /// Read an exact UTF-8 password (at most 4096 bytes) inside the private worker.
+    #[arg(long, value_name = "FILE")]
+    password_file: Option<PathBuf>,
+    /// Retain a separate optional cleanup candidate; original extraction is preserved.
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long, value_enum)]
+    pdf_oxide_cleanup_preview: Option<tpe::backend::pdf_oxide_supplements::CleanupMode>,
+    /// Add bounded raw HTML evidence and a sanitized page wrapper (images omitted).
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long)]
+    pdf_oxide_html: bool,
+    /// Return bounded decoded PNG image bytes in JSON; no image files or HTML embedding.
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long)]
+    pdf_oxide_images: bool,
     /// Inclusive 1-based page range such as `3-7`; a single number selects one page.
     #[arg(long, value_name = "A-B", value_parser = parse_pages)]
     pages: Option<(u32, u32)>,
@@ -288,6 +306,8 @@ fn main() -> anyhow::Result<ExitCode> {
         #[cfg(feature = "grobid")]
         Cmd::Grobid(args) => grobid_cli::run(&args),
         Cmd::Extract(args) => cli_worker::run(&args),
+        #[cfg(feature = "pdf-oxide")]
+        Cmd::Oxide(args) => cli_worker::oxide::run(&args),
         Cmd::NativeWorker {
             request,
             phase,

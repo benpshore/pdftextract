@@ -1,0 +1,345 @@
+{
+  "schema": 1,
+  "status": "Proposed verification matrix, no feature build executed by inventory worker.",
+  "upstream_features": {
+    "barcodes": [
+      "dep:qrcode",
+      "dep:barcoders"
+    ],
+    "cjk-form-fonts": [],
+    "cjk-render-fallback": [],
+    "debug-span-merging": [],
+    "default": [
+      "icc",
+      "legacy-crypto"
+    ],
+    "fips": [
+      "dep:aws-lc-rs",
+      "aws-lc-rs/fips"
+    ],
+    "gpu": [
+      "dep:ort",
+      "ml"
+    ],
+    "icc": [
+      "icc-qcms"
+    ],
+    "icc-lcms2": [
+      "dep:lcms2"
+    ],
+    "icc-qcms": [
+      "dep:qcms"
+    ],
+    "jpeg2000": [
+      "dep:hayro-jpeg2000"
+    ],
+    "legacy-crypto": [
+      "dep:md-5"
+    ],
+    "logging": [],
+    "ml": [
+      "ocr-tract",
+      "dep:linfa",
+      "dep:linfa-clustering"
+    ],
+    "ocr": [
+      "dep:ort",
+      "dep:ndarray",
+      "dep:ureq"
+    ],
+    "ocr-tract": [
+      "dep:tract-onnx",
+      "dep:ndarray"
+    ],
+    "parallel": [
+      "dep:rayon"
+    ],
+    "python": [
+      "pyo3",
+      "pyo3-log",
+      "rendering",
+      "parallel",
+      "logging",
+      "signatures",
+      "tsa-client",
+      "barcodes"
+    ],
+    "rendering": [
+      "dep:tiny-skia",
+      "dep:fast_image_resize",
+      "system-fonts",
+      "dep:hayro-jbig2",
+      "jpeg2000"
+    ],
+    "signatures": [
+      "dep:x509-parser",
+      "dep:cms",
+      "dep:rsa",
+      "dep:der",
+      "dep:spki",
+      "dep:pkcs1",
+      "dep:pkcs8",
+      "dep:p12-keystore",
+      "dep:signature",
+      "dep:sha1",
+      "dep:p256",
+      "dep:p384"
+    ],
+    "system-fonts": [
+      "dep:fontdb",
+      "dep:harfrust"
+    ],
+    "table-ml": [
+      "ml",
+      "dep:pdfium-render"
+    ],
+    "test-support": [],
+    "tsa-client": [
+      "signatures",
+      "dep:ureq"
+    ],
+    "wasm": [
+      "dep:wasm-bindgen",
+      "dep:web-sys",
+      "dep:js-sys",
+      "dep:console_error_panic_hook",
+      "dep:console_log",
+      "dep:getrandom_02",
+      "dep:serde-wasm-bindgen",
+      "logging",
+      "signatures",
+      "barcodes"
+    ],
+    "wasm-ml": [
+      "wasm-ocr"
+    ],
+    "wasm-ocr": [
+      "wasm",
+      "ocr-tract",
+      "dep:getrandom_03"
+    ]
+  },
+  "profiles": [
+    {
+      "id": "core",
+      "upstream_features": [],
+      "tests_and_constraints": "Mandatory bounded worker/extraction/create/edit/Office/security/compliance tests; existing dependency feature profile has default-features=false.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "barcodes",
+      "upstream_features": [
+        "barcodes"
+      ],
+      "tests_and_constraints": "Local bounded QR/barcode generation; no scanning or network.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "offline_signatures",
+      "upstream_features": [
+        "signatures"
+      ],
+      "tests_and_constraints": "Local structural/cryptographic verification; no TSA/network/private keys/trust claim.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "rendering",
+      "upstream_features": [
+        "rendering"
+      ],
+      "tests_and_constraints": "Requires reviewed filesystem/font confinement; includes system-fonts, jpeg2000 and JBIG2 decoder. Bounded page/pixel/output tests.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "icc_qcms",
+      "upstream_features": [
+        "icc-qcms"
+      ],
+      "tests_and_constraints": "Pure Rust-compatible qcms profile; compare CMYK/ICC output and unsupported profiles.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "icc_lcms2",
+      "upstream_features": [
+        "icc-lcms2"
+      ],
+      "tests_and_constraints": "Native library dependency must be recorded per platform; feature declaration is not a successful build.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "ocr_tract",
+      "upstream_features": [
+        "ocr-tract"
+      ],
+      "tests_and_constraints": "No automatic fetch; approved hash-verified detector/recognizer/dictionary fixtures required for positive OCR evidence.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "ocr_ort",
+      "upstream_features": [
+        "ocr"
+      ],
+      "tests_and_constraints": "ORT native runtime/model dependencies; contains network-capable prefetch helper which adapter must not call.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "ml",
+      "upstream_features": [
+        "ml"
+      ],
+      "tests_and_constraints": "Includes ocr-tract and clustering dependencies; distinguish classical fallback from model inference.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "table_ml",
+      "upstream_features": [
+        "table-ml"
+      ],
+      "tests_and_constraints": "Requires native PDFium/model path review and proof of actual model execution; no heuristic-as-ML claim.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "gpu",
+      "upstream_features": [
+        "gpu"
+      ],
+      "tests_and_constraints": "ORT provider/device availability and memory limits need platform evidence; CPU fallback must be explicit.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "parallel",
+      "upstream_features": [
+        "parallel"
+      ],
+      "tests_and_constraints": "Use existing bounded application queue; upstream whole-document/corpus Vec helpers are not streaming.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "legacy_crypto",
+      "upstream_features": [
+        "legacy-crypto"
+      ],
+      "tests_and_constraints": "Explicit legacy PDF compatibility profile; incompatible with fips, no default enablement inferred.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "fips",
+      "upstream_features": [
+        "fips",
+        "icc"
+      ],
+      "tests_and_constraints": "Cannot combine legacy-crypto. Native AWS-LC/FIPS build and deployment validation are separate; no settings change authorized.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "fips_conflict_negative",
+      "upstream_features": [
+        "fips",
+        "legacy-crypto"
+      ],
+      "tests_and_constraints": "Expected compile_error in upstream lib.rs; never cargo --all-features as a positive acceptance check.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "python_upstream",
+      "upstream_features": [
+        "python"
+      ],
+      "tests_and_constraints": "Separate Python worker: pulls rendering, parallel, logging, signatures, tsa-client, barcodes. Standard3.14 and free-threaded evidence must be distinguished.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "wasm",
+      "upstream_features": [
+        "wasm"
+      ],
+      "tests_and_constraints": "Separate wasm32 compile/runtime ownership and bounds tests; native process supervisor does not apply.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "wasm_ocr",
+      "upstream_features": [
+        "wasm-ocr"
+      ],
+      "tests_and_constraints": "WASM plus tract model-byte API; explicit browser/Node resource boundaries and models needed.",
+      "build_evidence": [],
+      "test_evidence": []
+    },
+    {
+      "id": "tsa_client",
+      "upstream_features": [
+        "tsa-client"
+      ],
+      "tests_and_constraints": "Network/credential-capable surface remains disabled in this integration; local DER parsing does not authorize acquisition.",
+      "build_evidence": [],
+      "test_evidence": []
+    }
+  ],
+  "platforms": [
+    {
+      "target": "Linux x86_64",
+      "status": "Selected VM; exact adapter tests belong to integration owner",
+      "obligations": [
+        "bounded disposable subprocess",
+        "filesystem/network/process confinement separately verified",
+        "font provenance",
+        "native library availability"
+      ]
+    },
+    {
+      "target": "Linux aarch64",
+      "status": "Not tested by inventory worker",
+      "obligations": [
+        "retain merged ARM64 PDFium fix",
+        "optional runtime/native dependency builds"
+      ]
+    },
+    {
+      "target": "macOS",
+      "status": "Mac jobs paused; no Mac access authorized",
+      "obligations": [
+        "report unverified platform coverage; do not resume paused jobs"
+      ]
+    },
+    {
+      "target": "Windows",
+      "status": "Not tested",
+      "obligations": [
+        "worker/job-object/resource/atomic publication semantics",
+        "font/runtime provenance"
+      ]
+    },
+    {
+      "target": "wasm32",
+      "status": "Separate feature surface, no execution claimed",
+      "obligations": [
+        "no native subprocess assumption",
+        "host API/memory boundary",
+        "explicit model bytes"
+      ]
+    }
+  ],
+  "minimum_supported_toolchain": {
+    "package_declared": "1.88",
+    "snapshot_closure_maximum_declared": "1.88.0",
+    "compiled_on_minimum": false,
+    "obligation": "Qualify each enabled dependency/feature graph on the claimed minimum; baseline metadata alone does not qualify optional graphs."
+  }
+}

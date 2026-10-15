@@ -26,6 +26,10 @@ pub mod lopdf_backend;
 pub mod native_provider;
 #[cfg(feature = "pdf-oxide")]
 pub mod pdf_oxide_backend;
+#[cfg(feature = "pdf-oxide")]
+pub mod pdf_oxide_images;
+#[cfg(feature = "pdf-oxide")]
+pub mod pdf_oxide_supplements;
 #[cfg(feature = "pdfium")]
 pub mod pdfium_backend;
 #[cfg(all(feature = "pdf-oxide", feature = "pdfium"))]
@@ -67,6 +71,11 @@ impl std::fmt::Display for EncryptionProblem {
 /// An open document held by its owning worker for the life of the job.
 pub trait DocumentSession {
     fn page_count(&self) -> u32;
+    /// Maximum pages retained by one job, checked before the extraction loop.
+    /// Backends with whole-document buffers can require bounded selections.
+    fn max_selected_pages(&self) -> Option<u32> {
+        None
+    }
     /// Positioned spans for one 1-based page. `lines`/`text` are left empty.
     fn page_text(&mut self, page: u32) -> Result<PageText, BackendError>;
     /// String-valued `/Info` entries, keys without the leading `/`.
@@ -81,6 +90,10 @@ pub trait DocumentSession {
 
 pub trait Extractor: Send + Sync {
     fn identity(&self) -> BackendIdentity;
+    /// Input cap applied by the pipeline before allocating the immutable bytes.
+    fn max_input_bytes(&self) -> Option<u64> {
+        None
+    }
     fn open(
         &self,
         bytes: &[u8],

@@ -36,6 +36,7 @@ pub mod av_speech;
 pub mod finder_services;
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 pub mod mem;
+pub mod oxide_containment;
 #[cfg(target_os = "macos")]
 pub mod process;
 #[cfg(feature = "provider")]
