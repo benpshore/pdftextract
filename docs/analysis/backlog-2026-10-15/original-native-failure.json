@@ -1,0 +1,108 @@
+{
+  "run_id": 38169034277,
+  "run_url": "https://github.com/benpshore/pdftextract/actions/runs/38169034277",
+  "head": "7cabac188b5d89c5f0a9127392f5213df7d349a1",
+  "job_id": 114557539328,
+  "host": "native (ubuntu-24.04-arm)",
+  "conclusion": "failure",
+  "source": "Authorized GitHub connector job logs and artifact metadata read on 2026-10-15.",
+  "step_outcomes": [
+    {
+      "number": 9,
+      "name": "Provision PDFium and the docling models (prints file, bytes, sha256)",
+      "conclusion": "success"
+    },
+    {
+      "number": 10,
+      "name": "Run cargo build --locked --release --features docling,pdfium",
+      "conclusion": "success"
+    },
+    {
+      "number": 11,
+      "name": "Run cargo clippy --locked --all-targets --features docling,pdfium -- -D warnings",
+      "conclusion": "success"
+    },
+    {
+      "number": 12,
+      "name": "Run cargo test --locked --features docling,pdfium -- --nocapture",
+      "conclusion": "success"
+    },
+    {
+      "number": 13,
+      "name": "List backends",
+      "conclusion": "success"
+    },
+    {
+      "number": 14,
+      "name": "Run actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830",
+      "conclusion": "success"
+    },
+    {
+      "number": 15,
+      "name": "Fetch the corpus (cached items are reused)",
+      "conclusion": "success"
+    },
+    {
+      "number": 16,
+      "name": "Evaluate the lopdf baseline on the same runner and corpus",
+      "conclusion": "success"
+    },
+    {
+      "number": 17,
+      "name": "Evaluate the pdfium backend",
+      "conclusion": "success"
+    },
+    {
+      "number": 18,
+      "name": "Evaluate the docling-text backend",
+      "conclusion": "success"
+    },
+    {
+      "number": 19,
+      "name": "Evaluate the docling backend (full layout + OCR)",
+      "conclusion": "success"
+    },
+    {
+      "number": 20,
+      "name": "Validate coverage and bounded outcomes for every backend",
+      "conclusion": "failure"
+    },
+    {
+      "number": 21,
+      "name": "Publish the reports in the job summary",
+      "conclusion": "success"
+    },
+    {
+      "number": 22,
+      "name": "Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+      "conclusion": "success"
+    }
+  ],
+  "validation_log_lines": [
+    "2026-10-11T20:00:56.3531801Z Native evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256",
+    "2026-10-11T20:00:56.5598144Z Native evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256",
+    "2026-10-11T20:00:56.7647109Z Native evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256",
+    "2026-10-11T20:00:56.9409941Z Native evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256"
+  ],
+  "artifact": {
+    "id": 11714096388,
+    "name": "native-eval-ubuntu-24.04-arm",
+    "size_in_bytes": 18266034,
+    "digest": "sha256:5a07d859b562ed4b8451320229ceb45af4cc6c1e41a87d0cc466fca36e2122c0",
+    "workflow_run": {
+      "id": 38169034277,
+      "repository_id": 1392190140,
+      "head_repository_id": 1392190140,
+      "head_branch": "codex/tonight-reading-order-20261010",
+      "head_sha": "7cabac188b5d89c5f0a9127392f5213df7d349a1"
+    },
+    "expired": false,
+    "created_at": "2026-10-11T20:00:59Z",
+    "expires_at": "2027-01-09T19:40:43Z"
+  },
+  "download_attempt": {
+    "status": "HTTP403",
+    "method": "Authorized connector returned a file reference; download from this cloud VM failed.",
+    "real_dumps_revalidated": false
+  }
+}

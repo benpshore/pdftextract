@@ -4,7 +4,7 @@ Observed main: `b3730aa958d947fcbf6ea45b0efef07fcfa20f29`. All **119 open PR hea
 
 This index records preservation obligations, exact source heads, base/dependency edges and changed paths. It is not a declaration that every historical proposal is still unique. Many core repairs already reached main through PR173 (`e27e1fb`); a squash/port will not appear as head ancestry. Compare final behavior, tests and evidence before proposing any closure.
 
-Full machine-readable details: [sources.json](sources.json). Every row has a local `archive/20261015-prN` ref. The complete-history bundle is stored in the cloud evidence directory; its SHA-256 is in the JSON. Original PRs/branches remain unchanged.
+Integration outcomes and blockers: [HANDOFF.md](HANDOFF.md). Full machine-readable details: [sources.json](sources.json). Every row has a local `archive/20261015-prN` ref. The complete-history bundle is stored in the cloud evidence directory; its SHA-256 is in the JSON. Original PRs/branches remain unchanged.
 
 Dependency groups and constraints:
 
