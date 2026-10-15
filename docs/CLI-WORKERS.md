@@ -98,3 +98,34 @@ races, source/output/ledger aliases, stopped-worker deadlines, signal cancellati
 parent death, request/capture bounds, and pipe backpressure. The release workflow
 runs these on native Linux x64/ARM64 and macOS ARM64. A configured workflow is not
 evidence of a passing run; retain exact commit, runner and run IDs with each result.
+
+## Compressed outputs (`--gzip`)
+
+`tpe extract paper.pdf --db results.sqlite --out extracted --gzip` writes every
+file it publishes under `--out` as one RFC 1952 gzip member, named with the
+usual name plus `.gz`: `<hash>.json.gz` and `<hash>.txt.gz` (a rerun that finds
+those names taken publishes `<hash> 2.json.gz` and `<hash> 2.txt.gz`, as
+without `--gzip`). `--gzip-level 1..9` picks the deflate level (default 6; 1 is
+fastest, 9 smallest) and is only accepted together with `--gzip`, which in turn
+needs `--out`. JSON records show the real names in `output_paths`, so a `.gz`
+suffix there is the record of compression; the ledger has no output-path field.
+
+The publication contract in [PUBLICATION.md](PUBLICATION.md) is unchanged: each
+output is encoded while it streams into its exclusive staging file (the encoder
+keeps a fixed buffer; no output is held in memory as a whole), the staging file
+is synced, and only then is it linked to its final no-clobber name. The gzip
+trailer (CRC-32 and length) is part of the staged bytes, so a decoder rejects a
+short file. A handled failure rolls the `.gz` names back exactly as before. The
+SQLite ledger and its sidecars are never compressed. `gunzip -t <file>` verifies
+an output and `gzip -dc <file>` prints it; `tests/publication_gzip.rs` runs both
+with the system tools (and says so and skips those checks where gzip is absent).
+
+Publication runs in the separate `publish` worker, so the controller relays the
+level to its workers in the inherited environment variable `TPE_GZIP_LEVEL`. The
+flag decides: before spawning any worker the controller re-executes itself
+(same PID, arguments and descriptors) whenever that variable disagrees with
+`--gzip`/`--gzip-level`, setting or removing it, so an inherited value never
+compresses outputs of a run without `--gzip`. Workers read the variable at
+startup and make it the process-wide default for `StagedOutputs::stage`;
+library callers choose explicitly with `StagedOutputs::stage_with` or
+`stage_streams`. Figure bytes and `tpe eval` reports are outside this option.
