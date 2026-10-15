@@ -1790,6 +1790,39 @@ fn split_columns(boxes: &[BBox], by_left: &[usize], min_gap: f32) -> Option<Colu
     strict
 }
 
+/// Separate one top heading centred over a proven body gutter. Its width need
+/// not fit the page-furniture thresholds, and a three-column heading can leave
+/// another gutter open. Inspect the body before choosing that column cut.
+/// A same-height column heading or a line centred inside a body column stays
+/// with that column. Only one gap can contain the heading's centre, so this
+/// adds linear work per region, within the existing line/depth bounds.
+fn gutter_heading_cut(
+    boxes: &[BBox],
+    by_top: &[usize],
+    by_left: &[usize],
+    params: &CutParams,
+) -> Option<usize> {
+    if by_top.len() < 2 * COEXIST_LINES + 1 {
+        return None;
+    }
+    let heading = by_top[0];
+    let head = boxes[heading];
+    if head.y0 - boxes[by_top[1]].y1 <= params.bridge_gap {
+        return None;
+    }
+    let body: Vec<usize> = by_left.iter().copied().filter(|&i| i != heading).collect();
+    let centre = centre_x(head);
+    let mut edge = boxes[body[0]].x1;
+    for (at, &i) in body.iter().enumerate().skip(1) {
+        let start = boxes[i].x0;
+        if edge < centre && centre < start && start - edge > params.column_gap {
+            return columns_coexist(boxes, &body, at).then_some(1);
+        }
+        edge = edge.max(boxes[i].x1);
+    }
+    None
+}
+
 /// Whether `ch` ends a sentence or a clause for [`flow`].
 fn is_terminal(ch: char) -> bool {
     matches!(ch, '.' | '!' | '?' | ':' | ';' | ')' | ']')
@@ -1915,40 +1948,47 @@ impl XyCut<'_> {
             let split = split_columns(boxes, &by_left, params.column_gap);
             let has_column = split.is_some_and(|s| s.coexist);
             let cut = split.map(|s| s.at);
-            let row = if has_column {
-                // The right side starts at the box at the cut.
-                let split_x = cut.map(|at| boxes[by_left[at]].x0);
-                spanning_row_cut(boxes, &by_top, params.row_gap, split_x).or_else(|| {
-                    let x = split_x?;
-                    let at = row_cut(boxes, &by_top, params.row_gap)?;
-                    rows_read_first(boxes, self.texts, &by_top, at, x).then_some(at)
-                })
-            } else {
-                let masked =
-                    masked_column_cut(boxes, &by_top, &by_left, params.column_gap, &mut self.marks);
-                let margin = if masked {
-                    spanning_row_cut(boxes, &by_top, params.row_gap, None).or_else(|| {
-                        // Only relax tight heading spacing when the first body
-                        // row has text on both sides, not for the short final
-                        // line of a spanning paragraph.
-                        let (head, _) = margin_runs(boxes, &by_top);
-                        let at = spanning_row_cut(boxes, &by_top, params.bridge_gap, None)?;
-                        let next = *by_top.get(at)?;
-                        let paired = by_top[at + 1..].iter().any(|&other| {
-                            boxes[other].y0 < boxes[next].y1
-                                && boxes[other].y1 > boxes[next].y0
-                                && (boxes[other].x0 > boxes[next].x1
-                                    || boxes[other].x1 < boxes[next].x0)
-                        });
-                        (at == head && paired).then_some(at)
+            let row = gutter_heading_cut(boxes, &by_top, &by_left, params).or_else(|| {
+                if has_column {
+                    // The right side starts at the box at the cut.
+                    let split_x = cut.map(|at| boxes[by_left[at]].x0);
+                    spanning_row_cut(boxes, &by_top, params.row_gap, split_x).or_else(|| {
+                        let x = split_x?;
+                        let at = row_cut(boxes, &by_top, params.row_gap)?;
+                        rows_read_first(boxes, self.texts, &by_top, at, x).then_some(at)
                     })
                 } else {
-                    None
-                };
-                margin
-                    .or_else(|| bridge_row_cut(boxes, &by_top, &by_left, params))
-                    .or_else(|| row_cut(boxes, &by_top, params.row_gap))
-            };
+                    let masked = masked_column_cut(
+                        boxes,
+                        &by_top,
+                        &by_left,
+                        params.column_gap,
+                        &mut self.marks,
+                    );
+                    let margin = if masked {
+                        spanning_row_cut(boxes, &by_top, params.row_gap, None).or_else(|| {
+                            // Only relax tight heading spacing when the first body
+                            // row has text on both sides, not for the short final
+                            // line of a spanning paragraph.
+                            let (head, _) = margin_runs(boxes, &by_top);
+                            let at = spanning_row_cut(boxes, &by_top, params.bridge_gap, None)?;
+                            let next = *by_top.get(at)?;
+                            let paired = by_top[at + 1..].iter().any(|&other| {
+                                boxes[other].y0 < boxes[next].y1
+                                    && boxes[other].y1 > boxes[next].y0
+                                    && (boxes[other].x0 > boxes[next].x1
+                                        || boxes[other].x1 < boxes[next].x0)
+                            });
+                            (at == head && paired).then_some(at)
+                        })
+                    } else {
+                        None
+                    };
+                    margin
+                        .or_else(|| bridge_row_cut(boxes, &by_top, &by_left, params))
+                        .or_else(|| row_cut(boxes, &by_top, params.row_gap))
+                }
+            });
             if let Some(at) = row {
                 let lower_top = by_top.split_off(at);
                 let (upper_left, lower_left) = self.partition(&by_top, &by_left);

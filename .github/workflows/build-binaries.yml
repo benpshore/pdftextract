@@ -32,6 +32,8 @@ on:
       - tests/worker_startup.rs
       - tests/end_to_end.rs
       - tests/layout_real_corpus.rs
+      - tests/reading_order_columns.rs
+      - tests/fixtures/reading-order/**
       - tests/cli_dry_run.rs
       - tests/fixtures/layout-witnesses/**
       - scripts/fetch_layout_witnesses.py
@@ -98,7 +100,7 @@ jobs:
         run: cargo test --release --locked -p text-processing-engine --test worker_startup -- --test-threads=2 --nocapture
       - name: Native release CLI boundary
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
-        run: cargo test --release --locked -p text-processing-engine --test cli_containment --test end_to_end --test bibliography_input_safety --test lopdf_unicode_status --test cli_dry_run -- --test-threads=2 --nocapture
+        run: cargo test --release --locked -p text-processing-engine --test cli_containment --test end_to_end --test bibliography_input_safety --test lopdf_unicode_status --test cli_dry_run --test reading_order_columns -- --test-threads=2 --nocapture
       - name: Fetch SHA-pinned public visual witnesses
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         run: python3 scripts/fetch_layout_witnesses.py "$RUNNER_TEMP/layout-witnesses"
