@@ -165,3 +165,6 @@ eval-out/
 .models/
 .pdfium/
 eval-native/
+
+# Pinned browser runtime/model staging; never commit binaries or model caches.
+/web/public/vendor/docling/

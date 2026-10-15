@@ -48,6 +48,9 @@ next-env.d.ts
 # Portable source mirror: protect local deployment state and generated assets.
 /.openai/
 /public/vendor/pdf-oxide/
+/public/vendor/docling/
+/docling-browser-evidence.json
+/docling-browser-evidence.png
 /public/ocr/
 *.tsbuildinfo
 __pycache__/

@@ -8,6 +8,7 @@ import {Button} from '@/components/ui/button';
 import {clipHtml, parseFeed, safeUrl, textDois, doiFrom} from '@/lib/clip';
 import {expandUploads} from '@/lib/imports';
 import {recognizeImage} from '@/lib/image-ocr';
+import {extractPdfWithOptions, type PdfOptions} from '@/lib/pdf-api';
 import {extractOffice} from '@/lib/office';
 import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource} from '@/lib/upload-client';
 import {retainArticleImages} from '@/lib/article-assets';
@@ -16,7 +17,7 @@ import type {DocumentRow, Extracted} from '@/lib/types';
 
 type Phase = 'waiting'|'fetching'|'uploading'|'extracting'|'saving'|'saved'|'failed'|'cancelled'|'interrupted';
 type Source = {type:'file';file:File;url?:string;decoded?:string;member?:boolean}|{type:'url';url:string;feed:boolean}|{type:'stored';name:string;url?:string;decoded?:string;member?:boolean};
-type QueueItem = {id:string;name:string;source:Source;phase:Phase;progress:number|null;message:string;error?:string;record?:DocumentRow;result?:Extracted;savePending?:boolean;retrySave?:boolean;parentId?:string};
+type QueueItem = {pdfOptions?:PdfOptions;id:string;name:string;source:Source;phase:Phase;progress:number|null;message:string;error?:string;record?:DocumentRow;result?:Extracted;savePending?:boolean;retrySave?:boolean;parentId?:string};
 type Selection = {queueId:string}|{record:DocumentRow;result:Extracted|null};
 type Snapshot = {version:1;items:QueueItem[];draft:{url:string;kind:string;paste:string;query:string};selection:{queueId?:string;documentId?:string}|null;view:string;scroll:number};
 type DropEntry = {isFile:boolean;isDirectory:boolean;name:string;file?:(done:(file:File)=>void,fail:(error:DOMException)=>void)=>void;createReader?:()=>{readEntries:(done:(entries:DropEntry[])=>void,fail:(error:DOMException)=>void)=>void}};
@@ -30,17 +31,6 @@ async function json<T>(response:Response):Promise<T> {
 }
 function download(name:string,value:string,type='application/json') {
   const url=URL.createObjectURL(new Blob([value],{type}));const anchor=document.createElement('a');anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),5000);
-}
-function pdf(bytes:ArrayBuffer,name:string,signal:AbortSignal,onProgress:(completed:number,total:number)=>void):Promise<Extracted> {
-  return new Promise((resolve,reject)=>{
-    signal.throwIfAborted();const worker=new Worker('/pdf-worker.js',{type:'module'});
-    const stop=()=>{worker.terminate();signal.removeEventListener('abort',abort);};
-    const abort=()=>{stop();reject(new DOMException('Extraction cancelled.','AbortError'));};
-    signal.addEventListener('abort',abort,{once:true});
-    worker.onmessage=event=>{const data=event.data;if(data.progress!==undefined)onProgress(data.progress,data.total);else if(data.error){stop();reject(new Error(data.error));}else if(data.result){stop();const result=data.result as Extracted;result.links.push(...textDois(result.text));resolve(result);}};
-    worker.onerror=event=>{stop();reject(new Error(event.message||'The PDF worker stopped unexpectedly.'));};
-    try { worker.postMessage({bytes,name},[bytes]); } catch(error) {stop();reject(error);}
-  });
 }
 function nativeRecord(text:string,name:string):Extracted {
   let parsed;try {parsed=JSON.parse(text);}catch {parsed=text.split(/\r?\n/).filter(Boolean).map(line=>JSON.parse(line));}
@@ -79,6 +69,7 @@ function Tip({label,suppress=false,children}:{label:string;suppress?:boolean;chi
 }
 
 export default function Workspace({userId}:{userId:string}) {
+  const [pdfOptions,setPdfOptions]=useState<PdfOptions>({engine:'docling',ocr:'auto'});
   const [queue,setQueue]=useState<QueueItem[]>([]),[selection,setSelection]=useState<Selection|null>(null),[documents,setDocuments]=useState<DocumentRow[]>([]);
   const [url,setUrl]=useState(''),[kind,setKind]=useState('file'),[paste,setPaste]=useState(''),[query,setQuery]=useState(''),[view,setView]=useState('text');
   const [error,setError]=useState(''),[recoveryWarning,setRecoveryWarning]=useState(''),[announcement,setAnnouncement]=useState(''),[queueOpen,setQueueOpen]=useState(true),[uploadOpen,setUploadOpen]=useState(false),[savedOpen,setSavedOpen]=useState(false),[dragging,setDragging]=useState(false),[loading,setLoading]=useState(false),[restored,setRestored]=useState(false);
@@ -131,7 +122,7 @@ export default function Workspace({userId}:{userId:string}) {
   function openRecord(record:DocumentRow,scroll=0) {historySelection(record.id);void openSaved(record.id,'text',scroll);}
 
   function add(sources:{source:Source;name:string;parentId?:string}[],start=true):string[] {
-    const items=sources.map(input=>({...input,id:crypto.randomUUID(),phase:'waiting' as const,progress:null,message:'Waiting to import.'}));
+    const items=sources.map(input=>({...input,pdfOptions:{...pdfOptions},id:crypto.randomUUID(),phase:'waiting' as const,progress:null,message:'Waiting to import.'}));
     queueRef.current=[...queueRef.current,...items];setQueue(queueRef.current);setQueueOpen(true);
     if(items.length&&!selectionRef.current&&!loading)selectQueue(items[0].id);
     if(start)queueMicrotask(()=>void pumpRef.current());
@@ -219,7 +210,7 @@ export default function Workspace({userId}:{userId:string}) {
         extracted=office.extracted;
         if(extracted.html){const document=new DOMParser().parseFromString(extracted.html,'text/html');for(const image of Array.from(document.querySelectorAll('img[data-image-id]'))){const source=assets.get(image.getAttribute('data-image-id')||'');if(source)image.setAttribute('src',source);else image.remove();}extracted={...extracted,html:document.body.innerHTML};}
         extracted={...extracted,warnings:[...extracted.warnings,...assetWarnings],status:assetWarnings.length?'partial':extracted.status,metadata:{...extracted.metadata,retainedImages:Array.from(assets,([imageId,url])=>({imageId,url}))}};
-      }else if(record.kind==='pdf')extracted=await pdf(await file.arrayBuffer(),file.name,signal,(completed,total)=>update(id,{progress:total?100*completed/total:null,message:'Extracting page '+completed+' of '+total+'.'}));
+      }else if(record.kind==='pdf'){extracted=await extractPdfWithOptions(file,item.pdfOptions||{engine:'docling',ocr:'auto'},signal,event=>update(id,{progress:event.total?100*(event.completed||0)/event.total:null,message:event.message}));extracted.links.push(...textDois(extracted.text));}
       else if(record.kind==='image'&&await supportsOcr(file))extracted=await recognizeImage(file,(event:{status:string;progress:number})=>update(id,{message:event.status,progress:event.progress*100}),signal);
       else if(record.kind==='feed')extracted=parseFeed(decoded??await file.text(),sourceUrl||'https://saved.invalid/');
       else if(record.kind==='json')extracted=nativeRecord(decoded??await file.text(),file.name);
@@ -371,7 +362,7 @@ export default function Workspace({userId}:{userId:string}) {
       <form className="composer" onSubmit={event=>{event.preventDefault();submitComposer();}}>
         <label htmlFor="source-paste" className="sr-only">Paste a link or text</label>
         <textarea id="source-paste" rows={2} value={paste} onFocus={()=>void detectClipboardUrl()} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
-        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={holdUploadPointer} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button></div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
+        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={holdUploadPointer} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button><fieldset className="pdf-controls"><legend>PDF processing</legend><label>Layout <select aria-label="PDF layout" value={pdfOptions.engine} onChange={event=>setPdfOptions({engine:event.target.value as PdfOptions["engine"],ocr:event.target.value==="fast-text"?"off":"auto"})}><option value="docling">Docling layout</option><option value="fast-text">Off: fast text (order unverified)</option></select></label><label>OCR <select aria-label="PDF OCR" disabled={pdfOptions.engine==="fast-text"} value={pdfOptions.ocr} onChange={event=>setPdfOptions(value=>({...value,ocr:event.target.value as PdfOptions["ocr"]}))}><option value="auto">Automatic per page</option><option value="always">Always rasterize</option><option value="off">Off (digital only)</option></select></label><a href="/pdf-api/v1/index.html" target="_blank" rel="noopener noreferrer">PDF API, page controls and diagnostics</a></fieldset></div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
         <input ref={fileInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
         <input ref={element=>{folderInput.current=element;element?.setAttribute('webkitdirectory','');}} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
         <input ref={photoInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
