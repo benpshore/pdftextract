@@ -8698,6 +8698,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "tpe-refcheck"
+version = "0.2.0"
+dependencies = [
+ "clap",
+ "hex",
+ "percent-encoding",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "strsim",
+ "tempfile",
+ "text-processing-engine",
+ "thiserror 2.0.21",
+ "unicode-normalization",
+ "ureq",
+]
+
+[[package]]
 name = "tpe-search"
 version = "0.2.0"
 dependencies = [
