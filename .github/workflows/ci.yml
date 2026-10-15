@@ -58,8 +58,8 @@ jobs:
   rust:
     # x86-64 Linux plus native ARM64 Linux (aarch64-unknown-linux-gnu).
     # Cross-compiling is not runtime verification, so each target runs its
-    # own tests. The Build binaries workflow separately verifies the shipped
-    # aarch64-apple-darwin release CLI on native macOS.
+    # own tests. Native macOS validation is paused during engine development
+    # (PR #274); no current ARM64 macOS runtime claim is made by this workflow.
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +89,10 @@ jobs:
       - run: cargo fmt --check
       - run: cargo clippy --locked --workspace --all-targets -- -D warnings
       - run: cargo test --locked --workspace
+      - name: Check the provider ABI on both native architectures
+        run: |
+          cargo clippy --locked -p tpe-ffi --all-targets --features provider -- -D warnings
+          cargo test --locked -p tpe-ffi --features provider
       - name: Check optional CFF, Docling text, and GROBID modules
         run: |
           cargo clippy --locked --all-targets --features pdf-extract,docling-text,grobid -- -D warnings
@@ -113,7 +117,7 @@ jobs:
       - run: swift test
 
   # The CMake targets need Objective-C++ and the Foundation framework, so they
-  # only build on macOS; Build binaries runs these checks on its macOS runner.
+  # only build on macOS. That Build binaries lane is paused by PR #274.
 
   # The single required check in the branch ruleset. It passes only if every job above passed.
   ci:

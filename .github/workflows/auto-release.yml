@@ -100,7 +100,8 @@ jobs:
           set -eu
           cd dist
           ls -l
-          test -f tpe-aarch64-apple-darwin.tar.gz
+          # Restore with the macOS entry in build-binaries.yml.
+          # test -f tpe-aarch64-apple-darwin.tar.gz
           test -f tpe-aarch64-unknown-linux-gnu.tar.gz
           test -f tpe-x86_64-unknown-linux-gnu.tar.gz
           sha256sum -- *.tar.gz > SHA256SUMS

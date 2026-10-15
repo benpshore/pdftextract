@@ -36,6 +36,8 @@ concurrency:
 
 jobs:
   app:
+    # Paused during engine development; remove this guard when macOS work resumes.
+    if: ${{ false }}
     runs-on: macos-15
     timeout-minutes: 45
     steps:

@@ -1,7 +1,7 @@
 name: Install check
 
 # Installs a published release the way a user does, with mise's `github:`
-# backend, on macOS arm64 and Linux arm64, and runs the binary. Called by
+# backend, on Linux arm64 (macOS CI is paused), and runs the binary. Called by
 # auto-release and release after publishing; on pull requests that change
 # this file it checks the latest existing release instead.
 
@@ -32,7 +32,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, ubuntu-24.04-arm]
+        # Restore macos-15 when macOS CI resumes.
+        os: [ubuntu-24.04-arm]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     env:
