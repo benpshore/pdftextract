@@ -1,0 +1,66 @@
+{
+  "tested_code_commit": "de1396bf956ebefdd77052796df8311daa71579f",
+  "tree": "c66bb7ff89ac8d4283de0cfa094c598851da3d26",
+  "merge_checkpoint": "3787073d4b54a5bb515f50d75b4de158698d99db",
+  "main": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "branch": "codex/pr273-backlog-checkpoint-20261015",
+  "host": "Linux 6.18.44 x86_64 GNU/Linux",
+  "python": "3.14.7",
+  "rust": "1.98.1",
+  "rust_checks": [
+    {
+      "log": "repaired-rust.log",
+      "scope": "default workspace, precommit repaired content",
+      "counts_without_nested_probe_double_count": {
+        "passed": 1136,
+        "failed": 0,
+        "ignored": 11
+      },
+      "sha256": "6e0e23dfe78e3a9bfad567506858b5fa7471bd626ca070087c4a6e8655bd7406"
+    },
+    {
+      "log": "available-native-rust.log",
+      "scope": "exact clean checkpoint; docling-text,pdfium,pdf-extract,grobid",
+      "counts_without_nested_probe_double_count": {
+        "passed": 1188,
+        "failed": 0,
+        "ignored": 13
+      },
+      "sha256": "10db829a2524442acf8c7333ed1b8188e074895e4eeefff1e54bc7e51ca704a4"
+    }
+  ],
+  "python_tests": 241,
+  "diagnostic_replay": "current-diagnostics-replay/summary.json",
+  "diagnostic_replay_expected_rejections": 3,
+  "historical_policy_sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+  "license_sha256": "57411afebd084482658b294bc643db7f93b32a01d5215492f96a149fa5f92e78",
+  "source_bundle_sha256": "ac4494d1762d90667d9fc8ef306c01c446a2dbfefa1aeace181ad23dc8573085",
+  "blockers": [
+    "Full Docling build: ort-sys pinned ONNX runtime CDN CONNECT HTTP 403; no full Docling test/eval claim.",
+    "Original ARM64 Native artifact 11714096388: authorized connector file URL returned HTTP403; original real dumps not revalidated.",
+    "Historical Native manifest differs; policy remains strict and unchanged; any new Partial exception requires actual matching evidence and review.",
+    "Swift and CMake absent; Mac jobs intentionally paused; ARM64 runtime not available in this VM.",
+    "uv audit: api.osv.dev tunnel/connect failure.",
+    "Python package entry point is a Hello scaffold; tooling tests are not finished engine/API parity.",
+    "Security sandbox, fork-bomb containment and comprehensive SSRF/RCE defense qualification remain open. bwrap user namespace setup is unavailable (uid map read-only); no fork-bomb test attempted."
+  ],
+  "constraints_preserved": [
+    "PR273 unchanged, no new PR/issue, closure, merge or release.",
+    "Main and PR273/280/281 exact heads are ancestors of checkpoint; full selected histories preserved.",
+    "PR279 ARM64 provider implementation, exception policy, Cargo.lock and LICENSE equal current main.",
+    "PR274 Mac-job pause retained.",
+    "All119 open heads locally archived and bundled; separate competing design obligations indexed.",
+    "No Mac/Documents access, private code/data import, repository creation or visibility/license changes."
+  ],
+  "release_checks": {
+    "source": "de1396bf956ebefdd77052796df8311daa71579f",
+    "command": "cargo test --release --locked --bin tpe --test reading_order_columns --test cli_containment --test worker_startup --test end_to_end -- --test-threads=2 --nocapture",
+    "counts_without_nested_probe_double_count": {
+      "passed": 51,
+      "failed": 0,
+      "ignored": 2
+    },
+    "log_sha256": "373a891c525fa4d2fd7ee66737ee52d4101e682781e0b6efe4c883d83b4e2a5b"
+  },
+  "scope_note": "Tested code at de1396b; the accompanying handoff commit changes documentation/evidence only. No claim of exact-head CI for the documentation successor."
+}

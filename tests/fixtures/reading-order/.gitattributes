@@ -1,0 +1,2 @@
+# Preserve exact synthetic PDF bytes, including fixed-width xref whitespace.
+*.pdf binary

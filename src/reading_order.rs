@@ -91,6 +91,8 @@ const MAX_LINES: usize = 20_000;
 /// Maximum estimated character/member inspections spent composing accents
 /// on one page. Above this bound the glyphs are kept verbatim instead.
 const MAX_ACCENT_WORK: usize = 1_000_000;
+/// Shared scan budget for page-wide gutter evidence, independent of span count.
+const MAX_GUTTER_WORK: usize = 1_000_000;
 /// Maximum prior vertical groups examined on one page. Once exhausted,
 /// remaining spans stay separate rather than allowing hostile geometry to
 /// make grouping quadratic.
@@ -104,7 +106,9 @@ const SPACE_GAP: f32 = 0.15;
 /// Vertical whitespace wider than this many median line heights splits rows.
 const ROW_GAP: f32 = 1.0;
 /// Horizontal whitespace wider than this many median character widths splits columns.
-const COLUMN_GAP: f32 = 2.0;
+// Narrow justified prose gutters can be one character wide (e.g. three-column
+// notices). A cut still needs coexisting blocks; ordinary word spacing is less.
+const COLUMN_GAP: f32 = 1.0;
 /// Vertical gap inside a block wider than this many median line heights is a paragraph.
 const PARAGRAPH_GAP: f32 = 1.5;
 /// Font size assumed when nothing on the page carries a size or a height.
@@ -949,6 +953,7 @@ fn gutter_band(
     skip: usize,
     centre: f32,
     min_gap: f32,
+    min_line_width: f32,
 ) -> Option<(f32, f32)> {
     let (mut left_count, mut right_count, mut row_count) = (0_usize, 0_usize, 0_usize);
     let mut left_edge = f32::NEG_INFINITY;
@@ -959,10 +964,10 @@ fn gutter_band(
             continue;
         }
         let b = line.bbox;
-        if b.x1 <= centre {
+        if b.x1 <= centre && b.x1 - b.x0 >= min_line_width {
             left_count += 1;
             left_edge = left_edge.max(b.x1);
-        } else if b.x0 >= centre {
+        } else if b.x0 >= centre && b.x1 - b.x0 >= min_line_width {
             right_count += 1;
             right_edge = right_edge.min(b.x0);
         } else if let Some((_, gap_left, gap_right)) = gaps[k]
@@ -1013,6 +1018,8 @@ fn split_fused_rows(
     builds: Vec<LineBuild>,
     fallback: f32,
     width: f32,
+    work: &mut usize,
+    limited: &mut bool,
 ) -> Vec<LineBuild> {
     if builds.is_empty() {
         return builds;
@@ -1044,24 +1051,50 @@ fn split_fused_rows(
         let straddles = middles
             .iter()
             .any(|m| (gap_left - slack..=gap_right + slack).contains(m));
-        if gap_right - gap_left <= min_gap || !straddles {
+        if gap_right - gap_left <= space {
+            continue;
+        }
+        if *work < builds.len().saturating_mul(2) {
+            *limited = true;
+            break;
+        }
+        *work -= builds.len() * 2;
+        // A repeated gutter is stronger evidence than the page midpoint or
+        // word count. Three-column pages have two off-centre gutters, and a
+        // short paragraph tail (even one word) still belongs to its column.
+        let band = gutter_band(
+            &builds,
+            &gaps,
+            k,
+            gap_left.midpoint(gap_right),
+            space,
+            width * 0.2,
+        );
+        let supported = band.is_some_and(|(left, right)| {
+            right - left > space && (left..=right).contains(&gap_left.midpoint(gap_right))
+        });
+        if !supported && (!straddles || gap_right - gap_left <= min_gap) {
             continue;
         }
         let members = &sorted[k];
         let (head, tail) = members.split_at(pos);
-        if word_count(spans, head, fallback) < GUTTER_WORDS
-            || word_count(spans, tail, fallback) < GUTTER_WORDS
+        if !supported
+            && (word_count(spans, head, fallback) < GUTTER_WORDS
+                || word_count(spans, tail, fallback) < GUTTER_WORDS)
         {
             continue;
         }
         let spanning = build.bbox.x1 - build.bbox.x0 > SPANNING_PAGE * width;
         if spanning {
             let centre = gap_left.midpoint(gap_right);
-            let Some((band_left, band_right)) = gutter_band(&builds, &gaps, k, centre, min_gap)
+            let Some((band_left, band_right)) =
+                gutter_band(&builds, &gaps, k, centre, min_gap, 0.0)
             else {
                 continue;
             };
-            if gap_left > band_left + GUTTER_COVER || gap_right < band_right - GUTTER_COVER {
+            if (!supported || build.size > 1.1 * fallback)
+                && (gap_left > band_left + GUTTER_COVER || gap_right < band_right - GUTTER_COVER)
+            {
                 continue;
             }
         }
@@ -1096,6 +1129,7 @@ struct Grouped {
     unattached: usize,
     accent_skipped: bool,
     vertical_limited: bool,
+    gutter_limited: bool,
     horizontal_limit: Option<line_index::Limit>,
 }
 
@@ -1226,7 +1260,26 @@ fn group_spans_with_horizontal_budget(
             tails.push((*i, cut, marks));
         }
     }
-    let mut builds = split_fused_rows(spans, builds, fallback, width);
+    let mut gutter_limited = false;
+    let mut gutter_work = MAX_GUTTER_WORK;
+    let mut builds = split_fused_rows(
+        spans,
+        builds,
+        fallback,
+        width,
+        &mut gutter_work,
+        &mut gutter_limited,
+    );
+    // A three-column row can carry two gutters. Revisit at most once; share
+    // the same scan budget instead of multiplying worst-case work by passes.
+    builds = split_fused_rows(
+        spans,
+        builds,
+        fallback,
+        width,
+        &mut gutter_work,
+        &mut gutter_limited,
+    );
 
     // The letter under a trailing accent was kerned back under it, so its
     // span overlaps the tail of the accent's span: no slack, and the
@@ -1314,6 +1367,7 @@ fn group_spans_with_horizontal_budget(
         unattached,
         accent_skipped: !compose_accents,
         vertical_limited,
+        gutter_limited,
         horizontal_limit: line_index.limit,
     }
 }
@@ -1736,6 +1790,39 @@ fn split_columns(boxes: &[BBox], by_left: &[usize], min_gap: f32) -> Option<Colu
     strict
 }
 
+/// Separate one top heading centred over a proven body gutter. Its width need
+/// not fit the page-furniture thresholds, and a three-column heading can leave
+/// another gutter open. Inspect the body before choosing that column cut.
+/// A same-height column heading or a line centred inside a body column stays
+/// with that column. Only one gap can contain the heading's centre, so this
+/// adds linear work per region, within the existing line/depth bounds.
+fn gutter_heading_cut(
+    boxes: &[BBox],
+    by_top: &[usize],
+    by_left: &[usize],
+    params: &CutParams,
+) -> Option<usize> {
+    if by_top.len() < 2 * COEXIST_LINES + 1 {
+        return None;
+    }
+    let heading = by_top[0];
+    let head = boxes[heading];
+    if head.y0 - boxes[by_top[1]].y1 <= params.bridge_gap {
+        return None;
+    }
+    let body: Vec<usize> = by_left.iter().copied().filter(|&i| i != heading).collect();
+    let centre = centre_x(head);
+    let mut edge = boxes[body[0]].x1;
+    for (at, &i) in body.iter().enumerate().skip(1) {
+        let start = boxes[i].x0;
+        if edge < centre && centre < start && start - edge > params.column_gap {
+            return columns_coexist(boxes, &body, at).then_some(1);
+        }
+        edge = edge.max(boxes[i].x1);
+    }
+    None
+}
+
 /// Whether `ch` ends a sentence or a clause for [`flow`].
 fn is_terminal(ch: char) -> bool {
     matches!(ch, '.' | '!' | '?' | ':' | ';' | ')' | ']')
@@ -1861,26 +1948,47 @@ impl XyCut<'_> {
             let split = split_columns(boxes, &by_left, params.column_gap);
             let has_column = split.is_some_and(|s| s.coexist);
             let cut = split.map(|s| s.at);
-            let row = if has_column {
-                // The right side starts at the box at the cut.
-                let split_x = cut.map(|at| boxes[by_left[at]].x0);
-                spanning_row_cut(boxes, &by_top, params.row_gap, split_x).or_else(|| {
-                    let x = split_x?;
-                    let at = row_cut(boxes, &by_top, params.row_gap)?;
-                    rows_read_first(boxes, self.texts, &by_top, at, x).then_some(at)
-                })
-            } else {
-                let masked =
-                    masked_column_cut(boxes, &by_top, &by_left, params.column_gap, &mut self.marks);
-                let margin = if masked {
-                    spanning_row_cut(boxes, &by_top, params.row_gap, None)
+            let row = gutter_heading_cut(boxes, &by_top, &by_left, params).or_else(|| {
+                if has_column {
+                    // The right side starts at the box at the cut.
+                    let split_x = cut.map(|at| boxes[by_left[at]].x0);
+                    spanning_row_cut(boxes, &by_top, params.row_gap, split_x).or_else(|| {
+                        let x = split_x?;
+                        let at = row_cut(boxes, &by_top, params.row_gap)?;
+                        rows_read_first(boxes, self.texts, &by_top, at, x).then_some(at)
+                    })
                 } else {
-                    None
-                };
-                margin
-                    .or_else(|| bridge_row_cut(boxes, &by_top, &by_left, params))
-                    .or_else(|| row_cut(boxes, &by_top, params.row_gap))
-            };
+                    let masked = masked_column_cut(
+                        boxes,
+                        &by_top,
+                        &by_left,
+                        params.column_gap,
+                        &mut self.marks,
+                    );
+                    let margin = if masked {
+                        spanning_row_cut(boxes, &by_top, params.row_gap, None).or_else(|| {
+                            // Only relax tight heading spacing when the first body
+                            // row has text on both sides, not for the short final
+                            // line of a spanning paragraph.
+                            let (head, _) = margin_runs(boxes, &by_top);
+                            let at = spanning_row_cut(boxes, &by_top, params.bridge_gap, None)?;
+                            let next = *by_top.get(at)?;
+                            let paired = by_top[at + 1..].iter().any(|&other| {
+                                boxes[other].y0 < boxes[next].y1
+                                    && boxes[other].y1 > boxes[next].y0
+                                    && (boxes[other].x0 > boxes[next].x1
+                                        || boxes[other].x1 < boxes[next].x0)
+                            });
+                            (at == head && paired).then_some(at)
+                        })
+                    } else {
+                        None
+                    };
+                    margin
+                        .or_else(|| bridge_row_cut(boxes, &by_top, &by_left, params))
+                        .or_else(|| row_cut(boxes, &by_top, params.row_gap))
+                }
+            });
             if let Some(at) = row {
                 let lower_top = by_top.split_off(at);
                 let (upper_left, lower_left) = self.partition(&by_top, &by_left);
@@ -2122,6 +2230,7 @@ pub fn order_page(page: &mut PageText) {
         unattached,
         accent_skipped,
         vertical_limited,
+        gutter_limited,
         horizontal_limit,
     } = group_spans(
         turned.as_deref().unwrap_or(page.spans.as_slice()),
@@ -2136,6 +2245,13 @@ pub fn order_page(page: &mut PageText) {
         push_warning(
             page,
             "resource_limit: vertical grouping budget exhausted; remaining spans kept separate"
+                .to_string(),
+        );
+    }
+    if gutter_limited {
+        push_warning(
+            page,
+            "resource_limit: gutter evidence budget exhausted; reading order is uncertain"
                 .to_string(),
         );
     }
@@ -2163,6 +2279,30 @@ pub fn order_page(page: &mut PageText) {
         push_warning(page, msg);
     }
     let ordered = order_lines(grouped, width);
+    let interleaved = ordered
+        .windows(2)
+        .filter(|pair| {
+            let (Some(a), Some(b)) = (pair[0].bbox, pair[1].bbox) else {
+                return false;
+            };
+            (a.y0 - b.y0).abs() <= 3.0
+                && (a.x1 <= b.x0 || b.x1 <= a.x0)
+                && a.x1 - a.x0 >= width * 0.2
+                && b.x1 - b.x0 >= width * 0.2
+                && a.x1.max(b.x1) - a.x0.min(b.x0) >= width * 0.5
+                && pair
+                    .iter()
+                    .all(|line| line.text.chars().filter(|c| !c.is_whitespace()).count() >= 25)
+        })
+        .count();
+    if interleaved >= 5 {
+        push_warning(
+            page,
+            format!(
+                "extraction_incomplete: reading order unresolved: {interleaved} adjacent side-by-side prose lines"
+            ),
+        );
+    }
     let mut heights: Vec<f32> = ordered
         .iter()
         .filter_map(|l| l.bbox)

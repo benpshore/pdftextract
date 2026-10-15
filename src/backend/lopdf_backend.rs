@@ -77,6 +77,7 @@ use crate::schema::{BBox, BackendIdentity, Link, PageText, Span, config_digest};
 mod cff_recovery;
 mod content;
 mod graphics;
+mod standard_widths;
 mod widths;
 
 use content::{OpKind, TextProgram, is_pdf_space, lex_content};
@@ -250,6 +251,7 @@ impl Extractor for LopdfBackend {
         config.insert("ligatures".to_string(), LIGATURE_POLICY.to_string());
         config.insert("content".to_string(), CONTENT_POLICY.to_string());
         config.insert("encodings".to_string(), ENCODING_POLICY.to_string());
+        config.insert("widths".to_string(), "standard-metrics-v1".to_string());
         config.insert("cff_recovery".to_string(), CFF_RECOVERY.to_string());
         BackendIdentity {
             name: "lopdf".to_string(),
@@ -1396,7 +1398,8 @@ fn type3_glyph_scale(doc: &Document, dict: &Dictionary) -> f32 {
 
 fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
     let subtype = dict.get(b"Subtype").and_then(Object::as_name);
-    let glyph_scale = if subtype.is_ok_and(|name| name == b"Type3") {
+    let type3 = subtype.is_ok_and(|name| name == b"Type3");
+    let glyph_scale = if type3 {
         type3_glyph_scale(doc, dict)
     } else {
         THOUSANDTH
@@ -1423,12 +1426,93 @@ fn simple_widths(doc: &Document, dict: &Dictionary) -> SimpleWidths {
     {
         missing = missing_obj.as_float().ok();
     }
+    let mut substituted = false;
+    if widths.is_empty()
+        && !type3
+        && let Some((fallback, alias)) = standard_font_widths(doc, dict)
+    {
+        first_char = 0;
+        widths = fallback;
+        substituted = alias;
+    }
     SimpleWidths {
         first_char,
+        substituted,
         widths,
         missing,
         glyph_scale,
     }
+}
+
+/// Recover standard metrics from the rendered glyph encoding, never `ToUnicode`:
+/// extraction Unicode may intentionally name different text than the glyph.
+/// Common unembedded aliases use the metrics only with visible uncertainty.
+fn standard_font_widths(doc: &Document, dict: &Dictionary) -> Option<(Vec<f32>, bool)> {
+    let raw = dict.get(b"BaseFont").ok()?.as_name().ok()?;
+    let name = std::str::from_utf8(raw).ok()?;
+    let (standard, alias) = match name {
+        "TimesNewRoman" | "TimesNewRomanPSMT" => ("Times-Roman", true),
+        "TimesNewRoman,Bold" | "TimesNewRomanPS-BoldMT" => ("Times-Bold", true),
+        "TimesNewRoman,Italic" | "TimesNewRomanPS-ItalicMT" => ("Times-Italic", true),
+        "TimesNewRoman,BoldItalic" | "TimesNewRomanPS-BoldItalicMT" => ("Times-BoldItalic", true),
+        "Arial" | "ArialMT" => ("Helvetica", true),
+        "Arial,Bold" | "Arial-BoldMT" => ("Helvetica-Bold", true),
+        "Arial,Italic" | "Arial-ItalicMT" => ("Helvetica-Oblique", true),
+        "Arial,BoldItalic" | "Arial-BoldItalicMT" => ("Helvetica-BoldOblique", true),
+        other => (other, false),
+    };
+    // An embedded program with omitted widths is malformed: do not assume
+    // the program has standard metrics just because it uses a familiar name.
+    if let Ok(descriptor) = dict
+        .get_deref(b"FontDescriptor", doc)
+        .and_then(Object::as_dict)
+        && [b"FontFile".as_slice(), b"FontFile2", b"FontFile3"]
+            .iter()
+            .any(|key| descriptor.has(key))
+    {
+        return None;
+    }
+    if matches!(
+        standard,
+        "Courier" | "Courier-Bold" | "Courier-Oblique" | "Courier-BoldOblique"
+    ) {
+        return Some((vec![600.0; 256], alias));
+    }
+    let metrics = standard_widths::metrics(standard)?;
+    let mut encoding = Dictionary::new();
+    for key in [b"Type".as_slice(), b"Subtype", b"BaseFont", b"Encoding"] {
+        if let Ok(value) = dict.get(key) {
+            encoding.set(key, value.clone());
+        }
+    }
+    let entries = own_table(doc, &encoding)
+        .map(|table| table.entries)
+        .or_else(|| {
+            encoding
+                .get_font_encoding(doc)
+                .ok()
+                .map(|enc| ByteTable::build(&enc).entries)
+        })?;
+    let mut by_char = std::collections::BTreeMap::new();
+    for &(glyph, width) in metrics {
+        if let Some(ch) = glyph_char(doc, glyph.as_bytes()) {
+            by_char.insert(ch, f32::from(width));
+        }
+    }
+    let widths = entries
+        .iter()
+        .map(|entry| {
+            let Some(text) = entry else { return f32::NAN };
+            let mut chars = text.chars();
+            let ch = chars.next();
+            if chars.next().is_some() {
+                return f32::NAN;
+            }
+            ch.and_then(|ch| by_char.get(&ch).copied())
+                .unwrap_or(f32::NAN)
+        })
+        .collect();
+    Some((widths, alias))
 }
 
 fn composite_widths(doc: &Document, dict: &Dictionary) -> CompositeWidths {
@@ -1891,6 +1975,16 @@ impl<'a> Interpreter<'a> {
             }
         };
         let text = self.decode(name, &font, bytes);
+        if !font.composite
+            && bytes
+                .iter()
+                .any(|&code| font.widths.uncertain(u32::from(code)))
+        {
+            self.warn(format!(
+                "extraction_incomplete: font {} has missing or substituted glyph widths; positions and reading order are uncertain",
+                lossy(name)
+            ));
+        }
         let advance = self.advance(&font, bytes);
         let base_font = font.base_font.clone();
         self.emit(text, advance, base_font);
@@ -4269,6 +4363,7 @@ mod tests {
         config.insert("max_xobject_depth".to_string(), "8".to_string());
         config.insert("ligatures".to_string(), "expand".to_string());
         config.insert("content".to_string(), "9".to_string());
+        config.insert("widths".to_string(), "standard-metrics-v1".to_string());
         config.insert("encodings".to_string(), "6".to_string());
         config.insert("cff_recovery".to_string(), CFF_RECOVERY.to_string());
         assert_eq!(identity.config_digest, config_digest(&config));
@@ -4358,7 +4453,14 @@ mod tests {
         let hello = &page.spans[0];
         let hello_box = hello.bbox.unwrap();
         assert!(close(hello_box.x0, 100.0), "x0 {}", hello_box.x0);
-        assert!(close(hello_box.x1, 130.0), "x1 {}", hello_box.x1);
+        assert!(
+            close(
+                hello_box.x1,
+                100.0 + 12.0 * (722.0 + 556.0 + 222.0 + 222.0 + 556.0) / 1000.0
+            ),
+            "x1 {}",
+            hello_box.x1
+        );
         assert!(close(hello_box.y0, 597.6), "y0 {}", hello_box.y0);
         assert!(close(hello_box.y1, 609.6), "y1 {}", hello_box.y1);
         assert!(close(hello.size.unwrap(), 12.0));
@@ -4368,7 +4470,14 @@ mod tests {
         let world = &page.spans[1];
         let world_box = world.bbox.unwrap();
         assert!(close(world_box.x0, 100.0), "x0 {}", world_box.x0);
-        assert!(close(world_box.x1, 160.0), "x1 {}", world_box.x1);
+        assert!(
+            close(
+                world_box.x1,
+                100.0 + 24.0 * (944.0 + 556.0 + 333.0 + 222.0 + 556.0) / 1000.0
+            ),
+            "x1 {}",
+            world_box.x1
+        );
         assert!(close(world_box.y0, 555.2), "y0 {}", world_box.y0);
         assert!(close(world_box.y1, 579.2), "y1 {}", world_box.y1);
         assert!(close(world.size.unwrap(), 24.0));
@@ -4413,9 +4522,9 @@ mod tests {
         let left_box = page.spans[0].bbox.unwrap();
         let right_box = page.spans[1].bbox.unwrap();
         assert!(close(left_box.x0, 50.0), "A x0 {}", left_box.x0);
-        assert!(close(left_box.x1, 55.0), "A x1 {}", left_box.x1);
+        assert!(close(left_box.x1, 56.67), "A x1 {}", left_box.x1);
         // -500/1000 * 10 pt moves the next glyph 5 pt to the right.
-        assert!(close(right_box.x0, 60.0), "B x0 {}", right_box.x0);
+        assert!(close(right_box.x0, 61.67), "B x0 {}", right_box.x0);
     }
 
     #[test]
@@ -4683,7 +4792,7 @@ mod tests {
         assert_eq!(page.spans[0].text, "\u{E9}\u{FFFD}");
         assert_eq!(
             page.warnings,
-            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string()]
+            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string(), "extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
         );
         let font = session.cache.fonts.values().next().unwrap();
         assert!(matches!(font.decode, Decode::Table(_)));
@@ -4709,6 +4818,53 @@ mod tests {
         let bytes = build_pdf_with_font(vec![ops], None, make_font);
         let mut session = open_session(&bytes);
         session.page_text(1).unwrap()
+    }
+
+    #[test]
+    fn standard_advances_respect_rendering_differences_and_explicit_widths() {
+        // Code A renders an i. Its Helvetica advance is 222, not the 667
+        // advance for A, and not the old generic 500-unit guess.
+        let page = show_with_font(b"AA", |_| {
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "Encoding" => dictionary! {"BaseEncoding" => "WinAnsiEncoding",
+                    "Differences" => vec![65.into(), "i".into()]},
+            }
+        });
+        assert_eq!(page.spans[0].text, "ii");
+        let bbox = page.spans[0].bbox.unwrap();
+        assert!((bbox.x1 - bbox.x0 - 2.0 * 222.0 * 0.012).abs() < 0.001);
+        assert_eq!(page.extraction_status(), crate::schema::Status::Complete);
+
+        let explicit = show_with_font(b"AA", |_| {
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+                "FirstChar" => 65, "Widths" => vec![900.into()],
+            }
+        });
+        let bbox = explicit.spans[0].bbox.unwrap();
+        assert!((bbox.x1 - bbox.x0 - 21.6).abs() < 0.001);
+    }
+
+    #[test]
+    fn missing_custom_and_substituted_widths_are_partial_without_losing_text() {
+        for name in ["Custom", "ArialMT", "TimesNewRomanPSMT"] {
+            let page = show_with_font(b"Read this text", |_| {
+                dictionary! {
+                    "Type" => "Font", "Subtype" => "Type1", "BaseFont" => name,
+                    "Encoding" => "WinAnsiEncoding",
+                }
+            });
+            assert_eq!(page.spans[0].text, "Read this text");
+            assert_eq!(page.extraction_status(), crate::schema::Status::Partial);
+            assert!(page.warnings.iter().any(|w| w.contains("glyph widths")));
+        }
+        let embedded = show_with_font(b"Read this text", |doc| {
+            let program = doc.add_object(Stream::new(dictionary! {}, Vec::new()));
+            dictionary! {"Type" => "Font", "Subtype" => "TrueType", "BaseFont" => "Helvetica",
+            "Encoding" => "WinAnsiEncoding", "FontDescriptor" => dictionary! {"FontFile2" => program}}
+        });
+        assert_eq!(embedded.extraction_status(), crate::schema::Status::Partial);
     }
 
     #[test]
@@ -4756,7 +4912,7 @@ end
         );
         let mapped = show_with_font(b"AC", make_font);
         assert_eq!(mapped.spans[0].text, "fiC");
-        assert!(mapped.warnings.is_empty(), "{:?}", mapped.warnings);
+        assert_eq!(mapped.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -4908,7 +5064,7 @@ end
             assert_eq!(page.spans.len(), 1);
             // Not "2k" and a dropped byte, as `StandardEncoding` gives.
             assert_eq!(page.spans[0].text, "\u{2208}\u{2016}\u{2212}{}\u{2212}");
-            assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+            assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
         }
     }
 
@@ -4938,7 +5094,7 @@ end
             }
         });
         assert_eq!(page.spans[0].text, "\u{2208}\u{2016}4");
-        assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -4976,7 +5132,7 @@ end
         assert_eq!(page.spans[0].text, "\u{FFFD}\u{E9}");
         assert_eq!(
             page.warnings,
-            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string()]
+            vec!["unicode_mapping: font F1: unmapped code(s); U+FFFD substituted".to_string(), "extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
         );
     }
 
@@ -4986,7 +5142,7 @@ end
             dictionary! { "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "CMR10" }
         });
         assert_eq!(page.spans[0].text, "find\u{2013}\u{2014}");
-        assert_eq!(page.warnings, vec!["ligatures expanded: 1".to_string()]);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string(), "ligatures expanded: 1".to_string()]);
     }
 
     #[test]
@@ -5010,7 +5166,7 @@ end
             }
         });
         assert_eq!(page.spans[0].text, "\u{2208}\u{2016}");
-        assert!(page.warnings.is_empty(), "{:?}", page.warnings);
+        assert_eq!(page.warnings, vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]);
     }
 
     #[test]
@@ -6325,7 +6481,12 @@ end
             } else {
                 let page = page.unwrap();
                 assert_eq!(span_texts(&page), ["abc"], "{route}");
-                assert!(page.warnings.is_empty(), "{route}: {:?}", page.warnings);
+                let expected = if route == "unicode" {
+                    Vec::new()
+                } else {
+                    vec!["extraction_incomplete: font F1 has missing or substituted glyph widths; positions and reading order are uncertain".to_string()]
+                };
+                assert_eq!(page.warnings, expected, "{route}");
             }
         }
     }
@@ -6349,7 +6510,10 @@ end
         let (id, live) = first.unwrap();
         assert_eq!(cache.fonts.len(), MAX_FONT_CACHE_ENTRIES);
         assert_eq!(cache.font_order.len(), MAX_FONT_CACHE_ENTRIES);
-        assert_eq!(cache.font_bytes, MAX_FONT_CACHE_ENTRIES * MIN_FONT_CHARGE);
+        assert_eq!(
+            cache.font_bytes,
+            MAX_FONT_CACHE_ENTRIES * (MIN_FONT_CHARGE + 32 * 1024)
+        );
         assert!(!cache.fonts.contains_key(&id));
         let Decode::Table(table) = &live.decode else {
             panic!("simple font")
@@ -6363,7 +6527,7 @@ end
         cache.insert_font((9001, 0), &live);
         assert_eq!(cache.fonts.len(), 1);
         assert_eq!(cache.font_order.len(), 1);
-        assert_eq!(cache.font_bytes, MIN_FONT_CHARGE);
+        assert_eq!(cache.font_bytes, MIN_FONT_CHARGE + 32 * 1024);
         let mut work = FontWork::default();
         work.reserve(MAX_FONT_CACHE_BYTES).unwrap();
         assert!(resolve_font(&doc, &mut cache, &mut work, &id.into()).is_err());
