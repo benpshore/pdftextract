@@ -1,0 +1,46 @@
+[package]
+name = "tpe-scan-service"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Loopback-only HTTP service that OCRs scanned PDFs and still images through the engine's docling backends for the browser alpha"
+
+[lib]
+name = "tpe_scan_service"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tpe-scan-service"
+path = "src/main.rs"
+
+[features]
+default = []
+# `mode=text` scans through the engine's pure-Rust `docling-text` backend (no models).
+docling-text = ["text-processing-engine/docling-text"]
+# `mode=ocr` scans through the engine's full `docling` backend: needs the PDFium
+# library and the docling.rs models at run time (docs/NATIVE.md).
+docling = ["docling-text", "text-processing-engine/docling"]
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+flate2 = { version = "1", default-features = false, features = ["zlib-rs"] }
+getrandom = "0.3"
+httparse = "1.10"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+lopdf = "0.45"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.11"
+signal-hook = "0.3"
+text-processing-engine = { path = "../.." }
+thiserror = "2"
+
+[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
+rustix = { version = "1", features = ["process", "param"] }
+tpe-ffi = { path = "../tpe-ffi" }
+
+[dev-dependencies]
+tempfile = "3"
+
+[lints]
+workspace = true
