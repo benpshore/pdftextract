@@ -48,7 +48,9 @@ whose actual failed downloads occurred on October 10, before that day's
    (October 10, source `78c21e004662bb13b91b4c5a1ed0ac4d08c6bc2a`)
    used torch 2.14.1 / transformers 5.19.0 and 53 samples. Job
    `114187798685` passed layout quantization and its agreement gate:
-   539 confident fp32 detections, zero lost detections, zero lost tables.
+   539 confident fp32 detections, zero lost detections, and the literal log
+   value `0 tables`. This log supplies no positive table-coverage or
+   table-accuracy evidence (wording clarified October 15).
    It staged the 68,695,321-byte file and published with `--clobber`.
    The resulting asset ID `627624021` was created at `2026-10-10T10:07:06Z`,
    updated at `2026-10-10T10:07:08Z`, and records the new `87ac925d…`
@@ -83,7 +85,8 @@ No original model bytes were recovered or tensor-by-tensor compared; no
 claim of bitwise, numerical, or corpus-output equivalence is made.
 The upstream gate compares a fresh INT8 export with its fresh fp32 parent,
 not with our old pinned model. GitHub metadata and workflow logs are
-provenance evidence, not a signed reproducible-build attestation.
+provenance evidence. No signed attestation or reproducible export with pinned
+inputs establishes source-to-byte equivalence.
 
 ## Local provisioning is not the mismatch source
 

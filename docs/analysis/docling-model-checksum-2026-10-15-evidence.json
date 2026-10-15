@@ -116,7 +116,8 @@
     "quantize_blob_oct10": "df1d67bb609ec98f6f6e58b660ff9779f943aefd",
     "quantize_blob_oct13": "df1d67bb609ec98f6f6e58b660ff9779f943aefd",
     "workflow_blob_oct13": "32d54dbffa77b9589e5eec570f5cf9afbbcf1f7f",
-    "limitations": "Export loads Hugging Face from_pretrained without a revision. Layout export dependencies are unpinned. Publisher uses release upload --clobber; no attestation or model upload-artifact step. Official publication and exact byte identity are corroborated, but original-to-current numerical/extraction equivalence and a reproducible source-to-byte attestation are not established."
+    "limitations": "Export loads Hugging Face from_pretrained without a revision. Layout export dependencies are unpinned. Publisher uses release upload --clobber; no attestation or model upload-artifact step. Official publication and exact byte identity are corroborated. No signed attestation or reproducible export with pinned inputs establishes source-to-byte equivalence, and original-to-current numerical/extraction equivalence is not established.",
+    "table_coverage_limit": "The upstream agreement log contains the literal value '0 tables'; it supplies no positive table-coverage or table-accuracy evidence."
   },
   "known_recovery_search": {
     "upstream_run_35014913317": {
@@ -146,6 +147,8 @@
     "existing_provenance_tests_passed": 139,
     "notes": "Copied unchanged fetch.sh in disposable offline fixtures using the fresh official asset as payload. Correct proposed pin passes; old pin, corrupted bytes and unpinned manifest remain rejected. This tests verification behavior, not ONNX execution or numerical equivalence."
   },
-  "checkpoint_only": true,
-  "pr281_branch_unchanged": true
+  "recorded_model_checkpoint": "f76cce2d9c9f26a6f0aece0b58a5a8d89b1e17b5",
+  "pr281_head_when_checkpoint_recorded": "8758ffa530937b62395f8bee101b6a9387d67911",
+  "parent_authorized_existing_pr281_hosted_qualification": true,
+  "adoption_scope": "Different official model bytes for testing. The original pin was valid. Merge/release holds and historical provenance, quality and exception checks remain unchanged."
 }

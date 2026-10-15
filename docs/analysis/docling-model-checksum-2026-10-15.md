@@ -1,8 +1,8 @@
 # PR281 Native provisioning provenance — 2026-10-15
 
-The unchanged main pin fails because the upstream mutable release no longer serves the September artifact. This checkpoint reuses only PR273's traced model correction from `7cabac188b5d89c5f0a9127392f5213df7d349a1`, with its historical evidence intact. The functional diff from PR281 `8758ffa530937b62395f8bee101b6a9387d67911` is one layout-model SHA-256 value.
+The unchanged main pin fails because the upstream mutable release no longer serves the September artifact. This checkpoint reuses only PR273's traced model-pin change from `7cabac188b5d89c5f0a9127392f5213df7d349a1`, preserving the original raw evidence and clarifying its table-coverage limits. The functional diff from PR281 `8758ffa530937b62395f8bee101b6a9387d67911` is one layout-model SHA-256 value. This adopts different official model bytes for testing; it does not show the original valid pin was wrong or establish numerical equivalence.
 
-The passing acquisition checkpoint remains on `codex/pr281-main-refresh-checkpoint-20261015` and existing PR281 remains at `8758ffa`. Main remains `b3730aa958d947fcbf6ea45b0efef07fcfa20f29`; the PR273 integration remains separately owned at `88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35`. This checkpoint is a proposed provisioning repair for parent review, not Native acceptance or permission to merge.
+The passing acquisition checkpoint remains at `8758ffa` on `codex/pr281-main-refresh-checkpoint-20261015`. The initial model checkpoint remains at `f76cce2d9c9f26a6f0aece0b58a5a8d89b1e17b5` on `codex/pr281-model-provenance-checkpoint-20261015`. After independent corroboration, parent Ada authorized advancing the bounded candidate to existing draft PR281 for exact-head hosted qualification. Main remains `b3730aa958d947fcbf6ea45b0efef07fcfa20f29`; PR273 remains the separately owned integration at `88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35`. This testing authorization does not establish Native acceptance or authorize merge or release.
 
 ## Exact failure
 
@@ -13,7 +13,7 @@ The passing acquisition checkpoint remains on `codex/pr281-main-refresh-checkpoi
 | Original manifest pin | 68,695,321 | `d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5` |
 | Fresh workflow download | 68,695,321 | `87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a` |
 
-Later missing-binary/evaluation failures follow from provisioning; they do not establish new extraction failures. PR281 did not change the manifest, fetcher, validator, policy or dependency lock from main.
+Later missing-binary/evaluation failures follow from provisioning; they do not establish new extraction failures. At the failed head `8758ffa`, PR281 had not changed the manifest, fetcher, validator, policy or dependency lock from main.
 
 The original pin was valid. A fresh, cache-miss download in [run 36437023879](https://github.com/benpshore/pdftextract/actions/runs/36437023879), job `108977471494`, independently recorded the original digest on September 28. That historical job subsequently failed tests; it is not presented as a successful full run.
 
@@ -24,14 +24,14 @@ The [October 11 investigation](docling-model-checksum-2026-10-11.md) remains a d
 - The [release API](https://api.github.com/repos/docling-project/docling.rs/releases/tags/models-v1) still reports release `351549900` as `immutable: false`.
 - October 10 asset `627624021` now returns HTTP 404.
 - Current asset [636374744](https://api.github.com/repos/docling-project/docling.rs/releases/assets/636374744), uploaded by `github-actions[bot]` at October 13 08:19:46–49 UTC, records the same 68,695,321 bytes and `87ac925d…` digest.
-- [Publishing run 38367663071](https://github.com/docling-project/docling.rs/actions/runs/38367663071), source `a3c1ed9a657849127e45e9738d9af9ee55dddc90`, job `115196581868`, successfully exported, quantized and published that asset. Its fresh fp32/INT8 agreement gate reports 53 calibration samples, 539 confident fp32 detections and zero lost detections/tables.
+- [Publishing run 38367663071](https://github.com/docling-project/docling.rs/actions/runs/38367663071), source `a3c1ed9a657849127e45e9738d9af9ee55dddc90`, job `115196581868`, successfully exported, quantized and published that asset. Its fresh fp32/INT8 agreement gate reports 53 calibration samples, 539 confident fp32 detections, zero lost detections and the literal log value `0 tables`. It supplies no positive table-coverage or table-accuracy evidence.
 - The export and quantization script Git blobs are identical between the October 10 and October 13 publishing heads: `3aea48b6345d3924e3873c2c636b6cba47aab88d` and `df1d67bb609ec98f6f6e58b660ff9779f943aefd` respectively.
 - A fresh bounded HTTPS download in this VM independently matches the current API digest and size, and the previously verified PR273 model copy. No model code was executed during these checks.
 - The other three current model assets still match their existing pins. Their hashes, PDFium pins, URL, fetch implementation, validator, historical exceptions and lockfile remain unchanged.
 
 [Machine-readable evidence](docling-model-checksum-2026-10-15-evidence.json) records the observations, source identities, selected original log excerpts and recovery limits.
 
-This supports identifying the exact official replacement artifact and reusing the already traced PR273 provisioning correction. It does not establish a reproducible source-to-byte attestation. The publisher still uses `--clobber`, the layout export dependencies are not fully pinned, and the Hugging Face model load has no revision argument. Equal October 10/13 digests establish byte identity for those publications, not equivalence to the original September artifact. The agreement gate compares a fresh INT8 model with its fresh fp32 parent.
+This supports identifying the exact official replacement artifact and reusing the already traced PR273 pin change for testing. No signed attestation or reproducible export with pinned inputs establishes source-to-byte equivalence. The publisher still uses `--clobber`, the layout export dependencies are not fully pinned, and the Hugging Face model load has no revision argument. Equal October 10/13 digests establish byte identity for those publications, not equivalence to the original September artifact. The agreement gate compares a fresh INT8 model with its fresh fp32 parent and supplies no table-accuracy evidence.
 
 ## Verification and remaining gates
 
@@ -47,4 +47,4 @@ PR273 already proves why provisioning success is insufficient: [run 38774398530]
 
 Original September model bytes were not recovered. The known September publishing run and first independently verified downstream run list no retained workflow artifacts, and the available local model is the new one. This is not proof that no trusted copy exists elsewhere. To preserve the old pin, the owner would need to provide a cloud-accessible original 68,695,321-byte artifact that independently hashes to `d0eb9da…`, or access to a retained trusted cache/backup containing it. No Mac access is needed or authorized.
 
-Parent review must decide whether to advance this scoped replacement-artifact correction within the existing PR281/integration workflow. Any update then needs exact-head Native evidence and keeps current quality/security holds. No pin restamping, validator relaxation, new PR, release, protected-branch merge or other PR closure is part of this checkpoint.
+Parent Ada has authorized advancing this bounded candidate to existing draft PR281 for exact-head hosted qualification. All hosted outcomes must be inspected and reported, including failures; historical provenance and quality checks, all merge/release holds, and the historical exception policy remain unchanged. No new exception, validator relaxation, new PR, release, protected-branch merge or other PR closure is authorized by this qualification step.
