@@ -1,0 +1,151 @@
+{
+  "investigated_head": "8758ffa530937b62395f8bee101b6a9387d67911",
+  "base": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "original_pr273_pin_commit": "7cabac188b5d89c5f0a9127392f5213df7d349a1",
+  "release": {
+    "id": 351549900,
+    "tag": "models-v1",
+    "immutable": false,
+    "updated_at": "2026-10-14T16:54:44Z",
+    "url": "https://github.com/docling-project/docling.rs/releases/tag/models-v1"
+  },
+  "current_model_asset": {
+    "id": 636374744,
+    "name": "layout_heron_int8.onnx",
+    "size": 68695321,
+    "digest": "sha256:87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a",
+    "created_at": "2026-10-13T08:19:46Z",
+    "updated_at": "2026-10-13T08:19:49Z",
+    "url": "https://api.github.com/repos/docling-project/docling.rs/releases/assets/636374744",
+    "uploader": "github-actions[bot]"
+  },
+  "other_current_pinned_models": [
+    {
+      "id": 636374565,
+      "name": "en_dict.txt",
+      "size": 190,
+      "digest": "sha256:5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3",
+      "created_at": "2026-10-13T08:19:42Z",
+      "updated_at": "2026-10-13T08:19:42Z",
+      "url": "https://api.github.com/repos/docling-project/docling.rs/releases/assets/636374565"
+    },
+    {
+      "id": 636374851,
+      "name": "ocr_det.onnx",
+      "size": 9929594,
+      "digest": "sha256:090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "created_at": "2026-10-13T08:19:48Z",
+      "updated_at": "2026-10-13T08:19:49Z",
+      "url": "https://api.github.com/repos/docling-project/docling.rs/releases/assets/636374851"
+    },
+    {
+      "id": 636374888,
+      "name": "ocr_rec_en.onnx",
+      "size": 8967018,
+      "digest": "sha256:ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea",
+      "created_at": "2026-10-13T08:19:49Z",
+      "updated_at": "2026-10-13T08:19:50Z",
+      "url": "https://api.github.com/repos/docling-project/docling.rs/releases/assets/636374888"
+    }
+  ],
+  "october10_asset_lookup": {
+    "error": "GitHub API error 404: {\"message\":\"Not Found\",\"documentation_url\":\"https://docs.github.com/rest/releases/assets#get-a-release-asset\",\"status\":\"404\"}",
+    "error_code": "NOT_FOUND",
+    "error_data": {
+      "message": "Not Found",
+      "documentation_url": "https://docs.github.com/rest/releases/assets#get-a-release-asset",
+      "status": "404"
+    }
+  },
+  "october13_run": [
+    {
+      "id": 38367663071,
+      "head_sha": "a3c1ed9a657849127e45e9738d9af9ee55dddc90",
+      "status": "completed",
+      "conclusion": "success",
+      "path": ".github/workflows/publish-models.yml",
+      "created_at": "2026-10-13T08:12:13Z",
+      "updated_at": "2026-10-13T08:19:55Z",
+      "actor": "artiz",
+      "html_url": "https://github.com/docling-project/docling.rs/actions/runs/38367663071"
+    }
+  ],
+  "october13_log_excerpts": [
+    "2026-10-13T08:12:21.8547380Z ##[group]Checking out the ref",
+    "2026-10-13T08:13:30.7906520Z Successfully installed MarkupSafe-3.0.4 annotated-doc-0.0.5 anyio-4.15.1 click-8.5.0 cuda-bindings-13.4.3 cuda-pathfinder-1.8.3 cuda-toolkit-13.0.3.0 filelock-4.1.1 fsspec-2026.9.0 h11-0.16.0 hf-xet-1.7.0 httpcore2-2.13.1 httpx2-2.13.1 huggingface-hub-2.2.0 idna-3.20 jinja2-3.1.6 markdown-it-py-4.2.0 mdurl-0.1.2 ml_dtypes-0.6.0 mpmath-1.3.0 networkx-3.6.1 numpy-2.4.6 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.92 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 onnx-1.23.2 packaging-26.3 protobuf-7.36.2 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.29 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 sympy-1.14.0 tokenizers-0.23.3 torch-2.14.1 tqdm-4.70.1 transformers-5.19.0 triton-3.8.0 truststore-0.10.5 typer-0.27.3 typing-extensions-4.16.0",
+    "2026-10-13T08:13:51.0810658Z Successfully installed Pillow-12.3.0 certifi-2026.7.22 docling_ibm_models-4.0.3 flatbuffers-25.12.19 httpcore-1.0.9 httpx-0.28.1 huggingface_hub-1.33.0 onnx_ir-1.0.0 onnxruntime-1.31.0 onnxscript-0.7.2 opencv-python-headless-5.0.0.93 torchvision-0.29.1",
+    "2026-10-13T08:14:33.3215846Z layout: 53 calibration samples",
+    "2026-10-13T08:15:32.0195771Z layout: done -> /home/runner/work/docling.rs/docling.rs/.models/layout_heron_int8.onnx (68.7 MB)",
+    "2026-10-13T08:16:50.6451514Z layout gate: 539 confident fp32 detections, 0 lost by int8 (0.00%), 0 tables",
+    "2026-10-13T08:16:50.6451987Z layout gate: PASSED",
+    "2026-10-13T08:19:26.5603284Z \u001b[36;1mstage .models/layout_heron_int8.onnx layout_heron_int8.onnx\u001b[0m",
+    "2026-10-13T08:19:27.8704398Z -rw-r--r--  1 runner runner  68695321 Oct 13 08:19 layout_heron_int8.onnx",
+    "2026-10-13T08:19:28.0344506Z \u001b[36;1m  gh release upload \"$TAG\" release-assets/* --repo \"docling-project/docling.rs\" --clobber\u001b[0m"
+  ],
+  "original_verified_download": {
+    "run_id": 36437023879,
+    "job_id": 108977471494,
+    "excerpts": [
+      "2026-09-28T14:34:51.2495784Z Cache not found for input keys: native-assets-ubuntu-24.04-arm-1eb59248de4cc58e9c2e55d3262de8f674cf650b7dc51ca66d48cb554cb4be68",
+      "2026-09-28T14:34:51.7688987Z   > https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "2026-09-28T14:34:53.2985401Z downloaded,verified    .models/layout_heron_int8.onnx      68695321  d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5  -",
+      "2026-09-28T14:39:29.3914215Z ##[error]Process completed with exit code 101."
+    ]
+  },
+  "pr281_native_failure": {
+    "run_id": 38811957528,
+    "job_id": 116687117541,
+    "excerpts": [
+      "2026-10-15T21:43:15.4482006Z Cache not found for input keys: native-assets-ubuntu-24.04-arm-1eb59248de4cc58e9c2e55d3262de8f674cf650b7dc51ca66d48cb554cb4be68",
+      "2026-10-15T21:43:15.7683051Z   > https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+      "2026-10-15T21:43:16.3319348Z error: .models/layout_heron_int8.onnx: sha256 87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a, manifest pins d0eb9da0515a2121a20c3262f49ec4761109da45423b37c14b8b98b9759499b5",
+      "2026-10-15T21:43:17.0248124Z MISMATCH               .models/layout_heron_int8.onnx      68695321  87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a  -",
+      "2026-10-15T21:43:17.0272715Z ##[error]Process completed with exit code 1.",
+      "2026-10-15T21:43:17.0460213Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:21.4515368Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:22.1777779Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:22.3032449Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:22.6076417Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:22.7688830Z ##[error]Process completed with exit code 127.",
+      "2026-10-15T21:43:23.0387191Z ##[error]Process completed with exit code 1."
+    ]
+  },
+  "source_comparison": {
+    "export_layout_blob_oct10": "3aea48b6345d3924e3873c2c636b6cba47aab88d",
+    "export_layout_blob_oct13": "3aea48b6345d3924e3873c2c636b6cba47aab88d",
+    "quantize_blob_oct10": "df1d67bb609ec98f6f6e58b660ff9779f943aefd",
+    "quantize_blob_oct13": "df1d67bb609ec98f6f6e58b660ff9779f943aefd",
+    "workflow_blob_oct13": "32d54dbffa77b9589e5eec570f5cf9afbbcf1f7f",
+    "limitations": "Export loads Hugging Face from_pretrained without a revision. Layout export dependencies are unpinned. Publisher uses release upload --clobber; no attestation or model upload-artifact step. Official publication and exact byte identity are corroborated, but original-to-current numerical/extraction equivalence and a reproducible source-to-byte attestation are not established."
+  },
+  "known_recovery_search": {
+    "upstream_run_35014913317": {
+      "artifacts": []
+    },
+    "downstream_run_36437023879": {
+      "artifacts": []
+    },
+    "local_original_bytes_found": false,
+    "notes": "Known original publishing run and first independently verified downstream run list no retained workflow artifacts. Current workspace model and fresh bounded download match 87ac..., not d0eb.... This does not prove no trusted original copy exists elsewhere. Actions cache enumeration/recovery is not exposed by current connector tools."
+  },
+  "fresh_download": {
+    "url": "https://github.com/docling-project/docling.rs/releases/download/models-v1/layout_heron_int8.onnx",
+    "bytes": 68695321,
+    "sha256": "87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a",
+    "matches_existing_pr273_cloud_copy": true
+  },
+  "unchanged": {
+    "fetch_sha256": "fd45761be08284ee38005c68e590873069d685411dd1572b898265bff05e5b29",
+    "validator_sha256": "29318944fb7557824fb623da3fd8cf18f66fe2fb4322dbdee70f46ef1fc58339",
+    "reviewed_partials_sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+    "cargo_lock_sha256": "c903547b84464b062fc3dd67dc45892aac0ae51fe940b247dee0f9c95b89f365"
+  },
+  "bounded_verification": {
+    "python": "3.14.7",
+    "fetch_integrity_cases": 6,
+    "existing_provenance_tests_passed": 139,
+    "notes": "Copied unchanged fetch.sh in disposable offline fixtures using the fresh official asset as payload. Correct proposed pin passes; old pin, corrupted bytes and unpinned manifest remain rejected. This tests verification behavior, not ONNX execution or numerical equivalence."
+  },
+  "checkpoint_only": true,
+  "pr281_branch_unchanged": true
+}
