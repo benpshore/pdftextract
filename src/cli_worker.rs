@@ -838,6 +838,8 @@ pub(super) fn run_worker(
     super::worker_allocator::enforce();
     let encoded = read_limited(request_path, REQUEST_BYTES, true)?;
     match phase {
+        #[cfg(feature = "pdf-oxide")]
+        "oxide-acquire" => oxide::acquire_worker(&encoded)?,
         #[cfg(feature = "grobid")]
         "grobid" => super::grobid_cli::worker(&encoded)?,
         #[cfg(feature = "pdf-oxide")]

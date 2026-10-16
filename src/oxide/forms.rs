@@ -135,6 +135,7 @@ fn tree_has_appearance(
     context: &Context<'_>,
     document: &pdf_oxide::PdfDocument,
     root: Object,
+    require_normal_widgets: bool,
 ) -> Result<bool, BackendError> {
     // Inspect only Fields/Kids edges, never Parent or appearance resources. A
     // field can own separate anonymous widget children, so checking its own AP
@@ -142,6 +143,8 @@ fn tree_has_appearance(
     let mut pending = vec![(root, 0_usize)];
     let mut seen = HashSet::new();
     let mut visited = 0_usize;
+    let mut found = false;
+    let mut appearance_bytes = 0_usize;
     while let Some((object, depth)) = pending.pop() {
         visited = visited.saturating_add(1);
         bounded_count(visited, context.limits.max_items, "form appearance nodes")?;
@@ -170,13 +173,27 @@ fn tree_has_appearance(
                 pending.extend(children.into_iter().map(|child| (child, depth + 1)));
             }
             Object::Dictionary(mut dict) => {
+                if require_normal_widgets
+                    && dict.get("Subtype").and_then(Object::as_name) == Some("Widget")
+                {
+                    appearance_bytes = appearance_bytes
+                        .saturating_add(require_normal_widget_appearance(document, &dict)?);
+                    bounded_count(
+                        appearance_bytes,
+                        context.limits.max_output_bytes as usize,
+                        "decoded widget appearance bytes",
+                    )?;
+                }
                 // Even a malformed, empty or indirect AP is conservatively
                 // appearance-bearing; this guard must not bless stale output.
                 if dict
                     .get("AP")
                     .is_some_and(|value| !matches!(value, Object::Null))
                 {
-                    return Ok(true);
+                    found = true;
+                    if !require_normal_widgets {
+                        return Ok(true);
+                    }
                 }
                 if let Some(children) = dict.remove("Kids") {
                     pending.push((children, depth + 1));
@@ -189,7 +206,65 @@ fn tree_has_appearance(
             }
         }
     }
-    Ok(false)
+    Ok(found)
+}
+
+fn require_normal_widget_appearance(
+    document: &pdf_oxide::PdfDocument,
+    widget: &std::collections::HashMap<String, Object>,
+) -> Result<usize, BackendError> {
+    let unsupported = || {
+        BackendError::Unsupported(
+        "widget lacks a usable normal /AP appearance; pinned regeneration is not qualified for value/style preservation and may omit the widget while removing its field".into(),
+    )
+    };
+    let appearance = widget.get("AP").ok_or_else(unsupported)?;
+    let appearance = resolve_form_object(document, appearance)?;
+    let normal = appearance
+        .as_dict()
+        .and_then(|dict| dict.get("N"))
+        .ok_or_else(unsupported)?;
+    let mut normal = resolve_form_object(document, normal)?;
+    if let Object::Dictionary(states) = &normal {
+        // State-based appearances are admitted only for the exact current AS;
+        // do not copy upstream's guessed Yes/Off fallback as preservation proof.
+        let state = widget
+            .get("AS")
+            .and_then(Object::as_name)
+            .ok_or_else(unsupported)?;
+        normal = resolve_form_object(document, states.get(state).ok_or_else(unsupported)?)?;
+    }
+    if !matches!(normal, Object::Stream { .. }) {
+        return Err(unsupported());
+    }
+    for rectangle in [
+        widget.get("Rect"),
+        normal.as_dict().and_then(|dict| dict.get("BBox")),
+    ] {
+        let values = rectangle
+            .and_then(Object::as_array)
+            .ok_or_else(unsupported)?;
+        if values.len() != 4 {
+            return Err(unsupported());
+        }
+        let numbers = values
+            .iter()
+            .map(|value| {
+                value
+                    .as_real()
+                    .or_else(|| value.as_integer().map(|value| value as f64))
+            })
+            .collect::<Option<Vec<_>>>()
+            .ok_or_else(unsupported)?;
+        if numbers.iter().any(|value| !value.is_finite())
+            || numbers[2] <= numbers[0]
+            || numbers[3] <= numbers[1]
+        {
+            return Err(unsupported());
+        }
+    }
+    let decoded = normal.decode_stream_data().map_err(|_| unsupported())?;
+    Ok(decoded.len())
 }
 
 fn reject_stale_field_appearance(
@@ -205,7 +280,12 @@ fn reject_stale_field_appearance(
                 "form appearance admission requires an unambiguous indirect field identity".into(),
             )
         })?;
-    if tree_has_appearance(context, editor.source(), Object::Reference(reference))? {
+    if tree_has_appearance(
+        context,
+        editor.source(),
+        Object::Reference(reference),
+        false,
+    )? {
         return Err(BackendError::Unsupported(format!(
             "field {} has an existing /AP appearance; pinned value/style updates do not regenerate it and can leave visible stale content",
             field.name()
@@ -214,7 +294,7 @@ fn reject_stale_field_appearance(
     Ok(())
 }
 
-fn reject_pending_appearance_flatten(
+fn validate_flatten_appearances(
     context: &Context<'_>,
     editor: &DocumentEditor,
 ) -> Result<(), BackendError> {
@@ -228,10 +308,12 @@ fn reject_pending_appearance_flatten(
     let dict = form
         .as_dict()
         .ok_or_else(|| BackendError::Malformed("AcroForm must resolve to a dictionary".into()))?;
-    if matches!(dict.get("NeedAppearances"), Some(Object::Boolean(true)))
-        && let Some(roots) = dict.get("Fields")
-        && tree_has_appearance(context, document, roots.clone())?
-    {
+    let has_appearance = dict
+        .get("Fields")
+        .map(|roots| tree_has_appearance(context, document, roots.clone(), true))
+        .transpose()?
+        .unwrap_or(false);
+    if matches!(dict.get("NeedAppearances"), Some(Object::Boolean(true))) && has_appearance {
         return Err(BackendError::Unsupported(
             "AcroForm requests /NeedAppearances and retains /AP streams; pinned flattening can bake stale values from an earlier editing session".into(),
         ));
@@ -1244,7 +1326,7 @@ fn flatten(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
             "signature widgets are not flattened".into(),
         ));
     }
-    reject_pending_appearance_flatten(context, &editor)?;
+    validate_flatten_appearances(context, &editor)?;
     if context.pages.is_none() {
         editor.flatten_forms().map_err(upstream)?;
     } else {
@@ -1253,7 +1335,11 @@ fn flatten(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
         }
     }
     let mut output = saved(context, &mut editor, json!({"flattened": true}))?;
-    output.warnings.push("Flattening depends on widget appearances; any missing appearance is an omission, not proof of visually complete form rendering.".into());
+    if !editor.flatten_warnings().is_empty() {
+        return Err(BackendError::Unsupported("pinned form flattening reported a missing widget appearance; field removal alone is not value/appearance preservation".into()));
+    }
+    output.data["existing_widget_appearances_required"] = json!(true);
+    output.warnings.push("Flattening requires existing decoded widget appearances; field removal does not establish complete visual or value fidelity.".into());
     if context.pages.is_none() && !verify_fields(context, &output)?.is_empty() {
         return Err(BackendError::Unsupported(
             "pinned writer retained fields after full form flattening".into(),

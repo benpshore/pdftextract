@@ -542,7 +542,7 @@ fn saved_text_state_retention_has_upstream_evidence_and_native_rejection() {
                 admitted.push(name);
             }
             Err(BackendError::Unsupported(message)) => {
-                assert!(message.contains("saved text state"))
+                assert!(message.contains("saved text state"));
             }
             Err(error) => panic!("unexpected native rejection for {name}: {error}"),
         }

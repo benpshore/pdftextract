@@ -30,7 +30,10 @@ Requests deny unknown fields. `password_file` is an optional path to at most
 4,096 UTF-8 bytes, including an intentionally empty password; whitespace is
 literal. New encryption passwords belong in the private request parameters and
 are omitted from response provenance. No password is needed in argv. Sources
-are read once with size/change checks before the worker seals filesystem access.
+are read once with size/change checks in a supervised acquisition worker and
+copied into controller-owned private staging. The operation worker verifies those
+staged bytes before sealing filesystem access. The same deadline, cancellation
+and capture limits cover both workers; the controller does not parse input PDFs.
 
 `security.redact_text` requires bounded, nonempty `verify_absent` target strings
 in the private request. Values are omitted from receipts and errors; receipts
@@ -56,6 +59,14 @@ the dirty marker when present; it is not a signed attestation. With `--out`, art
 the receipt retains each artifact's name, size and SHA-256 while its inline byte
 array is emptied. A publisher failure can report `publication_unknown`; inspect
 existing outputs before retrying. Originals are never used as publication paths.
+
+Each response includes a fresh opaque `request_id`. Before creating output files,
+the publisher checks the controller-held operation, ordered source hashes/sizes,
+public request options, current producer/backend, unused publication fields and
+the exact captured-response digest. Full private-request/password hashes stay in
+private transport only. These checks reject swapped/replayed transport messages
+and altered captures; they cannot establish that a parser's artifact is a correct
+semantic transformation of the source.
 
 `capabilities` returns dispatch names, compiled features and known unsupported
 edges. It is not an assertion of accuracy or that every possible input works.

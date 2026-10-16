@@ -34,7 +34,7 @@ and cancellation boundary. These local checks are not a security sandbox.
 | `forms.fill` | `fields` map to typed `{kind,value}`: text, boolean, choice, multi_choice, none. Changed values reject when the target field or descendant widget retains a non-null `/AP`. | `set_form_field_value` | Reopens saved PDF and compares every requested typed value. Rejects stale-appearance cases, incompatible types, read-only fields, MaxLen overflow, unsupported signature values, missing names, and multi-selection on a single-choice field. Unchanged values do not invoke the upstream setter or set NeedAppearances. |
 | `forms.update` | Bounded unique field list with optional read-only, required, tooltip, rectangle, MaxLen, alignment, RGB background/border, border width. Style/geometry/MaxLen requests reject existing field or descendant-widget `/AP`; nonvisual flags/tooltip remain available. | Corresponding `set_form_field_*` APIs; explicit `lopdf 0.45.0` property repair | The pinned writer omits staged field properties; the adapter writes requested dictionary keys against extracted indirect field identities and reopens the result. Geometry updates also require one merged field/widget identity; every requested property is checked after saving. Arbitrary appearance strings, raw flags and event scripts are not accepted. |
 | `forms.remove` | `names` list of terminal fields. | `remove_form_field`; explicit `lopdf 0.45.0` reference repair | Reopens output and requires requested names to be absent. The corrective pass unlinks exact field/widget identities from AcroForm Fields, parent Kids, calculation order and page Annots, preserving unrelated annotations and siblings. Parent-container, ambiguous/direct-widget and signature-field removal reject. This does not erase orphaned values from the file. |
-| `forms.flatten` | Empty parameters; whole document, or explicitly selected pages. An AcroForm with both `NeedAppearances: true` and an appearance-bearing field/widget rejects before flattening. | `flatten_forms` / `flatten_forms_on_page` | Full flatten must leave no AcroForm fields. The guard prevents baking stale appearances saved by an earlier fill. Missing appearance warnings are retained; accepted flattening does not prove complete visual appearance. Signature widgets reject. |
+| `forms.flatten` | Empty parameters; whole document, or explicitly selected pages. Every widget in the bounded form tree requires a decodable normal appearance with usable rectangle/BBox; state dictionaries require the exact current AS stream. An AcroForm with `NeedAppearances: true` and existing AP also rejects. | `flatten_forms` / `flatten_forms_on_page` | Full flatten must leave no AcroForm fields. Missing/unqualified appearances and emitted flatten-omission warnings reject instead of returning flattened success. The existing-AP control stays supported. Signature widgets reject; accepted flattening still does not prove complete visual/value fidelity. |
 | `forms.export` | `format: fdf` or `xfdf`; optional `include_no_export` defaults false. | `FdfWriter`, `XfdfWriter` on current field snapshots | In-memory output; FDF literal escaping and XML escaping tests. Editor file-export convenience helpers are not used because they read the original source instead of staged values. |
 | `forms.xfa` | `action: inspect` or `convert_static` with `accept_layout_loss: true`. | `XfaExtractor`, `XfaParser`, `XfaConverter`, `add_converted_page`, `PdfWriter` | Decoded XML byte count, element count, nesting, field/page count bounded. DTDs, custom entity references, scripts, connections, resource references and dynamic/repeated sections reject. Standard XML escapes and numeric character references are permitted. Skipped fields reject conversion. Output explicitly records lost original layout/non-form content. |
 
@@ -137,8 +137,31 @@ path or network resource is accepted by these modules.
   flattening. A same-session fill-plus-flatten control exercises the limited
   private regeneration path without substituting flattened output for an
   interactive fill. There is no public verified general in-place appearance
-  regeneration path; missing AP and unmarked preexisting stale AP remain visual
-  qualification limits, not evidence of correctness.
+  regeneration path. Unmarked preexisting stale AP remains a visual qualification
+  limit, not evidence of correctness.
+- Missing AP is not itself proof of data loss: the pinned flattener attempts
+  regeneration. But `get_widget_appearances` at lines 6147–6172 can emit a missing
+  appearance warning or skip an error, and full flatten still removes AcroForm.
+  The previous no-AP test checked only boilerplate and field disappearance; those
+  exact assertions are retained against the direct upstream path, with source
+  and derivative capture. An additional content-stream assertion proves that
+  this simple text field regenerates and paints `Before`; it does not qualify
+  general value/style preservation. A new
+  synthetic unsupported widget regression (merged and anonymous-child forms)
+  requires the native omission warning, removed form catalog, retained unpainted
+  widget, unchanged page content and missing static `Before` field value. The
+  exact decoded page operators paint only the original sentinel text, and
+  independent content-only extraction excludes `Before`. Native extraction
+  still returns `Before`: `document.rs:9805` reads retained widget values and
+  its unknown-field fallback at line 10045 includes `/V` even after AcroForm
+  removal. Recoverable widget data is therefore preserved as a separate
+  observation, not mistaken for a flattened appearance. The
+  adapter rejects before that operation. Its existing bounded Fields/Kids walk
+  now requires a resolvable normal AP stream, exact selected state if applicable,
+  finite nonempty widget rectangle/BBox and successful stream decoding within
+  the aggregate byte budget. Emitted flatten omission warnings also cause an
+  explicit failure. No absent-AP regeneration path is currently qualified for
+  both value and style preservation; the supported-AP control remains unchanged.
 - Independent Poppler rendering of the five form fixtures confirms that the
   same-session control paints `After`, while the separate-session flatten paints
   stale `Before`. The same-session control loses the original border/background,
@@ -197,6 +220,10 @@ adapter operations from preserved upstream failure evidence.
 Two more tests cover native no-AP annotation flattening that retains interactive
 links, explicit adapter rejection, and selected-link removal with nonselected
 no-AP link and page-content preservation.
+The separate missing-widget-appearance regression preserves the native warning,
+static field-value omission and recoverable widget value, and covers both merged
+widgets and anonymous children. A positive direct-upstream no-AP control requires
+the simple field value to appear in an actually invoked Form's text operation.
 The helper snapshots every input to assert it remains unchanged.
 
 When the owner supplies `TPE_OXIDE_FIXTURE_CAPTURE`, these tests retain bounded
@@ -211,6 +238,10 @@ Poppler comparison described above; it does not establish general fidelity.
 Additional captures are `forms-appearance-native-observations.json`,
 `annotations-no-ap-source.pdf`, `annotations-no-ap-upstream-flattened.pdf`,
 `annotations-selected-ap-source.pdf`, and `annotations-selected-ap-flattened.pdf`.
+Missing-widget evidence additionally captures `forms-no-ap-regeneration-source.pdf`
+and `forms-no-ap-regeneration-upstream.pdf`, plus source/upstream derivatives for
+`forms-missing-ap-merged` and `forms-missing-normal-child`, with observations JSON
+recording native widget-inclusive text versus independent static page content.
 
 The integration owner runs the tests in the shared Cargo target; this module
 does not run concurrent Cargo jobs. `full-tests-03.log` recorded 14/17 passes and
@@ -226,7 +257,16 @@ The owner reported strict full-workspace Clippy passing in `full-clippy-06.log`.
 The 29-test form run passed 28, with the control's newly diagnosed native Form
 peek defect causing the remaining failure. All new form guards and original
 success assertions passed. The precise control regression and two annotation
-flattening tests bring this worker's suite to 31 tests; results for the changed
-source are pending the owner's next combined run.
+flattening tests then passed all 31 cases in `admission-tests-01.log`. The new
+missing-widget appearance regression brings this suite to 32 tests.
+`admission-tests-03.log` preserved 31/32 passes: the new test incorrectly treated
+native widget-inclusive extraction as static page paint. Its corrected oracle
+retains the observed native `Before` and independently requires unchanged page
+content, the exact sentinel-only paint operations and content-only omission of
+the field value. The owner reported all 32 tests passing in `forms-guards-03.log`.
+No production guard changed in this correction. The long native control and
+missing-widget tests were split into named diagnostic helpers without removing
+assertions to address strict Clippy findings; the owner's exact combined run
+after the final helper extraction is pending.
 No commit, PR,
 merge, publication or release is performed by this worker.

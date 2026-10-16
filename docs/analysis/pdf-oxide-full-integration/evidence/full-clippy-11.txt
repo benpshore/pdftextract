@@ -1,0 +1,17 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-app)
+error: called `map(<f>).unwrap_or_else(<g>)` on an `Option` value
+   --> tests/oxide_transport.rs:199:22
+    |
+199 |           let digest = capture_digest
+    |  ______________________^
+200 | |             .map(str::to_owned)
+201 | |             .unwrap_or_else(|| tpe::schema::sha256_hex(&response_bytes));
+    | |________________________________________________________________________^ help: try: `capture_digest.map_or_else(|| tpe::schema::sha256_hex(&response_bytes), str::to_owned)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#map_unwrap_or
+    = note: `-D clippy::map-unwrap-or` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::map_unwrap_or)]`
+
+error: could not compile `text-processing-engine` (test "oxide_transport") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

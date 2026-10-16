@@ -56,7 +56,9 @@
       "Redaction: explicit bounded verification targets, q/Q and ActualText/carrier admission, strict independent decoded-object/text verification; targets omitted from receipts and errors.",
       "Annotations: require supported normal appearances before flattening, verify selected annotation removal and nonselected preservation; no-AP links return Unsupported.",
       "Form text: reject native subtype disagreement and inline nested subtype shapes before projections; bounded nested resources and stream work checks, no cache-preload fallback.",
-      "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated."
+      "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated.",
+      "Publisher transport: supervised immutable acquisition/staging; exact input/request/build/capture binding before filesystem publication. Seven new adversarial transport cases and a positive control await final source verification.",
+      "Forms flatten: require usable existing widget normal/state appearances until regeneration value/style preservation is qualified; reject omission warnings. Missing-normal regression distinguishes native retained-widget extraction from absent static page painting."
     ]
   },
   "shared_contract": {
@@ -74,7 +76,7 @@
     "untrusted_execution": "Use supervised CLI workers after immutable acquisition. Direct Rust calls do not acquire process isolation merely by constructing Context.",
     "containment": "Verified Linux seccomp_sealed denies path IO, sockets, exec and process creation across worker threads. Threads remain allowed without a separate PID/cgroup/thread-count cap. The controller/publisher retain their intended file access.",
     "platform_limit": "Linux x86_64 has bounded runtime evidence. Linux aarch64 is source-only here; Landlock reports ENOSYS, and other platform/toolkit parity is unverified.",
-    "provenance": "Original bytes/source hashes and raw observations remain distinct from derived projections; app-generated artifact names, no-clobber staging and explicit mutation/repair provenance are required."
+    "provenance": "Original bytes/source hashes and raw observations remain distinct from derived projections; app-generated artifact names, no-clobber staging and explicit mutation/repair provenance are required. Publication transport now binds a fresh invocation identity, controller-owned ordered staged-input digests/sizes, operation, public options and exact response capture; private-request/password digests stay private. This does not prove artifact semantics."
   },
   "global_remaining_obligations": [
     "Parent must attach final exact combined-source commit/build hashes and complete test receipts before proposing an existing-PR273 update.",
@@ -2071,7 +2073,7 @@
         "forms.flatten"
       ],
       "extraction_or_other_surfaces": [],
-      "bounded_adapter_coverage": "Whole-document or selected-page flattening retains missing-appearance warnings, rejects signatures, and checks full AcroForm removal. A new guard rejects NeedAppearances=true with retained /AP streams to avoid baking stale values.",
+      "bounded_adapter_coverage": "Whole-document or selected-page flattening retains missing-appearance warnings, rejects signatures, and checks full AcroForm removal. A new guard rejects NeedAppearances=true with retained /AP streams to avoid baking stale values. Missing/unusable widget normal or selected-state appearances and flatten omission warnings now explicitly reject. Native regeneration is preserved as unqualified source evidence; absence of AP alone is not described as universal native loss.",
       "implementation_paths": [
         "src/oxide/forms.rs"
       ],

@@ -267,7 +267,7 @@ fn receipt_write_failure_rolls_back_published_artifacts() {
     let mut create = Command::new(env!("CARGO_BIN_EXE_tpe"));
     create.args(["oxide", "--request"]).arg(request_path);
     create.args(["--timeout-ms", "10000"]);
-    let response = success(&run(create, root.path()));
+    let mut response = success(&run(create, root.path()));
     assert!(
         response["output"]["artifacts"][0]["bytes"]
             .as_array()
@@ -276,7 +276,14 @@ fn receipt_write_failure_rolls_back_published_artifacts() {
             > 100
     );
     let response_path = root.path().join("response.json");
-    private_write(&response_path, &serde_json::to_vec(&response).unwrap());
+    response["publication_limits"] = Value::Null;
+    response["artifact_receipts"] = json!([]);
+    let expected = json!({
+        "request_id":response["request_id"], "operation":response["operation"],
+        "sources":response["sources"], "request_options":response["request_options"],
+    });
+    let response_bytes = serde_json::to_vec(&response).unwrap();
+    private_write(&response_path, &response_bytes);
     let receipt = root.path().join("receipt-is-a-directory");
     fs::create_dir(&receipt).unwrap();
     fs::write(receipt.join("sentinel"), b"caller-owned receipt sentinel").unwrap();
@@ -285,7 +292,8 @@ fn receipt_write_failure_rolls_back_published_artifacts() {
         &publication,
         &serde_json::to_vec(&json!({
             "response": response_path, "receipt": receipt,
-            "out": root.path().join("out"), "max_bytes": 1_048_576
+            "out": root.path().join("out"), "max_bytes": 1_048_576,
+            "expected":expected, "response_sha256":tpe::schema::sha256_hex(&response_bytes)
         }))
         .unwrap(),
     );
@@ -488,12 +496,12 @@ fn bounded_memory_failure_does_not_poison_the_next_operation() {
 }
 
 #[cfg(unix)]
-fn child_pid(controller: &mut Child) -> String {
+fn stop_operation_worker(controller: &mut Child) -> String {
     let expected_parent = controller.id().to_string();
     let deadline = Instant::now() + Duration::from_secs(3);
     loop {
         let result = Command::new("ps")
-            .args(["-axo", "pid=,ppid="])
+            .args(["-axo", "pid=,ppid=,stat=,args="])
             .output()
             .unwrap();
         if let Some(pid) = String::from_utf8_lossy(&result.stdout)
@@ -501,10 +509,37 @@ fn child_pid(controller: &mut Child) -> String {
             .find_map(|line| {
                 let mut fields = line.split_whitespace();
                 let pid = fields.next()?;
-                (fields.next()? == expected_parent).then(|| pid.to_owned())
+                let parent = fields.next()?;
+                let state = fields.next()?;
+                let arguments: Vec<_> = fields.collect();
+                (parent == expected_parent
+                    && !state.starts_with('Z')
+                    && arguments
+                        .windows(2)
+                        .any(|pair| pair == ["--phase", "oxide"]))
+                .then(|| pid.to_owned())
             })
         {
-            return pid;
+            // Acquisition is now a separate short-lived child. Do not stop a
+            // zombie or infer that a successful kill invocation stopped it.
+            let stopped = Command::new("kill")
+                .args(["-STOP", &pid])
+                .stderr(Stdio::null())
+                .status()
+                .unwrap()
+                .success();
+            if stopped {
+                let state = Command::new("ps")
+                    .args(["-p", &pid, "-o", "stat="])
+                    .output()
+                    .unwrap();
+                if String::from_utf8_lossy(&state.stdout)
+                    .trim()
+                    .starts_with('T')
+                {
+                    return pid;
+                }
+            }
         }
         assert!(
             controller.try_wait().unwrap().is_none(),
@@ -551,6 +586,24 @@ fn bounded_many_pages() -> Vec<u8> {
         .unwrap()
         .as_reference()
         .unwrap();
+    let contents = template
+        .as_dict()
+        .unwrap()
+        .get(b"Contents")
+        .unwrap()
+        .as_reference()
+        .unwrap();
+    pdf.get_object_mut(contents)
+        .unwrap()
+        .as_stream_mut()
+        .unwrap()
+        .set_content(
+            format!(
+                "BT /F1 12 Tf 72 720 Td ({}) Tj ET",
+                "Owned bounded cancellation control. ".repeat(64)
+            )
+            .into_bytes(),
+        );
     let children: Vec<Object> = (0..256)
         .map(|_| pdf.add_object(template.clone()).into())
         .collect();
@@ -580,8 +633,7 @@ fn deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker() {
                 .spawn()
                 .unwrap(),
         );
-        let worker = child_pid(&mut child.0);
-        signal(&worker, "-STOP");
+        let worker = stop_operation_worker(&mut child.0);
         if let Some(name) = cancellation {
             signal(&child.0.id().to_string(), name);
         }

@@ -395,12 +395,63 @@ fn form_export_escapes_fdf_and_xml_and_respects_output_bounds() {
 }
 
 #[test]
-fn flatten_removes_interactive_fields_and_preserves_source_text() {
-    let flattened = one_pdf(run("forms.flatten", vec![form_fixture()], json!({})).unwrap());
+fn pinned_no_ap_form_regeneration_is_preserved_as_unqualified_evidence() {
+    let source = form_fixture();
+    capture_form_fixture("forms-no-ap-regeneration-source.pdf", &source);
+    let mut native = DocumentEditor::from_bytes(source.clone()).unwrap();
+    native.flatten_forms().unwrap();
+    let flattened = native.save_to_bytes().unwrap();
+    capture_form_fixture("forms-no-ap-regeneration-upstream.pdf", &flattened);
+    // Retain the previous success assertions as direct upstream evidence. They
+    // establish field removal and boilerplate survival, not value/style fidelity.
     let inspection = run("forms.inspect", vec![flattened.clone()], json!({})).unwrap();
     assert!(inspection.data["fields"].as_array().unwrap().is_empty());
+    let parsed = Document::load_mem(&flattened).unwrap();
+    let painted_text = invoked_form_streams(&parsed, 1)
+        .iter()
+        .flat_map(|bytes| {
+            Content::decode(bytes)
+                .unwrap()
+                .operations
+                .into_iter()
+                .filter(|operation| operation.operator == "Tj")
+                .map(|operation| operation.operands[0].as_str().unwrap().to_vec())
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(
+        painted_text,
+        vec![b"Before".to_vec()],
+        "native no-AP regeneration really paints this simple text value; general style preservation remains unqualified"
+    );
     let doc = PdfDocument::from_bytes(flattened).unwrap();
     assert!(doc.extract_text(0).unwrap().contains("Form page 1"));
+    assert!(matches!(run("forms.flatten", vec![source], json!({})),
+        Err(BackendError::Unsupported(reason)) if reason.contains("normal /AP") && reason.contains("not qualified")));
+}
+
+fn invoked_form_streams(document: &Document, page_number: u32) -> Vec<Vec<u8>> {
+    let page_id = document.get_pages()[&page_number];
+    let page = document.get_dictionary(page_id).unwrap();
+    let resources = document.get_dict_in_dict(page, b"Resources").unwrap();
+    let xobjects = document.get_dict_in_dict(resources, b"XObject").unwrap();
+    Content::decode(&document.get_page_content(page_id))
+        .unwrap()
+        .operations
+        .iter()
+        .filter(|operation| operation.operator == "Do")
+        .map(|operation| {
+            let name = operation.operands[0].as_name().unwrap();
+            let stream = document
+                .dereference(xobjects.get(name).unwrap())
+                .unwrap()
+                .1
+                .as_stream()
+                .unwrap();
+            stream
+                .decompressed_content()
+                .unwrap_or_else(|_| stream.content.clone())
+        })
+        .collect()
 }
 
 fn xfa_fixture(xml: &str) -> Vec<u8> {
@@ -1399,6 +1450,10 @@ fn pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejec
         "forms-appearance-upstream-same-session-control.pdf",
         &control,
     );
+    assert_form_control_and_native_reader_evidence(control);
+}
+
+fn assert_form_control_and_native_reader_evidence(control: Vec<u8>) {
     let parsed = Document::load_mem(&control).unwrap();
     let page_id = parsed.get_pages()[&1];
     let resources = parsed
@@ -1509,6 +1564,125 @@ fn complete_existing_form_appearance_remains_available_for_flattening() {
             .unwrap()
             .contains("Before")
     );
+}
+
+#[test]
+fn unregeneratable_widget_without_normal_appearance_rejects_before_field_loss() {
+    for separate_widget in [false, true] {
+        let mut source =
+            Document::load_mem(&appearance_form_fixture(false, separate_widget)).unwrap();
+        let field = form_dictionary(&source)
+            .get(b"Fields")
+            .unwrap()
+            .as_array()
+            .unwrap()[0]
+            .as_reference()
+            .unwrap();
+        // An approved synthetic unsupported field type makes the native fallback
+        // fail explicitly to generate paint; no real signing or private data.
+        source
+            .get_dictionary_mut(field)
+            .unwrap()
+            .set("FT", "SyntheticUnsupported");
+        let page_id = source.get_pages()[&1];
+        let widget = source
+            .get_dictionary(page_id)
+            .unwrap()
+            .get(b"Annots")
+            .unwrap()
+            .as_array()
+            .unwrap()[0]
+            .as_reference()
+            .unwrap();
+        let widget = source.get_dictionary_mut(widget).unwrap();
+        if separate_widget {
+            widget.set("AP", dictionary! {}); // Missing normal N, on an anonymous child.
+        } else {
+            widget.remove(b"AP");
+        }
+        let mut bytes = Vec::new();
+        source.save_to(&mut bytes).unwrap();
+        let prefix = if separate_widget {
+            "forms-missing-normal-child"
+        } else {
+            "forms-missing-ap-merged"
+        };
+        capture_form_fixture(&format!("{prefix}-source.pdf"), &bytes);
+        assert_form_sentinels(&Document::load_mem(&bytes).unwrap());
+        assert!(
+            matches!(run("forms.flatten", vec![bytes.clone()], json!({})),
+            Err(BackendError::Unsupported(reason)) if reason.contains("normal /AP") && reason.contains("may omit"))
+        );
+
+        let mut native = DocumentEditor::from_bytes(bytes.clone()).unwrap();
+        native.flatten_forms().unwrap();
+        let derivative = native.save_to_bytes().unwrap();
+        capture_form_fixture(&format!("{prefix}-upstream-flattened.pdf"), &derivative);
+        assert!(
+            native
+                .flatten_warnings()
+                .iter()
+                .any(|warning| warning.contains("no /AP") && warning.contains("blank rectangle"))
+        );
+        let parsed = Document::load_mem(&derivative).unwrap();
+        assert!(!parsed.catalog().unwrap().has(b"AcroForm"));
+        assert_eq!(
+            parsed
+                .get_page_annotations(parsed.get_pages()[&1])
+                .unwrap()
+                .len(),
+            1,
+            "the native omission leaves the unpainted widget even after dropping its field catalog"
+        );
+        assert_eq!(
+            parsed.get_page_content(parsed.get_pages()[&1]),
+            source.get_page_content(page_id),
+            "no static appearance for the Before field value was painted"
+        );
+        assert_unpainted_widget_evidence(&parsed, derivative, prefix, native.flatten_warnings());
+        assert_form_sentinels(&Document::load_mem(&bytes).unwrap());
+    }
+}
+
+fn assert_unpainted_widget_evidence(
+    parsed: &Document,
+    derivative: Vec<u8>,
+    prefix: &str,
+    warnings: &[String],
+) {
+    let paint = Content::decode(&parsed.get_page_content(parsed.get_pages()[&1])).unwrap();
+    assert_eq!(
+        paint
+            .operations
+            .iter()
+            .map(|operation| operation.operator.as_str())
+            .collect::<Vec<_>>(),
+        vec!["BT", "Tf", "Td", "Tj", "ET"],
+        "no appearance XObject or extra painting was appended"
+    );
+    assert_eq!(
+        paint.operations[3].operands[0].as_str().unwrap(),
+        b"Appearance sentinel page 1"
+    );
+    let content_only_text = parsed.extract_text(&[1]).unwrap();
+    assert!(!content_only_text.contains("Before"));
+    assert!(content_only_text.contains("Appearance sentinel page 1"));
+    let text = PdfDocument::from_bytes(derivative)
+        .unwrap()
+        .extract_text(0)
+        .unwrap();
+    // Native text extraction appends retained Widget /V values even after
+    // AcroForm removal. Recoverable Before is not proof of flattened paint.
+    assert!(text.contains("Before"));
+    assert!(text.contains("Appearance sentinel page 1"));
+    capture_form_fixture(&format!("{prefix}-observations.json"), &serde_json::to_vec_pretty(&json!({
+        "native_text_including_retained_widget_values":text,
+        "independent_content_only_text":content_only_text,
+        "page_paint_operators":["BT","Tf","Td","Tj","ET"],
+        "only_painted_text":"Appearance sentinel page 1",
+        "flatten_warnings":warnings,
+        "scope":"the field value remains recoverable in the widget but was not painted into static page content"
+    })).unwrap());
 }
 
 fn link_annotation_fixture(first_has_appearance: bool) -> Vec<u8> {

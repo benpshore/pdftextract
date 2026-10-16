@@ -1,0 +1,47 @@
+{
+  "scope": "Intermediate source revisions; final exact checkpoint verification pending",
+  "files": [
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-08.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-08.txt",
+      "bytes": 872,
+      "sha256": "d4fcde1635b3c7064128216eb4fec0176fe5e3e938a40eb611dbcaa614bf0e76"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-09.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-09.txt",
+      "bytes": 955,
+      "sha256": "a5b2a240620322a47bcbf327ff205a915e16a38ab0df761cb74aa9924f3c8194"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-10.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-10.txt",
+      "bytes": 1210,
+      "sha256": "b2d8eac6c86377eae663989ccafcbac104e30f82136d6ac8d62e5242e93214c2"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-11.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-11.txt",
+      "bytes": 1069,
+      "sha256": "05ced8da19f1c6b027442bb4443477b382bbb8bae8b640ff4a4a4e9e599333ad"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/admission-tests-02.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-02.txt",
+      "bytes": 1269,
+      "sha256": "2220543a8cf1c5daab6906ffdd03c060f56abdea24d30139007e29495f8eb239"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/admission-tests-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-03.txt",
+      "bytes": 8961,
+      "sha256": "347a923b01e222d1cb9f6da6cfe03830eb552e05308ffcb0814c9f76127dffb9"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/transport-tests-01.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt",
+      "bytes": 2109,
+      "sha256": "de942505094bf39e59b9222d2af2439965c7d857f007f8e8981316081d0329a5"
+    }
+  ]
+}

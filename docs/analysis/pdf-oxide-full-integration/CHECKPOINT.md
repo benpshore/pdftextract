@@ -82,8 +82,9 @@ The next focused admission run passed 114 and failed one. Its sole failure was
 the cyclic-resource test's old image-stage label: the new Form guard rejects the
 same source earlier, before publication. All 27 security, 13 worker, 31 editing/
 form, 11 backend, 10 query and 10 conversion tests passed. The supplement target
-passed 12/13. Two strict Clippy findings in the new query preflight remain to be
-repaired; this is still an unqualified checkpoint, not final-source evidence.
+passed 12/13. The query Clippy findings were repaired; subsequent findings in expanded test
+helpers and worker functions were also corrected without lint suppression. This
+is still intermediate evidence, not final-source qualification.
 
 Independent Poppler observations preserve 20 synthetic redaction PDFs, all source
 hashes unchanged. A black overlay hides the rise-case target visually while text
@@ -91,9 +92,11 @@ extraction recovers it. ActualText retention is separately established in decode
 objects; it is not inferred from Poppler extraction. The adapter now rejects
 q/Q saved text state and requires explicit bounded targets with independent
 pre/post decoded-content and extraction verification. Request receipts/errors
-omit target values. All-page carrier/page-tree verification and a distinct
-missing-widget-appearance flatten guard identified by parent review are being
-completed before the final exact-source run.
+omit target values. All-page carrier/page-tree verification passed all 29 security
+tests in the next run. A distinct widget normal-appearance gate rejects
+unqualified regeneration and omission warnings. Its regression preserves native
+widget-value extraction separately from static page painting; no-AP alone is not
+a claim of universal data loss.
 
 Operator-limit baseline evidence now includes fallback, silent prescan and
 saved-state-restore paths. The latter returned success, retained the prefix,
@@ -116,3 +119,24 @@ requested; equivalent approved synthetic cases are retained while waiting.
 The original backlog source index is preserved on PR273 checkpoint
 `88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35`; this work does not reconcile or close
 other proposals. PR275/280/281 and all parent holds remain unchanged.
+
+The acquisition/publication boundary now binds ordered immutable staged inputs,
+operation/public request options, an opaque invocation ID, canonical build identity
+and the exact captured response before any publication. Original file reads stay
+in a bounded acquisition worker; private request/password digests stay private.
+Seven transport regressions and all 13 worker regressions passed, including
+valid-looking digest swaps, operation/options swaps, replay, artifact capture
+tampering, producer/publication-state checks and a positive exact-byte control.
+This proves transport binding for these cases, not semantic artifact correctness.
+
+The new acquisition phase exposed an old cancellation-test race: the first child
+could already be a zombie. The probe now identifies the operation phase and proves
+it entered stopped state before testing timeout/INT/TERM kill-and-reap. The
+original failed logs remain preserved. Source checks for the final complete
+workspace run are next; none of these focused passes establishes toolkit parity.
+
+The corrected missing-normal-appearance proof subsequently passed: all 32 form/
+editing tests in `forms-guards-03.log`. It distinguishes recoverable retained
+widget values from absent static page painting, and preserves a separate native
+regeneration positive control. The only following Clippy finding was a 101-line
+test; helper extraction retains its assertions. Production guards are unchanged.
