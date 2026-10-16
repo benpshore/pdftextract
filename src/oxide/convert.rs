@@ -70,6 +70,7 @@ fn run(
             _ => "PdfDocument::to_html",
         },
         "images": "omitted by explicit conversion policy",
+        "table_policy": "reconstruction disabled; unqualified native candidates are evaluation evidence only; extract_tables=true is unsupported",
         "raw_markup": "untrusted native projection; only display_html is sanitized",
     });
     budget.retain(&data)?;
@@ -120,7 +121,7 @@ fn run(
     Ok(OperationOutput {
         data,
         warnings: vec![
-            "Conversion completeness, table detection, reading order and formatting remain unverified; source bytes and baseline projections are retained. Raw HTML/Markdown must not be rendered as trusted content.".into(),
+            "Conversion completeness, reading order and formatting remain unverified; table reconstruction is disabled. Source bytes and baseline projections are retained. Raw HTML/Markdown must not be rendered as trusted content.".into(),
         ],
         ..OperationOutput::default()
     })
@@ -162,16 +163,13 @@ fn options(
         .as_object()
         .ok_or_else(|| invalid("conversion parameters must be an object"))?;
     for key in object.keys() {
-        if ![
-            "reading_order",
-            "detect_headings",
-            "extract_tables",
-            "include_form_fields",
-        ]
-        .contains(&key.as_str())
-            && !(operation == "convert.html" && key == "preserve_layout")
-            && !(operation == "convert.markdown" && key == "bold_marker_behavior")
-        {
+        let allowed = match key.as_str() {
+            "reading_order" | "detect_headings" | "extract_tables" | "include_form_fields" => true,
+            "preserve_layout" => operation == "convert.html",
+            "bold_marker_behavior" => operation == "convert.markdown",
+            _ => false,
+        };
+        if !allowed {
             return Err(invalid(&format!(
                 "unsupported {operation} parameter: {key}"
             )));
@@ -196,10 +194,15 @@ fn options(
             ));
         }
     };
+    if boolean(params, "extract_tables", false)? {
+        return Err(invalid(
+            "table reconstruction is unsupported: pinned native candidates can split wrapped cells, omit headers/blank rows, or misclassify prose; native table evaluation is not a validated conversion",
+        ));
+    }
     Ok(ConversionOptions {
         preserve_layout: boolean(params, "preserve_layout", false)?,
         detect_headings: boolean(params, "detect_headings", true)?,
-        extract_tables: boolean(params, "extract_tables", true)?,
+        extract_tables: false,
         include_form_fields: boolean(params, "include_form_fields", true)?,
         reading_order_mode,
         bold_marker_behavior,

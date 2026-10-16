@@ -132,14 +132,19 @@ fn from_content(
     }
     let options: CreateOptions = parse_params(params)?;
     options.validate()?;
-    let content = text_input(context)?;
-    check_content_items(content, context)?;
+    let source = text_input(context)?;
+    check_content_items(source, context)?;
     if operation == "create.html" {
-        inspect_html(content, false, context)?;
+        inspect_html(source, false, context)?;
     }
     // The pinned plain-text builder applies font_size only to spacing, not to
     // the emitted font. Refuse that misleading option instead of accepting it.
-    if operation == "create.text" && options.font_size != 12.0 {
+    #[allow(
+        clippy::float_cmp,
+        reason = "Only the exact supported default is admitted; a tolerance would accept ignored overrides"
+    )]
+    let unsupported_font = options.font_size != 12.0;
+    if operation == "create.text" && unsupported_font {
         return Err(BackendError::Unsupported(
             "pdf_oxide 0.3.78 plain-text creation emits 12pt text; use create.document for other sizes"
                 .into(),
@@ -151,16 +156,16 @@ fn from_content(
         ));
     }
     let mut pdf = match operation {
-        "create.text" => options.builder().from_text(content),
-        "create.markdown" => options.builder().from_markdown(content),
-        "create.html" => options.builder().from_html(content),
+        "create.text" => options.builder().from_text(source),
+        "create.markdown" => options.builder().from_markdown(source),
+        "create.html" => options.builder().from_html(source),
         _ => unreachable!(),
     }
     .map_err(upstream)?;
     let mut output = pdf_output(pdf.save_to_bytes().map_err(upstream)?, context)?;
     output.data["operation"] = json!(operation);
     let bundled =
-        operation != "create.text" && pdf_oxide::fonts::bundled::needs_unicode_font(content);
+        operation != "create.text" && pdf_oxide::fonts::bundled::needs_unicode_font(source);
     output.data["font_policy"] = json!(if bundled {
         "pinned_bundled_dejavu_regular_bold_with_standard14_courier_code"
     } else {
@@ -232,6 +237,26 @@ fn from_html_css(context: &Context<'_>, params: &Value) -> Result<OperationOutpu
     }
     let mut pdf = Pdf::from_html_css_with_fonts(html, &options.css, fonts).map_err(upstream)?;
     let mut output = pdf_output(pdf.save_to_bytes().map_err(upstream)?, context)?;
+    let verified =
+        pdf_oxide::PdfDocument::from_bytes(output.artifacts[0].bytes.clone()).map_err(upstream)?;
+    let (expected_width, expected_height) = PageSize::A4.dimensions();
+    for page in 0..verified.page_count().map_err(upstream)? {
+        let (x0, y0, x1, y1) = verified.get_page_media_box(page).map_err(upstream)?;
+        let (width, height) = (x1 - x0, y1 - y0);
+        if !width.is_finite()
+            || !height.is_finite()
+            || (width - expected_width).abs() > 1.0
+            || (height - expected_height).abs() > 1.0
+        {
+            // The pinned A4 CSS configuration is 794x1123 CSS pixels, but
+            // its writer emits those as PDF points. Do not publish the known
+            // unit mismatch or silently rescale font/layout resources.
+            return Err(BackendError::Unsupported(format!(
+                "pdf_oxide 0.3.78 HTML/CSS page-unit mismatch: page {} is {width}x{height} PDF points, expected A4; publication is disabled pending verified geometry correction",
+                page + 1,
+            )));
+        }
+    }
     output.data["operation"] = json!("create.html_css");
     output.warnings.push(
         "Pinned HTML/CSS layout is not a browser. It uses A4 pagination and supplied font bytes; complex CSS, glyph shaping and image fidelity remain unverified. No external resource is fetched."
@@ -266,6 +291,25 @@ fn inspect_html(html: &str, css_mode: bool, context: &Context<'_>) -> Result<(),
         }
         match &node.kind {
             NodeKind::Element { tag, attrs } => {
+                if css_mode
+                    && matches!(
+                        tag.as_str(),
+                        "table"
+                            | "thead"
+                            | "tbody"
+                            | "tfoot"
+                            | "tr"
+                            | "th"
+                            | "td"
+                            | "col"
+                            | "colgroup"
+                            | "caption"
+                    )
+                {
+                    return Err(BackendError::Unsupported(
+                        "pdf_oxide 0.3.78 HTML/CSS table layout can overlap cells; table creation is disabled pending geometry and render verification".into(),
+                    ));
+                }
                 if matches!(
                     tag.as_str(),
                     "script"
@@ -353,6 +397,52 @@ fn inspect_html(html: &str, css_mode: bool, context: &Context<'_>) -> Result<(),
 }
 
 fn inspect_css(css: &str) -> Result<(), BackendError> {
+    use pdf_oxide::html_css::css::tokenizer::{Token, tokenize};
+    // Match decoded CSS tokens so escapes and comments cannot hide a resource
+    // request or route a div through the defective table layout implementation.
+    for (token, _) in tokenize(css).map_err(|error| invalid(&format!("CSS tokenize: {error}")))? {
+        match token {
+            Token::Ident(name)
+                if matches!(
+                    name.to_ascii_lowercase().as_str(),
+                    "table"
+                        | "inline-table"
+                        | "table-row"
+                        | "table-cell"
+                        | "table-row-group"
+                        | "table-header-group"
+                        | "table-footer-group"
+                        | "table-column"
+                        | "table-column-group"
+                        | "table-caption"
+                ) =>
+            {
+                return Err(BackendError::Unsupported(
+                    "CSS table layout is disabled pending geometry and render verification".into(),
+                ));
+            }
+            Token::Url(_) | Token::BadUrl => {
+                return Err(BackendError::Unsupported(
+                    "CSS resource URLs are unsupported".into(),
+                ));
+            }
+            Token::Function(name)
+                if matches!(name.to_ascii_lowercase().as_str(), "url" | "expression") =>
+            {
+                return Err(BackendError::Unsupported(
+                    "CSS resource/script functions are unsupported".into(),
+                ));
+            }
+            Token::AtKeyword(name)
+                if matches!(name.to_ascii_lowercase().as_str(), "import" | "font-face") =>
+            {
+                return Err(BackendError::Unsupported(
+                    "CSS imports and font loading are unsupported".into(),
+                ));
+            }
+            _ => {}
+        }
+    }
     let lower = css.to_ascii_lowercase();
     if [
         "url(",
@@ -375,7 +465,12 @@ fn inspect_css(css: &str) -> Result<(), BackendError> {
 fn from_images(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
     let options: CreateOptions = parse_params(params)?;
     options.validate()?;
-    if options.font_size != 12.0 || options.line_height != 1.2 {
+    #[allow(
+        clippy::float_cmp,
+        reason = "Exact defaults distinguish absent metrics from unsupported image text-layout overrides"
+    )]
+    let unsupported_metrics = options.font_size != 12.0 || options.line_height != 1.2;
+    if unsupported_metrics {
         return Err(BackendError::Unsupported(
             "image creation does not use font_size or line_height".into(),
         ));
@@ -473,10 +568,10 @@ pub(super) fn image_dimensions(
             .min(256 * 1024 * 1024),
     );
     decoder.limits(limits);
-    let decoded = decoder
+    let bitmap = decoder
         .decode()
         .map_err(|error| invalid(&format!("image decode: {error}")))?;
-    if decoded.width() != width || decoded.height() != height {
+    if bitmap.width() != width || bitmap.height() != height {
         return Err(invalid("decoded image dimensions disagree with preflight"));
     }
     Ok((width, height, pixels))
@@ -515,7 +610,7 @@ fn jpeg_dimensions(bytes: &[u8]) -> Result<(u32, u32), BackendError> {
         {
             return Err(invalid("invalid JPEG segment length"));
         }
-        if matches!(marker, 0xc0 | 0xc1 | 0xc2) {
+        if matches!(marker, 0xc0..=0xc2) {
             if length < 8
                 || bytes[offset + 2] != 8
                 || !matches!(bytes[offset + 7], 1 | 3 | 4)
@@ -616,6 +711,17 @@ fn default_font() -> String {
 
 fn compose(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
     let composition: Composition = parse_params(params)?;
+    if composition.pages.iter().any(|page| {
+        page.elements
+            .iter()
+            .any(|element| matches!(element, CompositionElement::Table { .. }))
+    }) {
+        // Preserve the reviewed implementation below for the checkpoint's
+        // source record, but do not publish known defective table derivatives.
+        return Err(BackendError::Unsupported(
+            "pdf_oxide 0.3.78 buffered table creation can put text across cell borders; table creation is disabled pending geometry and render verification".into(),
+        ));
+    }
     if composition.pages.is_empty() || composition.pages.len() > context.limits.max_pages as usize {
         return Err(BackendError::Limit(
             "composition page count must be 1..=max_pages".into(),
@@ -790,6 +896,14 @@ fn buffered_table(
     text_bytes: &mut usize,
 ) -> Result<(pdf_oxide::writer::Table, f32), BackendError> {
     use pdf_oxide::writer::{ColumnWidth, FontManager, FontMetrics, Table, TableCell, TableStyle};
+    struct Metrics(FontManager);
+    impl FontMetrics for Metrics {
+        fn text_width(&self, text: &str, size: f32) -> f32 {
+            self.0
+                .text_width(text, "Helvetica", size)
+                .max(self.0.text_width(text, "Helvetica-Bold", size))
+        }
+    }
     if rows.is_empty() || rows.len() > context.limits.max_items {
         return Err(BackendError::Limit(
             "table rows must be nonempty and bounded by max_items".into(),
@@ -845,14 +959,6 @@ fn buffered_table(
     if header {
         table = table.with_header_row();
     }
-    struct Metrics(FontManager);
-    impl FontMetrics for Metrics {
-        fn text_width(&self, text: &str, size: f32) -> f32 {
-            self.0
-                .text_width(text, "Helvetica", size)
-                .max(self.0.text_width(text, "Helvetica-Bold", size))
-        }
-    }
     let height = table
         .calculate_layout(width, &Metrics(FontManager::new()))
         .total_height;
@@ -894,8 +1000,8 @@ fn text_input<'a>(context: &'a Context<'_>) -> Result<&'a str, BackendError> {
     std::str::from_utf8(bytes).map_err(|_| invalid("creation content must be UTF-8"))
 }
 
-fn check_content_items(content: &str, context: &Context<'_>) -> Result<(), BackendError> {
-    if content.lines().count() > context.limits.max_items || content.contains('\0') {
+fn check_content_items(source: &str, context: &Context<'_>) -> Result<(), BackendError> {
+    if source.lines().count() > context.limits.max_items || source.contains('\0') {
         return Err(BackendError::Limit(
             "content line count exceeds max_items or contains NUL".into(),
         ));
@@ -941,6 +1047,10 @@ pub(super) fn parse_params<T: serde::de::DeserializeOwned>(
     serde_json::from_value(params.clone()).map_err(|error| invalid(&format!("parameters: {error}")))
 }
 
+#[allow(
+    clippy::needless_pass_by_value,
+    reason = "Owned error signature is required for direct Result::map_err adapters"
+)]
 pub(super) fn upstream(error: pdf_oxide::Error) -> BackendError {
     BackendError::Malformed(format!("pdf_oxide: {error}"))
 }

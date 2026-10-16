@@ -133,6 +133,10 @@ pub struct Figure {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Table {
     pub source: String,
+    /// A candidate with an error is retained only for evaluation. Consumers
+    /// must not use it as a validated row/cell interpretation.
+    #[serde(default)]
+    pub validation_error: Option<String>,
     pub bbox: Option<BBox>,
     pub has_header: bool,
     pub col_count: u32,

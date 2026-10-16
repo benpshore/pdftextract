@@ -167,10 +167,22 @@ fn aes256_roundtrip_authentication_and_independent_decryption() {
     );
     assert!(independent.decrypt("wrong-synthetic-password").is_err());
     independent.decrypt(USER_PASSWORD).unwrap();
+    // lopdf's unauthenticated reader intentionally loads only Encrypt.
+    // A password-aware reload is required to independently inspect the body.
+    let independent = Document::load_mem_with_options(
+        encrypted,
+        lopdf::LoadOptions::with_password(USER_PASSWORD),
+    )
+    .unwrap();
+    assert_eq!(independent.get_pages().len(), 1);
     let text = independent.extract_text(&[1]).unwrap();
     assert!(text.contains(SECRET));
     assert!(text.contains(CONTROL));
     for password in [USER_PASSWORD, OWNER_PASSWORD] {
+        let independent =
+            Document::load_mem_with_options(encrypted, lopdf::LoadOptions::with_password(password))
+                .unwrap();
+        assert!(independent.extract_text(&[1]).unwrap().contains(SECRET));
         let output = run(
             "security.decrypt",
             encrypted.clone(),
@@ -185,6 +197,70 @@ fn aes256_roundtrip_authentication_and_independent_decryption() {
         assert!(text.contains(CONTROL));
     }
     assert_ne!(original, *encrypted);
+}
+
+#[test]
+fn aes256_empty_user_and_normalized_unicode_passwords_keep_all_pages() {
+    for (user, owner) in [
+        ("", "synthetic-owner"),
+        ("synthetic-\u{00ad}user", "synthetic-\u{2168}-owner"),
+    ] {
+        let original = bytes(document());
+        let output = run(
+            "security.encrypt",
+            original.clone(),
+            None,
+            json!({"user_password":user,"owner_password":owner}),
+        )
+        .unwrap();
+        for password in [user, owner] {
+            // lopdf's reader authenticates a normalized password but passes
+            // raw bytes to key derivation; supply the required SASLprep bytes.
+            // The public operation below must still accept the original input.
+            let normalized = stringprep::saslprep(password).unwrap();
+            let independent = Document::load_mem_with_options(
+                &output.artifacts[0].bytes,
+                lopdf::LoadOptions::with_password(&normalized),
+            )
+            .unwrap();
+            assert_eq!(independent.get_pages().len(), 1);
+            let text = independent.extract_text(&[1]).unwrap();
+            assert!(text.contains(SECRET));
+            assert!(text.contains(CONTROL));
+            let decrypted = run(
+                "security.decrypt",
+                output.artifacts[0].bytes.clone(),
+                Some(password),
+                json!({}),
+            )
+            .unwrap();
+            let decoded = Document::load_mem(&decrypted.artifacts[0].bytes).unwrap();
+            let text = decoded.extract_text(&[1]).unwrap();
+            assert!(text.contains(SECRET));
+            assert!(text.contains(CONTROL));
+        }
+        assert_ne!(original, output.artifacts[0].bytes);
+    }
+}
+
+#[test]
+fn aes256_rejects_prohibited_or_expanding_passwords_before_writing() {
+    for (user, owner) in [
+        ("synthetic\u{0007}".to_owned(), OWNER_PASSWORD.to_owned()),
+        (USER_PASSWORD.to_owned(), "synthetic\u{0007}".to_owned()),
+        (USER_PASSWORD.to_owned(), "\u{00ad}".to_owned()),
+        // U+337F SQUARE CORPORATION normalizes from 3 bytes to 12 bytes.
+        ("\u{337f}".repeat(11), OWNER_PASSWORD.to_owned()),
+        (USER_PASSWORD.to_owned(), "\u{337f}".repeat(11)),
+    ] {
+        let result = run(
+            "security.encrypt",
+            bytes(document()),
+            None,
+            json!({"user_password":user,"owner_password":owner}),
+        );
+        assert!(matches!(result, Err(BackendError::Malformed(_))));
+    }
 }
 
 #[test]

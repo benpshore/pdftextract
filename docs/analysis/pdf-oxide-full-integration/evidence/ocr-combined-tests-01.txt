@@ -1,0 +1,262 @@
+ Downloading crates ...
+  Downloaded liquid v0.26.11
+  Downloaded anymap3 v1.1.0
+  Downloaded kstring v2.0.5
+  Downloaded bit-set v0.5.3
+  Downloaded itertools v0.10.5
+  Downloaded bit-vec v0.6.3
+  Downloaded pest_generator v2.9.2
+  Downloaded rand_distr v0.4.3
+  Downloaded derive-new v0.5.9
+  Downloaded primal-check v0.3.4
+  Downloaded ndarray v0.16.1
+  Downloaded pest_derive v2.9.2
+  Downloaded nom-language v0.1.0
+  Downloaded pest_meta v2.9.2
+  Downloaded dyn-hash v0.2.2
+  Downloaded safetensors v0.6.2
+  Downloaded anymap2 v0.13.0
+  Downloaded tract-data v0.22.5
+  Downloaded liquid-core v0.26.11
+  Downloaded tract-nnef v0.22.5
+  Downloaded rustfft v6.4.1
+  Downloaded prost-derive v0.11.9
+  Downloaded tract-core v0.22.5
+  Downloaded tract-linalg v0.22.5
+  Downloaded transpose v0.2.3
+  Downloaded prost v0.11.9
+  Downloaded tract-onnx v0.22.5
+  Downloaded scan_fmt v0.2.6
+  Downloaded strength_reduce v0.2.4
+  Downloaded ucd-trie v0.1.7
+  Downloaded pest v2.9.2
+  Downloaded liquid-lib v0.26.11
+  Downloaded string-interner v0.15.0
+  Downloaded tract-hir v0.22.5
+  Downloaded liquid-derive v0.26.10
+  Downloaded tract-onnx-opl v0.22.5
+   Compiling libm v0.2.16
+   Compiling num-traits v0.2.19
+   Compiling serde_core v1.0.229
+   Compiling num-integer v0.1.47
+   Compiling serde v1.0.229
+   Compiling ucd-trie v0.1.7
+   Compiling pest v2.9.2
+   Compiling static_assertions v1.1.0
+   Compiling num-complex v0.4.6
+   Compiling liquid-derive v0.26.10
+   Compiling pest_meta v2.9.2
+   Compiling anymap2 v0.13.0
+   Compiling half v2.7.1
+   Compiling pest_generator v2.9.2
+   Compiling unicode-segmentation v1.13.3
+   Compiling pest_derive v2.9.2
+   Compiling kstring v2.0.5
+   Compiling ahash v0.8.12
+   Compiling num-bigint v0.4.8
+   Compiling getrandom v0.2.17
+   Compiling matrixmultiply v0.3.11
+   Compiling syn v1.0.109
+   Compiling liquid-core v0.26.11
+   Compiling crypto-bigint v0.7.5
+   Compiling rawpointer v0.2.1
+   Compiling liquid-lib v0.26.11
+   Compiling same-file v1.0.6
+   Compiling walkdir v2.5.0
+   Compiling liquid v0.26.11
+   Compiling hashbrown v0.14.5
+   Compiling tract-linalg v0.22.5
+   Compiling serde_json v1.0.151
+   Compiling v_frame v0.3.9
+   Compiling string-interner v0.15.0
+   Compiling ndarray v0.16.1
+   Compiling num-rational v0.4.2
+   Compiling nom-language v0.1.0
+   Compiling scan_fmt v0.2.6
+   Compiling itertools v0.12.1
+   Compiling dyn-hash v0.2.2
+   Compiling strength_reduce v0.2.4
+   Compiling downcast-rs v1.2.1
+   Compiling dyn-clone v1.0.20
+   Compiling transpose v0.2.3
+   Compiling tract-data v0.22.5
+   Compiling derive-new v0.5.9
+   Compiling primal-check v0.3.4
+   Compiling bit-vec v0.6.3
+   Compiling av-scenechange v0.14.1
+   Compiling bit-set v0.5.3
+   Compiling rustfft v6.4.1
+   Compiling av1-grain v0.2.5
+   Compiling rand_core v0.6.4
+   Compiling ppv-lite86 v0.2.21
+   Compiling anymap3 v1.1.0
+   Compiling rav1e v0.8.1
+   Compiling tract-core v0.22.5
+   Compiling pulp v0.22.3
+   Compiling asn1-rs v0.7.2
+   Compiling rand_chacha v0.3.1
+   Compiling elliptic-curve v0.14.1
+   Compiling primefield v0.14.0
+   Compiling exr v1.74.2
+   Compiling string_cache v0.8.9
+   Compiling ring v0.17.14
+   Compiling tiff v0.11.3
+   Compiling moxcms v0.8.1
+   Compiling ravif v0.13.0
+   Compiling wnaf v0.14.1
+   Compiling rand v0.8.8
+   Compiling safetensors v0.6.2
+   Compiling rfc6979 v0.6.0
+   Compiling itertools v0.10.5
+   Compiling prost-derive v0.11.9
+   Compiling image v0.25.10
+   Compiling ecdsa v0.17.0
+   Compiling tract-nnef v0.22.5
+   Compiling rand_distr v0.4.3
+   Compiling web_atoms v0.1.3
+   Compiling primeorder v0.14.0
+   Compiling oid-registry v0.8.1
+   Compiling rustls-webpki v0.103.15
+   Compiling der-parser v10.0.0
+   Compiling chrono v0.4.45
+   Compiling x509-parser v0.18.1
+   Compiling rustls v0.23.45
+   Compiling tract-onnx-opl v0.22.5
+   Compiling markup5ever v0.35.0
+   Compiling prost v0.11.9
+   Compiling tract-hir v0.22.5
+   Compiling crypto-primes v0.7.2
+   Compiling quick-xml v0.41.0
+   Compiling ureq v3.4.2
+   Compiling office_oxide v0.1.9
+   Compiling p12-keystore v0.3.2
+   Compiling html5ever v0.35.0
+   Compiling rsa v0.10.0-rc.19
+   Compiling tract-onnx v0.22.5
+   Compiling fast_image_resize v6.1.0
+   Compiling p256 v0.14.0
+   Compiling p384 v0.14.0
+   Compiling qrcode v0.14.1
+   Compiling barcoders v2.0.0
+   Compiling tpe-common v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-common)
+   Compiling ndarray v0.17.2
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+   Compiling lopdf v0.45.0
+   Compiling pdf_oxide v0.3.78
+   Compiling tpe-biblio v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-biblio)
+   Compiling ammonia v4.1.2
+   Compiling tpe-ffi v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-ffi)
+    Finished `test` profile [unoptimized] target(s) in 2m 02s
+     Running tests/oxide_create_office.rs (/workspace/pdftextract/target/debug/deps/oxide_create_office-442c824198f86730)
+
+running 15 tests
+test buffered_table_creation_fails_explicitly_for_known_layout_defects ... ok
+test creation_rejects_active_html_invalid_dimensions_and_output_overflow ... ok
+test composition_retains_font_size_geometry_and_page_order ... ok
+test creation_round_trips_text_and_preserves_input_identity ... ok
+test html_css_table_semantics_fail_before_known_cell_overlap ... ok
+test image_creation_checks_real_decode_pixels_and_total_count ... ok
+test minimal_office_import_is_bytes_only_and_keeps_original ... ok
+test office_export_and_import_parse_all_three_formats ... ok
+test office_image_export_checks_metadata_before_decode_and_rejects_alpha_loss ... ok
+test html_css_rejects_known_page_unit_mismatch_and_resources ... ok
+test office_markdown_creation_is_real_archive_and_rejects_legacy_formats ... ok
+test office_rejects_crc_damage_zip_duplicates_and_bounded_expansion ... ok
+test office_rejects_macros_ole_external_links_and_xml_tricks ... ok
+test office_whole_document_conversion_rejects_partial_selection_and_page_limits ... ok
+test office_layout_thresholds_are_explicit_at_30_31_and_200_201 ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.02s
+
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-9a72b1088901da99)
+
+running 23 tests
+test annotation_add_update_remove_and_unsafe_action_rejection ... ok
+test annotation_repair_keeps_unknown_properties_and_ordered_action_identity ... ok
+test cyclic_acroform_read_paths_fail_before_upstream_recursion ... ok
+test cyclic_bookmarks_fail_without_entering_the_upstream_unbounded_walk ... ok
+test direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails ... ok
+test edit_rejects_invalid_pages_rectangles_rotations_and_unknown_parameters ... ok
+test embedded_bytes_roundtrip_without_document_chosen_output_paths ... ok
+test choice_fields_keep_multi_values_and_lossy_xfdf_export_is_rejected ... ok
+test flatten_removes_interactive_fields_and_preserves_source_text ... ok
+test form_export_escapes_fdf_and_xml_and_respects_output_bounds ... ok
+test form_add_fill_inspect_update_remove_roundtrips_values_and_flags ... ok
+test hierarchical_form_names_are_not_silently_flattened_or_renamed ... ok
+test merge_and_split_preserve_requested_text_pages_and_range_bounds ... ok
+test merge_rejects_signature_markers_in_every_input_slot ... ok
+test metadata_roundtrip_is_explicit_about_unicode_and_xmp_limitations ... ok
+test page_and_item_budgets_fail_before_expanding_large_requests ... ok
+test form_properties_and_hierarchical_removal_preserve_unrelated_objects ... ok
+test page_reorder_duplicates_rotation_and_crop_survive_serialization ... ok
+test pinned_dom_replacement_retains_black_mask_regression_evidence ... ok
+test text_overlays_roundtrip_and_visually_defective_replacement_is_rejected ... ok
+test static_xfa_is_an_explicit_derivative_and_dynamic_or_external_xml_fails ... ok
+test unicode_attachment_names_are_metadata_and_never_output_paths ... ok
+test visual_whiteout_explicitly_retains_recoverable_source_content ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/oxide_render_ocr.rs (/workspace/pdftextract/target/debug/deps/oxide_render_ocr-ebf7926b3f468ed0)
+
+running 15 tests
+test all_pinned_one_dimensional_barcode_encoders_return_png ... ok
+test barcode_generates_png_svg_pdf_and_bounds_intermediates ... ok
+test classification_preserves_source_and_one_based_page_identity ... ok
+test classification_rejects_malformed_pdf_and_unbounded_selection ... ok
+test malformed_offline_model_fails_in_a_bounded_sealed_child ... ok
+test ml_capabilities_report_removed_upstream_implementations ... ok
+test ocr_requires_explicit_build_and_model_bytes ... ok
+test offline_models_require_matching_hashes_before_loading_or_host_access ... ok
+test barcode_rejects_unimplemented_caption_and_unsafe_multibyte_numeric_paths ... ok
+test rendering_never_silently_reads_unconfined_host_fonts ... ok
+test sealed_invalid_ocr_model_probe ... ok
+test sealed_raster_probe ... ok
+test sealed_synthetic_ocr_model_probe ... ok
+test synthetic_offline_ocr_runs_in_a_bounded_sealed_child ... ok
+test real_raster_operations_run_only_in_a_bounded_sealed_child ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-54a3d6ec33b3e083)
+
+running 20 tests
+test aes256_rejects_prohibited_or_expanding_passwords_before_writing ... ok
+test aes256_roundtrip_authentication_and_independent_decryption ... ok
+test catalog_certification_reference_blocks_rewrite_without_an_acroform ... ok
+test catalog_sanitization_removes_named_carriers_and_keeps_page_text ... ok
+test compliance_inspection_reports_failures_without_certification_claims ... ok
+test aes256_empty_user_and_normalized_unicode_passwords_keep_all_pages ... ok
+test encryption_rejects_legacy_and_silent_password_truncation ... ok
+test malformed_inputs_and_unknown_parameters_do_not_produce_derivatives ... ok
+test offline_verification_rejects_invalid_cms_without_trust_or_network_claim ... ok
+test output_item_and_page_limits_fail_without_returning_artifacts ... ok
+test pdfa_candidate_retains_fresh_failures_and_source_negative_control ... ok
+test redaction_outside_target_does_not_claim_global_secret_removal ... ok
+test redaction_rejects_damaged_array_stream_instead_of_silently_skipping_it ... ok
+test redaction_rejects_pages_regions_and_unsupported_carriers ... ok
+test rewrites_reject_filled_signature_values_but_allow_blank_fields ... ok
+test shared_attachment_survives_catalog_scope_and_is_explicitly_out_of_scope ... ok
+test signature_inspection_handles_unsigned_inherited_fields_and_partial_coverage ... ok
+test signature_inspection_rejects_cycles_and_does_not_filter_bad_byte_range_values ... ok
+test text_redaction_removes_target_from_decoded_objects_and_preserves_control ... ok
+test encrypted_missing_wrong_and_successful_passwords_are_distinct ... ok
+
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.81s
+
+     Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-c382c4d42b5adfce)
+
+running 10 tests
+test atomic_publication_preserves_existing_files_and_repeated_outputs ... ok
+test creation_then_query_uses_workers_and_preserves_exact_source_provenance ... ok
+test deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker ... ok
+test document_links_and_actions_are_data_and_do_not_trigger_loopback_requests ... ok
+test malformed_unknown_and_out_of_range_requests_fail_without_publication ... ok
+test output_overflow_fails_before_publication_and_removes_captures ... ok
+test bounded_memory_failure_does_not_poison_the_next_operation ... ok
+test publisher_failure_leaves_source_and_existing_target_unchanged ... ok
+test passwords_use_private_request_and_file_channels_not_argv_or_reports ... ok
+test stdout_backpressure_obeys_deadline_without_changing_pipe_flags ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.03s
+

@@ -208,6 +208,7 @@ impl Budget {
             }
             result.push(Table {
                 source: format!("pdf-oxide/{PDF_OXIDE_VERSION}/extract_tables"),
+                validation_error: Some("unsupported_table_validation: native candidates can split wrapped cells, omit headers/blank rows, or classify prose as tables. Rows/cells are retained as raw evaluation evidence; validated table interpretation is unavailable.".into()),
                 bbox: table.bbox.map(finite_box).transpose()?,
                 has_header: table.has_header,
                 col_count: u32::try_from(table.col_count)
@@ -468,7 +469,12 @@ impl DocumentSession for PdfOxideSession {
             output.warnings.push("extraction_incomplete: pdf-oxide returned no selectable characters; the page may be blank, damaged, or require OCR; OCR was not run".into());
         }
         match self.document.extract_tables(index) {
-            Ok(tables) => output.tables = self.budget.tables(tables)?,
+            Ok(tables) => {
+                output.tables = self.budget.tables(tables)?;
+                if !output.tables.is_empty() {
+                    output.warnings.push("extraction_incomplete: table validation unsupported; raw native candidates are evidence only, with explicit validation_error on each candidate".into());
+                }
+            }
             Err(error) => output.warnings.push(format!(
                 "extraction_incomplete: pdf-oxide table extraction failed: {error}"
             )),

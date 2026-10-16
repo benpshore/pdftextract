@@ -26,6 +26,7 @@ mod security;
 pub const MAX_INPUT_BYTES: u64 = 64 * 1024 * 1024;
 pub const MAX_OUTPUT_BYTES: u64 = 64 * 1024 * 1024;
 pub const MAX_INPUTS: usize = 8;
+type Dispatch = fn(&str, &Context<'_>, &Value) -> Option<Result<OperationOutput, BackendError>>;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -270,6 +271,23 @@ pub fn execute(
     if operation == "capabilities" {
         let output = OperationOutput {
             data: json!({"backend":identity(),"operation_names":operations(),"limits":context.limits,
+            "runtime":{
+                "filesystem_contained":filesystem_contained(),
+                "rendering_compiled":cfg!(feature="pdf-oxide-rendering"),
+                "ocr_tract_compiled":cfg!(feature="pdf-oxide-ocr"),
+                "barcodes_compiled":cfg!(feature="pdf-oxide-barcodes"),
+                "signature_verification_compiled":cfg!(feature="pdf-oxide-signatures"),
+                "ocr_models":"required as explicit hash-checked input slots; no downloads or accuracy qualification"
+            },
+            "known_unsupported_edges":[
+                "table creation and HTML/CSS creation: table layout and CSS pixel/PDF point geometry defects",
+                "table reconstruction in converters; native extraction candidates carry validation_error",
+                "text replacement that would paint black masks",
+                "masked image extraction through the pinned memory PNG API",
+                "rewriting signed input or silently dropping existing encryption",
+                "automatic OCR/model acquisition, network timestamp/revocation checks, signing and persistent MCP",
+                "complex raster-region coordinate cases and complete toolkit/platform parity"
+            ],
             "note":"Operation names are dispatch entries, not parity or runtime availability claims. Feature, model, input and containment checks can return unsupported."}),
             ..OperationOutput::default()
         };
@@ -280,7 +298,6 @@ pub fn execute(
         )?;
         return Ok(output);
     }
-    type Dispatch = fn(&str, &Context<'_>, &Value) -> Option<Result<OperationOutput, BackendError>>;
     let dispatchers: [Dispatch; 9] = [
         convert::execute,
         create::execute,
@@ -342,6 +359,6 @@ pub fn validate_output(
     Ok(())
 }
 
-fn json_error(error: serde_json::Error) -> BackendError {
+fn json_error(error: impl std::fmt::Display) -> BackendError {
     BackendError::Malformed(error.to_string())
 }

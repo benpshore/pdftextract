@@ -45,9 +45,9 @@ slots, never paths. Whole-document Office operations reject partial page ranges.
 | `create.text` | `PdfBuilder::from_text`, fallible `save_to_bytes` | Pinned writer emits 12pt text even when its font-size option changes spacing; non-12pt requests fail and can use composition instead. Subject metadata is rejected because the pinned text writer omits it. |
 | `create.markdown` | `PdfBuilder::from_markdown` | Supported upstream Markdown subset; no full CommonMark or wrapping/fidelity claim. |
 | `create.html` | `PdfBuilder::from_html` | Basic HTML-to-Markdown conversion. CSS/images fail explicitly rather than disappear silently. |
-| `create.html_css` | `Pdf::from_html_css_with_fonts` | Supplied font bytes, A4 upstream pagination, passive HTML, in-memory PNG/JPEG data URIs. No browser fidelity claim. |
+| `create.html_css` | Preserved `Pdf::from_html_css_with_fonts` proposal; publication blocked | The pinned A4 CSS configuration produces a 794×1123-point PDF, so an actual output-page geometry check returns `Unsupported`. No silent rescaling/fallback. Table elements and decoded CSS table/row/cell tokens also fail explicitly because of observed cell overlap. |
 | `create.images` | `PdfBuilder::from_image_data_multiple` | Ordered PNG/JPEG inputs, one image per page. Strict dimensions and actual image decode precede embedding. |
-| `create.document` | `DocumentBuilder` typed pages/elements | Text with Standard-14 fonts, line, rectangle, filled rectangle, indexed image and bounded buffered tables. Tables permit a header and colspans with equal-width columns; rowspans are rejected because the pinned placement can overlap cells. Coordinates and total table height are validated against each page. Other fluent-builder operations are not represented as implemented. |
+| `create.document` | `DocumentBuilder` typed pages/elements | Text with Standard-14 fonts, line, rectangle, filled rectangle and indexed image. Buffered-table requests now fail explicitly after cross-border text was observed; the source proposal is retained behind that admission guard for review. Other fluent-builder operations are not represented as implemented. |
 | `office.to_pdf` | `Document::from_reader` → IR → `ir_to_pdf_bytes_pub` | Default `flow_no_system_fonts` avoids host font discovery, but omits embedded fonts and positioned import routing. |
 | `office.to_pdf`, mode `native` | `OfficeConverter::convert_{docx,xlsx,pptx}_bytes` | Requires verified worker filesystem containment because Unicode/CJK fallback reads fixed host font paths. Availability is separate from the default flow path. |
 | `office.from_pdf_docx` | explicit layout/flow APIs after fallible page count | `auto` uses layout through 30 pages and flow from 31; requested and effective modes are recorded. |
@@ -112,19 +112,46 @@ image decode/pixel/output checks, three-format export/import, real 30/31 and
 200/201 threshold conversions, minimal DOCX import, legacy-format rejection,
 partial-selection rejection, CRC corruption, duplicate ZIP members, bounded
 expansion, malformed XML, macros, OLE and external relationship regressions. It
-also checks buffered table cells/blank cells, explicit rowspan/overflow failures,
+also checks explicit failure for buffered tables with headers, wrapped text and
+blank rows, plus nested/escaped CSS table semantics,
 actual RGB pixels in all three Office output formats, oversized PDF image
 metadata rejection before decode, and explicit rejection of alpha loss.
 
-The owner's `full-tests-03.log` ran the original 12 tests: 11 passed, including all
-30/31 and 200/201 threshold conversions. The three-format round-trip test failed
-because it expected XLSX layout text in the cell-only Markdown view. Source review
-confirmed the DrawingML representation; the revised test checks both page labels
-in the shapes and in the reimported PDF. The expanded 14-test suite is pending the
-owner's next combined-source run. Evidence lives in
-`/workspace/tpe-pdf-oxide-evidence-20261015/`; these results do not assert that the
-latest edits have passed. Earlier DOM index and XML enum compilation errors were
-repaired against the actual pinned types.
+The owner's `full-tests-05.log` ran 14 tests: 13 passed, including all 30/31 and
+200/201 threshold conversions, the strengthened XLSX shape/PDF round-trip, and
+real RGB pixels in all three Office outputs with alpha-loss/oversized-image
+rejection. Buffered-table extraction did not preserve the asserted three-row,
+three-column structure. Parent review independently reported text crossing grid
+lines and overlapping HTML/CSS table cells. These paths are now withdrawn behind
+explicit `Unsupported` guards; reopening a derivative and finding its text is not
+layout acceptance.
+
+The original table proposal and failing test are preserved in parent checkpoint
+`3add612ed47c913d2540cc902d1d757d8e4a632c`. The revised 15-test suite includes synthetic
+wrapped descriptions, blank rows and nested/escaped table CSS. The owner's
+`full-tests-06.log` reports 15/15 passing, before the subsequent page-unit defect
+guard described below. That latest guard awaits another owner run. Evidence lives
+in `/workspace/tpe-pdf-oxide-evidence-20261015/`; earlier passing results do not
+assert that the latest guard has passed. Earlier DOM index and XML enum compilation
+errors were repaired against the pinned types.
+
+Independent Poppler 26.05.0 raster review at 144 DPI of the exact synthetic
+`<p>HTML source text</p>` case showed one readable line with no visible overlap or
+clipping, but `pdfinfo` found **794×1123 PDF points**, rather than A4's approximately
+595×842 points. The raster is 1588×2246 pixels. Source inspection confirmed that
+the pinned CSS-pixel page configuration is passed to a PDF-point writer without
+unit conversion. The adapter now checks the actual generated MediaBox and refuses
+publication on this mismatch. Legibility did not establish correct geometry.
+Source, supplied font/license, request, PDF and
+PNG are preserved under
+`/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/html-css-text-only-001/`.
+The PDF SHA-256 is
+`2760581c208d502d68aa32bfd8a593bbffb77d747a3a7fe6345fa71559e5ef4f`.
+The existing binary SHA-256 is
+`5bbf6a72f831f54b9a862a97b7cac4110a5c6519f3dd35cc4c32c6388abdb2f6`
+and identifies as `git-b3730aa-dirty`; this probe does not substitute for a
+rebuild of the final combined source. The evidence preserves the defective
+derivative for diagnosis; it does not qualify HTML/CSS layout as supported.
 
 Visual review across representative real documents, Office application
 interoperability, complex-script fidelity, native-font mode and platform parity

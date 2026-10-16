@@ -211,19 +211,22 @@ fn input_paths(args: &ExtractArgs) -> anyhow::Result<Vec<PathBuf>> {
 
 fn check_supervised_backend(name: &str) -> anyhow::Result<()> {
     ensure!(
+        name != "routed",
+        "routed extraction is unsupported in this checkpoint: lazy PDFium loading has no qualified filesystem containment path; select pdf-oxide explicitly"
+    );
+    ensure!(
         matches!(
             name,
             "lopdf"
                 | "pdfium"
                 | "pdf-oxide"
-                | "routed"
                 | "liteparse-layout"
                 | "docling-text"
                 | "mupdf"
                 | "poppler"
                 | "auto"
         ),
-        "supervised extraction supports native lopdf/pdfium/pdf-oxide/routed/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
+        "supervised extraction supports native lopdf/pdfium/pdf-oxide/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
     );
     ensure!(
         name != "auto" || !tpe::backend::available().contains(&"docling"),
@@ -884,7 +887,7 @@ fn extract_worker(request: &ExtractRequest, limits: LimitEvidence) -> anyhow::Re
     let mut job = request.job.clone();
     if let Some(path) = &request.password_file {
         ensure!(job.password.is_none(), "choose only one password source");
-        let bytes = tpe::acquire::read_verified(path, Some(4096))?.bytes;
+        let bytes = tpe::acquire::read_verified_allow_empty(path, 4096)?.bytes;
         job.password = Some(
             String::from_utf8(bytes).map_err(|_| anyhow::anyhow!("password file is not UTF-8"))?,
         );

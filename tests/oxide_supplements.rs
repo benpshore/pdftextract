@@ -252,6 +252,52 @@ fn mixed_tagged_untagged_cleanup_reports_partial_coverage_and_preserves_baseline
 }
 
 #[test]
+fn meaningful_heading_and_citation_loss_is_exposed_as_a_preview_only() {
+    let content = b"BT /F1 20 Tf 72 755 Td (Clinical findings [12]) Tj ET\nBT /F1 12 Tf 72 500 Td (Meaningful body evidence remains.) Tj ET".to_vec();
+    let bytes = save(document(&[content.clone(), content]));
+    capture(
+        "supplement-adversarial-meaningful-heading-citation.pdf",
+        &bytes,
+    );
+    let mut result = baseline(&bytes);
+    let before = result.clone();
+    add_supplements(
+        &mut result,
+        &bytes,
+        None,
+        &Options {
+            cleanup_preview: Some(CleanupMode::Headers),
+            ..Options::default()
+        },
+    )
+    .unwrap();
+    assert_original_views(&before, &result);
+    for (original, page) in before.pages.iter().zip(&result.pages) {
+        assert!(original.text.contains("Clinical findings [12]"));
+        let preview = page.supplements.as_ref().unwrap().cleanup.as_ref().unwrap();
+        assert!(preview.before_text.contains("Clinical findings [12]"));
+        assert!(
+            !preview.text.contains("Clinical findings [12]"),
+            "fixture no longer demonstrates the pinned false removal; reassess the qualification"
+        );
+        assert!(preview.removed_spans.iter().any(
+            |span| span.text.contains("Clinical findings [12]")
+                && span.size == Some(20.0)
+                && span.bbox.is_some_and(|bbox| bbox.y0 > 700.0)
+        ));
+        assert!(preview.text.contains("Meaningful body evidence remains."));
+        assert!(
+            preview
+                .warnings
+                .iter()
+                .any(|warning| warning.contains("Candidate preview")
+                    && warning.contains("citations"))
+        );
+        assert!(page.text.contains("Clinical findings [12]"));
+    }
+}
+
+#[test]
 fn page_html_has_stable_app_identity_and_no_active_resource_attributes() {
     let mut doc = document(&[
         br"BT /F1 12 Tf 72 600 Td (<script>alert\(1\)</script> & ordinary text) Tj ET".to_vec(),
@@ -468,6 +514,71 @@ fn soft_mask_extraction_fails_explicitly_instead_of_returning_opaque_pixels() {
     assert_eq!(result, before);
 }
 
+fn resource_graph_fixture(kind: &str) -> Vec<u8> {
+    // Resources are intentionally unused: the image preflight must inspect
+    // masks and cycles before asking the upstream enumerator to traverse them.
+    let mut doc = document(&[Vec::new()]);
+    let form = doc.new_object_id();
+    let mut resources = dictionary! {};
+    let mut content = Vec::new();
+    match kind {
+        "cycle" => resources.set("XObject", dictionary! {"Again"=>form}),
+        "form-mask" => {
+            let image = doc.add_object(Stream::new(
+                dictionary! {
+                    "Type"=>"XObject", "Subtype"=>"Image", "Width"=>8, "Height"=>8,
+                    "ImageMask"=>true, "BitsPerComponent"=>1,
+                },
+                vec![0; 8],
+            ));
+            resources.set("XObject", dictionary! {"Mask"=>image});
+        }
+        "inline-mask" => {
+            content.extend_from_slice(b"q BI /W 8 /H 8 /BPC 1 /IM true ID\n");
+            content.extend_from_slice(&[0; 8]);
+            content.extend_from_slice(b"\nEI Q\n");
+        }
+        _ => unreachable!(),
+    }
+    doc.objects.insert(form, Stream::new(dictionary! {
+        "Type"=>"XObject", "Subtype"=>"Form", "BBox"=>vec![0.into(),0.into(),8.into(),8.into()],
+        "Resources"=>resources,
+    }, content).into());
+    let page = *doc.get_pages().get(&1).unwrap();
+    doc.get_object_mut(page)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .get_mut(b"Resources")
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("XObject", dictionary! {"Outer"=>form});
+    save(doc)
+}
+
+#[test]
+fn nested_form_and_inline_masks_reject_with_no_publication() {
+    for kind in ["form-mask", "inline-mask"] {
+        let bytes = resource_graph_fixture(kind);
+        capture(&format!("supplement-{kind}.pdf"), &bytes);
+        assert_worker_rejects(&bytes, "masked image extraction is unsupported");
+    }
+    let mut content = b"q BI /W 8 /H 8 /BPC 1 /IM true ID\n".to_vec();
+    content.extend_from_slice(&[0; 8]);
+    content.extend_from_slice(b"\nEI Q\n");
+    let bytes = save(document(&[content]));
+    capture("supplement-page-inline-mask.pdf", &bytes);
+    assert_worker_rejects(&bytes, "masked image extraction is unsupported");
+}
+
+#[test]
+fn cyclic_form_resources_fail_in_a_disposable_worker() {
+    let bytes = resource_graph_fixture("cycle");
+    capture("supplement-cyclic-form-resources.pdf", &bytes);
+    assert_worker_rejects(&bytes, "cyclic image resource graph");
+}
+
 #[test]
 fn inline_and_cmyk_images_use_real_memory_extraction() {
     let mut content = b"q 16 0 0 16 20 100 cm BI /W 8 /H 8 /BPC 8 /CS /RGB ID\n".to_vec();
@@ -634,8 +745,17 @@ fn assert_worker_rejects(bytes: &[u8], expected: &str) {
         std::thread::sleep(Duration::from_millis(10));
     };
     assert!(!status.success());
-    let output = std::fs::read_to_string(&stdout).unwrap();
-    let diagnostic = std::fs::read_to_string(&stderr).unwrap();
+    let bounded_read = |path| {
+        let mut text = String::new();
+        std::fs::File::open(path)
+            .unwrap()
+            .take(1_048_577)
+            .read_to_string(&mut text)
+            .unwrap();
+        text
+    };
+    let output = bounded_read(&stdout);
+    let diagnostic = bounded_read(&stderr);
     assert!(output.len() < 1_048_576 && diagnostic.len() < 1_048_576);
     assert!(
         format!("{output}\n{diagnostic}").contains(expected),

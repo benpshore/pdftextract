@@ -9302,6 +9302,7 @@ dependencies = [
  "serde_json",
  "sha2 0.11.0",
  "signal-hook",
+ "stringprep",
  "tar",
  "tempfile",
  "thiserror 2.0.21",

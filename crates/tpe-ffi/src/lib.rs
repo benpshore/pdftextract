@@ -16,8 +16,9 @@
 //! - [`finder_services`] (macOS, feature `finder-services`): the Objective-C
 //!   `NSServices` provider behind Finder's context menu.
 //!
-//! Nothing here parses a PDF, touches the network, or decides policy: callers
-//! own fingerprinting, limits, and what to do with the data that comes back.
+//! [`oxide_containment`] implements the explicitly selected syscall/filesystem
+//! policy for disposable operation workers. Nothing here parses a PDF or opens
+//! network connections; callers own input identity and how outcomes are used.
 
 #![allow(
     clippy::missing_errors_doc,

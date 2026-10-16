@@ -1,0 +1,249 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 10.76s
+     Running tests/oxide_create_office.rs (/workspace/pdftextract/target/debug/deps/oxide_create_office-91ee7dad609e2341)
+
+running 12 tests
+test creation_rejects_active_html_invalid_dimensions_and_output_overflow ... ok
+test composition_retains_font_size_geometry_and_page_order ... ok
+test creation_round_trips_text_and_preserves_input_identity ... ok
+test image_creation_checks_real_decode_pixels_and_total_count ... ok
+test minimal_office_import_is_bytes_only_and_keeps_original ... ok
+test office_export_and_import_parse_all_three_formats ... FAILED
+test html_css_uses_explicit_font_bytes_and_rejects_resources ... ok
+test office_markdown_creation_is_real_archive_and_rejects_legacy_formats ... ok
+test office_rejects_crc_damage_zip_duplicates_and_bounded_expansion ... ok
+test office_rejects_macros_ole_external_links_and_xml_tricks ... ok
+test office_whole_document_conversion_rejects_partial_selection_and_page_limits ... ok
+test office_layout_thresholds_are_explicit_at_30_31_and_200_201 ... ok
+
+failures:
+
+---- office_export_and_import_parse_all_three_formats stdout ----
+
+thread 'office_export_and_import_parse_all_three_formats' (103163) panicked at tests/oxide_create_office.rs:298:9:
+xlsx
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    office_export_and_import_parse_all_three_formats
+
+test result: FAILED. 11 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.64s
+
+error: test failed, to rerun pass `--test oxide_create_office`
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-db77b7a1ac4a0fb1)
+
+running 17 tests
+test annotation_add_update_remove_and_unsafe_action_rejection ... FAILED
+test cyclic_bookmarks_fail_without_entering_the_upstream_unbounded_walk ... ok
+test choice_fields_keep_multi_values_and_lossy_xfdf_export_is_rejected ... ok
+test direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails ... ok
+test edit_rejects_invalid_pages_rectangles_rotations_and_unknown_parameters ... ok
+test dom_text_edits_have_exact_match_preconditions_and_roundtrip_saved_text ... ok
+test embedded_bytes_roundtrip_without_document_chosen_output_paths ... FAILED
+test flatten_removes_interactive_fields_and_preserves_source_text ... ok
+test form_add_fill_inspect_update_remove_roundtrips_values_and_flags ... FAILED
+test form_export_escapes_fdf_and_xml_and_respects_output_bounds ... ok
+test hierarchical_form_names_are_not_silently_flattened_or_renamed ... ok
+test metadata_roundtrip_is_explicit_about_unicode_and_xmp_limitations ... ok
+test page_and_item_budgets_fail_before_expanding_large_requests ... ok
+test page_reorder_duplicates_rotation_and_crop_survive_serialization ... ok
+test merge_and_split_preserve_requested_text_pages_and_range_bounds ... ok
+test visual_whiteout_explicitly_retains_recoverable_source_content ... ok
+test static_xfa_is_an_explicit_derivative_and_dynamic_or_external_xml_fails ... ok
+
+failures:
+
+---- annotation_add_update_remove_and_unsafe_action_rejection stdout ----
+
+thread 'annotation_add_update_remove_and_unsafe_action_rejection' (103178) panicked at tests/oxide_edit_forms.rs:207:5:
+assertion `left == right` failed
+  left: 2
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- embedded_bytes_roundtrip_without_document_chosen_output_paths stdout ----
+
+thread 'embedded_bytes_roundtrip_without_document_chosen_output_paths' (103186) panicked at tests/oxide_edit_forms.rs:236:5:
+assertion `left == right` failed
+  left: String("��\0f\0i\0x\0t\0u\0r\0e\0.\0t\0x\0t")
+ right: "fixture.txt"
+
+---- form_add_fill_inspect_update_remove_roundtrips_values_and_flags stdout ----
+
+thread 'form_add_fill_inspect_update_remove_roundtrips_values_and_flags' (103188) panicked at tests/oxide_edit_forms.rs:302:5:
+assertion `left == right` failed
+  left: Bool(false)
+ right: true
+
+
+failures:
+    annotation_add_update_remove_and_unsafe_action_rejection
+    embedded_bytes_roundtrip_without_document_chosen_output_paths
+    form_add_fill_inspect_update_remove_roundtrips_values_and_flags
+
+test result: FAILED. 14 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `--test oxide_edit_forms`
+     Running tests/oxide_query.rs (/workspace/pdftextract/target/debug/deps/oxide_query-43b7db10483aed40)
+
+running 10 tests
+test attachments_and_content_are_exact_bytes_with_app_owned_artifact_names ... ok
+test actual_text_unicode_and_search_byte_offsets_are_preserved ... FAILED
+test cyclic_attachment_name_tree_is_rejected_without_entering_recursive_decoder ... ok
+test document_geometry_raw_metrics_and_source_identity_survive_queries ... ok
+test outlines_keep_unicode_and_destination_and_reject_cycles_before_upstream_walk ... ok
+test blank_and_damaged_pages_are_not_claimed_complete_and_limits_are_errors ... ok
+test query_page_selection_is_one_based_and_rejects_unbounded_ranges ... ok
+test real_words_lines_structure_paths_and_classification_are_exposed ... ok
+test region_queries_use_pdf_coordinates_and_do_not_silently_ignore_options ... ok
+test search_respects_literal_regex_case_whole_word_and_fails_on_overflow ... ok
+
+failures:
+
+---- actual_text_unicode_and_search_byte_offsets_are_preserved stdout ----
+
+thread 'actual_text_unicode_and_search_byte_offsets_are_preserved' (103198) panicked at tests/oxide_query.rs:187:5:
+assertion `left == right` failed
+  left: "RÃ©sumÃ© Î» æ¼¢å\u{ad}— ðŸ¦€"
+ right: "Résumé λ 漢字 🦀"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    actual_text_unicode_and_search_byte_offsets_are_preserved
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `--test oxide_query`
+     Running tests/oxide_render_ocr.rs (/workspace/pdftextract/target/debug/deps/oxide_render_ocr-1732a1c8490f074b)
+
+running 5 tests
+test classification_preserves_source_and_one_based_page_identity ... ok
+test ml_capabilities_report_removed_upstream_implementations ... ok
+test ocr_requires_explicit_build_and_model_bytes ... ok
+test rendering_never_silently_reads_unconfined_host_fonts ... ok
+test classification_rejects_malformed_pdf_and_unbounded_selection ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-3cbba8fc6d71e731)
+
+running 18 tests
+test catalog_certification_reference_blocks_rewrite_without_an_acroform ... ok
+test catalog_sanitization_removes_named_carriers_and_keeps_page_text ... ok
+test compliance_inspection_reports_failures_without_certification_claims ... ok
+test aes256_roundtrip_authentication_and_independent_decryption ... FAILED
+test encryption_rejects_legacy_and_silent_password_truncation ... ok
+test malformed_inputs_and_unknown_parameters_do_not_produce_derivatives ... ok
+test offline_verification_without_feature_is_explicitly_unsupported ... ok
+test output_item_and_page_limits_fail_without_returning_artifacts ... ok
+test pdfa_candidate_retains_fresh_failures_and_source_negative_control ... ok
+test redaction_outside_target_does_not_claim_global_secret_removal ... ok
+test redaction_rejects_damaged_array_stream_instead_of_silently_skipping_it ... ok
+test redaction_rejects_pages_regions_and_unsupported_carriers ... ok
+test rewrites_reject_filled_signature_values_but_allow_blank_fields ... ok
+test shared_attachment_survives_catalog_scope_and_is_explicitly_out_of_scope ... ok
+test signature_inspection_handles_unsigned_inherited_fields_and_partial_coverage ... ok
+test signature_inspection_rejects_cycles_and_does_not_filter_bad_byte_range_values ... ok
+test text_redaction_removes_target_from_decoded_objects_and_preserves_control ... ok
+test encrypted_missing_wrong_and_successful_passwords_are_distinct ... ok
+
+failures:
+
+---- aes256_roundtrip_authentication_and_independent_decryption stdout ----
+
+thread 'aes256_roundtrip_authentication_and_independent_decryption' (103217) panicked at tests/oxide_security.rs:148:40:
+called `Result::unwrap()` on an `Err` value: Decryption(InvalidCipherTextLength)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    aes256_roundtrip_authentication_and_independent_decryption
+
+test result: FAILED. 17 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.05s
+
+error: test failed, to rerun pass `--test oxide_security`
+     Running tests/oxide_supplements.rs (/workspace/pdftextract/target/debug/deps/oxide_supplements-45e259de7bfdbe26)
+
+running 9 tests
+test cleanup_whole_document_scan_limit_is_atomic_for_a_small_selected_range ... ok
+test image_empty_and_decode_error_are_distinct_and_supplements_are_atomic ... ok
+test header_cleanup_is_a_separate_candidate_and_records_meaningful_false_removals ... ok
+test images_retain_png_pixels_masks_and_repeated_paint_provenance_in_memory ... FAILED
+test inline_and_cmyk_images_use_real_memory_extraction ... ok
+test mixed_tagged_untagged_cleanup_reports_partial_coverage_and_preserves_baseline ... ok
+test page_html_has_stable_app_identity_and_no_active_resource_attributes ... ok
+test whitespace_preview_preserves_citations_duplicate_words_and_hard_hyphens ... ok
+test image_limits_fail_in_disposable_workers_without_publication ... ok
+
+failures:
+
+---- images_retain_png_pixels_masks_and_repeated_paint_provenance_in_memory stdout ----
+
+thread 'images_retain_png_pixels_masks_and_repeated_paint_provenance_in_memory' (103248) panicked at tests/oxide_supplements.rs:443:9:
+assertion `left == right` failed
+  left: None
+ right: Some([128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128])
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    images_retain_png_pixels_masks_and_repeated_paint_provenance_in_memory
+
+test result: FAILED. 8 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.57s
+
+error: test failed, to rerun pass `--test oxide_supplements`
+     Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-3c99688510787d7b)
+
+running 10 tests
+test atomic_publication_preserves_existing_files_and_repeated_outputs ... ok
+test creation_then_query_uses_workers_and_preserves_exact_source_provenance ... ok
+test deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker ... ok
+test document_links_and_actions_are_data_and_do_not_trigger_loopback_requests ... ok
+test malformed_unknown_and_out_of_range_requests_fail_without_publication ... ok
+test output_overflow_fails_before_publication_and_removes_captures ... ok
+test passwords_use_private_request_and_file_channels_not_argv_or_reports ... ok
+test publisher_failure_leaves_source_and_existing_target_unchanged ... FAILED
+test bounded_memory_failure_does_not_poison_the_next_operation ... ok
+test stdout_backpressure_obeys_deadline_without_changing_pipe_flags ... ok
+
+failures:
+
+---- publisher_failure_leaves_source_and_existing_target_unchanged stdout ----
+
+thread 'publisher_failure_leaves_source_and_existing_target_unchanged' (103422) panicked at tests/oxide_worker.rs:237:5:
+assertion `left == right` failed
+  left: String("publication_unknown")
+ right: "failed"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    publisher_failure_leaves_source_and_existing_target_unchanged
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.56s
+
+error: test failed, to rerun pass `--test oxide_worker`
+     Running tests/pdf_oxide_backend.rs (/workspace/pdftextract/target/debug/deps/pdf_oxide_backend-3dfa1bc413d86bdb)
+
+running 9 tests
+test actual_text_recovery_is_distinct_from_lopdf ... ok
+test immutable_bytes_real_geometry_fonts_and_ranges ... ok
+test malformed_and_zero_page_documents_fail_explicitly ... ok
+test page_selection_is_bounded_before_extraction_and_large_documents_allow_subranges ... ok
+test direct_tables_keep_rows_empty_cells_geometry_and_ledger_provenance ... ok
+test replacement_glyphs_are_retained_without_global_span_configuration ... ok
+test silent_content_failure_stays_partial_in_pipeline_and_ledger ... ok
+test uri_annotation_keeps_actual_target_and_indirect_rectangle ... ok
+test supervised_cli_runs_pdf_oxide_and_reports_partial ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.21s
+
+error: 6 targets failed:
+    `--test oxide_create_office`
+    `--test oxide_edit_forms`
+    `--test oxide_query`
+    `--test oxide_security`
+    `--test oxide_supplements`
+    `--test oxide_worker`

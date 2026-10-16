@@ -1,4 +1,4 @@
-# Work-in-progress checkpoint — 2026-10-15
+# Work-in-progress recovery checkpoint — 2026-10-16
 
 Integration owner: parent Ada, existing tracked task PR273. This separate cloud
 checkpoint starts at `b3730aa958d947fcbf6ea45b0efef07fcfa20f29`. It is **not an
@@ -13,31 +13,58 @@ schema migration, and synthetic success/failure tests. Original source bytes and
 raw observations remain separate from derived projections. Source-index counts
 and dispatched operation names are not implementation or accuracy evidence.
 
-Evidence before this snapshot (logs under
+The first deliberately failing snapshot is preserved at
+`3add612ed47c913d2540cc902d1d757d8e4a632c`. Subsequent repairs retain those tests
+and failure observations. Current evidence (full logs under
 `/workspace/tpe-pdf-oxide-evidence-20261015`):
 
 - Python 3.14.7: 210 tests passed; Ruff format/check passed after the inventory
   formatting fixes. This is repository Python testing, not binding parity.
-- Default Rust: Clippy passed; 838 tests passed, 8 ignored. Subsequent worker
-  integration changes still require exact-source reruns.
-- First broad native operation run: 82 passed, 8 failed. Subsequent runs repaired
-  several cases and exposed additional preservation failures; all original logs
-  are retained. The latest `full-tests-05.log` is **not green**.
+- Default Rust: second Clippy pass succeeded; the second test run passed 838,
+  with 8 ignored. This does not enable the optional operation families.
+- Native history: the initial focused run passed 82 and failed 8. Run06's full
+  suite passed 953, failed 4, and ignored 8. Its remaining defects were Unicode
+  annotation reading, form geometry, independent encryption-password handling,
+  and a test pipe inherited without CLOEXEC. The original logs and assertions
+  are retained; neither run was a qualification pass.
+- A combined rendering/barcode/signature/OCR run then passed 83 focused tests:
+  creation/Office 15, editing/forms 23, rendering/OCR 15, security 20, workers 10.
+  This includes deterministic synthetic ONNX inference, not trained-model OCR
+  accuracy. Later thin-image OCR and publication regressions require rerunning.
+- Combined-feature production Clippy errors were repaired; all-target Clippy
+  still reports test-helper ownership-style lints. This snapshot is not green.
 - Five bounded containment subprocess scenarios ran. Actual `seccomp_sealed`
   path/socket/process restrictions and inherited-thread synchronization passed.
   Landlock returned ENOSYS; its positive allowlist test did not run. Threads remain
   allowed; no separate thread-count/cgroup bound is claimed. Tests use finite
   denial probes, never a live fork bomb.
-- Python dependency audit could not reach OSV. Swift, CMake and CTest are absent.
-  Optional rendering/barcode/signature/OCR feature builds remain pending here.
+- The private FFI test executed finite actual fork/vfork/process-clone denial
+  probes. clone3 returns ENOSYS for bounded thread fallback. These are process
+  creation-denial tests, not a destructive fork bomb or a cgroup/PID guarantee.
+- Python dependency audit could not reach OSV on either attempt. Swift, CMake
+  and CTest are absent. Cross-platform builds and cross-binding parity remain
+  unverified.
 
-Known failing/unqualified behavior at this checkpoint includes native table
-creation, terminal form removal, encryption serialization preserving pages, and
-one stdout-backpressure assertion. The pinned native character API corrupts
+Known defective table creation, HTML/CSS page sizing and text replacement now
+return explicit Unsupported errors. Form removal and serialized properties use
+bounded identity-preserving repairs with named lopdf provenance; AES-256 repair
+appends the required encrypted /Perms without discarding original page objects.
+Supervised routed extraction rejects until lazy PDFium loading has a qualified
+filesystem policy; its library source is preserved. Publication response and
+receipt writes now remain inside the artifact rollback boundary.
+
+The pinned native character API corrupts
 non-ASCII ActualText; its original observation is retained with an explicit
 diagnostic and a separate span-derived representation. Image extraction rejects
-mask-bearing resources instead of returning silently opaque PNGs. Real OCR
-recognition is unverified without approved model fixtures.
+mask-bearing resources instead of returning silently opaque PNGs. Detected tables
+remain raw candidates with validation errors. Form appearance fidelity, trained
+OCR recognition and broad extraction/rendering accuracy remain unverified.
+
+A final source review found additional pending form guards: ordinary value/style
+updates can retain stale /AP streams, and adding fields can rebuild an existing
+AcroForm catalog without preserving its fields/resources. These paths must not
+be considered qualified; the next repair will reject the affected cases and
+retain direct upstream regressions before an exact-source verification run.
 
 Parent visually confirmed additional upstream/shared-library cases: text crossing
 table borders, overlapping HTML/CSS cells, black masks during text replacement,

@@ -96,6 +96,8 @@ mod raster {
         BackendError::Malformed(format!("pdf-oxide render parameters: {}", message.into()))
     }
 
+    // Passed directly to Result::map_err, whose callback consumes the error.
+    #[allow(clippy::needless_pass_by_value)]
     fn upstream(error: pdf_oxide::Error) -> BackendError {
         BackendError::Malformed(format!("pdf-oxide rendering: {error}"))
     }
@@ -232,22 +234,27 @@ mod raster {
                 {
                     return Err(BackendError::Unsupported("region rendering in pdf-oxide 0.3.78 is supported only for unrotated zero-origin pages without an effective CropBox".into()));
                 }
-                let [x, y, w, h] = p
+                let [x, y, crop_width, crop_height] = p
                     .crop
                     .ok_or_else(|| invalid("crop [x,y,width,height] is required"))?;
-                if ![x, y, w, h].iter().all(|v| v.is_finite())
+                if ![x, y, crop_width, crop_height]
+                    .iter()
+                    .all(|v| v.is_finite())
                     || x < 0.0
                     || y < 0.0
-                    || w <= 0.0
-                    || h <= 0.0
-                    || x + w > points.0
-                    || y + h > points.1
+                    || crop_width <= 0.0
+                    || crop_height <= 0.0
+                    || x + crop_width > points.0
+                    || y + crop_height > points.1
                 {
                     return Err(invalid(
                         "crop must be a finite positive rectangle wholly inside the page",
                     ));
                 }
-                extent = (dimension(w, scale, true)?, dimension(h, scale, true)?);
+                extent = (
+                    dimension(crop_width, scale, true)?,
+                    dimension(crop_height, scale, true)?,
+                );
                 reserve(
                     &mut total_pixels,
                     pixels(extent.0, extent.1)?,
@@ -485,8 +492,14 @@ mod raster {
                     &options,
                 ),
                 "render.region" => {
-                    let [x, y, w, h] = p.crop.ok_or_else(|| invalid("missing crop"))?;
-                    rendering::render_page_region(&doc, page.index, (x, y, w, h), &options)
+                    let [x, y, crop_width, crop_height] =
+                        p.crop.ok_or_else(|| invalid("missing crop"))?;
+                    rendering::render_page_region(
+                        &doc,
+                        page.index,
+                        (x, y, crop_width, crop_height),
+                        &options,
+                    )
                 }
                 _ => rendering::render_page(&doc, page.index, &options),
             }

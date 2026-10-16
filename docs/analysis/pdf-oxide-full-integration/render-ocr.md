@@ -19,7 +19,7 @@ The last enables the pure Rust `ocr-tract` backend; it does not enable upstream
 | `render.flatten` | Page renderer plus `PdfWriter::add_page`, `ImageContent`, `finish` | Builds a raster-only PDF in memory, retaining the displayed page dimensions and source-to-derivative page mapping. Original bytes are untouched. Text, tags, links and editability are not retained; this is not verified redaction or PDF/A. |
 | `barcode.generate` | `BarcodeGenerator::generate_qr[_svg]`, `generate_1d[_svg]`, `Pdf::from_image_bytes` | QR, Code128, Code39, EAN13, EAN8, UPC-A, ITF, Code93 and Codabar. PNG/SVG/PDF output. No network fetch when payload happens to contain a URL. Human-readable captions are rejected because upstream has no implementation. No scanner-readability claim. |
 | `ocr.classify` | `PdfDocument::classify_page` | Heuristic page classification without OCR or rendering; typed upstream signals/reasons are preserved alongside one-based source page IDs. Empty/image-free/recognized completeness is not inferred. |
-| `ocr.images` | `OcrEngine::from_bytes`, `page_image_handles`, `PdfImageHandle::decode`, `ocr_image` | Explicit offline model and dictionary bytes only. Recognizes bounded painted images and returns image-pixel polygons, confidence values and source/page/paint-order provenance. Native extraction is not overwritten. Requires verified worker filesystem containment. |
+| `ocr.images` | `OcrEngine::from_bytes`, `page_image_handles`, `PdfImageHandle::decode`, `detector().detect`, `crop_text_region`, `recognizer().recognize` | Explicit offline model and dictionary bytes only. Recognizes bounded painted images and returns image-pixel polygons, confidence values and source/page/paint-order provenance. Native extraction is not overwritten. Requires verified worker filesystem containment. |
 | `ml.capabilities` | `SmartLayoutAnalyzer::capabilities` | Reports actual false ML reading-order/heading/model-loaded flags. Pinned implementation removed these ML methods; enabling `ml` does not restore them. |
 
 ## Bounds and retained uncertainty
@@ -36,7 +36,10 @@ to disk.
 
 The upstream renderer unconditionally initializes its system font database.
 It can read host font paths even for vector-only pages. The adapter therefore
-fails closed outside the verified worker filesystem boundary. The renderer's
+fails closed outside the verified worker filesystem boundary. On this VM,
+Landlock reports `ENOSYS`; the separately identified `seccomp_sealed` worker
+mode denies all filesystem paths and synchronizes its policy across threads.
+It is not a Landlock fallback or authorization to read system fonts. The renderer's
 warnings and font substitutions/drops still make successful output partial.
 Its last-resort font path draws rectangle placeholders for non-space characters;
 it does not provide a usable built-in Standard14 raster font. That missing-font
@@ -57,16 +60,29 @@ dictionary. Expected `detection_sha256`, `recognition_sha256`, and
 `dictionary_sha256` are mandatory and checked before model parsing. Each model
 is bounded by the total input limit; the dictionary is additionally capped at
 1 MiB and 65,536 lines with exactly one Unicode character per line. These are
-caller-pinned identity checks, not approved-model attestations. No approved OCR
-model or recognition accuracy fixture is bundled.
+caller-pinned identity checks, not approved-model attestations. No trained OCR
+model or recognition accuracy fixture is bundled. Test-only ONNX graphs contain
+small deterministic tensors to exercise offline plumbing; they do not recognize
+image content and are not production OCR models.
 
-OCR runs one inference thread, at most 1,024 configured detection candidates,
-and a 32–2,048 maximum detection side. Detector padding is included in its
-pixel check. Image handles are enumerated before decode so count/dimension/
+OCR processes images and detected regions sequentially, with at most 1,024
+configured detection candidates and a 32–2,048 maximum detection side. The
+adapter sets `num_threads=1`, but upstream honors that setting only for its
+native backend; pinned tract 0.22.5 independently defaults to a single-thread
+executor. This setting is not presented as a process/thread security boundary.
+Decoded images, padded detector inputs,
+recognition crops, and padded recognizer inputs share the pixel budget. A thin
+crop can expand significantly when resized to the recognizer's 48-pixel height,
+so its resized width is checked before recognition preprocessing. Public
+detector and recognizer stages preserve the pinned crop/CTC behavior without
+using its unbounded high-level recognition helper. Image handles are enumerated
+before decode so count/dimension/
 compressed-size checks apply to inline and XObject images; decoded dimensions
 are checked again. Upstream parsing and graph/image decoding can allocate
 before these local checks, so hard worker memory/time limits remain necessary.
 Inference graphs are untrusted inputs, not made safe by their SHA-256 values.
+Graph internals remain subject to hard worker memory/time limits. Returned
+coordinates must be finite; confidence values must also be within 0–1.
 
 OCR outputs preserve image coordinates instead of assuming scan DPI yields
 correct PDF geometry. It does not silently deduplicate repeated images, merge
@@ -111,3 +127,44 @@ Successful confined raster/image assertions, real model recognition, visual
 source-to-derivative review, cancellation/resource failures, and cross-platform
 execution must be recorded separately as completed or blocked. Do not substitute
 unconfined host rendering or a missing-model error for successful OCR evidence.
+
+The integration owner's `full-tests-06.log` records 10 passing tests in this
+target, including the parent test that actually starts the sealed raster child,
+all eight one-dimensional barcode encoders, numeric checksum rejection, and
+baseline classification/feature errors. That run predates the synthetic ONNX
+test and the extra OCR preprocessing caps. Other targets in the same combined
+run failed; this module's pass is not an overall integration pass.
+
+The subsequent deterministic ONNX test constructs two tiny graphs using a
+documented protobuf subset from the [official ONNX schema](https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto).
+Both consume input `x` and compute `ReduceSum(x) * 0 + constant`. The detector
+returns one rectangle in a 32×32 probability map; the recognizer returns CTC
+scores that decode to `AB`, exercising duplicate and blank removal. A synthetic
+PDF paints the same 32×32 image twice to check distinct paint-order provenance.
+The probe covers identity preservation, output shape failures, no detections,
+no reported images, and pixel/item/output caps. It runs only in a sealed child
+with at most 1 GiB address space, 10 CPU seconds, no core dumps, and a 20-second
+parent deadline followed by kill/reap. Test source alone is not passing evidence;
+execution results are recorded separately below.
+
+`ocr-combined-tests-01.log` subsequently records **15 passed, 0 failed** in this
+target, including the parent that executes the deterministic ONNX child,
+malformed-model child, and sealed raster child. That compiled the updated OCR
+preprocessing bounds. The final 1024×1 thin-image regression was added after
+that executable was built and still needs the next exact-source run. The
+positive result establishes byte-only inference and adapter plumbing for these
+tiny graphs, without recognition-accuracy evidence for trained OCR models.
+
+An independent visual check of the creation owner's text-only HTML fixture is
+preserved at `/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/html-css-text-only-001`.
+The exact input is `<p>HTML source text</p>` with 18px supplied DejaVu Sans; the
+font and its notice were copied unchanged from the pinned registry package.
+Poppler 26.05.0 at 144 DPI shows one readable line with no visible clipping or
+overlap. Its `pdfinfo` reports **794×1123 points**, exposing an upstream CSS
+pixel/PDF-point geometry mismatch rather than qualifying A4 dimensions.
+The executable snapshot is SHA-256
+`5bbf6a72f831f54b9a862a97b7cac4110a5c6519f3dd35cc4c32c6388abdb2f6`
+(`git-b3730aa-dirty`); the produced PDF is
+`2760581c208d502d68aa32bfd8a593bbffb77d747a3a7fe6345fa71559e5ef4f`.
+This evidence does not represent the subsequent exact combined-source rebuild,
+complex HTML/CSS fidelity, or native parity.

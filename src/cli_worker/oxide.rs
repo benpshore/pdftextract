@@ -208,7 +208,7 @@ pub(super) fn worker(encoded: &[u8], limits: LimitEvidence) -> anyhow::Result<()
         .password_file
         .as_ref()
         .map(|path| -> anyhow::Result<String> {
-            let bytes = tpe::acquire::read_verified(path, Some(4096))?.bytes;
+            let bytes = tpe::acquire::read_verified_allow_empty(path, 4096)?.bytes;
             String::from_utf8(bytes).map_err(|_| anyhow::anyhow!("password file is not UTF-8"))
         })
         .transpose()?;
@@ -338,23 +338,30 @@ pub(super) fn publish_worker(encoded: &[u8], limits: LimitEvidence) -> anyhow::R
         );
         Ok(bytes)
     };
-    let mut output = Vec::new();
+    let mut commit = |paths: &[PathBuf]| -> Result<(), String> {
+        response.output_paths = paths.to_vec();
+        let output = encode(&response).map_err(|error| error.to_string())?;
+        // Keep fallible response/receipt writes inside the rollback boundary.
+        // The controller requires both this receipt and a successful worker exit.
+        let mut stdout = io::stdout().lock();
+        stdout
+            .write_all(&output)
+            .map_err(|error| error.to_string())?;
+        stdout.flush().map_err(|error| error.to_string())?;
+        let receipt = serde_json::to_vec(&OperationReceipt {
+            version: 1,
+            output_bytes: output.len() as u64,
+        })
+        .map_err(|error| error.to_string())?;
+        fs::write(&request.receipt, receipt).map_err(|error| error.to_string())?;
+        Ok(())
+    };
     if let Some(staged) = &mut staged {
         staged
-            .publish_then_with_paths(|paths| {
-                response.output_paths = paths.to_vec();
-                output = encode(&response).map_err(|error| error.to_string())?;
-                Ok(())
-            })
+            .publish_then_with_paths(commit)
             .map_err(anyhow::Error::msg)?;
     } else {
-        output = encode(&response)?;
+        commit(&[]).map_err(anyhow::Error::msg)?;
     }
-    let receipt = serde_json::to_vec(&OperationReceipt {
-        version: 1,
-        output_bytes: output.len() as u64,
-    })?;
-    fs::write(request.receipt, receipt)?;
-    io::stdout().write_all(&output)?;
     Ok(())
 }

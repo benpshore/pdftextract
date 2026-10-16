@@ -16,6 +16,8 @@ fn run(
     run_with_limits(operation, bytes, params, &Limits::default())
 }
 
+// Test cases pass owned temporary JSON alongside owned fixture buffers.
+#[allow(clippy::needless_pass_by_value)]
 fn run_with_limits(
     operation: &str,
     bytes: Vec<Vec<u8>>,
@@ -140,25 +142,19 @@ fn composition_retains_font_size_geometry_and_page_order() {
 }
 
 #[test]
-fn html_css_uses_explicit_font_bytes_and_rejects_resources() {
+fn html_css_rejects_known_page_unit_mismatch_and_resources() {
     // This font is already embedded in the pinned registry package. Its notice
     // is retained under third_party/pdf_oxide; no host font discovery occurs.
     let font = pdf_oxide::fonts::bundled::DEJAVU_SANS.to_vec();
     let params = json!({"css":"p {font-family: 'Fixture'; font-size: 18px}", "fonts":[{"input":1,"family":"Fixture"}]});
-    let result = run(
+    let error = run(
         "create.html_css",
         vec![b"<p>HTML source text</p>".to_vec(), font.clone()],
         params.clone(),
     )
-    .unwrap();
-    let document = pdf_oxide::PdfDocument::from_bytes(result.artifacts[0].bytes.clone()).unwrap();
-    assert_eq!(document.page_count().unwrap(), 1);
-    assert!(
-        document
-            .extract_text(0)
-            .unwrap()
-            .contains("HTML source text")
-    );
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Unsupported(_)));
+    assert!(error.to_string().contains("page-unit mismatch"));
     for html in [
         "<img src='https://invalid.example/test.png'>",
         "<p style='background:url(file:///private)'>x</p>",
@@ -175,7 +171,7 @@ fn html_css_uses_explicit_font_bytes_and_rejects_resources() {
 }
 
 #[test]
-fn buffered_table_creation_preserves_cells_and_rejects_overflow() {
+fn buffered_table_creation_fails_explicitly_for_known_layout_defects() {
     let params = json!({"pages":[{"width":500,"height":500,"elements":[{
         "kind":"table","x":50,"y":430,"width":360,"size":12,"header":true,
         "rows":[
@@ -184,30 +180,56 @@ fn buffered_table_creation_preserves_cells_and_rejects_overflow() {
             [{"text":"Beta"},{"text":""},{"text":"kg"}]
         ]
     }]}]});
-    let result = run("create.document", Vec::new(), params.clone()).unwrap();
-    let document = pdf_oxide::PdfDocument::from_bytes(result.artifacts[0].bytes.clone()).unwrap();
-    let text = document.extract_text(0).unwrap();
-    for expected in ["Name", "Value", "Unit", "Alpha", "12", "Beta", "kg"] {
-        assert!(text.contains(expected), "{expected}: {text}");
-    }
-    let tables = document.extract_tables(0).unwrap();
-    assert!(
-        tables
-            .iter()
-            .any(|table| table.col_count == 3 && table.rows.len() == 3)
+    let mut wrapped = params.clone();
+    wrapped["pages"][0]["elements"][0]["rows"][1][0]["text"] = json!(
+        "A long wrapped description that must remain one logical row without crossing column borders"
     );
-    let mut overflow = params.clone();
-    overflow["pages"][0]["elements"][0]["y"] = json!(10);
-    assert!(matches!(
-        run("create.document", Vec::new(), overflow),
-        Err(BackendError::Limit(_))
-    ));
-    let mut rowspan = params;
-    rowspan["pages"][0]["elements"][0]["rows"][0][0]["rowspan"] = json!(2);
-    assert!(matches!(
-        run("create.document", Vec::new(), rowspan),
-        Err(BackendError::Unsupported(_))
-    ));
+    let mut empty_row = params.clone();
+    empty_row["pages"][0]["elements"][0]["rows"][1] = json!([{"text":""},{"text":""},{"text":""}]);
+    for request in [params, wrapped, empty_row] {
+        let error = run("create.document", Vec::new(), request).unwrap_err();
+        assert!(matches!(error, BackendError::Unsupported(_)));
+        assert!(error.to_string().contains("cell borders"));
+    }
+}
+
+#[test]
+fn html_css_table_semantics_fail_before_known_cell_overlap() {
+    let font = pdf_oxide::fonts::bundled::DEJAVU_SANS.to_vec();
+    for (html, css) in [
+        (
+            "<table><tr><th>Name</th><th>Value</th></tr><tr><td>Alpha long description</td><td>12</td></tr></table>",
+            "",
+        ),
+        (
+            "<div><table><tbody><tr><td>Nested table</td><td>2</td></tr><tr><td></td><td></td></tr></tbody></table></div>",
+            "",
+        ),
+        (
+            "<div style='display:table'><span style='display:table-cell'>Alpha</span><span style='display:table-cell'>12</span></div>",
+            "",
+        ),
+        (
+            "<div class='grid'><div>Alpha</div><div>12</div></div>",
+            ".grid {display: /*hidden*/ t\\61 ble} .grid div {display:table-cell}",
+        ),
+        (
+            "<div><span>Alpha</span><span>12</span></div>",
+            "@media print {div {display:table-row} span {display:table-cell}}",
+        ),
+    ] {
+        assert!(
+            matches!(
+                run(
+                    "create.html_css",
+                    vec![html.as_bytes().to_vec(), font.clone()],
+                    json!({"css":css,"fonts":[{"input":1,"family":"Fixture"}]}),
+                ),
+                Err(BackendError::Unsupported(_))
+            ),
+            "{html} / {css}"
+        );
+    }
 }
 
 #[test]
@@ -347,6 +369,14 @@ fn minimal_office_import_is_bytes_only_and_keeps_original() {
             .iter()
             .any(|warning| warning.contains("embedded fonts"))
     );
+    assert!(matches!(
+        run(
+            "office.to_pdf",
+            vec![original],
+            json!({"format":"docx","mode":"native"}),
+        ),
+        Err(BackendError::Unsupported(_))
+    ));
 }
 
 #[test]
@@ -547,6 +577,10 @@ fn office_rejects_macros_ole_external_links_and_xml_tricks() {
             false,
         ),
         docx(&[], b"<x><y a='1' a='2'/></x>", false),
+        docx(&[], b"<![CDATA[outside]]><x/>", false),
+        docx(&[], b"&amp;<x/>", false),
+        docx(&[], b"<x/><?xml version='1.0'?>", false),
+        docx(&[], b"<x>\x01</x>", false),
         docx(&[("../escape.xml", b"<x/>")], WORD, false),
     ] {
         assert!(run("office.to_pdf", vec![bytes], json!({"format":"docx"})).is_err());

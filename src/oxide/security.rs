@@ -143,6 +143,15 @@ pub(super) fn reject_signed_mutation(
     }
 }
 
+/// Bound the `AcroForm` graph before entering an upstream recursive reader.
+/// Inspection permits filled signatures; mutation uses the stricter guard above.
+pub(super) fn validate_form_tree(
+    document: &PdfDocument,
+    context: &Context<'_>,
+) -> Result<(), BackendError> {
+    signature_dicts(document, context).map(|_| ())
+}
+
 fn catalog_signature_permissions(
     document: &PdfDocument,
     context: &Context<'_>,
@@ -287,33 +296,52 @@ fn aes256() -> String {
 }
 
 fn encrypt(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
-    let params: EncryptParams = parse(params)?;
+    let mut params: EncryptParams = parse(params)?;
     if params.algorithm != "aes256" {
         return Err(BackendError::Unsupported(
             "only AES-256 output is enabled; legacy RC4/AES-128 writing is not enabled".into(),
         ));
     }
-    // Revision 6 truncates at 127 UTF-8 bytes; reject instead of silently
-    // changing the caller's password. No password appears in returned data.
-    if params.user_password.len() > 127
-        || params.owner_password.len() > 127
-        || params.owner_password.is_empty()
-    {
+    // Validate the actual normalized bytes before the pinned writer's silent
+    // truncation/fallback. Password values never appear in an error or report.
+    for password in [&mut params.user_password, &mut params.owner_password] {
+        if password.len() > 127 {
+            return Err(invalid(
+                "passwords must fit 127 UTF-8 bytes before and after SASLprep",
+            ));
+        }
+        let normalized = stringprep::saslprep(password)
+            .map_err(|_| invalid("password is not valid under revision-6 SASLprep"))?;
+        if normalized.len() > 127 {
+            return Err(invalid(
+                "passwords must fit 127 UTF-8 bytes before and after SASLprep",
+            ));
+        }
+        *password = normalized.into_owned();
+    }
+    if params.owner_password.is_empty() {
         return Err(invalid(
-            "passwords must fit 127 UTF-8 bytes and owner password must be nonempty",
+            "owner password must remain nonempty after SASLprep",
         ));
     }
     let mut editor = bounded_editor(context)?;
     let mut notes = warnings(editor.source());
-    let config = EncryptionConfig::new(params.user_password.clone(), params.owner_password)
+    let expected_pages = editor.source().page_count().map_err(upstream)?;
+    let config = EncryptionConfig::new(params.user_password.clone(), params.owner_password.clone())
         .with_algorithm(EncryptionAlgorithm::Aes256);
     let bytes = editor
         .save_to_bytes_with_options(SaveOptions::with_encryption(config))
         .map_err(upstream)?;
-    let bytes = complete_revision_six_permissions(bytes, &params.user_password)?;
+    let bytes = complete_revision_six_permissions(
+        bytes,
+        &params.user_password,
+        &params.owner_password,
+        expected_pages,
+        context,
+    )?;
     notes.extend(warnings(editor.source()));
     Ok(OperationOutput {
-        data: json!({"algorithm":"AES-256", "revision":6, "rewrite":"full", "permissions":"all_allowed", "compatibility_repair":"mandatory_revision_6_Perms_added", "ciphertext_serializer":"lopdf/0.45.0", "independent_decryption_check":"lopdf/0.45.0"}),
+        data: json!({"algorithm":"AES-256", "revision":6, "rewrite":"full_then_encryption_dictionary_completion", "permissions":"all_allowed", "compatibility_repair":"mandatory_revision_6_Perms_added", "ciphertext_serializer":"pdf_oxide/0.3.78", "independent_decryption_check":"lopdf/0.45.0", "independent_password_checks":["user","owner"]}),
         artifacts: vec![pdf_artifact("encrypted.pdf", bytes)],
         warnings: notes,
     })
@@ -324,11 +352,16 @@ fn encrypt(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
 /// key and ciphertext; add only the missing Algorithm 10 block, then verify
 /// the actual serialized derivative with the independent existing parser.
 fn complete_revision_six_permissions(
-    bytes: Vec<u8>,
+    mut bytes: Vec<u8>,
     password: &str,
+    owner_password: &str,
+    expected_pages: usize,
+    context: &Context<'_>,
 ) -> Result<Vec<u8>, BackendError> {
     use pdf_oxide::crypto::{AesKeySize, Padding};
     use pdf_oxide::encryption::EncryptionHandler;
+    use pdf_oxide::writer::ObjectSerializer;
+    use std::io::Write;
 
     let document = PdfDocument::from_bytes(bytes.clone()).map_err(upstream)?;
     let trailer = document
@@ -408,44 +441,121 @@ fn complete_revision_six_permissions(
             "permission-block encryption returned the wrong length",
         ));
     }
+    let mut completed_dictionary = dictionary.clone();
+    completed_dictionary.insert("Perms".into(), Object::String(encrypted_permissions));
+    // A reader may prefer the empty user password over a supplied owner
+    // password. Independently authenticate each role explicitly as well, so
+    // an empty user password cannot mask an unusable owner credential.
+    let mut authentication_dictionary = lopdf::Dictionary::new();
+    for key in [
+        "Filter",
+        "V",
+        "R",
+        "Length",
+        "P",
+        "EncryptMetadata",
+        "O",
+        "U",
+        "OE",
+        "UE",
+        "Perms",
+    ] {
+        if let Some(value) = completed_dictionary.get(key) {
+            let value = match value {
+                Object::Boolean(value) => lopdf::Object::Boolean(*value),
+                Object::Integer(value) => lopdf::Object::Integer(*value),
+                Object::Name(value) => lopdf::Object::Name(value.as_bytes().to_vec()),
+                Object::String(value) => {
+                    lopdf::Object::String(value.clone(), lopdf::StringFormat::Hexadecimal)
+                }
+                _ => return Err(invalid("unexpected revision-6 authentication field type")),
+            };
+            authentication_dictionary.set(key, value);
+        }
+    }
+    let mut independent_authentication = lopdf::Document::new();
+    let authentication_id = independent_authentication.add_object(authentication_dictionary);
+    independent_authentication
+        .trailer
+        .set("Encrypt", authentication_id);
+    independent_authentication
+        .authenticate_user_password(password)
+        .map_err(|_| invalid("independent user-password authentication failed"))?;
+    independent_authentication
+        .authenticate_owner_password(owner_password)
+        .map_err(|_| invalid("independent owner-password authentication failed"))?;
+    let mut completed_trailer = trailer.clone();
     drop(handler);
     drop(document);
 
-    // Missing /Perms prevents lopdf's empty-password auto-decryption too.
-    // Require the encrypted state and serialize opaque original ciphertext;
-    // never re-encrypt streams or substitute an independently generated key.
-    let mut opaque = lopdf::Document::load_mem(&bytes)
-        .map_err(|_| invalid("could not read encrypted writer output for compatibility repair"))?;
-    if !opaque.is_encrypted() {
-        return Err(invalid(
-            "compatibility repair requires opaque encrypted objects",
-        ));
+    // Complete only the encryption dictionary using an incremental update of
+    // the freshly rewritten ciphertext. Never serialize lopdf's unauthenticated
+    // load: it intentionally retains only Encrypt and would drop page objects.
+    // The pinned writer emits this exact final xref marker and EOF sequence.
+    let marker = b"\nstartxref\n";
+    let marker_start = bytes
+        .windows(marker.len())
+        .rposition(|window| window == marker)
+        .ok_or_else(|| invalid("encrypted writer output lacks the expected startxref"))?;
+    let offset_text = bytes[marker_start + marker.len()..]
+        .strip_suffix(b"\n%%EOF\n")
+        .filter(|offset| !offset.is_empty() && offset.iter().all(u8::is_ascii_digit))
+        .ok_or_else(|| invalid("encrypted writer output has an unexpected EOF layout"))?;
+    let previous_xref: usize = std::str::from_utf8(offset_text)
+        .ok()
+        .and_then(|offset| offset.parse().ok())
+        .filter(|offset| {
+            bytes
+                .get(*offset..)
+                .is_some_and(|tail| tail.starts_with(b"xref\n"))
+        })
+        .ok_or_else(|| invalid("encrypted writer output has an invalid xref offset"))?;
+    let previous_xref = i64::try_from(previous_xref).map_err(|_| {
+        BackendError::Limit("encryption xref offset exceeds PDF integer range".into())
+    })?;
+    completed_trailer.insert("Prev".into(), Object::Integer(previous_xref));
+    let serializer = ObjectSerializer::compact();
+    let object_offset = bytes.len();
+    let mut completion = serializer.serialize_indirect(
+        encryption_ref.id,
+        encryption_ref.r#gen,
+        &Object::Dictionary(completed_dictionary),
+    );
+    let xref_offset = object_offset
+        .checked_add(completion.len())
+        .ok_or_else(|| BackendError::Limit("encryption output offset overflow".into()))?;
+    write!(
+        completion,
+        "xref\n{} 1\n{object_offset:010} {:05} n \ntrailer\n",
+        encryption_ref.id, encryption_ref.r#gen,
+    )
+    .map_err(|_| invalid("could not serialize encryption dictionary completion"))?;
+    completion.extend(serializer.serialize(&Object::Dictionary(completed_trailer)));
+    write!(completion, "\nstartxref\n{xref_offset}\n%%EOF\n")
+        .map_err(|_| invalid("could not serialize encryption completion trailer"))?;
+    if bytes.len().saturating_add(completion.len()) as u64 > context.limits.max_output_bytes {
+        return Err(BackendError::Limit("encrypted output byte limit".into()));
     }
-    let reference = opaque
-        .trailer
-        .get(b"Encrypt")
-        .and_then(lopdf::Object::as_reference)
-        .map_err(|_| invalid("encrypted output lacks Encrypt reference"))?;
-    opaque
-        .get_object_mut(reference)
-        .and_then(lopdf::Object::as_dict_mut)
-        .map_err(|_| invalid("encrypted output lacks Encrypt dictionary"))?
-        .set(
-            "Perms",
-            lopdf::Object::String(encrypted_permissions, lopdf::StringFormat::Hexadecimal),
-        );
-    let mut repaired = Vec::new();
-    opaque
-        .save_to(&mut repaired)
-        .map_err(|_| invalid("could not serialize encryption compatibility repair"))?;
-    let mut independent = lopdf::Document::load_mem(&repaired)
-        .map_err(|_| invalid("repaired encryption output is not independently readable"))?;
-    if independent.is_encrypted() {
-        independent
-            .decrypt(password)
-            .map_err(|_| invalid("repaired encryption output failed independent decryption"))?;
+    bytes.extend(completion);
+
+    // Password-aware loading is necessary: unauthenticated load/decrypt can
+    // authenticate a dictionary while never having loaded the document body.
+    // Verify both credentials and actual pages before returning the artifact.
+    for credential in [password, owner_password] {
+        let options = lopdf::LoadOptions {
+            password: Some(credential.to_owned()),
+            max_decompressed_size: Some(context.limits.max_input_bytes as usize),
+            ..Default::default()
+        };
+        let independent = lopdf::Document::load_mem_with_options(&bytes, options)
+            .map_err(|_| invalid("completed encryption output failed independent decryption"))?;
+        if independent.get_pages().len() != expected_pages {
+            return Err(invalid(
+                "independent encrypted page-count verification failed",
+            ));
+        }
     }
-    Ok(repaired)
+    Ok(bytes)
 }
 
 fn decrypt(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
@@ -915,6 +1025,8 @@ fn signatures(
     let document = bounded_document(context)?;
     let signatures = signature_dicts(&document, context)?;
     let input = context.input(0)?;
+    let input_size = i64::try_from(input.len())
+        .map_err(|_| BackendError::Limit("signature input exceeds PDF integer range".into()))?;
     let mut records = Vec::new();
     for (index, signature) in signatures.iter().enumerate() {
         let dict = signature
@@ -926,9 +1038,9 @@ fn signatures(
         let range_valid = range
             .as_deref()
             .is_some_and(|range| valid_range(range, input.len()));
-        let claimed_ranges_end_at_eof = range.as_deref().is_some_and(|range| {
-            range_valid && range[2].checked_add(range[3]) == Some(input.len() as i64)
-        });
+        let claimed_ranges_end_at_eof = range
+            .as_deref()
+            .is_some_and(|range| range_valid && range[2].checked_add(range[3]) == Some(input_size));
         let contents = dict.get("Contents").and_then(|object| {
             if let Object::String(bytes) = object {
                 Some(bytes.as_slice())
@@ -972,6 +1084,9 @@ fn signatures(
 }
 
 fn valid_range(range: &[i64], size: usize) -> bool {
+    let Ok(size) = i64::try_from(size) else {
+        return false;
+    };
     range.len() == 4
         && range[0] == 0
         && range[1] > 0
@@ -979,7 +1094,7 @@ fn valid_range(range: &[i64], size: usize) -> bool {
         && range[3] >= 0
         && range[2]
             .checked_add(range[3])
-            .is_some_and(|end| end <= size as i64)
+            .is_some_and(|end| end <= size)
 }
 
 #[cfg(not(feature = "pdf-oxide-signatures"))]

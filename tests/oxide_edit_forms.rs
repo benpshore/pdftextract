@@ -472,23 +472,27 @@ fn page_and_item_budgets_fail_before_expanding_large_requests() {
 }
 
 #[test]
-fn dom_text_edits_have_exact_match_preconditions_and_roundtrip_saved_text() {
+fn text_overlays_roundtrip_and_visually_defective_replacement_is_rejected() {
     let source = fixture("Original", 1);
     let output = run(
         "edit.content",
         vec![source.clone()],
         json!({"changes":[
-            {"action":"replace_text","page":1,"find":"Original","replacement":"Changed",
-                "expected_matches":1,"accept_region_rewrite":true},
             {"action":"add_text","page":1,"rect":[72,620,140,20],"text":"Added overlay","size":12}
         ]}),
     )
     .unwrap();
     let doc = PdfDocument::from_bytes(one_pdf(output)).unwrap();
     let text = doc.extract_text(0).unwrap();
-    assert!(text.contains("Changed"), "{text}");
     assert!(text.contains("Added overlay"), "{text}");
-    assert!(!text.contains("Original"), "{text}");
+    assert!(text.contains("Original"), "{text}");
+    assert!(matches!(
+        run("edit.content", vec![source.clone()], json!({"changes":[
+            {"action":"replace_text","page":1,"find":"Original","replacement":"Changed",
+                "expected_matches":1,"accept_region_rewrite":true}
+        ]})),
+        Err(BackendError::Unsupported(message)) if message.contains("black redaction masks")
+    ));
     assert!(
         run(
             "edit.content",
@@ -499,6 +503,47 @@ fn dom_text_edits_have_exact_match_preconditions_and_roundtrip_saved_text() {
             ]})
         )
         .is_err()
+    );
+}
+
+#[test]
+fn pinned_dom_replacement_retains_black_mask_regression_evidence() {
+    // Deliberately exercise the pinned upstream API directly, outside the
+    // adapter's Unsupported guard. These extracted-text assertions used to
+    // pass while the visual output was wrong; keep that evidence explicit.
+    let source = fixture("Original", 1);
+    let original = Document::load_mem(&source).unwrap();
+    let original_page = original.get_pages()[&1];
+    let original_ops = Content::decode(&original.get_page_content(original_page)).unwrap();
+    assert!(!original_ops.operations.iter().any(|op| op.operator == "re"));
+    let mut editor = DocumentEditor::from_bytes(source).unwrap();
+    let mut page = editor.get_page(0).unwrap();
+    let matches = page.find_text_containing("Original");
+    assert_eq!(matches.len(), 1);
+    for text in matches {
+        page.set_text(text.id(), text.text().replace("Original", "Changed"))
+            .unwrap();
+    }
+    editor.save_page(page).unwrap();
+    let bytes = editor.save_to_bytes().unwrap();
+    let parsed = PdfDocument::from_bytes(bytes.clone()).unwrap();
+    let text = parsed.extract_text(0).unwrap();
+    assert!(text.contains("Changed"), "{text}");
+    assert!(!text.contains("Original"), "{text}");
+    let output = Document::load_mem(&bytes).unwrap();
+    let ops = Content::decode(&output.get_page_content(output.get_pages()[&1])).unwrap();
+    assert!(
+        ops.operations.windows(3).any(|window| {
+            window[0].operator == "rg"
+                && window[0].operands.len() == 3
+                && window[0]
+                    .operands
+                    .iter()
+                    .all(|value| value.as_float().unwrap() == 0.0)
+                && window[1].operator == "re"
+                && window[2].operator == "f"
+        }),
+        "pinned upstream black-mask evidence changed; visually requalify before enabling replacement"
     );
 }
 
@@ -670,4 +715,267 @@ fn hierarchical_form_names_are_not_silently_flattened_or_renamed() {
         )
         .is_err()
     );
+}
+
+#[test]
+fn annotation_repair_keeps_unknown_properties_and_ordered_action_identity() {
+    let bytes = one_pdf(run("edit.annotations", vec![fixture("Notes", 1)], json!({"action":"edit","changes":[
+        {"action":"add","page":1,"annotation":{"kind":"text","rect":[72,650,20,20],"contents":"Keep identity"}}
+    ]})).unwrap());
+    let mut source = Document::load_mem(&bytes).unwrap();
+    let page_id = source.get_pages()[&1];
+    let annotation_id = source
+        .get_object(page_id)
+        .unwrap()
+        .as_dict()
+        .unwrap()
+        .get(b"Annots")
+        .unwrap()
+        .as_array()
+        .unwrap()[0]
+        .as_reference()
+        .unwrap();
+    source
+        .get_object_mut(annotation_id)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set(
+            "SyntheticPreservedKey",
+            Object::string_literal("preserve this"),
+        );
+    let mut bytes = Vec::new();
+    source.save_to(&mut bytes).unwrap();
+    let output = run("edit.annotations", vec![bytes], json!({"action":"edit","changes":[
+        {"action":"add","page":1,"annotation":{"kind":"text","rect":[80,610,20,20],"contents":"Remove new"}},
+        {"action":"update","page":1,"index":0,"contents":"科学 note","rect":[90,640,30,25],"color":[0.0,0.5,1.0]},
+        {"action":"remove","page":1,"index":1},
+        {"action":"add","page":1,"annotation":{"kind":"text","rect":[90,600,20,20],"contents":"Second"}},
+        {"action":"update","page":1,"index":1,"contents":"Final second"}
+    ]})).unwrap();
+    assert_eq!(
+        output.data["postserialization_repair"]["reader_writer"],
+        "lopdf"
+    );
+    let bytes = one_pdf(output);
+    let output = Document::load_mem(&bytes).unwrap();
+    let annotations = output.get_page_annotations(output.get_pages()[&1]).unwrap();
+    assert_eq!(annotations.len(), 2);
+    assert_eq!(
+        annotations[0]
+            .get(b"SyntheticPreservedKey")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+        b"preserve this"
+    );
+    let rect = annotations[0]
+        .get(b"Rect")
+        .unwrap()
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|value| value.as_float().unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(rect, vec![90.0, 640.0, 120.0, 665.0]);
+    let read = run("edit.annotations", vec![bytes], json!({"action":"inspect"})).unwrap();
+    assert_eq!(read.data["annotations"][0]["contents"], "科学 note");
+    assert_eq!(read.data["annotations"][1]["contents"], "Final second");
+}
+
+#[test]
+fn form_properties_and_hierarchical_removal_preserve_unrelated_objects() {
+    let bytes = one_pdf(run("forms.add", vec![fixture("Form properties",1)], json!({"fields":[
+        {"name":"group.remove","page":1,"rect":[72,620,100,20],"widget":{"kind":"text","value":"remove"}},
+        {"name":"group.keep","page":1,"rect":[72,580,100,20],"widget":{"kind":"text","value":"keep"}}
+    ]})).unwrap());
+    let bytes = one_pdf(run("edit.annotations", vec![bytes], json!({"action":"edit","changes":[
+        {"action":"add","page":1,"annotation":{"kind":"text","rect":[300,600,20,20],"contents":"Unrelated note"}}
+    ]})).unwrap());
+    let output = run(
+        "forms.update",
+        vec![bytes],
+        json!({"fields":[
+            {"name":"group.keep","readonly":true,"required":true,"tooltip":"科学 tooltip",
+            "rect":[90,570,120,25],"max_length":32,"alignment":2,
+            "background_color":[0.5,0.75,1.0],"border_color":[1.0,0.0,0.5],"border_width":2.5}
+        ]}),
+    )
+    .unwrap();
+    assert_eq!(
+        output.data["postserialization_repair"]["upstream"],
+        "pdf_oxide 0.3.78"
+    );
+    let output = run(
+        "forms.remove",
+        vec![one_pdf(output)],
+        json!({"names":["group.remove"]}),
+    )
+    .unwrap();
+    assert!(
+        output
+            .warnings
+            .iter()
+            .any(|warning| warning.contains("not confidential data erasure"))
+    );
+    let bytes = one_pdf(output);
+    let inspection = run("forms.inspect", vec![bytes.clone()], json!({})).unwrap();
+    let fields = inspection.data["fields"].as_array().unwrap();
+    assert!(!fields.iter().any(|field| field["name"] == "group.remove"));
+    let retained = fields
+        .iter()
+        .find(|field| field["name"] == "group.keep")
+        .unwrap();
+    assert_eq!(retained["value"]["value"], "keep");
+    assert_eq!(retained["tooltip"], "科学 tooltip");
+    assert_eq!(retained["rect"], json!([90.0, 570.0, 120.0, 25.0]));
+    let parsed = Document::load_mem(&bytes).unwrap();
+    let annotations = parsed.get_page_annotations(parsed.get_pages()[&1]).unwrap();
+    assert_eq!(
+        annotations.len(),
+        2,
+        "one widget and the unrelated note must remain"
+    );
+    assert!(annotations.iter().any(|annotation| {
+        annotation
+            .get(b"Contents")
+            .ok()
+            .and_then(|value| value.as_str().ok())
+            == Some(b"Unrelated note".as_slice())
+    }));
+    let widget = annotations
+        .iter()
+        .find(|annotation| annotation.get(b"Subtype").unwrap().as_name().unwrap() == b"Widget")
+        .unwrap();
+    assert_eq!(widget.get(b"Ff").unwrap().as_i64().unwrap() & 3, 3);
+    assert_eq!(widget.get(b"MaxLen").unwrap().as_i64().unwrap(), 32);
+    assert_eq!(widget.get(b"Q").unwrap().as_i64().unwrap(), 2);
+    assert_eq!(
+        widget
+            .get(b"BS")
+            .unwrap()
+            .as_dict()
+            .unwrap()
+            .get(b"W")
+            .unwrap()
+            .as_float()
+            .unwrap(),
+        2.5
+    );
+    let appearance = widget.get(b"MK").unwrap().as_dict().unwrap();
+    assert_eq!(
+        appearance
+            .get(b"BG")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|value| value.as_float().unwrap())
+            .collect::<Vec<_>>(),
+        vec![0.5, 0.75, 1.0]
+    );
+    assert_eq!(
+        appearance
+            .get(b"BC")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|value| value.as_float().unwrap())
+            .collect::<Vec<_>>(),
+        vec![1.0, 0.0, 0.5]
+    );
+}
+
+#[test]
+fn cyclic_acroform_read_paths_fail_before_upstream_recursion() {
+    let mut source = Document::load_mem(&fixture("Cyclic form", 1)).unwrap();
+    let field_id = source.new_object_id();
+    source.objects.insert(
+        field_id,
+        dictionary! {"T"=>Object::string_literal("loop"),"FT"=>"Tx","Kids"=>vec![field_id.into()]}
+            .into(),
+    );
+    let catalog = source.trailer.get(b"Root").unwrap().as_reference().unwrap();
+    source
+        .get_object_mut(catalog)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("AcroForm", dictionary! {"Fields"=>vec![field_id.into()]});
+    let mut bytes = Vec::new();
+    source.save_to(&mut bytes).unwrap();
+    for (operation, params) in [
+        ("forms.inspect", json!({})),
+        ("forms.export", json!({"format":"fdf"})),
+    ] {
+        assert!(matches!(
+            run(operation, vec![bytes.clone()], params),
+            Err(BackendError::Malformed(_))
+        ));
+    }
+}
+
+#[test]
+fn unicode_attachment_names_are_metadata_and_never_output_paths() {
+    let payload = b"bounded synthetic attachment".to_vec();
+    let bytes = one_pdf(
+        run(
+            "edit.attachments",
+            vec![fixture("Attachment names", 1), payload.clone()],
+            json!({"action":"add","files":[{"input":1,"name":"fixture.txt"}]}),
+        )
+        .unwrap(),
+    );
+    let mut source = Document::load_mem(&bytes).unwrap();
+    let filename = "../科学.txt";
+    let mut encoded = vec![0xfe, 0xff];
+    encoded.extend(filename.encode_utf16().flat_map(u16::to_be_bytes));
+    let mut changed = 0;
+    for object in source.objects.values_mut() {
+        if let Ok(dict) = object.as_dict_mut()
+            && dict
+                .get(b"Type")
+                .ok()
+                .and_then(|value| value.as_name().ok())
+                == Some(b"Filespec".as_slice())
+        {
+            dict.set("UF", Object::string_literal(encoded.clone()));
+            changed += 1;
+        }
+    }
+    assert_eq!(changed, 1);
+    let mut bytes = Vec::new();
+    source.save_to(&mut bytes).unwrap();
+    let extracted = run("edit.attachments", vec![bytes], json!({"action":"extract"})).unwrap();
+    assert_eq!(extracted.data["files"][0]["source_name"], filename);
+    assert_eq!(extracted.artifacts[0].name, "attachment-0001.bin");
+    assert_eq!(extracted.artifacts[0].bytes, payload);
+}
+
+#[test]
+fn merge_rejects_signature_markers_in_every_input_slot() {
+    let plain = fixture("Unsigned merge input", 1);
+    let mut source = Document::load_mem(&fixture("Synthetic certified input", 1)).unwrap();
+    // Only a synthetic certification marker; no private key or real signature.
+    let marker = source
+        .add_object(dictionary! {"Type"=>"Sig", "Contents"=>Object::string_literal("synthetic")});
+    let catalog = source.trailer.get(b"Root").unwrap().as_reference().unwrap();
+    source
+        .get_object_mut(catalog)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("Perms", dictionary! {"DocMDP"=>marker});
+    let mut certified = Vec::new();
+    source.save_to(&mut certified).unwrap();
+    for inputs in [
+        vec![plain.clone(), certified.clone()],
+        vec![certified, plain],
+    ] {
+        assert!(matches!(
+            run("edit.merge", inputs, json!({})),
+            Err(BackendError::Unsupported(_))
+        ));
+    }
 }

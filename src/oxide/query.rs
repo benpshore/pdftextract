@@ -157,17 +157,22 @@ fn run(
         "query.attachments" => {
             reject_partial_selection(context, count)?;
             preflight_name_tree(&doc, "EmbeddedFiles", context.limits.max_items)?;
+            let source_names = super::edit::attachment_names(&doc, context.limits.max_items)?;
             let files = doc.extract_embedded_files().map_err(upstream)?;
             budget.items(files.len())?;
             let mut inventory = Vec::new();
-            for (index, (original_name, bytes)) in files.into_iter().enumerate() {
+            for (index, (projected_name, bytes)) in files.into_iter().enumerate() {
+                let original_name = source_names.get(&projected_name).ok_or_else(|| {
+                    invalid("extracted attachment has no verified source filename")
+                })?;
                 let name = format!("attachment-{index:06}.bin");
                 let byte_count = bytes.len();
                 budget.bytes(byte_count)?;
                 inventory.push(budget.value(&json!({
                     "artifact": name, "original_name": original_name,
+                    "upstream_projected_name": projected_name,
                     "byte_count": byte_count,
-                    "filename_encoding": "upstream UTF-8-lossy projection, not a verified filesystem name",
+                    "filename_encoding": "decoded original PDF UF/F string; name retained as metadata only",
                 }))?);
                 artifacts.push(Artifact {
                     name,
@@ -827,10 +832,10 @@ fn preflight_name_tree(doc: &PdfDocument, key: &str, max_items: usize) -> Result
         if depth > 32 {
             return Err(limit("name-tree depth"));
         }
-        if let Object::Reference(reference) = &object {
-            if !visited.insert(*reference) {
-                return Err(invalid("cyclic or multiply referenced name tree"));
-            }
+        if let Object::Reference(reference) = &object
+            && !visited.insert(*reference)
+        {
+            return Err(invalid("cyclic or multiply referenced name tree"));
         }
         entries = entries.saturating_add(1);
         if entries > max_items {
@@ -1024,12 +1029,12 @@ fn reading_order(params: &Value) -> Result<ReadingOrder, BackendError> {
 }
 
 fn reject_partial_selection(context: &Context<'_>, count: usize) -> Result<(), BackendError> {
-    if let Some((first, last)) = context.pages {
-        if first != 1 || usize::try_from(last).ok() != Some(count) {
-            return Err(invalid(
-                "document-scoped query does not accept a partial page range",
-            ));
-        }
+    if let Some((first, last)) = context.pages
+        && (first != 1 || usize::try_from(last).ok() != Some(count))
+    {
+        return Err(invalid(
+            "document-scoped query does not accept a partial page range",
+        ));
     }
     Ok(())
 }

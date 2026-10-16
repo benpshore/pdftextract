@@ -252,7 +252,7 @@ fn table_fixture() -> Vec<u8> {
 }
 
 #[test]
-fn direct_tables_keep_rows_empty_cells_geometry_and_ledger_provenance() {
+fn table_candidates_keep_raw_rows_and_explicit_validation_error_in_ledger() {
     let bytes = table_fixture();
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("table.pdf");
@@ -271,6 +271,13 @@ fn direct_tables_keep_rows_empty_cells_geometry_and_ledger_provenance() {
     let table = &tables[0];
     assert_eq!(table.col_count, 3);
     assert_eq!(table.source, "pdf-oxide/0.3.78/extract_tables");
+    assert!(
+        table
+            .validation_error
+            .as_deref()
+            .unwrap()
+            .starts_with("unsupported_table_validation:")
+    );
     assert!(table.bbox.is_some());
     let cells: Vec<Vec<&str>> = table
         .rows

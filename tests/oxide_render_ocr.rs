@@ -313,6 +313,7 @@ fn sealed_raster_probe() {
     if std::env::var_os("TPE_TEST_SEALED_RASTER").is_none() {
         return;
     }
+    cap_disposable_probe();
     let bytes = vector_pdf(1);
     let before = bytes.clone();
     let mut cmyk_document = Document::load_mem(&bytes).unwrap();
@@ -507,6 +508,7 @@ fn sealed_invalid_ocr_model_probe() {
     if std::env::var_os("TPE_TEST_SEALED_OCR").is_none() {
         return;
     }
+    cap_disposable_probe();
     let inputs = [
         Input::new(vector_pdf(1)),
         Input::new(b"not-an-onnx-detection-model".to_vec()),
@@ -539,6 +541,336 @@ fn malformed_offline_model_fails_in_a_bounded_sealed_child() {
         "TPE_TEST_SEALED_OCR",
         "SEALED_OCR_MALFORMED_MODEL_REJECTED",
     );
+}
+
+/// Tiny deterministic ONNX fixtures, generated without a model download or a
+/// protobuf dependency. Field numbers follow the official ONNX 1.14.1 schema:
+/// https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto
+/// These graphs exercise inference plumbing, not recognition of image content.
+#[cfg(all(feature = "pdf-oxide-ocr", target_os = "linux"))]
+mod synthetic_onnx {
+    fn varint(mut value: u64) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        while value >= 128 {
+            bytes.push(u8::try_from(value & 127).unwrap() | 128);
+            value >>= 7;
+        }
+        bytes.push(u8::try_from(value).unwrap());
+        bytes
+    }
+
+    fn integer(number: u64, value: u64) -> Vec<u8> {
+        [varint(number << 3), varint(value)].concat()
+    }
+
+    fn field(number: u64, value: &[u8]) -> Vec<u8> {
+        [
+            varint((number << 3) | 2),
+            varint(u64::try_from(value.len()).unwrap()),
+            value.to_vec(),
+        ]
+        .concat()
+    }
+
+    fn value_info(name: &str, dimensions: &[Option<u64>]) -> Vec<u8> {
+        let mut shape = Vec::new();
+        for (index, dimension) in dimensions.iter().enumerate() {
+            let dimension = dimension.map_or_else(
+                || field(2, format!("dynamic_{index}").as_bytes()),
+                |size| integer(1, size),
+            );
+            shape.extend(field(1, &dimension));
+        }
+        let tensor_type = [integer(1, 1), field(2, &shape)].concat();
+        let value_type = field(1, &tensor_type);
+        [field(1, name.as_bytes()), field(2, &value_type)].concat()
+    }
+
+    fn tensor(name: &str, dimensions: &[u64], data: &[f32]) -> Vec<u8> {
+        assert_eq!(dimensions.iter().product::<u64>(), data.len() as u64);
+        let mut tensor = Vec::new();
+        for dimension in dimensions {
+            tensor.extend(integer(1, *dimension));
+        }
+        tensor.extend(integer(2, 1)); // TensorProto.FLOAT
+        tensor.extend(field(8, name.as_bytes()));
+        let raw: Vec<_> = data.iter().flat_map(|value| value.to_le_bytes()).collect();
+        tensor.extend(field(9, &raw));
+        tensor
+    }
+
+    fn node(operation: &str, inputs: &[&str], output: &str) -> Vec<u8> {
+        let mut node = Vec::new();
+        for input in inputs {
+            node.extend(field(1, input.as_bytes()));
+        }
+        node.extend(field(2, output.as_bytes()));
+        node.extend(field(4, operation.as_bytes()));
+        node
+    }
+
+    /// Output = ReduceSum(x) * 0 + the supplied tensor. The graph declares and
+    /// consumes its image input; all coefficients are synthetic 0 or 1 values.
+    pub(super) fn graph(dimensions: &[u64], values: &[f32]) -> Vec<u8> {
+        let mut reduce = node("ReduceSum", &["x"], "input_sum");
+        let keepdims = [field(1, b"keepdims"), integer(3, 0), integer(20, 2)].concat();
+        reduce.extend(field(5, &keepdims));
+        let mut graph = field(1, &reduce);
+        graph.extend(field(1, &node("Mul", &["input_sum", "zero"], "input_zero")));
+        graph.extend(field(1, &node("Add", &["base", "input_zero"], "y")));
+        graph.extend(field(2, b"synthetic_offline_plumbing_only"));
+        graph.extend(field(5, &tensor("zero", &[], &[0.0])));
+        graph.extend(field(5, &tensor("base", dimensions, values)));
+        graph.extend(field(11, &value_info("x", &[Some(1), Some(3), None, None])));
+        let dimensions: Vec<_> = dimensions.iter().copied().map(Some).collect();
+        graph.extend(field(12, &value_info("y", &dimensions)));
+        [
+            integer(1, 7), // ONNX IR version 7
+            field(2, b"repository-owned deterministic OCR fixture"),
+            field(7, &graph),
+            field(8, &integer(2, 11)), // default-domain operator set 11
+        ]
+        .concat()
+    }
+}
+
+#[cfg(all(feature = "pdf-oxide-ocr", target_os = "linux"))]
+fn repeated_scan_pdf(width: u32, height: u32) -> Vec<u8> {
+    let mut document = Document::with_version("1.5");
+    let tree = document.new_object_id();
+    let mut pixels = vec![255; usize::try_from(width * height * 3).unwrap()];
+    for y in 8..height.min(24) {
+        for x in 8..width.min(24) {
+            let offset = usize::try_from((y * width + x) * 3).unwrap();
+            pixels[offset..offset + 3].fill(0);
+        }
+    }
+    let scan = document.add_object(Stream::new(
+        dictionary! {
+            "Type"=>"XObject", "Subtype"=>"Image", "Width"=>i64::from(width),
+            "Height"=>i64::from(height), "ColorSpace"=>"DeviceRGB", "BitsPerComponent"=>8,
+        },
+        pixels,
+    ));
+    let content = document.add_object(Stream::new(
+        dictionary! {},
+        b"q 32 0 0 32 5 8 cm /Scan Do Q\nq 32 0 0 32 50 8 cm /Scan Do Q\n".to_vec(),
+    ));
+    let page = document.add_object(dictionary! {
+        "Type"=>"Page", "Parent"=>tree, "Contents"=>content,
+        "MediaBox"=>vec![0.into(),0.into(),96.into(),48.into()],
+        "Resources"=>dictionary! {"XObject"=>dictionary! {"Scan"=>scan}},
+    });
+    document.objects.insert(
+        tree,
+        dictionary! {"Type"=>"Pages", "Count"=>1, "Kids"=>vec![Object::Reference(page)]}.into(),
+    );
+    let root = document.add_object(dictionary! {"Type"=>"Catalog", "Pages"=>tree});
+    document.trailer.set("Root", root);
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+#[cfg(all(feature = "pdf-oxide-ocr", target_os = "linux"))]
+#[test]
+#[allow(clippy::too_many_lines)]
+fn sealed_synthetic_ocr_model_probe() {
+    if std::env::var_os("TPE_TEST_SEALED_SYNTHETIC_OCR").is_none() {
+        return;
+    }
+    cap_disposable_probe();
+    let mut detection = vec![0.0; 32 * 32];
+    for y in 8..24 {
+        for x in 8..24 {
+            detection[y * 32 + x] = 1.0;
+        }
+    }
+    let mut recognition = vec![0.0; 5 * 4];
+    for (time, class) in [1, 1, 0, 2, 0].into_iter().enumerate() {
+        recognition[time * 4 + class] = 1.0;
+    }
+    let inputs = [
+        Input::new(repeated_scan_pdf(32, 32)),
+        Input::new(synthetic_onnx::graph(&[1, 1, 32, 32], &detection)),
+        Input::new(synthetic_onnx::graph(&[1, 5, 4], &recognition)),
+        Input::new(b"A\nB\n \n".to_vec()),
+    ];
+    let before: Vec<_> = inputs.iter().map(|input| input.bytes.clone()).collect();
+    let empty_detection = Input::new(synthetic_onnx::graph(&[1, 1, 32, 32], &[0.0; 1024]));
+    let wrong_shape = Input::new(synthetic_onnx::graph(&[1, 4], &[1.0, 0.0, 0.0, 0.0]));
+    let no_images = Input::new(vector_pdf(1));
+    let mut thin_inputs = inputs.clone();
+    thin_inputs[0] = Input::new(repeated_scan_pdf(1024, 1));
+    let limits = Limits {
+        max_pixels: 16_384,
+        max_items: 8,
+        ..Limits::default()
+    };
+    let parameters = |inputs: &[Input]| {
+        json!({
+            "detection_sha256":inputs[1].sha256,
+            "recognition_sha256":inputs[2].sha256,
+            "dictionary_sha256":inputs[3].sha256,
+            "detection_max_side":32,
+        })
+    };
+    let evidence = tpe_ffi::oxide_containment::install_sealed_process()
+        .expect("sealed synthetic OCR worker policy");
+    assert_eq!(evidence.mode, "seccomp_sealed");
+    let context = Context::new(&inputs, None, None, &limits);
+    let output = execute("ocr.images", &context, &parameters(&inputs)).unwrap();
+    assert!(output.artifacts.is_empty());
+    assert_eq!(output.data["source_sha256"], inputs[0].sha256);
+    assert_eq!(output.data["native_text_replaced"], false);
+    assert_eq!(output.data["source_preserved"], true);
+    assert_eq!(
+        output.data["model_verification"],
+        "caller_digest_checked_accuracy_unverified"
+    );
+    assert_eq!(
+        output.data["model_sha256"],
+        json!([inputs[1].sha256, inputs[2].sha256, inputs[3].sha256,])
+    );
+    assert_eq!(output.data["pages"][0]["page"], 1);
+    let images = output.data["pages"][0]["images"].as_array().unwrap();
+    assert_eq!(
+        images.len(),
+        2,
+        "repeated painted images retain separate provenance"
+    );
+    assert_ne!(images[0]["paint_order"], images[1]["paint_order"]);
+    for (index, image) in images.iter().enumerate() {
+        assert_eq!(image["width"], 32);
+        assert_eq!(image["height"], 32);
+        assert_eq!(image["coordinate_space"], "image_pixels_top_left");
+        assert_eq!(image["pdf_bbox"][0], if index == 0 { 5.0 } else { 50.0 });
+        assert_eq!(image["spans"].as_array().unwrap().len(), 1);
+        let span = &image["spans"][0];
+        assert_eq!(span["text"], "AB", "CTC duplicate and blank removal");
+        assert_eq!(span["confidence"], 1.0);
+        assert_eq!(span["character_confidences"], json!([1.0, 1.0]));
+        assert!(span["polygon"].as_array().unwrap().iter().all(|point| {
+            point
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|coordinate| (0.0..=32.0).contains(&coordinate.as_f64().unwrap()))
+        }));
+    }
+    for (input, bytes) in inputs.iter().zip(before) {
+        assert_eq!(input.bytes, bytes);
+    }
+    for bounded in [
+        Limits {
+            max_pixels: 1024,
+            ..limits.clone()
+        },
+        Limits {
+            max_items: 1,
+            ..limits.clone()
+        },
+        Limits {
+            max_output_bytes: 64,
+            ..limits.clone()
+        },
+    ] {
+        assert!(matches!(
+            execute(
+                "ocr.images",
+                &Context::new(&inputs, None, None, &bounded),
+                &parameters(&inputs)
+            ),
+            Err(BackendError::Limit(_))
+        ));
+    }
+    let error = execute(
+        "ocr.images",
+        &Context::new(&thin_inputs, None, None, &limits),
+        &parameters(&thin_inputs),
+    )
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Limit(_)));
+    assert!(
+        error.to_string().contains("preprocessing pixel budget"),
+        "thin image must fail before its expanded recognition tensor is allocated: {error}"
+    );
+    let mut inputs = inputs;
+    inputs[1] = empty_detection;
+    let empty = execute(
+        "ocr.images",
+        &Context::new(&inputs, None, None, &limits),
+        &parameters(&inputs),
+    )
+    .unwrap();
+    assert_eq!(empty.data["pages"][0]["images"][0]["spans"], json!([]));
+    assert_eq!(empty.data["pages"][0]["status"], "partial");
+    inputs[1] = wrong_shape;
+    let error = execute(
+        "ocr.images",
+        &Context::new(&inputs, None, None, &limits),
+        &parameters(&inputs),
+    )
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Malformed(_)));
+    assert!(
+        error.to_string().contains("Unexpected output shape"),
+        "{error}"
+    );
+    inputs[0] = no_images;
+    let empty = execute(
+        "ocr.images",
+        &Context::new(&inputs, None, None, &limits),
+        &parameters(&inputs),
+    )
+    .unwrap();
+    assert_eq!(empty.data["pages"][0]["images"], json!([]));
+    assert_eq!(
+        empty.data["pages"][0]["status"],
+        "no_images_reported_ocr_not_performed"
+    );
+    println!(
+        "SEALED_SYNTHETIC_OCR_ASSERTIONS_PASSED: offline byte loading, input preprocessing, deterministic detector, CTC decoding, repeated-image provenance, hashes, bounds and output-shape errors; real OCR accuracy unverified"
+    );
+}
+
+#[cfg(all(feature = "pdf-oxide-ocr", target_os = "linux"))]
+#[test]
+fn synthetic_offline_ocr_runs_in_a_bounded_sealed_child() {
+    bounded_probe(
+        "sealed_synthetic_ocr_model_probe",
+        "TPE_TEST_SEALED_SYNTHETIC_OCR",
+        "SEALED_SYNTHETIC_OCR_ASSERTIONS_PASSED",
+    );
+}
+
+#[cfg(all(
+    any(feature = "pdf-oxide-rendering", feature = "pdf-oxide-ocr"),
+    target_os = "linux"
+))]
+fn cap_disposable_probe() {
+    use rustix::process::{Resource, Rlimit, getrlimit, setrlimit};
+    for (resource, requested) in [
+        (Resource::As, 1024 * 1024 * 1024),
+        (Resource::Cpu, 10),
+        (Resource::Core, 0),
+    ] {
+        let inherited = getrlimit(resource);
+        let maximum = inherited
+            .maximum
+            .map_or(requested, |limit| limit.min(requested));
+        let current = inherited
+            .current
+            .map_or(maximum, |limit| limit.min(maximum));
+        setrlimit(
+            resource,
+            Rlimit {
+                current: Some(current),
+                maximum: Some(maximum),
+            },
+        )
+        .unwrap();
+    }
 }
 
 #[cfg(all(

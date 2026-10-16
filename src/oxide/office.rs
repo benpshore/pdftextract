@@ -193,11 +193,11 @@ fn from_pdf(
     Ok(output)
 }
 
-fn export_mode<'a>(
+fn export_mode(
     format: DocumentFormat,
-    requested: &'a str,
+    requested: &str,
     count: usize,
-) -> Result<&'a str, BackendError> {
+) -> Result<&str, BackendError> {
     match requested {
         "auto" => Ok(if count <= layout_threshold(format) {
             "layout"
@@ -332,12 +332,12 @@ fn from_markdown(context: &Context<'_>, params: &Value) -> Result<OperationOutpu
     }
     let options: MarkdownOptions = parse_params(params)?;
     let format = office_format(&options.format)?;
-    let content = context.input(0)?;
-    if content.len() > 4 * 1024 * 1024 {
+    let source = context.input(0)?;
+    if source.len() > 4 * 1024 * 1024 {
         return Err(BackendError::Limit("Office Markdown exceeds 4 MiB".into()));
     }
     let markdown =
-        std::str::from_utf8(content).map_err(|_| invalid("Office Markdown must be UTF-8"))?;
+        std::str::from_utf8(source).map_err(|_| invalid("Office Markdown must be UTF-8"))?;
     if markdown.lines().count() > context.limits.max_items {
         return Err(BackendError::Limit(
             "Office Markdown line count exceeds max_items".into(),
@@ -481,7 +481,12 @@ fn preflight(
             }
             continue;
         }
-        if lower.ends_with(".xml") || lower.ends_with(".rels") {
+        #[allow(
+            clippy::case_sensitive_file_extension_comparisons,
+            reason = "ZIP names are validated as ASCII and normalized to lowercase before this check"
+        )]
+        let is_xml = lower.ends_with(".xml") || lower.ends_with(".rels");
+        if is_xml {
             inspect_xml(&data, &name, context, &mut xml)?;
         } else if lower.contains("/media/") || lower.starts_with("docprops/thumbnail.") {
             let (_, _, count) = image_dimensions(&data, context)?;
@@ -632,14 +637,20 @@ fn inspect_xml(
     let source = std::str::from_utf8(data).map_err(|_| {
         BackendError::Unsupported("Office XML preflight supports UTF-8 only".into())
     })?;
-    if source.contains('\0') {
-        return Err(invalid("Office XML contains NUL"));
+    if source.chars().any(|character| {
+        (character < ' ' && !matches!(character, '\t' | '\n' | '\r'))
+            || matches!(character, '\u{fffe}' | '\u{ffff}')
+    }) {
+        return Err(invalid(
+            "Office XML contains characters forbidden by XML 1.0",
+        ));
     }
     let mut reader = quick_xml::Reader::from_str(source);
     reader.config_mut().check_comments = true;
     reader.config_mut().check_end_names = true;
     let mut depth = 0_usize;
     let mut roots = 0_usize;
+    let mut declaration_seen = false;
     loop {
         let event = reader
             .read_event()
@@ -670,13 +681,19 @@ fn inspect_xml(
             Event::End(_) => {
                 depth = depth
                     .checked_sub(1)
-                    .ok_or_else(|| invalid("Office XML unmatched end tag"))?
+                    .ok_or_else(|| invalid("Office XML unmatched end tag"))?;
             }
             Event::DocType(_) | Event::PI(_) => return Err(BackendError::Unsupported(
                 "Office XML DTD/entity declarations and processing instructions are not admitted"
                     .into(),
             )),
             Event::Decl(declaration) => {
+                if declaration_seen || depth != 0 || roots != 0 {
+                    return Err(invalid(
+                        "Office XML declaration is repeated or outside its prolog",
+                    ));
+                }
+                declaration_seen = true;
                 if declaration
                     .version()
                     .map_err(|error| invalid(&format!("XML version: {error}")))?
@@ -709,12 +726,18 @@ fn inspect_xml(
                 }
             }
             Event::GeneralRef(reference) => {
+                if depth == 0 {
+                    return Err(invalid("Office XML entity reference outside root"));
+                }
                 let reference = reference
                     .decode()
                     .map_err(|error| invalid(&format!("Office XML entity: {error}")))?;
                 let encoded = format!("&{reference};");
                 quick_xml::escape::unescape(&encoded)
                     .map_err(|error| invalid(&format!("Office XML entity: {error}")))?;
+            }
+            Event::CData(_) if depth == 0 => {
+                return Err(invalid("Office XML CDATA outside root"));
             }
             Event::Eof => break,
             _ => {}
@@ -940,12 +963,12 @@ fn validate_ir(
     }
     let mut items = 0_usize;
     for section in &ir.sections {
-        if let Some(setup) = &section.page_setup {
-            if setup.width_twips > 288_000 || setup.height_twips > 288_000 {
-                return Err(BackendError::Limit(
-                    "Office page geometry exceeds 14400 points".into(),
-                ));
-            }
+        if let Some(setup) = &section.page_setup
+            && (setup.width_twips > 288_000 || setup.height_twips > 288_000)
+        {
+            return Err(BackendError::Limit(
+                "Office page geometry exceeds 14400 points".into(),
+            ));
         }
         validate_elements(&section.elements, context, 0, &mut items)?;
         for header in [
@@ -1013,7 +1036,7 @@ fn validate_elements(
                 validate_elements(&text_box.content, context, depth + 1, items)?;
             }
             Element::Footnote(note) | Element::Endnote(note) => {
-                validate_elements(&note.content, context, depth + 1, items)?
+                validate_elements(&note.content, context, depth + 1, items)?;
             }
             Element::Table(table) => {
                 for row in &table.rows {
@@ -1086,19 +1109,19 @@ fn validate_list(
 }
 
 fn validate_inline(
-    content: &[office_oxide::ir::InlineContent],
+    runs: &[office_oxide::ir::InlineContent],
     context: &Context<'_>,
     items: &mut usize,
 ) -> Result<(), BackendError> {
     *items = items
-        .checked_add(content.len())
+        .checked_add(runs.len())
         .ok_or_else(|| BackendError::Limit("Office IR inline count overflow".into()))?;
     if *items > context.limits.max_items {
         return Err(BackendError::Limit(
             "Office IR inline count exceeds max_items".into(),
         ));
     }
-    for item in content {
+    for item in runs {
         if let office_oxide::ir::InlineContent::Text(text) = item {
             if text
                 .font_size_half_pt

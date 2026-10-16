@@ -181,22 +181,18 @@ fn content(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
                             "expected {expected_matches} literal text matches, found {occurrences}"
                         )));
                     }
-                    for text in matches {
-                        page.set_text(text.id(), text.text().replace(&find, &replacement))
-                            .map_err(upstream)?;
-                    }
-                    records.push(
-                        json!({"page": index + 1, "action": "replace_text", "find": find,
-                        "replacement": replacement, "matches": occurrences}),
-                    );
+                    // The pinned save_page path turns DOM erasures into destructive
+                    // redactions with a black fill. Text extraction can still report
+                    // the replacement while the resulting page paints black masks.
+                    return Err(BackendError::Unsupported(
+                        "pdf_oxide 0.3.78 text replacement paints black redaction masks; visually correct replacement is not verified".into(),
+                    ));
                 }
             }
         }
         editor.save_page(page).map_err(upstream)?;
     }
-    let mut output = saved(context, &mut editor, json!({"changes": records}))?;
-    output.warnings.push("Text replacement rewrites source bounding regions and can affect overlapping content; it is not a general layout-preserving edit or a confidential-redaction guarantee.".into());
-    Ok(output)
+    saved(context, &mut editor, json!({"changes": records}))
 }
 
 #[derive(Deserialize)]
@@ -325,7 +321,7 @@ pub(super) fn parse<T: DeserializeOwned>(params: &Value) -> Result<T, BackendErr
         .map_err(|error| BackendError::Malformed(format!("invalid operation parameters: {error}")))
 }
 
-pub(super) fn upstream(error: pdf_oxide::error::Error) -> BackendError {
+pub(super) fn upstream(error: impl std::fmt::Display) -> BackendError {
     BackendError::Malformed(format!("pdf-oxide: {error}"))
 }
 
@@ -388,7 +384,7 @@ pub(super) fn repaired_output(
     output.artifacts[0] = pdf_artifact(context, name, bytes, count)?;
     output.data["postserialization_repair"] = json!({"reader_writer": "lopdf", "version": "0.45.0",
         "upstream": "pdf_oxide 0.3.78", "repair": repair});
-    output.warnings.push(format!("Applied explicit lopdf 0.45.0 serialized-object repair after pdf_oxide 0.3.78: {repair}. Other document content is retained; visual fidelity is not established."));
+    output.warnings.push(format!("Applied explicit lopdf 0.45.0 serialized-object repair after pdf_oxide 0.3.78: {repair}. The repair targets requested dictionaries and references; complete document preservation and visual fidelity are not established."));
     Ok(output)
 }
 
@@ -660,6 +656,7 @@ fn merge(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
                 "merge sources must be explicitly decrypted first".into(),
             ));
         }
+        super::security::reject_signed_mutation(&doc, context)?;
         let count = doc.page_count().map_err(upstream)?;
         total = total
             .checked_add(count)
@@ -790,7 +787,7 @@ fn metadata(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Ba
                 )));
             }
         };
-        *target = value.clone();
+        target.clone_from(value);
     }
     // Rewriting an unchanged non-ASCII Info value has the same upstream defect.
     if [
@@ -930,10 +927,36 @@ fn annotations(context: &Context<'_>, params: &Value) -> Result<OperationOutput,
                 .enumerate()
             {
                 bounded_count(records.len() + 1, context.limits.max_items, "annotations")?;
+                // The pinned annotation parser applies UTF-8-lossy decoding even
+                // to UTF-16 PDF text strings. Decode the preserved raw dictionary.
+                let text = |key: &str| -> Result<Option<String>, BackendError> {
+                    let dict = annotation.raw_dict.as_ref().ok_or_else(|| {
+                        BackendError::Unsupported(
+                            "annotation lacks its original dictionary for text decoding".into(),
+                        )
+                    })?;
+                    let Some(object) = dict.get(key) else {
+                        return Ok(None);
+                    };
+                    let object = doc.resolve_references(object, 8).map_err(upstream)?;
+                    let bytes = object.as_string().ok_or_else(|| {
+                        BackendError::Malformed(format!(
+                            "annotation {key} is not a PDF text string"
+                        ))
+                    })?;
+                    bounded_count(bytes.len(), 65_536, "annotation text bytes")?;
+                    Ok(Some(pdf_oxide::optional_content::decode_pdf_text_string(
+                        bytes,
+                    )))
+                };
+                let contents = text("Contents")?;
+                let author = text("T")?;
+                let subject = text("Subj")?;
                 records.push(json!({"page": page + 1, "index": index,
-                    "subtype": annotation.subtype, "contents": annotation.contents,
-                    "rect": annotation.rect, "author": annotation.author,
-                    "subject": annotation.subject, "color": annotation.color,
+                    "subtype": annotation.subtype, "contents": contents,
+                    "rect": annotation.rect, "author": author,
+                    "subject": subject, "color": annotation.color,
+                    "text_encoding": "decoded from original PDF text string bytes",
                     "action": annotation.action.map(|a| format!("{a:?}")),
                     "destination": annotation.destination.map(|d| format!("{d:?}"))}));
             }
@@ -1285,7 +1308,7 @@ pub(super) fn attachment_names(
             }
             count = count.saturating_add(entries.len() / 2);
             bounded_count(count, maximum, "attachment name-tree entries")?;
-            for pair in entries.chunks_exact(2) {
+            for pair in entries.as_chunks::<2>().0 {
                 let spec = doc.resolve_references(&pair[1], 8).map_err(upstream)?;
                 let spec = spec.as_dict().ok_or_else(|| {
                     BackendError::Malformed(

@@ -332,7 +332,9 @@ fn path_image_formula_and_silent_transform_parameters_are_rejected() {
 
 #[test]
 fn image_resources_are_omitted_without_image_decode_or_output_files() {
-    let mut document = document(&[text_content("Text beside image", None)]);
+    let mut content = text_content("Text beside image", None);
+    content.extend_from_slice(b"\nq 8 0 0 8 72 600 cm /Image Do Q\n");
+    let mut document = document(&[content]);
     let image = document.add_object(Stream::new(dictionary! {"Type"=>"XObject","Subtype"=>"Image","Width"=>8,"Height"=>8,"BitsPerComponent"=>8,"ColorSpace"=>"DeviceRGB","Filter"=>"DCTDecode"}, b"not a JPEG".to_vec()));
     let page = *document.get_pages().get(&1).unwrap();
     document
@@ -391,4 +393,157 @@ fn output_overflow_is_an_error_without_changing_input() {
         )
         .is_err()
     );
+}
+
+fn table_candidate_fixture(case: &str) -> (Vec<u8>, Vec<&'static str>) {
+    let mut content = Vec::new();
+    let mut expected = Vec::new();
+    if case != "short-prose" {
+        content.extend_from_slice(b"0.5 w\n");
+        for y in [560, 600, 640, 680, 720] {
+            content.extend_from_slice(format!("72 {y} m 472 {y} l S\n").as_bytes());
+        }
+        for x in [72, 172, 372, 472] {
+            content.extend_from_slice(format!("{x} 560 m {x} 720 l S\n").as_bytes());
+        }
+    }
+    let entries: Vec<(i32, i32, &'static str)> = match case {
+        "wrapped-description" => vec![
+            (80, 702, "Item"),
+            (180, 702, "Description"),
+            (380, 702, "Amount"),
+            (80, 662, "A101"),
+            (180, 670, "First wrapped"),
+            (180, 650, "description continues"),
+            (380, 662, "17.50"),
+            (80, 622, "B202"),
+            (180, 622, "Second entry"),
+            (380, 622, "9.25"),
+        ],
+        "blank-row" => vec![
+            (80, 702, "Item"),
+            (180, 702, "Description"),
+            (380, 702, "Amount"),
+            (80, 662, "A101"),
+            (180, 662, "Above blank row"),
+            (380, 662, "17.50"),
+            // The ruled 600..640 row contains no text and is still a real row.
+            (80, 582, "C303"),
+            (180, 582, "Below blank row"),
+            (380, 582, "4.75"),
+        ],
+        "short-prose" => vec![
+            (72, 700, "Note"),
+            (260, 700, "Use daily"),
+            (72, 680, "Context"),
+            (260, 680, "Read carefully"),
+            (72, 660, "Next"),
+            (260, 660, "Continue prose"),
+        ],
+        _ => unreachable!(),
+    };
+    for (x, y, text) in entries {
+        expected.push(text);
+        content.extend_from_slice(
+            format!("BT /F1 12 Tf 1 0 0 1 {x} {y} Tm ({text}) Tj ET\n").as_bytes(),
+        );
+    }
+    (save(document(&[content])), expected)
+}
+
+#[test]
+fn wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates() {
+    for case in ["wrapped-description", "blank-row", "short-prose"] {
+        let (bytes, expected) = table_candidate_fixture(case);
+        capture(&format!("convert-adversarial-{case}.pdf"), &bytes);
+        let inputs = [Input::new(bytes.clone())];
+        let limits = Limits::default();
+        let context = Context::new(&inputs, None, None, &limits);
+        let spans = execute("query.spans", &context, &json!({})).unwrap();
+        let raw_text = spans.data["result"][0]["value"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|span| span["text"].as_str().unwrap())
+            .collect::<Vec<_>>()
+            .join(" ");
+        for expected in expected {
+            assert!(
+                raw_text.contains(expected),
+                "{case}: missing source span {expected}: {raw_text}"
+            );
+        }
+        let native = pdf_oxide::PdfDocument::from_bytes(bytes.clone()).unwrap();
+        let candidates = native.extract_tables(0).unwrap();
+        let candidates = candidates
+            .iter()
+            .map(|table| {
+                json!({
+                    "column_count": table.col_count, "has_header": table.has_header,
+                    "rows": table.rows.iter().map(|row| json!({
+                        "is_header":row.is_header,
+                        "cells":row.cells.iter().map(|cell| json!({
+                            "text":cell.text, "rowspan":cell.rowspan, "colspan":cell.colspan,
+                            "is_header":cell.is_header, "mcids":cell.mcids, "bbox":cell.bbox,
+                        })).collect::<Vec<_>>(),
+                    })).collect::<Vec<_>>(),
+                })
+            })
+            .collect::<Vec<_>>();
+        let evidence = serde_json::to_vec_pretty(&json!({
+            "source":"pdf-oxide/0.3.78/extract_tables", "source_sha256":inputs[0].sha256,
+            "case":case, "evaluation_only":true, "validated":false, "native_candidates":candidates,
+            "obligation":match case {
+                "wrapped-description"=>"A101 description spans two painted lines within one ruled row",
+                "blank-row"=>"four ruled rows include a wholly empty third row and a header",
+                _=>"short aligned prose is not an explicitly marked or ruled table",
+            },
+        })).unwrap();
+        assert!(evidence.len() < 1_048_576);
+        capture(
+            &format!("convert-adversarial-{case}.native-tables.json"),
+            &evidence,
+        );
+        for operation in ["convert.markdown", "convert.html"] {
+            let candidate = execute(operation, &context, &json!({})).unwrap();
+            let disabled = execute(operation, &context, &json!({"extract_tables":false})).unwrap();
+            let rejected =
+                execute(operation, &context, &json!({"extract_tables":true})).unwrap_err();
+            assert!(matches!(rejected, BackendError::Unsupported(_)));
+            assert!(
+                rejected
+                    .to_string()
+                    .contains("table reconstruction is unsupported")
+            );
+            let (baseline, converted) = if operation == "convert.html" {
+                ("baseline_raw_html", "raw_html")
+            } else {
+                ("baseline", "converted")
+            };
+            assert_eq!(
+                disabled.data["pages"][0][baseline], candidate.data["pages"][0][converted],
+                "{case}: table option contaminated baseline"
+            );
+            for output in [&candidate, &disabled] {
+                assert_eq!(output.data["completeness"], "unverified");
+                assert_eq!(output.data["baseline_options"]["extract_tables"], false);
+                assert_eq!(output.data["effective_options"]["extract_tables"], false);
+                assert!(
+                    output.data["table_policy"]
+                        .as_str()
+                        .unwrap()
+                        .contains("evaluation evidence only")
+                );
+            }
+            // Preserve the actual native projection for review. No assertion
+            // relabels missing blank rows or wrapped-cell splits as correctness.
+            assert!(
+                !candidate.data["pages"][0][converted]
+                    .as_str()
+                    .unwrap()
+                    .is_empty()
+            );
+        }
+        assert_eq!(inputs[0].bytes, bytes);
+    }
 }

@@ -1,6 +1,6 @@
 //! Irreversible restrictions for disposable, already-loaded operation workers.
 //!
-//! This is Linux x86_64/aarch64 policy, not a portable sandbox claim. The caller
+//! This is Linux `x86_64/aarch64` policy, not a portable sandbox claim. The caller
 //! must load immutable inputs, close acquisition/request descriptors, install
 //! resource limits, and retain only the stdin lease and stdout/stderr captures.
 //! Never call these functions in the controller or an interactive process.
@@ -18,12 +18,14 @@ use std::path::PathBuf;
 
 /// What this process actually installed, not a claim about PDF correctness.
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[allow(clippy::struct_excessive_bools)] // Independent enforcement facts, not configurable state.
 pub struct Evidence {
     /// `seccomp_process`, `landlock_read_only`, or `seccomp_sealed`.
     pub mode: &'static str,
     /// Actual kernel ABI query, only for the Landlock policy.
     pub landlock_abi: Option<u32>,
-    /// Reads are allowlisted, or all path IO is denied in sealed mode.
+    /// File content reads are allowlisted, or all path IO is denied in sealed mode.
+    /// Landlock does not hide all pathname metadata.
     pub filesystem_enforced: bool,
     /// Socket creation/use is denied; inherited sockets are rejected first.
     pub network_enforced: bool,
@@ -110,6 +112,7 @@ mod platform {
     const BPF_LOAD: u16 = 0x20; // BPF_LD | BPF_W | BPF_ABS
     const BPF_EQ: u16 = 0x15; // BPF_JMP | BPF_JEQ | BPF_K
     const BPF_AND: u16 = 0x54; // BPF_ALU | BPF_AND | BPF_K
+    #[cfg(target_arch = "x86_64")]
     const BPF_JSET: u16 = 0x45; // BPF_JMP | BPF_JSET | BPF_K
     const BPF_RETURN: u16 = 0x06;
     const ALLOW: u32 = 0x7fff_0000;
@@ -203,7 +206,7 @@ mod platform {
                 && kind.is_char_device()
                 && std::fs::read_link(path).ok().as_deref()
                     == Some(std::path::Path::new("/dev/null"));
-            if !kind.is_fifo() && !(fd != 0 && kind.is_file()) && !null_stdin {
+            if !(kind.is_fifo() || null_stdin || fd != 0 && kind.is_file()) {
                 return Err(format!(
                     "oxide containment stdio descriptor {fd} is not an approved pipe/capture"
                 ));
@@ -249,6 +252,7 @@ mod platform {
         Ok(evidence("seccomp_sealed", true, None, 0))
     }
 
+    #[allow(clippy::too_many_lines)] // Keep preparation and the irreversible boundary in audit order.
     pub(super) fn install(paths: &[PathBuf]) -> Result<Evidence, String> {
         if installed() {
             return Err(
@@ -315,9 +319,9 @@ mod platform {
                 .metadata()
                 .map_err(|e| format!("Landlock entry metadata: {e}"))?
                 .file_type();
-            if !kind.is_dir()
-                && !kind.is_file()
-                && !(kind.is_char_device() && path == std::path::Path::new("/dev/urandom"))
+            if !(kind.is_dir()
+                || kind.is_file()
+                || kind.is_char_device() && path == std::path::Path::new("/dev/urandom"))
             {
                 return Err(
                     "Landlock read path must be a regular file/directory or /dev/urandom".into(),
@@ -409,6 +413,7 @@ mod platform {
         filter.push(stmt(BPF_RETURN, DENY));
     }
 
+    #[allow(clippy::too_many_lines)] // Keep the complete syscall policy in one reviewable table.
     fn policy(sealed: bool) -> Vec<libc::sock_filter> {
         let mut filter = vec![
             stmt(BPF_LOAD, ARCH_OFFSET),
@@ -632,8 +637,9 @@ mod platform {
             for nr in denied {
                 deny_syscall(&mut filter, nr, DENY);
             }
-            // New common-number ABI calls not present in older libc bindings.
-            for nr in [452, 454, 456, 457, 458, 459, 460, 462] {
+            // Linux v6.18 common syscall table; some are absent in older libc.
+            // Include new metadata mutations and mount acquisition variants.
+            for nr in [452, 454, 456, 457, 458, 459, 460, 462, 463, 466, 467, 469] {
                 deny_syscall(&mut filter, nr, DENY);
             }
             #[cfg(target_arch = "x86_64")]
@@ -682,5 +688,185 @@ mod platform {
             return Err("seccomp/no-new-privileges verification failed; worker must exit".into());
         }
         Ok(())
+    }
+}
+
+#[cfg(all(
+    test,
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64"),
+    target_endian = "little"
+))]
+mod tests {
+    use std::process::{Command, Stdio};
+    use std::time::{Duration, Instant};
+
+    // Private test-only boundary: an unexpected child exits entirely inside the
+    // assembly block, touching no Rust stack, allocator, locks or destructors.
+    // SIGCHLD is ignored beforehand, so the kernel auto-reaps that finite child.
+    // This is particularly necessary for vfork's temporarily shared address space.
+    #[cfg(target_arch = "x86_64")]
+    fn raw_process_call(nr: libc::c_long) -> libc::c_long {
+        let result: libc::c_long;
+        // SAFETY: only fork/vfork/process-clone numbers are supplied by the test.
+        // clone uses a null stack and SIGCHLD, without VM or thread flags. The
+        // child branch only issues SYS_exit; no Rust instruction runs there.
+        // All syscall-clobbered registers are declared. No stack is modified.
+        unsafe {
+            std::arch::asm!(
+                "syscall",
+                "test rax, rax",
+                "jnz 2f",
+                "xor edi, edi",
+                "mov eax, {exit}",
+                "syscall",
+                "ud2",
+                "2:",
+                exit = const libc::SYS_exit,
+                inlateout("rax") nr => result,
+                inlateout("rdi") libc::c_long::from(libc::SIGCHLD) => _,
+                in("rsi") 0usize,
+                in("rdx") 0usize,
+                in("r10") 0usize,
+                in("r8") 0usize,
+                lateout("rcx") _,
+                lateout("r11") _,
+                options(nostack),
+            );
+        }
+        result
+    }
+
+    #[cfg(target_arch = "aarch64")]
+    fn raw_process_call(nr: libc::c_long) -> libc::c_long {
+        let result: libc::c_long;
+        // SAFETY: SYS_clone with SIGCHLD and null stack is the sole caller.
+        // Unexpected child exits directly without Rust or stack writes; x0/x8
+        // outputs describe all registers changed by the assembly block.
+        unsafe {
+            std::arch::asm!(
+                "svc 0",
+                "cbnz x0, 2f",
+                "mov x8, {exit}",
+                "svc 0",
+                "brk 0",
+                "2:",
+                exit = const libc::SYS_exit,
+                inlateout("x0") libc::c_long::from(libc::SIGCHLD) => result,
+                inlateout("x8") nr => _,
+                in("x1") 0usize,
+                in("x2") 0usize,
+                in("x3") 0usize,
+                in("x4") 0usize,
+                options(nostack),
+            );
+        }
+        result
+    }
+
+    #[test]
+    #[ignore = "private helper; bounded_raw_process_denials launches isolated workers"]
+    fn raw_process_child() {
+        let mode = std::env::var("TPE_CONTAINMENT_RAW_PROBE").expect("test-only child marker");
+        assert!(mode == "process" || mode == "sealed");
+        // SAFETY: this process is an explicitly spawned disposable test worker.
+        // Ignoring SIGCHLD makes any unexpectedly created finite child auto-reap.
+        // Its assembly branch exits immediately without user-space cleanup.
+        assert_ne!(
+            unsafe { libc::signal(libc::SIGCHLD, libc::SIG_IGN) },
+            libc::SIG_ERR
+        );
+        let evidence = if mode == "sealed" {
+            super::install_sealed_process()
+        } else {
+            super::install_process_policy()
+        }
+        .expect("raw probe policy installation");
+        assert!(evidence.process_enforced && evidence.seccomp_tsync);
+
+        #[cfg(target_arch = "x86_64")]
+        let calls = [
+            ("fork", libc::SYS_fork),
+            ("vfork", libc::SYS_vfork),
+            ("clone(process)", libc::SYS_clone),
+        ];
+        #[cfg(target_arch = "aarch64")]
+        let calls = [("clone(process)", libc::SYS_clone)];
+        for (name, nr) in calls {
+            let result = raw_process_call(nr);
+            assert_eq!(
+                result,
+                -libc::c_long::from(libc::EPERM),
+                "{mode} {name} returned {result}; unexpected children exit immediately and auto-reap"
+            );
+            println!("{mode}: direct {name} returned EPERM");
+        }
+        // SAFETY: null pointer with size0 cannot create a clone3 child; ENOSYS
+        // specifically verifies the configured legacy-thread fallback response.
+        let result = unsafe { libc::syscall(libc::SYS_clone3, std::ptr::null::<u8>(), 0usize) };
+        assert_eq!(result, -1);
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::ENOSYS)
+        );
+        assert_eq!(std::thread::spawn(|| 42).join().unwrap(), 42);
+        println!("{mode}: clone3 unavailable; ordinary thread creation still works");
+        for (name, nr) in [
+            ("setxattrat", 463),
+            ("removexattrat", 466),
+            ("open_tree_attr", 467),
+            ("file_setattr", 469),
+        ] {
+            // SAFETY: all pointer arguments are null and lengths/flags zero, so
+            // even a faulty policy cannot identify a path or mutate a fixture.
+            let result =
+                unsafe { libc::syscall(nr, 0usize, 0usize, 0usize, 0usize, 0usize, 0usize) };
+            assert_eq!(result, -1);
+            assert_eq!(
+                std::io::Error::last_os_error().raw_os_error(),
+                Some(libc::EPERM),
+                "{mode}: {name}"
+            );
+            println!("{mode}: direct {name} with null arguments returned EPERM");
+        }
+    }
+
+    #[test]
+    fn bounded_raw_process_denials() {
+        let executable = std::env::current_exe().unwrap();
+        for mode in ["process", "sealed"] {
+            let mut child = Command::new(&executable)
+                .args([
+                    "--exact",
+                    "oxide_containment::tests::raw_process_child",
+                    "--ignored",
+                    "--nocapture",
+                    "--test-threads=1",
+                ])
+                .env("TPE_CONTAINMENT_RAW_PROBE", mode)
+                .stdin(Stdio::null())
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap();
+            let deadline = Instant::now() + Duration::from_secs(10);
+            while child.try_wait().unwrap().is_none() {
+                if Instant::now() >= deadline {
+                    child.kill().unwrap();
+                    child.wait().unwrap();
+                    panic!("raw process probe {mode} timed out; worker killed and reaped");
+                }
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            let output = child.wait_with_output().unwrap();
+            assert!(
+                output.status.success(),
+                "raw process probe {mode}: {:?}\n{}\n{}",
+                output.status,
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+            print!("{}", String::from_utf8_lossy(&output.stdout));
+        }
     }
 }

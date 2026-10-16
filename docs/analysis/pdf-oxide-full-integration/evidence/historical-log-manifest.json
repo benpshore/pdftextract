@@ -1,0 +1,91 @@
+{
+  "scope": "Pre-checkpoint integration logs, including failures; changing worktree runs are not exact-commit qualification. No log asserts broad safety or accuracy.",
+  "prior_checkpoint": "3add612ed47c913d2540cc902d1d757d8e4a632c",
+  "logs": [
+    {
+      "file": "full-tests-03.txt",
+      "sha256": "fde352e3fed365901c19aac06103a6970a4c076bc682f46a3451baf31d83dfb7",
+      "bytes": 13040
+    },
+    {
+      "file": "full-tests-05.txt",
+      "sha256": "c6446f84d2b9859da795e9b3df0fddf26be75b1f1b6f311bdcfd9154af474233",
+      "bytes": 13349
+    },
+    {
+      "file": "full-tests-06.txt",
+      "sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "bytes": 85711
+    },
+    {
+      "file": "full-clippy-01.txt",
+      "sha256": "6ad72461a2cdd04adc3418174e69a5240e66fbba7ee2d99151ff4c7985a9103f",
+      "bytes": 26243
+    },
+    {
+      "file": "ocr-combined-tests-01.txt",
+      "sha256": "c7da21353b5162635e2cb0d38b754aca7bd7d8beadeec3d6ab88f6d03e487642",
+      "bytes": 12088
+    },
+    {
+      "file": "default-clippy-02.txt",
+      "sha256": "83673cb77ab9bed14322620a79c4117528ac9ec501c1cdb3aa8c7b378fa54528",
+      "bytes": 306
+    },
+    {
+      "file": "default-tests-02.txt",
+      "sha256": "16dabd5ee1720cabfee41a105c727da4e684dc37ecb2b244718663d2651bb8f5",
+      "bytes": 74074
+    },
+    {
+      "file": "ffi-containment-cargo-01.txt",
+      "sha256": "2fedfac02b22d58d9d07ebafc5731da9f36b3a4256bede0633b0afb0dabc2e08",
+      "bytes": 1631
+    },
+    {
+      "file": "pytest-02.txt",
+      "sha256": "88b2b4ce4c6104fabf23fe3469b81e0a1d7cc65c8f176ae7967d33a03da916fb",
+      "bytes": 1050
+    },
+    {
+      "file": "ruff-format-03.txt",
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "bytes": 25
+    },
+    {
+      "file": "ruff-check-03.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "bytes": 19
+    },
+    {
+      "file": "uv-audit-02.txt",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "bytes": 208
+    },
+    {
+      "file": "swift-build-02.txt",
+      "sha256": "87e1e3156ff8e9868b43ea6cfe98d839ceaeef348fcecea2ea2557edf21f92ba",
+      "bytes": 45
+    },
+    {
+      "file": "swift-test-02.txt",
+      "sha256": "270e8ffee2256f871e601123c928a4f15c9b59f28e2301774d8a5a76c3da222e",
+      "bytes": 45
+    },
+    {
+      "file": "cmake-configure-02.txt",
+      "sha256": "7d2775aeb2023552cc9c16deb765235fc92729f0bb0bd57dcd4c7a9c7fdcd01d",
+      "bytes": 45
+    },
+    {
+      "file": "cmake-build-02.txt",
+      "sha256": "5041f80dbce223bcfa616500f168ebde623b5cd51653dac6b8ccd0f3c7b8036b",
+      "bytes": 45
+    },
+    {
+      "file": "ctest-02.txt",
+      "sha256": "a6796ed8316af372e4b8de3ab7cb8049f9ea2b212df33228e6844fc8f2a1a84d",
+      "bytes": 45
+    }
+  ]
+}

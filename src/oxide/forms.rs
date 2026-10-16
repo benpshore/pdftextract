@@ -1,4 +1,4 @@
-//! AcroForm and static XFA operations on immutable inputs.
+//! `AcroForm` and static XFA operations on immutable inputs.
 
 use std::collections::{BTreeMap, HashSet};
 
@@ -59,6 +59,7 @@ fn fields(
     context: &Context<'_>,
     editor: &mut DocumentEditor,
 ) -> Result<BTreeMap<String, FormFieldWrapper>, BackendError> {
+    super::security::validate_form_tree(editor.source(), context)?;
     let fields = editor.get_form_fields().map_err(upstream)?;
     bounded_count(fields.len(), context.limits.max_items, "form fields")?;
     let mut result = BTreeMap::new();
@@ -83,6 +84,27 @@ fn value_json(value: &FormFieldValue) -> Value {
     }
 }
 
+fn field_rectangle(field: &FormFieldWrapper) -> Option<[f32; 4]> {
+    // FormExtractor correctly stores PDF corner coordinates. The pinned
+    // FormFieldWrapper::bounds incorrectly treats x1/y1 as width/height.
+    if let Some(corners) = field.original().and_then(|field| field.bounds) {
+        return Some([
+            corners[0] as f32,
+            corners[1] as f32,
+            (corners[2] - corners[0]) as f32,
+            (corners[3] - corners[1]) as f32,
+        ]);
+    }
+    field.widget_config().map(|config| {
+        [
+            config.rect.x,
+            config.rect.y,
+            config.rect.width,
+            config.rect.height,
+        ]
+    })
+}
+
 fn inspect(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
     let _: Empty = parse(params)?;
     document_scope(context)?;
@@ -97,7 +119,7 @@ fn inspect(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
     let records = fields
         .values()
         .map(|field| {
-            let rect = field.bounds().map(|r| [r.x, r.y, r.width, r.height]);
+            let rect = field_rectangle(field);
             json!({"name": field.name(), "type": field.field_type().map(|t| format!("{t:?}")),
             "value": value_json(&field.value()), "rect": rect,
             "tooltip": field.tooltip(), "flags": field.flags(),
@@ -546,8 +568,14 @@ fn update(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Back
     let mut editor = edit_document(context)?;
     let original = fields(context, &mut editor)?;
     let mut names = Vec::new();
+    let mut seen = HashSet::new();
     for properties in params.fields {
         let name = properties.name;
+        if !seen.insert(name.clone()) {
+            return Err(BackendError::Malformed(
+                "duplicate form property update name".into(),
+            ));
+        }
         let field = original
             .get(&name)
             .ok_or_else(|| BackendError::Malformed(format!("form field does not exist: {name}")))?;
@@ -630,6 +658,7 @@ fn repair_form_properties(
 ) -> Result<OperationOutput, BackendError> {
     let pdf =
         pdf_oxide::PdfDocument::from_bytes(output.artifacts[0].bytes.clone()).map_err(upstream)?;
+    super::security::validate_form_tree(&pdf, context)?;
     let extracted =
         pdf_oxide::extractors::forms::FormExtractor::extract_fields(&pdf).map_err(upstream)?;
     bounded_count(
@@ -664,6 +693,18 @@ fn repair_form_properties(
             .as_dict()
             .map_err(repair_error)?
             .clone();
+        if (change.rect.is_some()
+            || change.background_color.is_some()
+            || change.border_color.is_some()
+            || change.border_width.is_some())
+            && (dict.get(b"Subtype").and_then(lopdf::Object::as_name).ok()
+                != Some(b"Widget".as_slice())
+                || dict.has(b"Kids"))
+        {
+            return Err(BackendError::Unsupported(
+                "geometry and appearance updates require one merged field/widget identity".into(),
+            ));
+        }
         let mut flags = field.flags.unwrap_or(0);
         for (value, bit) in [(change.readonly, 1_u32), (change.required, 2_u32)] {
             if let Some(value) = value {
@@ -768,6 +809,34 @@ fn repair_form_properties(
             || change
                 .alignment
                 .is_some_and(|value| field.get_alignment() != Some(value))
+            || change.rect.is_some_and(|value| {
+                field_rectangle(field).is_none_or(|rect| {
+                    rect.iter()
+                        .zip(value)
+                        .any(|(actual, expected)| (actual - expected).abs() > 0.01)
+                })
+            })
+            || change.background_color.is_some_and(|value| {
+                field.get_background_color().is_none_or(|actual| {
+                    actual
+                        .iter()
+                        .zip(value)
+                        .any(|(actual, expected)| (actual - expected).abs() > 0.0001)
+                })
+            })
+            || change.border_color.is_some_and(|value| {
+                field.get_border_color().is_none_or(|actual| {
+                    actual
+                        .iter()
+                        .zip(value)
+                        .any(|(actual, expected)| (actual - expected).abs() > 0.0001)
+                })
+            })
+            || change.border_width.is_some_and(|value| {
+                field
+                    .get_border_width()
+                    .is_none_or(|actual| (actual - value).abs() > 0.0001)
+            })
         {
             return Err(BackendError::Unsupported(
                 "AcroForm property repair did not round-trip exactly".into(),
@@ -809,6 +878,7 @@ fn remove(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Back
         &mut editor,
         json!({"removed_fields": params.names}),
     )?;
+    let output = repair_removed_fields(context, output, &params.names)?;
     let actual = verify_fields(context, &output)?;
     if params.names.iter().any(|name| actual.contains_key(name)) {
         return Err(BackendError::Unsupported(
@@ -816,6 +886,195 @@ fn remove(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Back
         ));
     }
     Ok(output)
+}
+
+/// The pinned editor tracks deleted names but its writer retains the original
+/// AcroForm/Annots references. Unlink only exact field/widget object identities;
+/// do not prune parent containers or claim that orphaned values were erased.
+fn repair_removed_fields(
+    context: &Context<'_>,
+    output: OperationOutput,
+    names: &[String],
+) -> Result<OperationOutput, BackendError> {
+    let pdf =
+        pdf_oxide::PdfDocument::from_bytes(output.artifacts[0].bytes.clone()).map_err(upstream)?;
+    super::security::validate_form_tree(&pdf, context)?;
+    let extracted =
+        pdf_oxide::extractors::forms::FormExtractor::extract_fields(&pdf).map_err(upstream)?;
+    bounded_count(
+        extracted.len(),
+        context.limits.max_items,
+        "serialized form fields",
+    )?;
+    let requested: HashSet<_> = names.iter().map(String::as_str).collect();
+    let mut target_ids = HashSet::new();
+    for field in extracted {
+        if requested.contains(field.full_name.as_str()) {
+            let reference = field.object_ref.ok_or_else(|| {
+                BackendError::Unsupported(
+                    "direct field removal requires an indirect field identity".into(),
+                )
+            })?;
+            target_ids.insert((reference.id, reference.r#gen));
+        }
+    }
+    if target_ids.is_empty() {
+        return Ok(output);
+    }
+    let mut document =
+        lopdf::Document::load_mem(&output.artifacts[0].bytes).map_err(repair_error)?;
+    let mut deleted = target_ids.clone();
+    for id in &target_ids {
+        let field = document
+            .get_object(*id)
+            .map_err(repair_error)?
+            .as_dict()
+            .map_err(repair_error)?;
+        if let Ok(kids) = field.get(b"Kids") {
+            let kids = repair_object(&document, kids)?.1;
+            let kids = kids.as_array().map_err(repair_error)?;
+            bounded_count(
+                kids.len().saturating_add(deleted.len()),
+                context.limits.max_items,
+                "removed widgets",
+            )?;
+            for kid in kids {
+                let (widget_id, widget) = repair_object(&document, kid)?;
+                let widget = widget.as_dict().map_err(repair_error)?;
+                if widget.has(b"T")
+                    || widget.has(b"Kids")
+                    || widget.get(b"Subtype").and_then(lopdf::Object::as_name).ok()
+                        != Some(b"Widget".as_slice())
+                {
+                    return Err(BackendError::Unsupported("removing a field with named or nested children requires explicit widget provenance".into()));
+                }
+                deleted.insert(widget_id.ok_or_else(|| {
+                    BackendError::Unsupported(
+                        "direct widget removal requires an indirect widget identity".into(),
+                    )
+                })?);
+            }
+        }
+    }
+    let root = document.trailer.get(b"Root").map_err(repair_error)?.clone();
+    let (root_id, root) = repair_object(&document, &root)?;
+    let root_id = root_id.ok_or_else(|| {
+        BackendError::Unsupported("serialized catalog has no indirect identity".into())
+    })?;
+    let mut catalog = root.as_dict().map_err(repair_error)?.clone();
+    let form = catalog.get(b"AcroForm").map_err(repair_error)?.clone();
+    let (form_id, form) = repair_object(&document, &form)?;
+    let mut form = form.as_dict().map_err(repair_error)?.clone();
+    for id in &target_ids {
+        let field = document
+            .get_object(*id)
+            .map_err(repair_error)?
+            .as_dict()
+            .map_err(repair_error)?;
+        if let Ok(parent) = field.get(b"Parent") {
+            let (parent_id, parent) = repair_object(&document, parent)?;
+            let parent_id = parent_id.ok_or_else(|| {
+                BackendError::Unsupported("field parent has no indirect identity".into())
+            })?;
+            let mut parent = parent.as_dict().map_err(repair_error)?.clone();
+            let previous = parent.get(b"Kids").map_err(repair_error)?.clone();
+            let (kept, removed) = without_references(
+                &document,
+                &previous,
+                &HashSet::from([*id]),
+                context.limits.max_items,
+            )?;
+            if removed != 1 {
+                return Err(BackendError::Unsupported(
+                    "field parent does not identify exactly one requested child".into(),
+                ));
+            }
+            parent.set("Kids", kept);
+            document
+                .objects
+                .insert(parent_id, lopdf::Object::Dictionary(parent));
+        } else {
+            let previous = form.get(b"Fields").map_err(repair_error)?.clone();
+            let (kept, removed) = without_references(
+                &document,
+                &previous,
+                &HashSet::from([*id]),
+                context.limits.max_items,
+            )?;
+            if removed != 1 {
+                return Err(BackendError::Unsupported(
+                    "AcroForm does not identify exactly one requested root field".into(),
+                ));
+            }
+            form.set("Fields", kept);
+        }
+    }
+    if let Ok(order) = form.get(b"CO") {
+        let (kept, _) = without_references(&document, order, &deleted, context.limits.max_items)?;
+        form.set("CO", kept);
+    }
+    if let Some(form_id) = form_id {
+        document
+            .objects
+            .insert(form_id, lopdf::Object::Dictionary(form));
+    } else {
+        catalog.set("AcroForm", form);
+        document
+            .objects
+            .insert(root_id, lopdf::Object::Dictionary(catalog));
+    }
+    for (_, page_id) in document.get_pages() {
+        let mut page = document
+            .get_object(page_id)
+            .map_err(repair_error)?
+            .as_dict()
+            .map_err(repair_error)?
+            .clone();
+        if let Ok(annotations) = page.get(b"Annots") {
+            let (kept, removed) =
+                without_references(&document, annotations, &deleted, context.limits.max_items)?;
+            if removed != 0 {
+                if kept.is_empty() {
+                    page.remove(b"Annots");
+                } else {
+                    page.set("Annots", kept);
+                }
+                document
+                    .objects
+                    .insert(page_id, lopdf::Object::Dictionary(page));
+            }
+        }
+    }
+    let mut output = repaired_output(
+        context,
+        output,
+        document,
+        "unlink exact removed form/widget identities from Fields, parent Kids, calculation order and page Annots",
+    )?;
+    output.warnings.push("Form removal unlinks interactive fields and widgets; orphaned objects may retain old values, so this operation is not confidential data erasure.".into());
+    Ok(output)
+}
+
+fn without_references(
+    document: &lopdf::Document,
+    object: &lopdf::Object,
+    removed_ids: &HashSet<lopdf::ObjectId>,
+    maximum: usize,
+) -> Result<(Vec<lopdf::Object>, usize), BackendError> {
+    let object = repair_object(document, object)?.1;
+    let array = object.as_array().map_err(repair_error)?;
+    bounded_count(array.len(), maximum, "form/widget reference array")?;
+    let mut kept = Vec::with_capacity(array.len());
+    let mut removed = 0;
+    for value in array {
+        let id = repair_object(document, value)?.0;
+        if id.is_some_and(|id| removed_ids.contains(&id)) {
+            removed += 1;
+        } else {
+            kept.push(value.clone());
+        }
+    }
+    Ok((kept, removed))
 }
 
 fn flatten(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
@@ -858,7 +1117,7 @@ enum ExportFormat {
 #[serde(deny_unknown_fields)]
 struct ExportParams {
     format: ExportFormat,
-    /// Respect /NoExport by default.
+    /// Respect `/NoExport` by default.
     #[serde(default)]
     include_no_export: bool,
 }
@@ -1078,7 +1337,9 @@ fn xfa(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Backend
                 data: json!({"has_xfa": false}),
                 ..Default::default()
             }),
-            _ => Err(BackendError::Malformed("source has no XFA form".into())),
+            XfaParams::ConvertStatic { .. } => {
+                Err(BackendError::Malformed("source has no XFA form".into()))
+            }
         };
     }
     let bytes = XfaExtractor::extract_xfa(&mut doc).map_err(upstream)?;

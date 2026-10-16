@@ -1,0 +1,4 @@
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-common)
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-biblio)
+    Finished `dev` profile [unoptimized] target(s) in 6.16s

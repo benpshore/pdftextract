@@ -1,0 +1,1066 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-16T00:04:35.500703+00:00",
+  "scope": "oxide_query-owned captured synthetic fixtures and native raw table evaluation; no parity or broad safety claim",
+  "repository_head_at_inventory": "3add612ed47c913d2540cc902d1d757d8e4a632c",
+  "capture_root": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06",
+  "owned_file_count": 22,
+  "excluded_neighbor_files": [
+    "ruled-table-empty-cell.pdf belongs to integration-owner backend tests"
+  ],
+  "run06": {
+    "reported_by": "parent integration owner",
+    "command": "env CARGO_TARGET_DIR=/workspace/pdftextract/target CARGO_BUILD_JOBS=2 CARGO_PROFILE_DEV_DEBUG=0 RUST_TEST_THREADS=2 RAYON_NUM_THREADS=2 OMP_NUM_THREADS=2 TPE_OXIDE_FIXTURE_CAPTURE=/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06 prlimit --as=8589934592 --core=0 -- timeout -k 10 600 cargo test --offline --no-fail-fast --features pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures --tests",
+    "log": {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/full-tests-06.log",
+      "sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "bytes": 85711
+    },
+    "tested_tree": "3add612ed47c913d2540cc902d1d757d8e4a632c plus concurrent uncommitted integration edits; not an exact current-tree qualification",
+    "owned_results": {
+      "oxide_query": {
+        "passed": 10,
+        "failed": 0
+      },
+      "oxide_convert": {
+        "passed": 8,
+        "failed": 0
+      },
+      "oxide_supplements": {
+        "passed": 13,
+        "failed": 0
+      }
+    },
+    "overall_result": "failed: oxide_edit_forms, oxide_security, oxide_worker targets",
+    "known_post_compile_owned_edits": [
+      "convert.rs warning now explicitly says table reconstruction disabled",
+      "oxide_convert.rs malformed-JPEG omission case now paints its image with Do; run06 compiled before this final strengthening",
+      "Clippy-only equivalent boolean/let-chain simplification in convert.rs and query.rs after full-clippy-01; final frozen rerun pending"
+    ],
+    "final_frozen_rerun": "pending integration owner"
+  },
+  "current_source_snapshots": [
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/oxide/query.rs",
+      "sha256": "c09118b032dd3ba67db53d4e6546b9cdb9dd4fd70cad4643f9f9b2ca25e26829",
+      "bytes": 44309,
+      "repository_path": "src/oxide/query.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/oxide/convert.rs",
+      "sha256": "5cc7de4dd0a42e5cb9f6cb3a0c0746c11282bbcde7808ca8a22466865836436a",
+      "bytes": 12827,
+      "repository_path": "src/oxide/convert.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/tests/oxide_query.rs",
+      "sha256": "329570b003ff233335a0723a616b6e5332e6d4233e1bb302eeae1ffc6bb66bde",
+      "bytes": 21062,
+      "repository_path": "tests/oxide_query.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/tests/oxide_convert.rs",
+      "sha256": "2f0c8ce0f687846873701b73eb030bb270a0a00d8dc26b1717ead4c4345d1b80",
+      "bytes": 20616,
+      "repository_path": "tests/oxide_convert.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/tests/oxide_supplements.rs",
+      "sha256": "e5003648348012519c6487791fd2c63343e2f3d8770fbf1491c5f649215b8cd5",
+      "bytes": 26424,
+      "repository_path": "tests/oxide_supplements.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/backend/pdf_oxide_supplements.rs",
+      "sha256": "ff5a4611fcdc137c67fdd01d4794892a95c902e3f6021585586f11d757e985a0",
+      "bytes": 20602,
+      "repository_path": "src/backend/pdf_oxide_supplements.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/backend/pdf_oxide_images.rs",
+      "sha256": "3e83cdd13ad7b0d4bf84389738c390474eff394f08454a6e3dcf3e67cd3ec443",
+      "bytes": 6934,
+      "repository_path": "src/backend/pdf_oxide_images.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/backend/pdf_oxide_backend.rs",
+      "sha256": "5eb6d63d380bd27aac8d77a21451eebad67cd20c8c375da8b2f96a21bbb87f65",
+      "bytes": 19494,
+      "repository_path": "src/backend/pdf_oxide_backend.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/oxide/edit.rs",
+      "sha256": "b6ee0ad55563a186f3986c787f2e4a6205046c3613e88ee2b78434a7be91b234",
+      "bytes": 56899,
+      "repository_path": "src/oxide/edit.rs",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/Cargo.lock",
+      "sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "bytes": 290417,
+      "repository_path": "Cargo.lock",
+      "attribution": "current dirty-tree snapshot taken after run06; not a reconstructed or verified run06 compiler input"
+    }
+  ],
+  "pinned_upstream_sources": [
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/document.rs",
+      "sha256": "a5d116c2d21f4a6d26d734e64d9a6e27e29d515c2498f55233fabb1cdf2c2c3f",
+      "bytes": 1547239
+    },
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/converters/mod.rs",
+      "sha256": "bc950b1bc93c5bb5db854534edd61d6ef7b4a99db40f5e82c0c86b11b15eb936",
+      "bytes": 24952
+    },
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/extractors/text.rs",
+      "sha256": "b0fb4374a898c338bdee19f1ca9c82e51a6ab17a51bcd45b3faf4c6d49764d78",
+      "bytes": 765476
+    },
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/structure/table_extractor.rs",
+      "sha256": "df901cf5cba2fc1942401bbe31c72b1349a2889240bf340188f896d200f2fffa",
+      "bytes": 71004
+    }
+  ],
+  "captured_files": [
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-blank-row.native-tables.json",
+      "sha256": "40f3415bbdc0eb7c5905610ebacaff6e2afd49675d61f55bd4bb45ad951a677d",
+      "bytes": 2601,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "blank-row",
+      "validation_error": "unsupported_table_validation: native extraction retains only header text and A101 row, drops the wholly empty row and populated C303/Below blank row/4.75 row, and does not identify the header.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "source_pdf_sha256": "5e9039ba51880daada259e496a14db8d54b7a456037f11f90253a40ae0e8534c",
+      "native_candidates": [
+        {
+          "column_count": 3,
+          "has_header": false,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Item"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 200.0,
+                    "x": 172.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Description"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Amount"
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "A101"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 200.0,
+                    "x": 172.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Above blank row"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "17.50"
+                }
+              ],
+              "is_header": false
+            }
+          ]
+        }
+      ],
+      "obligation": "four ruled rows include a wholly empty third row and a header",
+      "observed_table_count": 1,
+      "observed_row_counts": [
+        2
+      ],
+      "source": "pdf-oxide/0.3.78/extract_tables",
+      "independent_expectation": {
+        "validation_error": "unsupported_table_validation: native extraction retains only header text and A101 row, drops the wholly empty row and populated C303/Below blank row/4.75 row, and does not identify the header.",
+        "expected_ruled_row_count": 4,
+        "expected_content_rows": [
+          [
+            "Item",
+            "Description",
+            "Amount"
+          ],
+          [
+            "A101",
+            "Above blank row",
+            "17.50"
+          ],
+          [
+            "",
+            "",
+            ""
+          ],
+          [
+            "C303",
+            "Below blank row",
+            "4.75"
+          ]
+        ],
+        "visual_observation": "Viewed Poppler source raster: four ruled rows visibly include the empty third row and complete C303 final row."
+      }
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-blank-row.pdf",
+      "sha256": "5e9039ba51880daada259e496a14db8d54b7a456037f11f90253a40ae0e8534c",
+      "bytes": 1149,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "blank-row",
+      "validation_error": "unsupported_table_validation: native extraction retains only header text and A101 row, drops the wholly empty row and populated C303/Below blank row/4.75 row, and does not identify the header.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "native_observation_path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-blank-row.native-tables.json"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-short-prose.native-tables.json",
+      "sha256": "e0cc6ee083777aece78409bf62c80da68e02890943be6664db7952bb350b25b6",
+      "bytes": 3669,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "short-prose",
+      "validation_error": "unsupported_table_validation: unruled aligned prose is classified as a three-column table; phrases Use daily and Read carefully are split into separate inferred columns.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "source_pdf_sha256": "5b8c373feb11d8aba32eeceb594651ec70a78f26de62c2b87112effd738a1646",
+      "native_candidates": [
+        {
+          "column_count": 3,
+          "has_header": false,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 25.343994140625,
+                    "x": 72.0,
+                    "y": 700.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Note"
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 21.33599853515625,
+                    "x": 260.0,
+                    "y": 700.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Use"
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 24.6719970703125,
+                    "x": 284.6719970703125,
+                    "y": 700.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "daily"
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 41.35198974609375,
+                    "x": 72.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Context"
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 28.67999267578125,
+                    "x": 260.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Read"
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 44.675994873046875,
+                    "x": 292.0159912109375,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "carefully"
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 24.6719970703125,
+                    "x": 72.0,
+                    "y": 660.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Next"
+                },
+                {
+                  "bbox": null,
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 81.37197875976562,
+                    "x": 260.0,
+                    "y": 660.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Continue prose"
+                }
+              ],
+              "is_header": false
+            }
+          ]
+        }
+      ],
+      "obligation": "short aligned prose is not an explicitly marked or ruled table",
+      "observed_table_count": 1,
+      "observed_row_counts": [
+        3
+      ],
+      "source": "pdf-oxide/0.3.78/extract_tables",
+      "independent_expectation": {
+        "validation_error": "unsupported_table_validation: unruled aligned prose is classified as a three-column table; phrases Use daily and Read carefully are split into separate inferred columns.",
+        "expected_explicit_table_count": 0,
+        "expected_prose_lines": [
+          "Note: Use daily",
+          "Context: Read carefully",
+          "Next: Continue prose"
+        ],
+        "visual_observation": "Viewed Poppler source raster: three short label/prose lines with two aligned text groups and no table ruling; native output invents a third column inside phrases."
+      }
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-short-prose.pdf",
+      "sha256": "5b8c373feb11d8aba32eeceb594651ec70a78f26de62c2b87112effd738a1646",
+      "bytes": 813,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "short-prose",
+      "validation_error": "unsupported_table_validation: unruled aligned prose is classified as a three-column table; phrases Use daily and Read carefully are split into separate inferred columns.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "native_observation_path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-short-prose.native-tables.json"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-wrapped-description.native-tables.json",
+      "sha256": "8928d9cc631325cfe8bead0d70b4d36cda23acfd3eb0d102e5afe7f3f29ad809",
+      "bytes": 5925,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "wrapped-description",
+      "validation_error": "unsupported_table_validation: A101, its two description lines, and 17.50 occupy one ruled row but native extraction emits three separate rows for that row; header status is lost.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "source_pdf_sha256": "088c4e52aa054f42c12de04c9c597182dc132153871fd8ea792df6d1b6c6fddd",
+      "native_candidates": [
+        {
+          "column_count": 3,
+          "has_header": false,
+          "rows": [
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Item"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 200.0,
+                    "x": 172.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Description"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 680.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Amount"
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 72.68399047851562,
+                    "x": 180.0,
+                    "y": 670.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "First wrapped"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 28.019989013671875,
+                    "x": 80.0,
+                    "y": 662.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "A101"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 200.0,
+                    "x": 172.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 30.02398681640625,
+                    "x": 380.0,
+                    "y": 662.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "17.50"
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                },
+                {
+                  "bbox": {
+                    "height": 12.0,
+                    "width": 112.71597290039062,
+                    "x": 180.0,
+                    "y": 650.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "description continues"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 640.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": ""
+                }
+              ],
+              "is_header": false
+            },
+            {
+              "cells": [
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 72.0,
+                    "y": 600.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "B202"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 200.0,
+                    "x": 172.0,
+                    "y": 600.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "Second entry"
+                },
+                {
+                  "bbox": {
+                    "height": 40.0,
+                    "width": 100.0,
+                    "x": 372.0,
+                    "y": 600.0
+                  },
+                  "colspan": 1,
+                  "is_header": false,
+                  "mcids": [],
+                  "rowspan": 1,
+                  "text": "9.25"
+                }
+              ],
+              "is_header": false
+            }
+          ]
+        }
+      ],
+      "obligation": "A101 description spans two painted lines within one ruled row",
+      "observed_table_count": 1,
+      "observed_row_counts": [
+        5
+      ],
+      "source": "pdf-oxide/0.3.78/extract_tables",
+      "independent_expectation": {
+        "validation_error": "unsupported_table_validation: A101, its two description lines, and 17.50 occupy one ruled row but native extraction emits three separate rows for that row; header status is lost.",
+        "expected_ruled_row_count": 4,
+        "expected_content_rows": [
+          [
+            "Item",
+            "Description",
+            "Amount"
+          ],
+          [
+            "A101",
+            "First wrapped\ndescription continues",
+            "17.50"
+          ],
+          [
+            "B202",
+            "Second entry",
+            "9.25"
+          ],
+          [
+            "",
+            "",
+            ""
+          ]
+        ],
+        "visual_observation": "Viewed Poppler source raster: header plus A101 wrapped-description row, B202 row, and final empty ruled row are visible; A101/description/17.50 align within one ruled row."
+      }
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-wrapped-description.pdf",
+      "sha256": "088c4e52aa054f42c12de04c9c597182dc132153871fd8ea792df6d1b6c6fddd",
+      "bytes": 1207,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "generator_function": "table_candidate_fixture",
+      "test": "wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates",
+      "case": "wrapped-description",
+      "validation_error": "unsupported_table_validation: A101, its two description lines, and 17.50 occupy one ruled row but native extraction emits three separate rows for that row; header status is lost.",
+      "evaluation_only": true,
+      "validated": false,
+      "contract": "Default conversion disables table reconstruction; explicit extract_tables=true is Unsupported. Original spans retain all source strings. No native-grid correctness assertion.",
+      "native_observation_path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-wrapped-description.native-tables.json"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-html-literal-markup.pdf",
+      "sha256": "8f55e8d11f7d7821c6a10fe40580be8ff1dfa4b84f31de411e2a5382139b5894",
+      "bytes": 579,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "test": "changed_html_layout_retains_original_baseline_and_sanitizes_display",
+      "qualification": "Literal script-shaped text; raw layout projection differs while baseline stays stable; display projection has app-owned hash/page identity and no source active attributes/resources."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-unicode-citations.pdf",
+      "sha256": "e83392cfb298cd85e4891a3814a43af8790f623eb207275fadec058f8f393b57",
+      "bytes": 677,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_convert.rs",
+      "test": "unicode_actual_text_and_literal_meaning_survive_all_three_converters",
+      "qualification": "Independent UTF-16BE ActualText obligation: Résumé λ 漢字 🦀; preserve had had, well-being and [12] across text/Markdown/HTML; source bytes unchanged."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-adversarial-meaningful-heading-citation.pdf",
+      "sha256": "cf781443fb500b0828131d2dbaafadcff93178d46a197431251dcf9cfe45a640",
+      "bytes": 935,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "meaningful_heading_and_citation_loss_is_exposed_as_a_preview_only",
+      "qualification": "Pinned cleanup removes meaningful Clinical findings [12] heading at 20pt on both pages. Passing test requires false-removal provenance and unchanged baseline, not correct cleanup."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-cyclic-form-resources.pdf",
+      "sha256": "ca46fae9ca4510395f16739e15c3c49856653fc2086f27a5e68fad6ba139c96f",
+      "bytes": 672,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "cyclic_form_resources_fail_in_a_disposable_worker",
+      "qualification": "Unused Form resource refers back to itself. CLI worker must report cyclic image resource graph with no output/ledger publication. Do not render this fixture directly."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-device-cmyk.pdf",
+      "sha256": "0fc75fd4d4650e572d082a7829f38ac143c1aefe5aa4e7d721259d1a84638f1a",
+      "bytes": 968,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "inline_and_cmyk_images_use_real_memory_extraction",
+      "qualification": "Small CMYK cyan image; decoded PNG retains green/blue dominance. This is not a color-fidelity qualification."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-form-mask.pdf",
+      "sha256": "9d532ae72fbdee15cb2373e79fe02f97b273e544c389f4c3757f5402a3840548",
+      "bytes": 811,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "nested_form_and_inline_masks_reject_with_no_publication",
+      "qualification": "ImageMask carrier within unused Form resource; worker must reject as Unsupported with no publication."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-html-literal-markup.pdf",
+      "sha256": "b6d59c82aa43643072377aac66237dd7333ea5d97d9d643d0f0a3e7a6fe22fa3",
+      "bytes": 743,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "page_html_has_stable_app_identity_and_no_active_resource_attributes",
+      "qualification": "Literal script markup plus javascript URI annotation; raw native HTML is retained as untrusted data and separate sanitized HTML has no active resource attributes."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-inline-mask.pdf",
+      "sha256": "c6a9f40e06dd2c451e5a43bf54f88ca6086150edee322e536cdfb8b662871013",
+      "bytes": 697,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "nested_form_and_inline_masks_reject_with_no_publication",
+      "qualification": "Inline IM true inside a Form stream; worker must reject as Unsupported with no publication."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-inline-rgb.pdf",
+      "sha256": "f4238ec69d46dd2220400b3e72ebb54dfce4407076973ef18a493479576a3d89",
+      "bytes": 770,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "inline_and_cmyk_images_use_real_memory_extraction",
+      "qualification": "8x8 inline RGB image; independent PNG decode must yield exact green pixels and inline=true."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-malformed-jpeg.pdf",
+      "sha256": "03883b6fc2d631c6355442d1d9ef4af0feb0bc9480f0313a560bad7af36037eb",
+      "bytes": 737,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "image_empty_and_decode_error_are_distinct_and_supplements_are_atomic",
+      "qualification": "Small malformed DCT stream; error must remain distinct from empty inventory and late supplemental failure must leave full baseline unchanged. Do not render directly."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-mixed-tagged-headers.pdf",
+      "sha256": "b4de3f7c7d8135d6f7709aa06ae7160d8fbbf57ac8452daa7856a38c4fb7cc32",
+      "bytes": 1034,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "mixed_tagged_untagged_cleanup_reports_partial_coverage_and_preserves_baseline",
+      "qualification": "One tagged and one untagged repeated header; pinned cleanup removes only tagged header, reports partial coverage and keeps baseline."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-page-inline-mask.pdf",
+      "sha256": "94f8fa80e002bee7bcac15dc9642325cd21a4c16f6329c74b5d3d748f331d78c",
+      "bytes": 565,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "nested_form_and_inline_masks_reject_with_no_publication",
+      "qualification": "Inline IM true in page stream; worker must reject as Unsupported with no publication."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-repeated-image-soft-mask.pdf",
+      "sha256": "d6b3241cedce10f88f538efb90f662131b646ab83771919ba5431f745cd0539f",
+      "bytes": 1119,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "soft_mask_extraction_fails_explicitly_instead_of_returning_opaque_pixels",
+      "qualification": "8x8 red image with gray SMask; explicit Unsupported rather than silently opaque PNG, full result unchanged."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-repeated-image.pdf",
+      "sha256": "c507a699fc2930e4fb13ce192b7712a712a96f1a144e93d8b394c6d62c6a0a2b",
+      "bytes": 935,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "images_retain_png_pixels_and_repeated_paint_provenance_in_memory",
+      "qualification": "Same opaque 8x8 RGB XObject painted twice; two occurrences retain distinct boxes/paint order, exact red PNG pixels and byte hashes."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-repeated-meaningful-header.pdf",
+      "sha256": "85eabfa7c286e4547a75520f6e1b2ff60beb115ac8a1056eea1e316dabca4fe9",
+      "bytes": 975,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "header_cleanup_is_a_separate_candidate_and_records_meaningful_false_removals",
+      "qualification": "Repeated Dose every 8 hours [12] appears in header and body; cleanup candidate removes header occurrence while body, original extraction and independent HTML stay intact."
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-whitespace-citations.pdf",
+      "sha256": "49677fb4242aac4c784a8e37cf9163f5a54ca3eaedd477f9bbbd89dc4258deb7",
+      "bytes": 613,
+      "origin": "approved repository-generated synthetic fixture",
+      "generator_file": "tests/oxide_supplements.rs",
+      "test": "whitespace_preview_preserves_citations_duplicate_words_and_hard_hyphens",
+      "qualification": "Whitespace-only preview preserves duplicate words, hard hyphen, both citation occurrences and Page 1; source baseline remains unchanged."
+    }
+  ],
+  "visual_review": {
+    "tool_version": "pdftoppm version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+    "files": [
+      {
+        "path": "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-wrapped-description.png",
+        "sha256": "98651161219d96a544ed8d2a4ebdc12738b5f19625337d64903608be5621bb40",
+        "bytes": 19102,
+        "source": {
+          "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-wrapped-description.pdf",
+          "sha256": "088c4e52aa054f42c12de04c9c597182dc132153871fd8ea792df6d1b6c6fddd",
+          "bytes": 1207
+        },
+        "command_argv": [
+          "timeout",
+          "-k",
+          "2",
+          "15",
+          "prlimit",
+          "--as=268435456",
+          "--cpu=10",
+          "--core=0",
+          "--",
+          "pdftoppm",
+          "-f",
+          "1",
+          "-singlefile",
+          "-scale-to",
+          "1200",
+          "-png",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-wrapped-description.pdf",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-wrapped-description"
+        ],
+        "exit_code": 0,
+        "stderr_note": "Fontconfig repeatedly reported No writable cache directories (/var/cache/fontconfig); rendering completed with exit 0. No cache permissions were escalated.",
+        "reviewer": "oxide_query agent visual inspection through view_image",
+        "qualification": "Source-layout observation only; Standard 14 font substitution/spacing is not typographic fidelity evidence.",
+        "observation": "Viewed Poppler source raster: header plus A101 wrapped-description row, B202 row, and final empty ruled row are visible; A101/description/17.50 align within one ruled row."
+      },
+      {
+        "path": "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-blank-row.png",
+        "sha256": "c157266d4d518b60ceb1307f2c44f32ec616f414377f865330a46d3005d663f5",
+        "bytes": 16166,
+        "source": {
+          "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-blank-row.pdf",
+          "sha256": "5e9039ba51880daada259e496a14db8d54b7a456037f11f90253a40ae0e8534c",
+          "bytes": 1149
+        },
+        "command_argv": [
+          "timeout",
+          "-k",
+          "2",
+          "15",
+          "prlimit",
+          "--as=268435456",
+          "--cpu=10",
+          "--core=0",
+          "--",
+          "pdftoppm",
+          "-f",
+          "1",
+          "-singlefile",
+          "-scale-to",
+          "1200",
+          "-png",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-blank-row.pdf",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-blank-row"
+        ],
+        "exit_code": 0,
+        "stderr_note": "Fontconfig repeatedly reported No writable cache directories (/var/cache/fontconfig); rendering completed with exit 0. No cache permissions were escalated.",
+        "reviewer": "oxide_query agent visual inspection through view_image",
+        "qualification": "Source-layout observation only; Standard 14 font substitution/spacing is not typographic fidelity evidence.",
+        "observation": "Viewed Poppler source raster: four ruled rows visibly include the empty third row and complete C303 final row."
+      },
+      {
+        "path": "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-short-prose.png",
+        "sha256": "fb2532b29483359da04d1be762e1408af1fb09f297237c942f255abddb9ab762",
+        "bytes": 13648,
+        "source": {
+          "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-short-prose.pdf",
+          "sha256": "5b8c373feb11d8aba32eeceb594651ec70a78f26de62c2b87112effd738a1646",
+          "bytes": 813
+        },
+        "command_argv": [
+          "timeout",
+          "-k",
+          "2",
+          "15",
+          "prlimit",
+          "--as=268435456",
+          "--cpu=10",
+          "--core=0",
+          "--",
+          "pdftoppm",
+          "-f",
+          "1",
+          "-singlefile",
+          "-scale-to",
+          "1200",
+          "-png",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/convert-adversarial-short-prose.pdf",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/convert-adversarial-short-prose"
+        ],
+        "exit_code": 0,
+        "stderr_note": "Fontconfig repeatedly reported No writable cache directories (/var/cache/fontconfig); rendering completed with exit 0. No cache permissions were escalated.",
+        "reviewer": "oxide_query agent visual inspection through view_image",
+        "qualification": "Source-layout observation only; Standard 14 font substitution/spacing is not typographic fidelity evidence.",
+        "observation": "Viewed Poppler source raster: three short label/prose lines with two aligned text groups and no table ruling; native output invents a third column inside phrases."
+      },
+      {
+        "path": "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/supplement-adversarial-meaningful-heading-citation.png",
+        "sha256": "f39217dedacf207acc7e97e5d4c97160786f94dbb63d777888d2e9374a0aa3b1",
+        "bytes": 14628,
+        "source": {
+          "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-adversarial-meaningful-heading-citation.pdf",
+          "sha256": "cf781443fb500b0828131d2dbaafadcff93178d46a197431251dcf9cfe45a640",
+          "bytes": 935
+        },
+        "command_argv": [
+          "timeout",
+          "-k",
+          "2",
+          "15",
+          "prlimit",
+          "--as=268435456",
+          "--cpu=10",
+          "--core=0",
+          "--",
+          "pdftoppm",
+          "-f",
+          "1",
+          "-singlefile",
+          "-scale-to",
+          "1200",
+          "-png",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-run06/supplement-adversarial-meaningful-heading-citation.pdf",
+          "/workspace/tpe-pdf-oxide-evidence-20261015/query-adversarial-visual/supplement-adversarial-meaningful-heading-citation"
+        ],
+        "exit_code": 0,
+        "stderr_note": "Fontconfig repeatedly reported No writable cache directories (/var/cache/fontconfig); rendering completed with exit 0. No cache permissions were escalated.",
+        "reviewer": "oxide_query agent visual inspection through view_image",
+        "qualification": "Source-layout observation only; Standard 14 font substitution/spacing is not typographic fidelity evidence.",
+        "observation": "Viewed first source page: Clinical findings [12] is a large heading at top; Meaningful body evidence remains. is separate lower body text. The passing cleanup test requires heading/citation removal to be recorded as candidate loss, with baseline intact."
+      }
+    ]
+  },
+  "remaining_blockers": [
+    "Exact parent-confirmed external counterexample source paths are still pending; these equivalents do not replace them.",
+    "Native character-mode non-ASCII ActualText bug remains; explicit span-derived observations pass independent Unicode controls but do not fix native glyph mapping.",
+    "Native table grid/header/blank-row interpretation is unqualified and known incorrect on captured cases; raw candidates carry validation_error, conversion enablement is Unsupported.",
+    "Mask-bearing memory image extraction is Unsupported until bounded faithful alpha composition is verified.",
+    "Final frozen combined-source checks, Python 3.14 parity, and exhaustive toolkit qualification remain integration-owner follow-up."
+  ],
+  "current_source_snapshot_time_utc": "2026-10-16T00:05:06.379646+00:00"
+}

@@ -250,6 +250,94 @@ fn publisher_failure_leaves_source_and_existing_target_unchanged() {
 }
 
 #[test]
+fn receipt_write_failure_rolls_back_published_artifacts() {
+    let root = TempDir::new().unwrap();
+    let source = b"Synthetic atomic publication receipt control.";
+    let input = root.path().join("source.txt");
+    fs::write(&input, source).unwrap();
+    let request_path = request(
+        root.path(),
+        &json!({"operation":"create.text","inputs":[input],"params":{}}),
+    );
+    let mut create = Command::new(env!("CARGO_BIN_EXE_tpe"));
+    create.args(["oxide", "--request"]).arg(request_path);
+    create.args(["--timeout-ms", "10000"]);
+    let response = success(&run(create, root.path()));
+    assert!(
+        response["output"]["artifacts"][0]["bytes"]
+            .as_array()
+            .unwrap()
+            .len()
+            > 100
+    );
+    let response_path = root.path().join("response.json");
+    private_write(&response_path, &serde_json::to_vec(&response).unwrap());
+    let receipt = root.path().join("receipt-is-a-directory");
+    fs::create_dir(&receipt).unwrap();
+    fs::write(receipt.join("sentinel"), b"caller-owned receipt sentinel").unwrap();
+    let publication = root.path().join("publication.json");
+    private_write(
+        &publication,
+        &serde_json::to_vec(&json!({
+            "response": response_path, "receipt": receipt,
+            "out": root.path().join("out"), "max_bytes": 1_048_576
+        }))
+        .unwrap(),
+    );
+    let mut publish = Command::new(env!("CARGO_BIN_EXE_tpe"));
+    publish
+        .arg("native-worker")
+        .arg(publication)
+        .args([
+            "--phase",
+            "oxide-publish",
+            "--growth-bytes",
+            "67108864",
+            "--parent",
+        ])
+        .arg(std::process::id().to_string())
+        .stdin(Stdio::piped());
+    let result = run(publish, root.path());
+    assert!(!result.status.success());
+    assert!(String::from_utf8_lossy(&result.stderr).contains("directory"));
+    empty_publication(root.path());
+    assert_eq!(
+        fs::read(receipt.join("sentinel")).unwrap(),
+        b"caller-owned receipt sentinel"
+    );
+    assert_eq!(fs::read(input).unwrap(), source);
+}
+
+#[test]
+fn unconfined_routed_extraction_fails_before_opening_ledger_or_outputs() {
+    let root = TempDir::new().unwrap();
+    let (input, original) = fixture(root.path());
+    let mut extract = Command::new(env!("CARGO_BIN_EXE_tpe"));
+    extract
+        .args([
+            "extract",
+            "--backend",
+            "routed",
+            "--timeout-ms",
+            "1000",
+            "--db",
+        ])
+        .arg(root.path().join("ledger.sqlite"))
+        .arg("--out")
+        .arg(root.path().join("out"))
+        .arg(&input);
+    let result = run(extract, root.path());
+    assert!(!result.status.success());
+    assert!(
+        String::from_utf8_lossy(&result.stderr)
+            .contains("no qualified filesystem containment path")
+    );
+    assert!(!root.path().join("ledger.sqlite").exists());
+    empty_publication(root.path());
+    assert_eq!(fs::read(input).unwrap(), original);
+}
+
+#[test]
 fn malformed_unknown_and_out_of_range_requests_fail_without_publication() {
     for case in 0..5 {
         let root = TempDir::new().unwrap();
@@ -529,16 +617,21 @@ fn stdout_backpressure_obeys_deadline_without_changing_pipe_flags() {
         root.path(),
         &json!({"operation":"query.document","inputs":[input],"params":{}}),
     );
-    let (read_end, write_end) = rustix::pipe::pipe().unwrap();
+    // Only the duplicated stdout may reach the controller. Extra inherited
+    // pipe ends correctly fail the sealed worker's descriptor admission.
+    let (read_end, write_end) = rustix::pipe::pipe_with(rustix::pipe::PipeFlags::CLOEXEC).unwrap();
     let before = rustix::fs::fcntl_getfl(&write_end).unwrap();
+    let started = Instant::now();
+    let stderr = root.path().join("controller.stderr");
     let mut child = ChildGuard(
         command(root.path(), 3_000)
             .stdout(Stdio::from(write_end.as_fd().try_clone_to_owned().unwrap()))
-            .stderr(Stdio::null())
+            .stderr(File::create(&stderr).unwrap())
             .spawn()
             .unwrap(),
     );
     assert!(!wait_bounded(&mut child.0, Duration::from_secs(5)).success());
+    let elapsed = started.elapsed();
     let after = rustix::fs::fcntl_getfl(&write_end).unwrap();
     let changed = (before ^ after).bits();
     #[cfg(target_os = "macos")]
@@ -547,10 +640,18 @@ fn stdout_backpressure_obeys_deadline_without_changing_pipe_flags() {
     drop(write_end);
     let mut output = Vec::new();
     std::io::Read::read_to_end(&mut File::from(read_end), &mut output).unwrap();
-    assert!(!output.is_empty(), "test did not reach output delivery");
     assert!(
-        String::from_utf8_lossy(&output).contains("\"publication_limits\"")
-            || String::from_utf8_lossy(&output).starts_with("{\"version\"")
+        elapsed >= Duration::from_secs(2),
+        "controller failed before backpressure reached its deadline: stdout={} stderr={}",
+        String::from_utf8_lossy(&output),
+        fs::read_to_string(&stderr).unwrap(),
+    );
+    assert!(output.len() > 1024, "test did not fill the output pipe");
+    assert!(
+        String::from_utf8_lossy(&output).contains("\"backend\"")
+            && String::from_utf8_lossy(&output).contains("SYNTHETIC_BACKPRESSURE_"),
+        "partial output did not contain the actual operation report: {}",
+        String::from_utf8_lossy(&output),
     );
     clean_captures(root.path());
     assert_eq!(fs::read(input).unwrap(), bytes);

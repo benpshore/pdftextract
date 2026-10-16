@@ -97,6 +97,12 @@ The generator ran successfully under Python 3.14.7 with a 1 GiB address-space ca
 and 120-second deadline, validating archive hashes, source references and named
 APIs. That is inventory validation, not Python engine parity or a PDF test result.
 
+[containment.md](containment.md) documents the worker policy, its fail-closed
+Landlock path, the distinct sealed seccomp path and bounded syscall probes.
+[containment-evidence.json](containment-evidence.json) binds those local probe
+results to exact source hashes. This separate evidence does not mark upstream
+capability obligations complete; the integration owner attaches combined results.
+
 To reproduce, use the existing locked metadata snapshot and extracted registry
 sources; the script does not download or compile anything:
 

@@ -116,6 +116,20 @@ pub fn snapshot(path: &Path, max_bytes: Option<u64>) -> Result<Snapshot, Acquire
 /// [`snapshot`] without the hash: read `path` completely with the same
 /// checks, and leave hashing to the caller.
 pub fn read_verified(path: &Path, max_bytes: Option<u64>) -> Result<Unhashed, AcquireError> {
+    read_verified_inner(path, max_bytes, false)
+}
+
+/// Bounded private auxiliary input, including a deliberately empty password.
+/// PDF/document acquisition continues to reject empty files via `read_verified`.
+pub fn read_verified_allow_empty(path: &Path, max_bytes: u64) -> Result<Unhashed, AcquireError> {
+    read_verified_inner(path, Some(max_bytes), true)
+}
+
+fn read_verified_inner(
+    path: &Path,
+    max_bytes: Option<u64>,
+    allow_empty: bool,
+) -> Result<Unhashed, AcquireError> {
     // Avoid opening known devices/FIFOs. The descriptor is checked again after
     // opening, so replacing a regular path cannot turn this into a device read.
     let before_meta = fs::metadata(path)?;
@@ -131,7 +145,7 @@ pub fn read_verified(path: &Path, max_bytes: Option<u64>) -> Result<Unhashed, Ac
     if before != observe(&before_meta) {
         return Err(AcquireError::ChangedDuringRead);
     }
-    if before.size == 0 {
+    if before.size == 0 && !allow_empty {
         return Err(AcquireError::Empty);
     }
     if let Some(max) = max_bytes

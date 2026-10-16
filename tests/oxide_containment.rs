@@ -1,19 +1,24 @@
 //! A harness=false executable: only disposable children install restrictions.
 //! Probes are finite single operations, never a fork bomb or outbound request.
 
-use std::io;
-use std::path::Path;
-use std::process::{Command, Stdio};
-use std::time::{Duration, Instant};
+#[cfg(all(
+    target_os = "linux",
+    any(target_arch = "x86_64", target_arch = "aarch64")
+))]
+use std::{
+    io,
+    path::Path,
+    process::{Command, Stdio},
+    time::{Duration, Instant},
+};
 
 #[cfg(all(
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
 fn denied<T>(result: io::Result<T>, operation: &str) {
-    let error = match result {
-        Ok(_) => panic!("{operation} unexpectedly succeeded"),
-        Err(error) => error,
+    let Err(error) = result else {
+        panic!("{operation} unexpectedly succeeded");
     };
     assert_eq!(error.raw_os_error(), Some(1), "{operation}: {error}");
 }
@@ -90,6 +95,7 @@ fn filesystem_probes(root: &Path) {
     target_os = "linux",
     any(target_arch = "x86_64", target_arch = "aarch64")
 ))]
+#[allow(clippy::too_many_lines)] // Keep each finite scenario and its exact assertions together.
 fn probe(name: &str, root: &Path) {
     use tpe_ffi::oxide_containment as guard;
     assert!(!guard::installed());
@@ -137,7 +143,15 @@ fn probe(name: &str, root: &Path) {
             }
             let sum = (0..10_000_u64).map(|n| n * n).sum::<u64>();
             assert_eq!(sum, 333_283_335_000);
-            println!("{name}: filesystem/network/process probes passed; threads and memory work");
+            if sealed {
+                println!(
+                    "sealed: path IO, sockets and process APIs denied; threads and memory work"
+                );
+            } else {
+                println!(
+                    "process: sockets and process APIs denied; filesystem read and threads work"
+                );
+            }
         }
         "inherited_fd" => {
             let file = std::fs::File::open(root.join("sentinel")).unwrap();

@@ -81,7 +81,7 @@ impl Check<'_> {
         Ok(())
     }
 
-    fn visit(&mut self, object: Object, kind: Kind, depth: usize) -> Result<(), BackendError> {
+    fn visit(&mut self, object: &Object, kind: Kind, depth: usize) -> Result<(), BackendError> {
         self.nodes = self.nodes.saturating_add(1);
         if depth > 64 || self.nodes > 4096 {
             return Err(BackendError::Limit(
@@ -89,17 +89,17 @@ impl Check<'_> {
             ));
         }
         if let Object::Reference(reference) = object {
-            if self.active.contains(&reference) {
+            if self.active.contains(reference) {
                 return Err(malformed("cyclic image resource graph"));
             }
-            if self.done.contains(&(reference, kind)) {
+            if self.done.contains(&(*reference, kind)) {
                 return Ok(());
             }
-            self.active.insert(reference);
-            let resolved = self.document.load_object(reference).map_err(malformed)?;
-            self.visit(resolved, kind, depth + 1)?;
-            self.active.remove(&reference);
-            self.done.insert((reference, kind));
+            self.active.insert(*reference);
+            let resolved = self.document.load_object(*reference).map_err(malformed)?;
+            self.visit(&resolved, kind, depth + 1)?;
+            self.active.remove(reference);
+            self.done.insert((*reference, kind));
             return Ok(());
         }
         let dict = object
@@ -118,7 +118,7 @@ impl Check<'_> {
                     ("Pattern", Kind::Patterns),
                 ] {
                     if let Some(value) = dict.get(key) {
-                        self.visit(value.clone(), next, depth + 1)?;
+                        self.visit(value, next, depth + 1)?;
                     }
                 }
             }
@@ -129,7 +129,7 @@ impl Check<'_> {
                     _ => Kind::Pattern,
                 };
                 for value in dict.values() {
-                    self.visit(value.clone(), next, depth + 1)?;
+                    self.visit(value, next, depth + 1)?;
                 }
             }
             Kind::State => masks(dict)?,
@@ -137,7 +137,7 @@ impl Check<'_> {
                 masks(dict)?;
                 let is_form = dict.get("Subtype").and_then(Object::as_name) == Some("Form");
                 if let Some(resources) = dict.get("Resources") {
-                    self.visit(resources.clone(), Kind::Resources, depth + 1)?;
+                    self.visit(resources, Kind::Resources, depth + 1)?;
                 }
                 if is_form || (kind == Kind::Pattern && matches!(object, Object::Stream { .. })) {
                     if self.document.is_encrypted() {
@@ -169,7 +169,7 @@ pub fn reject_unsupported_masks(document: &PdfDocument, page: usize) -> Result<(
             .as_dict()
             .ok_or_else(|| malformed("page/ancestor is not a dictionary"))?;
         if let Some(resources) = dict.get("Resources") {
-            check.visit(resources.clone(), Kind::Resources, 0)?;
+            check.visit(resources, Kind::Resources, 0)?;
             break;
         }
         let Some(parent) = dict.get("Parent") else {

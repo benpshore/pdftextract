@@ -546,6 +546,24 @@ fn attachments_and_content_are_exact_bytes_with_app_owned_artifact_names() {
     assert_eq!(output.artifacts[0].name, "attachment-000000.bin");
     assert_eq!(output.artifacts[0].bytes, payload);
     assert_eq!(output.data["result"][0]["original_name"], "../../escape.sh");
+    let mut unicode_document = Document::load_mem(&bytes).unwrap();
+    let unicode_name = "../../Résumé λ.sh";
+    let mut encoded_name = vec![0xfe, 0xff];
+    encoded_name.extend(unicode_name.encode_utf16().flat_map(u16::to_be_bytes));
+    unicode_document
+        .get_object_mut(spec)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("UF", Object::string_literal(encoded_name));
+    let unicode = query(&save(unicode_document), "query.attachments", json!({}));
+    assert_eq!(unicode.data["result"][0]["original_name"], unicode_name);
+    assert_ne!(
+        unicode.data["result"][0]["upstream_projected_name"],
+        unicode_name
+    );
+    assert_eq!(unicode.artifacts[0].name, "attachment-000000.bin");
+    assert_eq!(unicode.artifacts[0].bytes, payload);
     let content = query(&bytes, "query.content", json!({}));
     assert_eq!(content.artifacts[0].name, "page-000001-content.bin");
     assert!(String::from_utf8_lossy(&content.artifacts[0].bytes).contains("Alpha beta"));

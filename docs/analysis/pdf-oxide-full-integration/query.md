@@ -40,7 +40,7 @@ matching spans, not exact highlighted glyphs. Original bytes are not changed.
 | `query.paths` | All paths, rectangles, or vector lines | Painted rectangle fixture; raw path operations and rendered extents; no active action execution |
 | `query.content` | `get_page_content_data` | Actual decoded page content returned in an app-named in-memory artifact; raw PDF operators remain untrusted data |
 | `query.font_data` | Embedded font bytes, Unicode-to-GID and width maps | Whole-document page bound, deterministic metadata maps and app-named artifacts; Standard 14 absence exercised, embedded-font fidelity still needs corpus evidence |
-| `query.attachments` | `extract_embedded_files` after bounded name-tree validation | Exact synthetic payload, traversal-like filename retained only as metadata, cycle rejection; upstream may omit malformed streams and decode filenames lossily |
+| `query.attachments` | `extract_embedded_files` after bounded name-tree validation and shared original-name decoding | Exact synthetic payload, UTF-16 UF/F filename restored from source and lossy upstream projection retained separately, traversal-like filename metadata only, cycle rejection; upstream may omit malformed streams |
 
 The implementation does not run convenience “all pages” extraction. Page
 selection is validated before building a range, and no partial range is silently
@@ -57,6 +57,9 @@ and count mismatches fail. Destination-name and attachment name trees have
 separate depth/item/cycle checks. No action is followed, attachment launched, or
 source-provided filename used as an output path. Returned font/attachment names
 are `font-NNNNNN.bin` and `attachment-NNNNNN.bin`; original names remain metadata.
+Attachment filenames are decoded from original UF/F PDF strings using the
+edit module's shared bounded walker. The lossy upstream filename is retained
+separately for provenance; conflicting source-to-projection mappings fail.
 
 Verified source caveats affect interpretation:
 
@@ -99,6 +102,62 @@ execution are centralized by the integration owner; this document is an API and
 source-evidence inventory, not a claim that all combined-source checks passed.
 It does not establish broad extraction accuracy, hostile-input containment,
 toolkit parity, or cross-platform qualification.
+
+The sibling `src/oxide/convert.rs` module exposes selected-page `convert.text`,
+`convert.markdown`, and `convert.html`. Each calls the pinned corresponding
+native converter and returns a baseline projection alongside requested-option
+output. When options differ, the baseline and requested conversions use separate
+parser instances. A baseline projection is not the original PDF string bytes.
+Both complete effective option sets, the source digest, and typed native warning
+provenance are recorded. Raw output is limited to 1 MiB per page and checked
+against aggregate byte/item budgets; overflow is an error. All-page convenience
+converters are not used.
+
+Conversion controls are reading order, heading detection, and inline form
+values; HTML additionally accepts layout preservation, and Markdown accepts bold
+marker behavior. Table reconstruction is disabled by default, and explicit
+`extract_tables: true` fails as Unsupported until cell/row mapping is qualified.
+Native table candidates are retained separately as evaluation evidence, not
+successful validated table conversions. Images, formula rendering, image/file paths, automatic header
+stripping, artifact suppression, and ligature expansion are disabled. Unsupported
+options are rejected, not ignored. HTML retains baseline/raw native markup and
+adds a separate `display_html` using the supplements module's shared structural
+tag sanitizer and stable source-hash/page wrapper. Raw HTML and Markdown remain
+untrusted source projections. No completeness or exact reading-order claim is
+made for these native converters.
+
+`tests/oxide_convert.rs` exercises the real Unicode ActualText, citations,
+duplicate words, hard hyphens, baseline isolation, HTML source identity and
+sanitization, page ranges, emptiness/malformed content, unsafe option rejection,
+omitted image resources, and output limits. `tests/oxide_supplements.rs` keeps
+cleanup candidates separate from the baseline and tests exact opaque PNG pixels,
+repeated paints, inline and CMYK images, empty/decode failure distinctions, and
+atomic failure. Soft masks/image masks are explicitly unsupported until faithful
+bounded alpha composition is implemented. Form-resource cycles and masks,
+page/form inline masks, and image-budget failures are exercised only in bounded
+CLI workers. Green results are limited to these fixtures, not broader parity.
+
+The synthetic adversarial conversion cases are captured as
+`convert-adversarial-wrapped-description.pdf`, `convert-adversarial-blank-row.pdf`,
+and `convert-adversarial-short-prose.pdf` when `TPE_OXIDE_FIXTURE_CAPTURE` is set.
+Matching `.native-tables.json` files retain exact native candidates with
+`evaluation_only: true`, `validated: false`, source hashes, and the independent
+row/content obligation. Tests require original spans to retain all painted
+strings and table-enabled conversion to fail explicitly. These synthetic
+equivalents do not replace the parent's exact confirmed counterexamples, whose
+source paths remain pending. Cleanup additionally captures
+`supplement-adversarial-meaningful-heading-citation.pdf` and requires the observed
+heading/citation removal to remain visible in preview provenance while baseline
+text remains intact.
+
+The run-06 [adversarial fixture index](adversarial-fixtures.json) preserves 22
+owned captured files with exact hashes, raw native candidate cells, test/generator
+provenance, and four independently viewed bounded Poppler source renders. It
+records the confirmed wrapped-cell split, dropped blank/final row, and invented
+prose table separately from the passing adapter rejection checks. Run 06 passed
+10 query, 8 conversion, and 13 supplement tests, but three unrelated test targets
+failed. It ran on a changing worktree; the index explicitly does not attribute
+those results to the final current tree. Frozen combined checks remain pending.
 
 Pinned source references: [document API](https://github.com/yfedoseev/pdf_oxide/blob/v0.3.78/src/document.rs),
 [search](https://github.com/yfedoseev/pdf_oxide/blob/v0.3.78/src/search/text_search.rs),

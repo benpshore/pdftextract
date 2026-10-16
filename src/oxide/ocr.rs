@@ -1,5 +1,5 @@
 //! Offline OCR uses request-owned bytes, never model paths, global caches, or
-//! AutoExtractor's model acquisition. Recognition remains a derived result.
+//! `AutoExtractor`'s model acquisition. Recognition remains a derived result.
 
 use serde_json::{Value, json};
 
@@ -110,7 +110,7 @@ fn recognize(ctx: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
         |message: &str| BackendError::Malformed(format!("offline OCR parameters: {message}"));
     let p: Params = serde_json::from_value(params.clone()).map_err(|e| invalid(&e.to_string()))?;
     if ctx.inputs.len() != 4 {
-        return Err(BackendError::Unsupported("offline OCR requires exactly four request inputs: PDF, detection ONNX, recognition ONNX, and UTF-8 character dictionary. No approved model fixture is bundled.".into()));
+        return Err(BackendError::Unsupported("offline OCR requires exactly four request inputs: PDF, detection ONNX, recognition ONNX, and UTF-8 character dictionary. No trained OCR model is bundled.".into()));
     }
     let mut model_hashes = Vec::new();
     for (index, expected, maximum) in [
@@ -230,20 +230,17 @@ fn recognize(ctx: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
                 ));
             }
             let pixels = u64::from(handle.width) * u64::from(handle.height);
-            total_pixels = total_pixels
-                .checked_add(pixels)
-                .ok_or_else(|| BackendError::Limit("OCR pixel counter overflow".into()))?;
             if handle.width == 0
                 || handle.height == 0
                 || handle.width > 8192
                 || handle.height > 8192
-                || total_pixels > ctx.limits.max_pixels
                 || handle.byte_size_compressed > ctx.limits.max_input_bytes
             {
                 return Err(BackendError::Limit(
                     "OCR image metadata exceeds pixel, dimension or compressed byte limit".into(),
                 ));
             }
+            reserve_pixels(&mut total_pixels, pixels, ctx.limits.max_pixels)?;
             let decoded = handle.decode().map_err(failure)?;
             if (decoded.width(), decoded.height()) != (handle.width, handle.height) {
                 return Err(BackendError::Malformed(
@@ -256,9 +253,7 @@ fn recognize(ctx: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
                     "OCR decoded raster dimensions disagree with preflight metadata".into(),
                 ));
             }
-            let output = engine.ocr_image(&image).map_err(|e| {
-                BackendError::Malformed(format!("offline OCR inference failed: {e}"))
-            })?;
+            let output = bounded_image_inference(&engine, &image, ctx.limits, &mut total_pixels)?;
             total_spans = total_spans
                 .checked_add(output.spans.len())
                 .ok_or_else(|| BackendError::Limit("OCR span counter overflow".into()))?;
@@ -268,11 +263,15 @@ fn recognize(ctx: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
             let mut spans = Vec::with_capacity(output.spans.len());
             for span in output.spans {
                 if !span.confidence.is_finite()
+                    || !(0.0..=1.0).contains(&span.confidence)
                     || !span.polygon.iter().flatten().all(|v| v.is_finite())
-                    || !span.char_confidences.iter().all(|v| v.is_finite())
+                    || !span
+                        .char_confidences
+                        .iter()
+                        .all(|value| value.is_finite() && (0.0..=1.0).contains(value))
                 {
                     return Err(BackendError::Malformed(
-                        "OCR returned non-finite geometry or confidence".into(),
+                        "OCR returned invalid geometry or confidence outside 0..=1".into(),
                     ));
                 }
                 text_bytes = text_bytes
@@ -312,8 +311,128 @@ fn recognize(ctx: &Context<'_>, params: &Value) -> Result<OperationOutput, Backe
         records.push(json!({"page":page+1,"images":images,"status":status}));
     }
     Ok(OperationOutput {
-        data:json!({"source_sha256":ctx.inputs[0].sha256,"model_sha256":model_hashes,"model_verification":"caller_digest_checked_accuracy_unverified","pages":records,"source_preserved":true,"native_text_replaced":false,"status":"partial","diagnostics_page_indexing":"zero_based_upstream","diagnostics":doc.structured_warnings()}),
-        warnings:vec!["OCR recognizes individual painted images. It does not rasterize the full page, deduplicate repeated images, merge native text, or establish extraction completeness. Empty image/recognition output is not proof that the page lacks text.".into(),"Expected digests check model identity only. No approved model fixture or recognition-accuracy evidence is bundled; model execution is bounded by the disposable worker.".into()],
+        data:json!({"source_sha256":ctx.inputs[0].sha256,"model_sha256":model_hashes,"model_verification":"caller_digest_checked_accuracy_unverified","pages":records,"source_preserved":true,"native_text_replaced":false,"status":"partial","processed_pixels":total_pixels,"pixel_budget_includes":"decoded images, padded detector inputs, recognition crops and padded recognizer inputs; graph internals require worker memory limits","diagnostics_page_indexing":"zero_based_upstream","diagnostics":doc.structured_warnings()}),
+        warnings:vec!["OCR recognizes individual painted images. It does not rasterize the full page, deduplicate repeated images, merge native text, or establish extraction completeness. Empty image/recognition output is not proof that the page lacks text.".into(),"Expected digests check model identity only. No trained OCR model or recognition-accuracy evidence is bundled; model execution is bounded by the disposable worker.".into()],
         ..OperationOutput::default()
+    })
+}
+
+#[cfg(feature = "pdf-oxide-ocr")]
+fn reserve_pixels(total: &mut u64, amount: u64, maximum: u64) -> Result<(), BackendError> {
+    *total = total
+        .checked_add(amount)
+        .ok_or_else(|| BackendError::Limit("OCR pixel counter overflow".into()))?;
+    if *total > maximum {
+        return Err(BackendError::Limit(
+            "OCR decoded/preprocessing pixel budget exceeded".into(),
+        ));
+    }
+    Ok(())
+}
+
+/// The pinned high-level helper preprocesses recognition crops without a width
+/// cap. Using its public detector and recognizer separately lets us bound those
+/// intermediates before allocation while preserving its CTC and crop semantics.
+#[cfg(feature = "pdf-oxide-ocr")]
+#[allow(
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss
+)]
+fn bounded_image_inference(
+    engine: &pdf_oxide::ocr::OcrEngine,
+    image: &image::DynamicImage,
+    limits: &super::Limits,
+    total_pixels: &mut u64,
+) -> Result<pdf_oxide::ocr::OcrOutput, BackendError> {
+    use pdf_oxide::ocr::{OcrOutput, OcrSpan, crop_text_region};
+    let failure = |error| BackendError::Malformed(format!("offline OCR inference failed: {error}"));
+    // Match pinned MaxSide preprocessing: truncate the resized dimensions, then
+    // pad to multiples of 32. Input dimensions were checked before decode.
+    let longest = image.width().max(image.height());
+    let side = engine.config().det_max_side;
+    let scale = if longest > side {
+        side as f32 / longest as f32
+    } else {
+        1.0
+    };
+    let detector_width = ((image.width() as f32 * scale) as u32).max(1).div_ceil(32) * 32;
+    let detector_height = ((image.height() as f32 * scale) as u32).max(1).div_ceil(32) * 32;
+    reserve_pixels(
+        total_pixels,
+        u64::from(detector_width) * u64::from(detector_height),
+        limits.max_pixels,
+    )?;
+    let boxes = engine.detector().detect(image).map_err(failure)?;
+    if boxes.len() > limits.max_items {
+        return Err(BackendError::Limit(
+            "OCR detected-region item limit exceeded".into(),
+        ));
+    }
+    let mut spans = Vec::new();
+    let mut total_confidence = 0.0;
+    for region in boxes {
+        if !region
+            .polygon
+            .iter()
+            .flatten()
+            .all(|coordinate| coordinate.is_finite())
+            || !region.confidence.is_finite()
+            || !(0.0..=1.0).contains(&region.confidence)
+        {
+            return Err(BackendError::Malformed(
+                "OCR detector returned invalid geometry or confidence outside 0..=1".into(),
+            ));
+        }
+        // crop_text_region clamps to the already checked source image extent;
+        // this copy cannot exceed that source image's reserved pixel count.
+        let crop = crop_text_region(image, &region.polygon).map_err(failure)?;
+        reserve_pixels(
+            total_pixels,
+            u64::from(crop.width()) * u64::from(crop.height()),
+            limits.max_pixels,
+        )?;
+        // These casts mirror the pinned preprocessing for bounded positive
+        // dimensions. The largest possible ratio is 48/1; no cast can overflow.
+        let height = engine.config().rec_target_height;
+        let scale = height as f32 / crop.height() as f32;
+        let width = ((crop.width() as f32 * scale) as u32).max(1).div_ceil(4) * 4;
+        reserve_pixels(
+            total_pixels,
+            u64::from(width) * u64::from(height),
+            limits.max_pixels,
+        )?;
+        let recognized = engine.recognizer().recognize(&crop).map_err(failure)?;
+        if !recognized.confidence.is_finite()
+            || !(0.0..=1.0).contains(&recognized.confidence)
+            || !recognized
+                .char_confidences
+                .iter()
+                .all(|confidence| confidence.is_finite() && (0.0..=1.0).contains(confidence))
+        {
+            return Err(BackendError::Malformed(
+                "OCR recognizer returned confidence outside 0..=1".into(),
+            ));
+        }
+        if recognized.confidence >= engine.config().rec_threshold
+            && !recognized.text.trim().is_empty()
+        {
+            total_confidence += recognized.confidence;
+            spans.push(OcrSpan {
+                text: recognized.text,
+                polygon: region.polygon,
+                confidence: recognized.confidence,
+                char_confidences: recognized.char_confidences,
+            });
+        }
+    }
+    let total_confidence = if spans.is_empty() {
+        0.0
+    } else {
+        total_confidence / spans.len() as f32
+    };
+    Ok(OcrOutput {
+        spans,
+        total_confidence,
     })
 }
