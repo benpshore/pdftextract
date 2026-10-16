@@ -1,0 +1,23 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 5.82s
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-9a72b1088901da99)
+
+running 2 tests
+test direct_widget_state_dictionary_preserves_selected_custom_appearance ... ok
+test indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement ... FAILED
+
+failures:
+
+---- indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement stdout ----
+
+thread 'indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement' (167834) panicked at tests/oxide_edit_forms.rs:2213:5:
+custom appearances were replaced without rejection: ["widget-state-indirect-radio-false-selected-false", "widget-state-indirect-radio-false-selected-true", "widget-state-indirect-radio-true-selected-false", "widget-state-indirect-radio-true-selected-true"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 39 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `--test oxide_edit_forms`

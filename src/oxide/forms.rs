@@ -224,8 +224,16 @@ fn require_normal_widget_appearance(
         .as_dict()
         .and_then(|dict| dict.get("N"))
         .ok_or_else(unsupported)?;
+    let indirect_normal = matches!(normal, Object::Reference(_));
     let mut normal = resolve_form_object(document, normal)?;
     if let Object::Dictionary(states) = &normal {
+        // The pinned writer handles state dictionaries only when /N is direct.
+        // Resolving this reference here would bless silent generic regeneration.
+        if indirect_normal {
+            return Err(BackendError::Unsupported(
+                "indirect /AP /N state dictionary is unsupported: pinned flattening silently regenerates and replaces custom widget appearances".into(),
+            ));
+        }
         // State-based appearances are admitted only for the exact current AS;
         // do not copy upstream's guessed Yes/Off fallback as preservation proof.
         let state = widget

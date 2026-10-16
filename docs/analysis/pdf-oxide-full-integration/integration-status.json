@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "review_date_utc": "2026-10-16",
-  "status": "clean native checkpoint a39af2b tested on Linux x86_64; every capability remains unqualified",
+  "status": "indirect widget-state guard has focused evidence; exact native follow-up pending; every capability remains unqualified",
   "scope": "Separate status overlay for all source capability IDs. Original source inventory, matrix, feature profiles and unique obligations remain unchanged.",
   "source_indexes": {
     "specification": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
@@ -67,7 +67,8 @@
       "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated.",
       "Publisher transport: supervised immutable acquisition/staging; exact input/request/build/capture binding before filesystem publication. Seven transport tests including a positive control pass at native source a39af2b; parent combination remains untested.",
       "Forms flatten: require usable existing widget normal/state appearances until regeneration value/style preservation is qualified; reject omission warnings. Missing-normal regression distinguishes native retained-widget extraction from absent static page painting.",
-      "Flatten carrier follow-up: four concrete annotation/form defects on absent Contents or inherited Resources. Raw page-tree admission rejects these shapes; explicit local resources and content/appearance survival controls pass. All 39 editing/form tests, strict workspace Clippy, complete exact native workspace run and four supervised no-publication controls pass at a39af2b; PR273 reconciliation remains pending."
+      "Flatten carrier follow-up: four concrete annotation/form defects on absent Contents or inherited Resources. Raw page-tree admission rejects these shapes; explicit local resources and content/appearance survival controls pass. All 39 editing/form tests, strict workspace Clippy, complete exact native workspace run and four supervised no-publication controls pass at a39af2b; PR273 reconciliation remains pending.",
+      "Indirect widget-state dictionary follow-up: four concrete silent replacements reproduced. Narrow Unsupported guard plus four direct-state positive controls pass all 41 editing/form tests; complete exact native follow-up pending."
     ],
     "exact_native_source_checkpoint": {
       "commit": "a39af2b312a39f36f384031d7f81bb22d22daf59",
@@ -101,6 +102,11 @@
       "form_editing_tests_passed": 39,
       "exact_source_workspace_receipt": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
       "exact_cli_rejection_receipt": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json"
+    },
+    "pending_widget_state_followup": {
+      "scope": "Reject silent replacement of existing custom appearances through indirect AP/N state dictionaries",
+      "evidence": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+      "exact_source_workspace_receipt": null
     }
   },
   "shared_contract": {
@@ -2131,7 +2137,8 @@
       "remaining_gaps": [
         "Exact-source tests for the latest stale-appearance guard are parent-owned and pending.",
         "Missing or otherwise incorrect appearances and independent viewer/render fidelity remain unqualified; field removal is not appearance correctness.",
-        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity."
+        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity.",
+        "Indirect AP/N state dictionaries reject because pinned flattening silently replaces custom selected appearance with generic paint. Direct state-dictionary controls do not establish general form fidelity."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/editor/document_editor.rs"

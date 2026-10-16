@@ -116,3 +116,10 @@ and images; pages lacking Contents reject because it removes appearances without
 attaching painting. Explicit empty content arrays with local resources remain
 available. The check walks the bounded raw page tree, since the normal page API
 materializes inheritance. These guards do not establish general visual fidelity.
+
+forms.flatten also rejects an indirect /AP /N state dictionary. The pinned writer
+resolves that reference as a final appearance and can silently regenerate generic
+paint instead of using the valid selected /AS stream. Direct state dictionaries
+and references to ordinary normal appearance streams remain available within the
+existing guards. The positive controls preserve selected custom stream bytes;
+they do not establish general form appearance fidelity.

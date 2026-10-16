@@ -194,3 +194,18 @@ Original 3251660 receipts and the four failed carrier baselines remain unchanged
 See [FINAL_HANDOFF.md](FINAL_HANDOFF.md) and
 [evidence/exact-a39af2b-manifest.json](evidence/exact-a39af2b-manifest.json).
 This does not qualify any capability or the still-unreconciled PR273 combination.
+
+A later exact source review identified another state-appearance mismatch. The
+new baseline passed its direct-state control and failed its indirect-state
+regression: all four checkbox/radio flag and on/off cases silently replaced
+custom paint while reporting existing_widget_appearances_required=true. The
+production checkpoint fa9beab, exact baseline test patch/harness, original failed
+log and synthetic outputs remain preserved. Eight independent Poppler renders
+completed with unchanged inputs; the selected checkbox changes from a magenta
+custom appearance to a generic black check, while the direct control retains it.
+
+The narrow guard rejects an indirect /AP /N resolving to a state dictionary,
+without changing direct-state or ordinary normal-stream handling. All 41 editing/
+form tests, strict workspace Clippy, Ruff and 210 Python 3.14.7 tooling tests pass.
+OSV remains unreachable and Swift/CMake/CTest unavailable. Complete exact-source
+verification follows the new source checkpoint. See STATE_APPEARANCE_HANDOFF.md.

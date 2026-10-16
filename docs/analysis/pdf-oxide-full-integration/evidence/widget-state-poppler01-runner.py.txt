@@ -1,0 +1,35 @@
+"""Bounded independent rendering of the approved widget-state fixtures."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+root=Path('/workspace/tpe-pdf-oxide-evidence-20261015')
+source_root=root/'fixtures-widget-state-baseline01'
+destination=root/'widget-state-poppler01'
+destination.mkdir(exist_ok=False)
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+rows=[]
+for normal in ['direct','indirect']:
+    for radio in ['false','true']:
+        for stage in ['source','upstream']:
+            name=f'widget-state-{normal}-radio-{radio}-selected-true-{stage}'
+            source=source_root/(name+'.pdf')
+            before=sha(source)
+            prefix=destination/name
+            command=['prlimit','--as=1073741824','--core=0','--','timeout','-k','2','15',
+                     'pdftoppm','-f','1','-singlefile','-r','96','-png',str(source),str(prefix)]
+            result=subprocess.run(command,capture_output=True,timeout=20,check=False)
+            rendered=prefix.with_suffix('.png')
+            rows.append({'source':str(source),'source_sha256':before,'source_unchanged':sha(source)==before,
+                         'command':command,'exit_code':result.returncode,'stderr':result.stderr.decode(errors='replace'),
+                         'image':str(rendered),'image_sha256':sha(rendered) if rendered.exists() else None})
+receipt={'scope':'Independent synthetic appearance observations; no general visual fidelity qualification',
+         'version':subprocess.run(['pdftoppm','-v'],capture_output=True,timeout=5,check=False).stderr.decode(),
+         'script_sha256':sha(Path(__file__)),'observations':rows}
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'files':len(rows),'failed':[row['source'] for row in rows if row['exit_code'] or not row['source_unchanged']],
+                  'receipt':str(destination/'receipt.json')}))

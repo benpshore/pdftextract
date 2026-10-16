@@ -1,0 +1,240 @@
+[
+  {
+    "name": "tests",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "cargo",
+      "test",
+      "--locked",
+      "--features",
+      "pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr",
+      "--test",
+      "oxide_edit_forms"
+    ],
+    "exit_code": 0,
+    "seconds": 6.452,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-tests.log",
+    "sha256": "ff22d61606faf28d77b82762e370caa56a301853241f159b8a832541c567d200"
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "300",
+      "cargo",
+      "clippy",
+      "--locked",
+      "--workspace",
+      "--all-targets",
+      "--features",
+      "pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "seconds": 7.154,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-clippy.log",
+    "sha256": "d7f8f09f606d40e4701723ed7edd83261a75d4c2a9cf3729e5c377cbd97727ba"
+  },
+  {
+    "name": "ruff-format",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "uv",
+      "run",
+      "--locked",
+      "ruff",
+      "format",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.033,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-ruff-format.log",
+    "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc"
+  },
+  {
+    "name": "ruff-check",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "uv",
+      "run",
+      "--locked",
+      "ruff",
+      "check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.032,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-ruff-check.log",
+    "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "uv",
+      "run",
+      "--locked",
+      "pytest"
+    ],
+    "exit_code": 0,
+    "seconds": 0.817,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-pytest.log",
+    "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5"
+  },
+  {
+    "name": "audit",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "uv",
+      "audit",
+      "--preview-features",
+      "audit-command"
+    ],
+    "exit_code": 2,
+    "seconds": 8.04,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-audit.log",
+    "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13"
+  },
+  {
+    "name": "swift-build",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "swift",
+      "build"
+    ],
+    "exit_code": 127,
+    "seconds": 0.004,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-swift-build.log",
+    "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7"
+  },
+  {
+    "name": "swift-test",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "swift",
+      "test"
+    ],
+    "exit_code": 127,
+    "seconds": 0.003,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-swift-test.log",
+    "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7"
+  },
+  {
+    "name": "cmake-configure",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "cmake",
+      "-S",
+      ".",
+      "-B",
+      "build"
+    ],
+    "exit_code": 127,
+    "seconds": 0.004,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-cmake-configure.log",
+    "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec"
+  },
+  {
+    "name": "cmake-build",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "cmake",
+      "--build",
+      "build"
+    ],
+    "exit_code": 127,
+    "seconds": 0.004,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-cmake-build.log",
+    "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec"
+  },
+  {
+    "name": "ctest",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "5",
+      "30",
+      "ctest",
+      "--test-dir",
+      "build"
+    ],
+    "exit_code": 127,
+    "seconds": 0.003,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-repair01-ctest.log",
+    "sha256": "8a00bfdba85b83c4002cf2336cd883ae042126f0361ec6f9b2ed2d53cc537734"
+  }
+]

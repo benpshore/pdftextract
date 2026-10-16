@@ -1,5 +1,8 @@
 # Native recovery checkpoint for Ada — 2026-10-16
 
+The later [state-appearance correction](STATE_APPEARANCE_HANDOFF.md) follows the
+a39af2b checkpoint. Its receipts are separate; the prior evidence below is preserved.
+
 **The native checkpoint, including the subsequent flatten carrier guard, passes its scoped Linux checks. It remains separate from
 PR273's backlog checkpoint and is held for parent integration review.** Existing
 PR273 remains the integration task; this work opened, closed, merged or updated no
