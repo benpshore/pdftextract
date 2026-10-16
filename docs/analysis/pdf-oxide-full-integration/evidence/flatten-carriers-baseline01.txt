@@ -1,0 +1,38 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 5.74s
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-9a72b1088901da99)
+
+running 4 tests
+
+thread 'flatten_page_carrier_annotation_without_contents_rejects_lost_appearance' (157786) panicked at tests/oxide_edit_forms.rs:1947:5:
+flattening must reject missing page Contents before deleting an unpainted appearance
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test flatten_page_carrier_annotation_without_contents_rejects_lost_appearance ... FAILED
+
+thread 'flatten_page_carrier_annotation_preserves_inherited_fonts_images_and_appearance' (157785) panicked at tests/oxide_edit_forms.rs:1971:5:
+assertion `left == right` failed
+  left: Object {"original_font_resolves": Bool(false), "original_image_bytes_preserved": Bool(false)}
+ right: Object {"original_font_resolves": Bool(true), "original_image_bytes_preserved": Bool(true)}
+test flatten_page_carrier_annotation_preserves_inherited_fonts_images_and_appearance ... FAILED
+
+thread 'flatten_page_carrier_form_without_contents_rejects_lost_appearance' (157790) panicked at tests/oxide_edit_forms.rs:1947:5:
+flattening must reject missing page Contents before deleting an unpainted appearance
+test flatten_page_carrier_form_without_contents_rejects_lost_appearance ... FAILED
+
+thread 'flatten_page_carrier_form_preserves_inherited_fonts_images_and_appearance' (157789) panicked at tests/oxide_edit_forms.rs:1971:5:
+assertion `left == right` failed
+  left: Object {"original_font_resolves": Bool(false), "original_image_bytes_preserved": Bool(false)}
+ right: Object {"original_font_resolves": Bool(true), "original_image_bytes_preserved": Bool(true)}
+test flatten_page_carrier_form_preserves_inherited_fonts_images_and_appearance ... FAILED
+
+failures:
+
+failures:
+    flatten_page_carrier_annotation_preserves_inherited_fonts_images_and_appearance
+    flatten_page_carrier_annotation_without_contents_rejects_lost_appearance
+    flatten_page_carrier_form_preserves_inherited_fonts_images_and_appearance
+    flatten_page_carrier_form_without_contents_rejects_lost_appearance
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 32 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `--test oxide_edit_forms`

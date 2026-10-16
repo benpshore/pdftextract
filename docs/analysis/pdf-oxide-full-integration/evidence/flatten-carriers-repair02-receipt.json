@@ -1,0 +1,53 @@
+[
+  {
+    "name": "tests",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "10",
+      "300",
+      "cargo",
+      "test",
+      "--locked",
+      "--features",
+      "pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr",
+      "--test",
+      "oxide_edit_forms"
+    ],
+    "exit_code": 0,
+    "seconds": 5.613,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-repair02-tests.log",
+    "sha256": "d71a53dce9a2a0b5cf5c41462733727624faf5587b60841725236e8dd8d605eb"
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "prlimit",
+      "--as=8589934592",
+      "--core=0",
+      "--",
+      "timeout",
+      "-k",
+      "10",
+      "300",
+      "cargo",
+      "clippy",
+      "--locked",
+      "--workspace",
+      "--all-targets",
+      "--features",
+      "pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "seconds": 6.152,
+    "log": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-repair02-clippy.log",
+    "sha256": "da6dd22a422690d1a3f4ff36e2d8545ca3f7dedcee30226f135db722cea2f5a7"
+  }
+]

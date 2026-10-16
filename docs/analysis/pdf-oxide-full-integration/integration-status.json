@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "review_date_utc": "2026-10-16",
-  "status": "native checkpoint tested on Linux x86_64; every capability remains unqualified",
+  "status": "new flatten carrier guard has focused evidence; exact complete native follow-up pending; every capability remains unqualified",
   "scope": "Separate status overlay for all source capability IDs. Original source inventory, matrix, feature profiles and unique obligations remain unchanged.",
   "source_indexes": {
     "specification": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
@@ -62,7 +62,8 @@
       "Form text: reject native subtype disagreement and inline nested subtype shapes before projections; bounded nested resources and stream work checks, no cache-preload fallback.",
       "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated.",
       "Publisher transport: supervised immutable acquisition/staging; exact input/request/build/capture binding before filesystem publication. Seven transport tests including a positive control pass at native source 3251660; parent combination remains untested.",
-      "Forms flatten: require usable existing widget normal/state appearances until regeneration value/style preservation is qualified; reject omission warnings. Missing-normal regression distinguishes native retained-widget extraction from absent static page painting."
+      "Forms flatten: require usable existing widget normal/state appearances until regeneration value/style preservation is qualified; reject omission warnings. Missing-normal regression distinguishes native retained-widget extraction from absent static page painting.",
+      "Flatten carrier follow-up: four concrete annotation/form defects on absent Contents or inherited Resources. Raw page-tree admission rejects these shapes; explicit local resources and content/appearance survival controls pass. All 39 editing/form tests and strict workspace Clippy pass; exact full native rerun pending."
     ],
     "exact_native_source_checkpoint": {
       "commit": "325166027331ee4ca6a053bd81f8ca43b7527de1",
@@ -79,6 +80,11 @@
       "additional_bounded_containment_harness_scenarios": 5,
       "python_314_tooling_passed": 210,
       "qualification": "Source-scoped regression evidence; no capability, toolkit, binding, fidelity or broad safety qualification."
+    },
+    "pending_native_followup": {
+      "scope": "flatten carrier admission guards after native source 3251660",
+      "evidence": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
+      "exact_source_workspace_receipt": null
     }
   },
   "shared_contract": {
@@ -2108,7 +2114,8 @@
       ],
       "remaining_gaps": [
         "Exact-source tests for the latest stale-appearance guard are parent-owned and pending.",
-        "Missing or otherwise incorrect appearances and independent viewer/render fidelity remain unqualified; field removal is not appearance correctness."
+        "Missing or otherwise incorrect appearances and independent viewer/render fidelity remain unqualified; field removal is not appearance correctness.",
+        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/editor/document_editor.rs"
@@ -2225,7 +2232,8 @@
       ],
       "remaining_gaps": [
         "Read enumeration can omit malformed/direct entries; it is not exhaustive inventory.",
-        "Only the named passive subtypes are created; arbitrary actions, appearances and broad visual fidelity are not implemented or qualified."
+        "Only the named passive subtypes are created; arbitrary actions, appearances and broad visual fidelity are not implemented or qualified.",
+        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/annotations.rs",
@@ -2267,7 +2275,8 @@
       ],
       "remaining_gaps": [
         "Appearance preservation across all annotation types lacks independent rendering evidence.",
-        "Flattening is not redaction, action sanitization or proof that all interactive content disappeared."
+        "Flattening is not redaction, action sanitization or proof that all interactive content disappeared.",
+        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/editor/document_editor.rs"
@@ -2305,7 +2314,8 @@
       ],
       "remaining_gaps": [
         "A bounded inert rich-media metadata contract and approved fixtures are absent.",
-        "No media fetching, launch or persistent execution capability is authorized or implemented."
+        "No media fetching, launch or persistent execution capability is authorized or implemented.",
+        "Affected pages without supported explicit Contents or a local Resources dictionary reject: pinned flattening can lose appearances or shadow inherited fonts/images. Positive explicit-carrier controls do not establish complete visual fidelity."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/writer/movie.rs",

@@ -1,6 +1,6 @@
 # Native recovery checkpoint for Ada — 2026-10-16
 
-**The native checkpoint passes its scoped Linux checks. It remains separate from
+**Native source 3251660 passed its scoped Linux checks; the subsequent flatten carrier guard has focused tests and awaits a complete exact-source rerun. It remains separate from
 PR273's backlog checkpoint and is held for parent integration review.** Existing
 PR273 remains the integration task; this work opened, closed, merged or updated no
 PR. No capability is fully qualified, and this is not the exhaustive toolkit or
@@ -136,3 +136,8 @@ No new PR is needed. Native source 3251660 has no diff from main b3730aa in
 Mac-job pause remain intact. No private code/data, Mac/Documents access, real
 credentials/signing, persistent MCP, new queue/database architecture, protected
 merge, release or repository visibility/license change occurred in this work.
+
+The subsequent flatten carrier follow-up is indexed in
+[evidence/flatten-carriers-manifest.json](evidence/flatten-carriers-manifest.json).
+Its four original failures and 39-test repaired form target are preserved. The
+complete 3251660 receipts above predate this additional guard and cannot qualify it.

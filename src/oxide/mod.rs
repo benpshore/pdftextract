@@ -16,6 +16,7 @@ use crate::schema::{BackendIdentity, config_digest, sha256_hex};
 mod convert;
 mod create;
 mod edit;
+mod flatten;
 mod forms;
 mod ocr;
 mod office;

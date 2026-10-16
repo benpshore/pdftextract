@@ -1327,6 +1327,14 @@ fn flatten(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
         ));
     }
     validate_flatten_appearances(context, &editor)?;
+    let selected = context.selected_pages(editor.current_page_count())?;
+    super::flatten::admit_pages(
+        context,
+        editor.source(),
+        editor.current_page_count(),
+        &selected,
+        true,
+    )?;
     if context.pages.is_none() {
         editor.flatten_forms().map_err(upstream)?;
     } else {

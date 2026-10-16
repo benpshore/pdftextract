@@ -162,3 +162,19 @@ checkpoint. Ada still owns their reconciliation and final exact combined-source
 tests. No capability was promoted to qualified, and no PR action was taken. The
 following documentation-only checkpoint archives original receipt/log bytes; it
 does not claim the compiled binary was built from that later documentation commit.
+
+A subsequent parent source review identified two additional carrier risks in both
+annotation and form flattening. Four concrete tests failed: no-Contents pages lost
+valid appearances after annotation/field removal, and inherited-resource pages
+lost original font/image bindings. Raw upstream and admitted adapter outputs, the
+failed harness binary, original log and 12 independent Poppler observations are
+preserved. Poppler renders confirm the no-Contents form becomes blank and the
+inherited-resource form loses body text/image while retaining its appearance.
+
+A bounded raw page-tree admission guard now rejects those shapes before mutation;
+the inherited projection returned by get_page cannot serve this check. Seven new
+regressions include direct/indirect local Resources, explicit empty Contents,
+original page-operation/resource/appearance survival and malformed Contents. All
+39 form/editing tests and strict workspace Clippy pass. The first follow-up run
+had a test compilation error (Operation lacks PartialEq); its original log is
+retained. Final exact complete-source verification of these guards is next.

@@ -1791,3 +1791,298 @@ fn annotation_flatten_removes_selected_links_and_preserves_nonselected_no_ap_lin
         Err(BackendError::Unsupported(reason)) if reason.contains("normal /AP"))
     );
 }
+
+#[derive(Clone, Copy)]
+enum FlattenCarrierKind {
+    Annotation,
+    Form,
+}
+
+impl FlattenCarrierKind {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Annotation => "annotation",
+            Self::Form => "form",
+        }
+    }
+
+    fn source(self) -> Vec<u8> {
+        match self {
+            Self::Annotation => link_annotation_fixture(true),
+            Self::Form => appearance_form_fixture(false, false),
+        }
+    }
+
+    fn upstream(self, bytes: Vec<u8>) -> Vec<u8> {
+        let mut editor = DocumentEditor::from_bytes(bytes).unwrap();
+        match self {
+            Self::Annotation => editor.flatten_page_annotations(0).unwrap(),
+            Self::Form => editor.flatten_forms().unwrap(),
+        }
+        editor.save_to_bytes().unwrap()
+    }
+
+    fn adapter(self, bytes: Vec<u8>) -> Result<OperationOutput, BackendError> {
+        match self {
+            Self::Annotation => run_with_pages(
+                "edit.annotations",
+                vec![bytes],
+                Some((1, 1)),
+                json!({"action":"flatten"}),
+            ),
+            Self::Form => run("forms.flatten", vec![bytes], json!({})),
+        }
+    }
+}
+
+fn flatten_carrier_fixture(
+    kind: FlattenCarrierKind,
+    contents_present: bool,
+    inherited_resources: bool,
+) -> Vec<u8> {
+    let mut document = Document::load_mem(&kind.source()).unwrap();
+    let page_id = document.get_pages()[&1];
+    let mut resources = document
+        .get_dict_in_dict(document.get_dictionary(page_id).unwrap(), b"Resources")
+        .unwrap()
+        .clone();
+    let image = document.add_object(Stream::new(
+        dictionary! {"Type"=>"XObject", "Subtype"=>"Image", "Width"=>1, "Height"=>1,
+        "ColorSpace"=>"DeviceRGB", "BitsPerComponent"=>8},
+        vec![16, 32, 48],
+    ));
+    resources.set("XObject", dictionary! {"SentinelImage"=>image});
+    let mut content = document.get_page_content(page_id);
+    content.extend_from_slice(b"\nq 10 0 0 10 300 600 cm /SentinelImage Do Q\n");
+    let content = document.add_object(Stream::new(dictionary! {}, content));
+    let parent = document
+        .get_dictionary(page_id)
+        .unwrap()
+        .get(b"Parent")
+        .unwrap()
+        .as_reference()
+        .unwrap();
+    let page = document.get_dictionary_mut(page_id).unwrap();
+    if contents_present {
+        page.set("Contents", content);
+    } else {
+        page.remove(b"Contents");
+    }
+    if inherited_resources {
+        page.remove(b"Resources");
+        document
+            .get_dictionary_mut(parent)
+            .unwrap()
+            .set("Resources", resources);
+    } else {
+        page.set("Resources", resources);
+    }
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+fn effective_page_resources(document: &Document, page_number: u32) -> &lopdf::Dictionary {
+    let mut node = document
+        .get_dictionary(document.get_pages()[&page_number])
+        .unwrap();
+    for _ in 0..8 {
+        if node.has(b"Resources") {
+            return document.get_dict_in_dict(node, b"Resources").unwrap();
+        }
+        let parent = node.get(b"Parent").unwrap().as_reference().unwrap();
+        node = document.get_dictionary(parent).unwrap();
+    }
+    panic!("bounded synthetic page resources must resolve");
+}
+
+fn carrier_resource_state(document: &Document) -> Value {
+    let resources = effective_page_resources(document, 1);
+    let font = document
+        .get_dict_in_dict(resources, b"Font")
+        .ok()
+        .and_then(|fonts| fonts.get(b"F1").ok())
+        .and_then(|font| document.dereference(font).ok())
+        .and_then(|(_, font)| font.as_dict().ok())
+        .and_then(|font| font.get(b"BaseFont").ok())
+        .and_then(|name| name.as_name().ok());
+    let image = document
+        .get_dict_in_dict(resources, b"XObject")
+        .ok()
+        .and_then(|objects| objects.get(b"SentinelImage").ok())
+        .and_then(|image| document.dereference(image).ok())
+        .and_then(|(_, image)| image.as_stream().ok())
+        .map(|stream| {
+            stream
+                .decompressed_content()
+                .unwrap_or_else(|_| stream.content.clone())
+        });
+    json!({"original_font_resolves":font == Some(b"Helvetica"),
+        "original_image_bytes_preserved":image == Some(vec![16,32,48])})
+}
+
+fn assert_flatten_without_contents_rejected(kind: FlattenCarrierKind) {
+    let source = flatten_carrier_fixture(kind, false, false);
+    let prefix = format!("flatten-{}-no-contents", kind.name());
+    capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
+    let original = Document::load_mem(&source).unwrap();
+    assert!(!normal_appearance_bytes(&original).is_empty());
+    let native = kind.upstream(source.clone());
+    capture_form_fixture(&format!("{prefix}-upstream.pdf"), &native);
+    let parsed = Document::load_mem(&native).unwrap();
+    let page = parsed.get_pages()[&1];
+    assert!(parsed.get_page_content(page).is_empty());
+    assert!(parsed.get_page_annotations(page).unwrap().is_empty());
+    assert!(invoked_form_streams(&parsed, 1).is_empty());
+    if matches!(kind, FlattenCarrierKind::Form) {
+        assert!(!parsed.catalog().unwrap().has(b"AcroForm"));
+    }
+    let outcome = kind.adapter(source);
+    if let Ok(output) = &outcome {
+        capture_form_fixture(
+            &format!("{prefix}-adapter-admitted.pdf"),
+            &output.artifacts[0].bytes,
+        );
+    }
+    assert!(
+        matches!(outcome, Err(BackendError::Unsupported(reason)) if reason.contains("Contents")),
+        "flattening must reject missing page Contents before deleting an unpainted appearance"
+    );
+}
+
+fn assert_inherited_flatten_resources_rejected(kind: FlattenCarrierKind) {
+    let source = flatten_carrier_fixture(kind, true, true);
+    let prefix = format!("flatten-{}-inherited-resources", kind.name());
+    capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
+    let original = Document::load_mem(&source).unwrap();
+    let expected = json!({"original_font_resolves":true,"original_image_bytes_preserved":true});
+    assert_eq!(carrier_resource_state(&original), expected);
+    let native = kind.upstream(source.clone());
+    capture_form_fixture(&format!("{prefix}-upstream.pdf"), &native);
+    let native_document = Document::load_mem(&native).unwrap();
+    let native_state = carrier_resource_state(&native_document);
+    capture_form_fixture(&format!("{prefix}-observations.json"), &serde_json::to_vec_pretty(&json!({
+        "before":expected, "direct_upstream":native_state,
+        "scope":"independent effective page resource lookup; appearance existence alone is insufficient"
+    })).unwrap());
+    assert_eq!(
+        native_state,
+        json!({"original_font_resolves":false,"original_image_bytes_preserved":false}),
+        "preserve the demonstrated native resource-shadowing defect"
+    );
+    assert!(
+        matches!(kind.adapter(source), Err(BackendError::Unsupported(reason))
+        if reason.contains("local /Resources") && reason.contains("shadow inherited"))
+    );
+}
+
+fn assert_explicit_flatten_carriers_preserved(kind: FlattenCarrierKind) {
+    for indirect_resources in [false, true] {
+        for empty_content in [false, true] {
+            let source = flatten_carrier_fixture(kind, true, false);
+            let mut original = Document::load_mem(&source).unwrap();
+            let page_id = original.get_pages()[&1];
+            if empty_content {
+                original
+                    .get_dictionary_mut(page_id)
+                    .unwrap()
+                    .set("Contents", Object::Array(vec![]));
+            }
+            if indirect_resources {
+                let resources = original
+                    .get_dictionary_mut(page_id)
+                    .unwrap()
+                    .remove(b"Resources")
+                    .unwrap();
+                let resources = original.add_object(resources);
+                original
+                    .get_dictionary_mut(page_id)
+                    .unwrap()
+                    .set("Resources", resources);
+            }
+            let before = Content::decode(&original.get_page_content(page_id)).unwrap();
+            let mut source = Vec::new();
+            original.save_to(&mut source).unwrap();
+            let output = one_pdf(kind.adapter(source).unwrap());
+            let parsed = Document::load_mem(&output).unwrap();
+            assert_eq!(
+                carrier_resource_state(&parsed),
+                json!({"original_font_resolves":true,"original_image_bytes_preserved":true})
+            );
+            let after = Content::decode(&parsed.get_page_content(parsed.get_pages()[&1])).unwrap();
+            assert!(after.operations.len() >= before.operations.len());
+            for (after, before) in after.operations.iter().zip(&before.operations) {
+                assert_eq!(after.operator, before.operator);
+                assert_eq!(after.operands, before.operands);
+            }
+            assert!(
+                invoked_form_streams(&parsed, 1)
+                    .iter()
+                    .any(|stream| stream == &normal_appearance_bytes(&original))
+            );
+            assert!(
+                parsed
+                    .get_page_annotations(parsed.get_pages()[&1])
+                    .unwrap()
+                    .is_empty()
+            );
+            capture_form_fixture(
+                &format!(
+                    "flatten-{}-explicit-control-{indirect_resources}-{empty_content}.pdf",
+                    kind.name()
+                ),
+                &output,
+            );
+        }
+    }
+}
+
+#[test]
+fn flatten_page_carrier_annotation_explicit_resources_preserve_content_and_appearance() {
+    assert_explicit_flatten_carriers_preserved(FlattenCarrierKind::Annotation);
+}
+
+#[test]
+fn flatten_page_carrier_form_explicit_resources_preserve_content_and_appearance() {
+    assert_explicit_flatten_carriers_preserved(FlattenCarrierKind::Form);
+}
+
+#[test]
+fn flatten_page_carrier_malformed_contents_rejects_without_publication() {
+    for contents in [
+        Object::Null,
+        Object::Integer(0),
+        Object::Array(vec![Object::Null]),
+    ] {
+        let mut document = Document::load_mem(&FlattenCarrierKind::Annotation.source()).unwrap();
+        let page = document.get_pages()[&1];
+        document
+            .get_dictionary_mut(page)
+            .unwrap()
+            .set("Contents", contents);
+        let mut source = Vec::new();
+        document.save_to(&mut source).unwrap();
+        assert!(matches!(FlattenCarrierKind::Annotation.adapter(source),
+            Err(BackendError::Unsupported(reason)) if reason.contains("Contents")));
+    }
+}
+
+#[test]
+fn flatten_page_carrier_annotation_without_contents_rejects_lost_appearance() {
+    assert_flatten_without_contents_rejected(FlattenCarrierKind::Annotation);
+}
+
+#[test]
+fn flatten_page_carrier_form_without_contents_rejects_lost_appearance() {
+    assert_flatten_without_contents_rejected(FlattenCarrierKind::Form);
+}
+
+#[test]
+fn flatten_page_carrier_annotation_rejects_shadowed_inherited_fonts_images() {
+    assert_inherited_flatten_resources_rejected(FlattenCarrierKind::Annotation);
+}
+
+#[test]
+fn flatten_page_carrier_form_rejects_shadowed_inherited_fonts_images() {
+    assert_inherited_flatten_resources_rejected(FlattenCarrierKind::Form);
+}

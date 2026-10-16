@@ -1,0 +1,15 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-app)
+error[E0277]: can't compare `lopdf::content::Operation` with `lopdf::content::Operation`
+    --> tests/oxide_edit_forms.rs:2013:38
+     |
+2013 |             assert!(after.operations.starts_with(&before.operations));
+     |                                      ^^^^^^^^^^^ no implementation for `lopdf::content::Operation == lopdf::content::Operation`
+     |
+     = help: the trait `std::cmp::PartialEq` is not implemented for `lopdf::content::Operation`
+note: required by a bound in `core::slice::<impl [T]>::starts_with`
+    --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/slice/mod.rs:2624:4
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `text-processing-engine` (test "oxide_edit_forms") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

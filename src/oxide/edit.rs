@@ -1120,7 +1120,9 @@ fn flatten_annotations(
     editor: &mut DocumentEditor,
     count: usize,
 ) -> Result<OperationOutput, BackendError> {
-    let selected: HashSet<_> = context.selected_pages(count)?.into_iter().collect();
+    let selected = context.selected_pages(count)?;
+    super::flatten::admit_pages(context, editor.source(), count, &selected, false)?;
+    let selected: HashSet<_> = selected.into_iter().collect();
     let mut original = Vec::with_capacity(count);
     let mut total = 0_usize;
     for page in 0..count {

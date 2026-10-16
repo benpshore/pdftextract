@@ -107,3 +107,12 @@ No database/queue service, model download, persistent MCP registration, remote
 write capability or release is introduced. Swift, platform-specific native
 dependencies, cross-binding parity and OCR/rendering accuracy require separate
 evidence; successful local tests alone do not supply it.
+
+Flattening has a further conservative page-carrier admission rule. A selected
+page with affected annotations/widgets must have supported explicit /Contents
+and its own /Resources dictionary (direct or one indirect reference). Pages that
+rely on inherited resources reject because the pinned writer shadows their fonts
+and images; pages lacking Contents reject because it removes appearances without
+attaching painting. Explicit empty content arrays with local resources remain
+available. The check walks the bounded raw page tree, since the normal page API
+materializes inheritance. These guards do not establish general visual fidelity.
