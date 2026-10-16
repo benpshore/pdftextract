@@ -271,6 +271,7 @@ fn require_normal_widget_appearance(
             return Err(unsupported());
         }
     }
+    super::flatten::admit_appearance_transform(widget.get("Rect"), &normal)?;
     let decoded = normal.decode_stream_data().map_err(|_| unsupported())?;
     Ok(decoded.len())
 }

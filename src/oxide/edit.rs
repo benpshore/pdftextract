@@ -1148,7 +1148,10 @@ fn flatten_annotations(
                 let normal = normal
                     .map(|object| annotation_object(editor.source(), object))
                     .transpose()?;
-                if !matches!(normal, Some(Object::Stream { .. })) {
+                if let Some(normal @ Object::Stream { .. }) = &normal {
+                    require_appearance_only_link_border(editor.source(), dict)?;
+                    super::flatten::admit_appearance_transform(dict.get("Rect"), normal)?;
+                } else {
                     return Err(BackendError::Unsupported(format!(
                         "page {} has an annotation without a normal /AP stream; pinned flattening can retain interactive /Annots or discard unpainted annotation appearance",
                         page + 1
@@ -1186,6 +1189,42 @@ fn flatten_annotations(
     output.data["nonselected_annotations_preserved"] = json!(true);
     output.warnings.push("Flattening copies existing normal appearance streams and verifies selected annotation removal; this does not establish complete visual fidelity.".into());
     Ok(output)
+}
+
+fn require_appearance_only_link_border(
+    document: &PdfDocument,
+    annotation: &std::collections::HashMap<String, Object>,
+) -> Result<(), BackendError> {
+    if annotation.get("Subtype").and_then(Object::as_name) != Some("Link") {
+        return Ok(());
+    }
+    let zero = |value: Option<&Object>| {
+        value.is_some_and(|value| {
+            value.as_integer() == Some(0) || value.as_real().is_some_and(|width| width == 0.0)
+        })
+    };
+    let mut explicit_zero = false;
+    let mut unsupported = false;
+    if let Some(border) = annotation.get("Border") {
+        let border = annotation_object(document, border)?;
+        let valid = border
+            .as_array()
+            .is_some_and(|values| (3..=4).contains(&values.len()) && zero(values.get(2)));
+        explicit_zero |= valid;
+        unsupported |= !valid;
+    }
+    if let Some(style) = annotation.get("BS") {
+        let style = annotation_object(document, style)?;
+        let valid = style.as_dict().is_some_and(|style| zero(style.get("W")));
+        explicit_zero |= valid;
+        unsupported |= !valid;
+    }
+    if !explicit_zero || unsupported {
+        return Err(BackendError::Unsupported(
+            "flattening a Link requires explicit zero external border width; pinned appearance-only flattening can drop the separately drawn Link border".into(),
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Default)]

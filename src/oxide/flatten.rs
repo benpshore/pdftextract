@@ -9,6 +9,115 @@ use super::Context;
 use super::edit::{bounded_count, upstream};
 use crate::backend::BackendError;
 
+fn imprecise_transform() -> BackendError {
+    BackendError::Unsupported(
+        "flatten appearance transform cannot preserve nondegenerate corners within 0.001 page points using the pinned writer; nonidentity appearance matrices remain unqualified".into(),
+    )
+}
+
+fn coordinates<const N: usize>(object: Option<&Object>) -> Result<[f64; N], BackendError> {
+    let values = object
+        .and_then(Object::as_array)
+        .ok_or_else(imprecise_transform)?;
+    if values.len() != N {
+        return Err(imprecise_transform());
+    }
+    let mut result = [0.0; N];
+    for (number, value) in result.iter_mut().zip(values) {
+        *number = value
+            .as_real()
+            .or_else(|| value.as_integer().map(|v| v as f64))
+            .filter(|value| value.is_finite())
+            .ok_or_else(imprecise_transform)?;
+    }
+    Ok(result)
+}
+
+fn rounded(value: f64, places: usize) -> Result<f64, BackendError> {
+    if !value.is_finite() {
+        return Err(imprecise_transform());
+    }
+    format!("{value:.places$}")
+        .parse()
+        .map_err(|_| imprecise_transform())
+}
+
+fn corners([left, bottom, right, top]: [f64; 4]) -> [[f64; 2]; 4] {
+    [[left, bottom], [right, bottom], [right, top], [left, top]]
+}
+
+/// Admit only geometry preserved by the pinned f32/six-decimal overlay writer.
+/// Coefficient error alone is insufficient: a tiny error times a large `BBox`
+/// can move the appearance by many page points, or collapse its entire area.
+#[allow(
+    clippy::float_cmp,
+    reason = "exact identity admission and pinned serializer integer branch"
+)]
+pub(super) fn admit_appearance_transform(
+    rectangle: Option<&Object>,
+    normal: &Object,
+) -> Result<(), BackendError> {
+    let rect = coordinates::<4>(rectangle)?;
+    let dictionary = normal.as_dict().ok_or_else(imprecise_transform)?;
+    let bbox = coordinates::<4>(dictionary.get("BBox"))?;
+    if let Some(matrix) = dictionary.get("Matrix") {
+        // The pinned writer both retains this matrix on the Form XObject and
+        // emits it in the overlay. Nonidentity placement needs separate repair.
+        if coordinates::<6>(Some(matrix))? != [1.0, 0.0, 0.0, 1.0, 0.0, 0.0] {
+            return Err(imprecise_transform());
+        }
+    }
+    for bounds in [rect, bbox] {
+        if bounds[2] <= bounds[0] || bounds[3] <= bounds[1] {
+            return Err(imprecise_transform());
+        }
+    }
+    // Match the pinned writer's intermediate arithmetic and both serializers,
+    // then measure the result in page units against the original rectangle.
+    let b = bbox.map(|value| value as f32);
+    let r = rect.map(|value| value as f32);
+    let sx = (r[2] - r[0]) / (b[2] - b[0]);
+    let sy = (r[3] - r[1]) / (b[3] - b[1]);
+    let tx = r[0] - b[0] * sx;
+    let ty = r[1] - b[1] * sy;
+    let mut overlay = [0.0; 4];
+    for (target, value) in overlay.iter_mut().zip([sx, sy, tx, ty]) {
+        *target = rounded(f64::from(value), 6)?;
+    }
+    if overlay[0] <= 0.0 || overlay[1] <= 0.0 {
+        return Err(imprecise_transform());
+    }
+    let mut saved_bbox = [0.0; 4];
+    for (target, value) in saved_bbox.iter_mut().zip(b.map(f64::from)) {
+        if !value.is_finite() {
+            return Err(imprecise_transform());
+        }
+        *target = if value.fract() == 0.0 {
+            value as i64 as f64
+        } else {
+            rounded(value, 5)?
+        };
+    }
+    if saved_bbox[2] <= saved_bbox[0] || saved_bbox[3] <= saved_bbox[1] {
+        return Err(imprecise_transform());
+    }
+    // Check source content coordinates and the saved clipping bounds. Rounding
+    // either the overlay or its BBox must not move any corner beyond the bound.
+    for bounds in [bbox, saved_bbox] {
+        for ([x, y], expected) in corners(bounds).into_iter().zip(corners(rect)) {
+            let actual = [overlay[0] * x + overlay[2], overlay[1] * y + overlay[3]];
+            if actual
+                .into_iter()
+                .zip(expected)
+                .any(|(actual, expected)| !actual.is_finite() || (actual - expected).abs() > 0.001)
+            {
+                return Err(imprecise_transform());
+            }
+        }
+    }
+    Ok(())
+}
+
 fn uncertain() -> BackendError {
     BackendError::Unsupported(
         "flattening requires an unambiguous bounded raw page tree and annotation references".into(),
