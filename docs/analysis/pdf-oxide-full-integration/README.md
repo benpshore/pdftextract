@@ -13,6 +13,10 @@ capabilities, eleven source-only obligations and one parent-owned Python parity
 obligation. No row is qualified; registry names and passing tests do not establish
 complete surface coverage or fidelity.
 
+The source-scoped [FINAL_HANDOFF.md](FINAL_HANDOFF.md) records the clean native
+checkpoint, exact test receipts, observed Partial fixture outcomes and remaining
+PR273 reconciliation. The inventory below retains its original scope.
+
 The source index covers all 467 Rust files shipped under the two crates' `src/`
 directories. It records 9,678 lexical public declarations, public fields and
 public-trait members, together with adjacent attributes and source locations.

@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: /workspace/pdftextract-pdf-oxide
+configfile: pyproject.toml
+testpaths: tests
+collected 210 items
+
+tests/test_bibliography_evidence.py .........                            [  4%]
+tests/test_compare_eval.py .................................             [ 20%]
+tests/test_measure_eval.py ......                                        [ 22%]
+tests/test_pmc_bib_eval.py ......................                        [ 33%]
+tests/test_pmc_snapshot.py ......                                        [ 36%]
+tests/test_smoke.py .                                                    [ 36%]
+tests/test_validate_eval.py ............................................ [ 57%]
+........................................................................ [ 91%]
+.................                                                        [100%]
+
+============================= 210 passed in 0.56s ==============================

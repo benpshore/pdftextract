@@ -140,3 +140,25 @@ editing tests in `forms-guards-03.log`. It distinguishes recoverable retained
 widget values from absent static page painting, and preserves a separate native
 regeneration positive control. The only following Clippy finding was a 101-line
 test; helper extraction retains its assertions. Production guards are unchanged.
+
+The final clean native checkpoint is now `325166027331ee4ca6a053bd81f8ca43b7527de1`
+(tree `efb93bb23c13964bd28983644caffec9faa97c10`). All four optional features
+passed workspace formatting, strict Clippy and tests together: 1,286 top-level
+passes plus three nested child-probe passes, zero failures, ten ignored; five
+additional bounded containment harness scenarios ran with Landlock explicitly
+unavailable. Python 3.14.7 passed 210 tooling tests and both Ruff checks.
+
+The preserved clean binary also processed all eight shared fixtures / 29 expected
+pages as explicit Partial outcomes (exit 1). Source identities and bytes, page
+coverage, sealed-parser reporting and capture cleanup matched. All three table
+candidates remained unverified. The deterministic offline OCR control passed,
+including source digests, separate image placements, bounded pixels and actual
+sealed operation-worker state; its graphs ignore image content. Neither exercise
+establishes extraction or OCR accuracy.
+
+[FINAL_HANDOFF.md](FINAL_HANDOFF.md) records the exact source, binary and receipts.
+This native branch is based on main b3730aa and does not include PR273's backlog
+checkpoint. Ada still owns their reconciliation and final exact combined-source
+tests. No capability was promoted to qualified, and no PR action was taken. The
+following documentation-only checkpoint archives original receipt/log bytes; it
+does not claim the compiled binary was built from that later documentation commit.
