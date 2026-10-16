@@ -584,6 +584,40 @@ fn cancellation_does_not_launch_relays_for_the_whole_pending_batch() {
 #[cfg(target_os = "linux")]
 #[test]
 fn kernel_parent_death_signal_terminates_even_a_stopped_parser() {
+    let mut probe = Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "parent_death_with_finite_inherited_limit_probe",
+            "--ignored",
+            "--nocapture",
+        ])
+        .stdin(Stdio::null())
+        .spawn()
+        .unwrap();
+    assert!(wait_bounded(&mut probe, Duration::from_secs(15)).success());
+}
+
+#[cfg(target_os = "linux")]
+#[test]
+#[ignore = "run with a finite inherited limit in a bounded child by the parent-death test"]
+fn parent_death_with_finite_inherited_limit_probe() {
+    use rustix::process::{Resource, Rlimit, getrlimit, setrlimit};
+
+    // A finite outer test limit is inherited before the worker runs any setup.
+    // Exercise that case even when the CI runner itself has an unlimited cap.
+    let inherited = getrlimit(Resource::As);
+    let ceiling = inherited
+        .current
+        .into_iter()
+        .chain(inherited.maximum)
+        .fold(4 * 1024 * 1024 * 1024, u64::min);
+    let cap = Rlimit {
+        current: Some(ceiling),
+        maximum: Some(ceiling),
+    };
+    setrlimit(Resource::As, cap).unwrap();
+    assert_eq!(getrlimit(Resource::As), cap);
+
     let root = TempDir::new().unwrap();
     let input = root.path().join("many-pages.pdf");
     fs::write(&input, many_pages_pdf(2000)).unwrap();
@@ -595,13 +629,18 @@ fn kernel_parent_death_signal_terminates_even_a_stopped_parser() {
         .unwrap();
     let worker = child_pid(&mut controller);
     // Do not stop the child until it has actually installed the limit and
-    // PDEATHSIG. This distinguishes kernel protection from the EOF fallback.
+    // PDEATHSIG. Merely observing a finite limit would accept the inherited
+    // ceiling before setup. The worker installs its tighter limit only after
+    // verifying PDEATHSIG; require that transition before stopping it.
     let deadline = Instant::now() + Duration::from_secs(3);
     loop {
         let limits = fs::read_to_string(format!("/proc/{worker}/limits")).unwrap();
         let installed = limits
             .lines()
-            .any(|line| line.starts_with("Max address space") && !line.contains("unlimited"));
+            .find(|line| line.starts_with("Max address space"))
+            .and_then(|line| line.split_whitespace().nth(3))
+            .and_then(|value| value.parse::<u64>().ok())
+            .is_some_and(|limit| limit < ceiling);
         if installed {
             break;
         }
@@ -613,6 +652,22 @@ fn kernel_parent_death_signal_terminates_even_a_stopped_parser() {
         std::thread::sleep(Duration::from_millis(2));
     }
     signal(&worker, "-STOP");
+    let deadline = Instant::now() + Duration::from_secs(3);
+    loop {
+        let stopped = fs::read_to_string(format!("/proc/{worker}/stat")).is_ok_and(|stat| {
+            stat.rsplit_once(')')
+                .is_some_and(|(_, fields)| fields.trim_start().starts_with('T'))
+        });
+        if stopped {
+            break;
+        }
+        if Instant::now() >= deadline {
+            let _ = controller.kill();
+            let _ = controller.wait();
+            panic!("parser did not enter the stopped state before controller death");
+        }
+        std::thread::sleep(Duration::from_millis(2));
+    }
     controller.kill().unwrap();
     controller.wait().unwrap();
     let deadline = Instant::now() + Duration::from_secs(3);
