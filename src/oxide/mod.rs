@@ -224,6 +224,16 @@ pub fn identity() -> BackendIdentity {
     }
 }
 
+/// Build identity complements the pinned dependency identity in operation receipts.
+pub fn producer() -> Value {
+    json!({
+        "name":"text-processing-engine",
+        "build_version":env!("TPE_BUILD_VERSION"),
+        "dependencies":{"pdf_oxide":"0.3.78","office_oxide":"0.1.9","lopdf":"0.45.0","ammonia":"4.1.2"},
+        "qualification":"build identity and pinned versions; not a signed attestation or fidelity guarantee"
+    })
+}
+
 pub fn operations() -> Vec<&'static str> {
     [
         convert::OPERATIONS,
@@ -270,7 +280,7 @@ pub fn execute(
     }
     if operation == "capabilities" {
         let output = OperationOutput {
-            data: json!({"backend":identity(),"operation_names":operations(),"limits":context.limits,
+            data: json!({"backend":identity(),"producer":producer(),"operation_names":operations(),"limits":context.limits,
             "runtime":{
                 "filesystem_contained":filesystem_contained(),
                 "rendering_compiled":cfg!(feature="pdf-oxide-rendering"),
@@ -283,6 +293,7 @@ pub fn execute(
                 "table creation and HTML/CSS creation: table layout and CSS pixel/PDF point geometry defects",
                 "table reconstruction in converters; native extraction candidates carry validation_error",
                 "text replacement that would paint black masks",
+                "form value/style updates with existing appearances; existing-AcroForm additions; flattening pending appearances",
                 "masked image extraction through the pinned memory PNG API",
                 "rewriting signed input or silently dropping existing encryption",
                 "automatic OCR/model acquisition, network timestamp/revocation checks, signing and persistent MCP",

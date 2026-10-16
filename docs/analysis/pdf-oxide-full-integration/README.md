@@ -6,6 +6,13 @@ equating text extraction with integration. Every capability initially has empty
 implementation/test evidence. The integration owner must attach exact commit,
 feature, fixture and command evidence before changing that state.
 
+The separate [integration-status.json](integration-status.json) maps the current
+adapters and explicit gaps back to all 84 obligations without rewriting the
+original inventory. It records 66 partial adapters, six explicit unsupported
+capabilities, eleven source-only obligations and one parent-owned Python parity
+obligation. No row is qualified; registry names and passing tests do not establish
+complete surface coverage or fidelity.
+
 The source index covers all 467 Rust files shipped under the two crates' `src/`
 directories. It records 9,678 lexical public declarations, public fields and
 public-trait members, together with adjacent attributes and source locations.

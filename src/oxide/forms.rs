@@ -5,6 +5,7 @@ use std::collections::{BTreeMap, HashSet};
 use pdf_oxide::editor::{DocumentEditor, FormFieldValue, FormFieldWrapper};
 use pdf_oxide::extractors::forms::{FieldType, field_flags};
 use pdf_oxide::fdf::{FdfField, FdfValue, FdfWriter, XfdfWriter};
+use pdf_oxide::object::Object;
 use pdf_oxide::writer::{
     CheckboxWidget, ComboBoxWidget, FormFieldWidget, ListBoxWidget, PdfWriter, PushButtonWidget,
     SignatureWidget, TextFieldWidget,
@@ -103,6 +104,139 @@ fn field_rectangle(field: &FormFieldWrapper) -> Option<[f32; 4]> {
             config.rect.height,
         ]
     })
+}
+
+fn resolve_form_object(
+    document: &pdf_oxide::PdfDocument,
+    object: &Object,
+) -> Result<Object, BackendError> {
+    let mut current = object.clone();
+    let mut seen = HashSet::new();
+    for _ in 0..8 {
+        let Object::Reference(reference) = current else {
+            return Ok(current);
+        };
+        if !seen.insert(reference) {
+            return Err(BackendError::Malformed(
+                "cyclic form object reference".into(),
+            ));
+        }
+        current = document.load_object(reference).map_err(upstream)?;
+    }
+    if matches!(current, Object::Reference(_)) {
+        return Err(BackendError::Limit(
+            "form object reference depth exceeds 8".into(),
+        ));
+    }
+    Ok(current)
+}
+
+fn tree_has_appearance(
+    context: &Context<'_>,
+    document: &pdf_oxide::PdfDocument,
+    root: Object,
+) -> Result<bool, BackendError> {
+    // Inspect only Fields/Kids edges, never Parent or appearance resources. A
+    // field can own separate anonymous widget children, so checking its own AP
+    // alone would incorrectly admit fills that preserve a child's stale stream.
+    let mut pending = vec![(root, 0_usize)];
+    let mut seen = HashSet::new();
+    let mut visited = 0_usize;
+    while let Some((object, depth)) = pending.pop() {
+        visited = visited.saturating_add(1);
+        bounded_count(visited, context.limits.max_items, "form appearance nodes")?;
+        if depth > 64 {
+            return Err(BackendError::Limit(
+                "form appearance tree depth exceeds 64".into(),
+            ));
+        }
+        if let Object::Reference(reference) = &object
+            && !seen.insert(*reference)
+        {
+            return Err(BackendError::Malformed(
+                "cyclic or repeated form appearance node".into(),
+            ));
+        }
+        let object = resolve_form_object(document, &object)?;
+        match object {
+            Object::Array(children) => {
+                bounded_count(
+                    visited
+                        .saturating_add(pending.len())
+                        .saturating_add(children.len()),
+                    context.limits.max_items,
+                    "form appearance nodes",
+                )?;
+                pending.extend(children.into_iter().map(|child| (child, depth + 1)));
+            }
+            Object::Dictionary(mut dict) => {
+                // Even a malformed, empty or indirect AP is conservatively
+                // appearance-bearing; this guard must not bless stale output.
+                if dict
+                    .get("AP")
+                    .is_some_and(|value| !matches!(value, Object::Null))
+                {
+                    return Ok(true);
+                }
+                if let Some(children) = dict.remove("Kids") {
+                    pending.push((children, depth + 1));
+                }
+            }
+            _ => {
+                return Err(BackendError::Malformed(
+                    "form appearance tree must contain field dictionaries or arrays".into(),
+                ));
+            }
+        }
+    }
+    Ok(false)
+}
+
+fn reject_stale_field_appearance(
+    context: &Context<'_>,
+    editor: &DocumentEditor,
+    field: &FormFieldWrapper,
+) -> Result<(), BackendError> {
+    let reference = field
+        .original()
+        .and_then(|field| field.object_ref)
+        .ok_or_else(|| {
+            BackendError::Unsupported(
+                "form appearance admission requires an unambiguous indirect field identity".into(),
+            )
+        })?;
+    if tree_has_appearance(context, editor.source(), Object::Reference(reference))? {
+        return Err(BackendError::Unsupported(format!(
+            "field {} has an existing /AP appearance; pinned value/style updates do not regenerate it and can leave visible stale content",
+            field.name()
+        )));
+    }
+    Ok(())
+}
+
+fn reject_pending_appearance_flatten(
+    context: &Context<'_>,
+    editor: &DocumentEditor,
+) -> Result<(), BackendError> {
+    let document = editor.source();
+    let catalog = document.catalog().map_err(upstream)?;
+    let form = catalog.as_dict().and_then(|dict| dict.get("AcroForm"));
+    let Some(form) = form else {
+        return Ok(());
+    };
+    let form = resolve_form_object(document, form)?;
+    let dict = form
+        .as_dict()
+        .ok_or_else(|| BackendError::Malformed("AcroForm must resolve to a dictionary".into()))?;
+    if matches!(dict.get("NeedAppearances"), Some(Object::Boolean(true)))
+        && let Some(roots) = dict.get("Fields")
+        && tree_has_appearance(context, document, roots.clone())?
+    {
+        return Err(BackendError::Unsupported(
+            "AcroForm requests /NeedAppearances and retains /AP streams; pinned flattening can bake stale values from an earlier editing session".into(),
+        ));
+    }
+    Ok(())
 }
 
 fn inspect(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
@@ -258,9 +392,12 @@ fn fill(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Backen
                 "field {name} is not multi-select"
             )));
         }
-        editor
-            .set_form_field_value(&name, value.clone())
-            .map_err(upstream)?;
+        if value != field.value() {
+            reject_stale_field_appearance(context, &editor, field)?;
+            editor
+                .set_form_field_value(&name, value.clone())
+                .map_err(upstream)?;
+        }
         expected.insert(name, value);
     }
     let output = saved(
@@ -379,6 +516,15 @@ fn add(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Backend
     let params: AddParams = parse(params)?;
     bounded_count(params.fields.len(), context.limits.max_items, "new fields")?;
     let mut editor = edit_document(context)?;
+    let catalog = editor.source().catalog().map_err(upstream)?;
+    if catalog
+        .as_dict()
+        .is_some_and(|dict| dict.contains_key("AcroForm"))
+    {
+        return Err(BackendError::Unsupported(
+            "adding fields to an existing AcroForm is unsupported: the pinned writer rebuilds its catalog and can discard existing fields, resources and unique properties; preservation repair is not verified".into(),
+        ));
+    }
     let original = fields(context, &mut editor)?;
     bounded_count(
         original.len().saturating_add(params.fields.len()),
@@ -583,6 +729,15 @@ fn update(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Back
             return Err(BackendError::Unsupported(
                 "signature fields cannot be modified".into(),
             ));
+        }
+        if properties.rect.is_some()
+            || properties.max_length.is_some()
+            || properties.alignment.is_some()
+            || properties.background_color.is_some()
+            || properties.border_color.is_some()
+            || properties.border_width.is_some()
+        {
+            reject_stale_field_appearance(context, &editor, field)?;
         }
         if let Some(value) = properties.readonly {
             editor
@@ -1089,6 +1244,7 @@ fn flatten(context: &Context<'_>, params: &Value) -> Result<OperationOutput, Bac
             "signature widgets are not flattened".into(),
         ));
     }
+    reject_pending_appearance_flatten(context, &editor)?;
     if context.pages.is_none() {
         editor.flatten_forms().map_err(upstream)?;
     } else {

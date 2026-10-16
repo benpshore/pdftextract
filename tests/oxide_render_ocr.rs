@@ -442,7 +442,9 @@ fn sealed_raster_probe() {
     .unwrap();
     let nonwhite = embedded_image.artifacts[0]
         .bytes
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .filter(|pixel| pixel[..3] != [255, 255, 255])
         .count();
     assert!(
@@ -545,7 +547,7 @@ fn malformed_offline_model_fails_in_a_bounded_sealed_child() {
 
 /// Tiny deterministic ONNX fixtures, generated without a model download or a
 /// protobuf dependency. Field numbers follow the official ONNX 1.14.1 schema:
-/// https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto
+/// <https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto>
 /// These graphs exercise inference plumbing, not recognition of image content.
 #[cfg(all(feature = "pdf-oxide-ocr", target_os = "linux"))]
 mod synthetic_onnx {

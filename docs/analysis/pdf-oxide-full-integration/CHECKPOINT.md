@@ -30,9 +30,10 @@ and failure observations. Current evidence (full logs under
 - A combined rendering/barcode/signature/OCR run then passed 83 focused tests:
   creation/Office 15, editing/forms 23, rendering/OCR 15, security 20, workers 10.
   This includes deterministic synthetic ONNX inference, not trained-model OCR
-  accuracy. Later thin-image OCR and publication regressions require rerunning.
-- Combined-feature production Clippy errors were repaired; all-target Clippy
-  still reports test-helper ownership-style lints. This snapshot is not green.
+  accuracy. A later targeted run passed all 27 OCR/rendering and worker tests,
+  including the thin-image budget, receipt rollback and routed-rejection checks.
+- Combined-feature strict Clippy now passes across all workspace targets
+  (`full-clippy-06.log`). The final exact-source tests remain pending.
 - Five bounded containment subprocess scenarios ran. Actual `seccomp_sealed`
   path/socket/process restrictions and inherited-thread synchronization passed.
   Landlock returned ENOSYS; its positive allowlist test did not run. Threads remain
@@ -60,11 +61,18 @@ mask-bearing resources instead of returning silently opaque PNGs. Detected table
 remain raw candidates with validation errors. Form appearance fidelity, trained
 OCR recognition and broad extraction/rendering accuracy remain unverified.
 
-A final source review found additional pending form guards: ordinary value/style
-updates can retain stale /AP streams, and adding fields can rebuild an existing
-AcroForm catalog without preserving its fields/resources. These paths must not
-be considered qualified; the next repair will reject the affected cases and
-retain direct upstream regressions before an exact-source verification run.
+A final source review found that ordinary value/style updates can retain stale
+/AP streams, and adding fields can rebuild an existing AcroForm catalog without
+preserving its fields/resources. The adapter now rejects affected value/style
+changes, existing-AcroForm additions, and flattening of pending appearances.
+Nonvisual property updates and unchanged-value fills remain available. Six new
+tests preserve direct upstream defects and controls. The form target passed
+28/29: the same-session upstream control failed native text extraction even
+though bounded independent Poppler rendering/text extraction displays `After`.
+Its generated appearance also loses the original border/background, so it is
+not enabled as a fallback. The failed assertion and all five synthetic outputs
+are preserved; diagnosis of the native observation and exact-source verification
+remain pending.
 
 Parent visually confirmed additional upstream/shared-library cases: text crossing
 table borders, overlapping HTML/CSS cells, black masks during text replacement,

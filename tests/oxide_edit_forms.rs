@@ -3,7 +3,7 @@
 use lopdf::content::{Content, Operation};
 use lopdf::{Document, Object, Stream, dictionary};
 use pdf_oxide::PdfDocument;
-use pdf_oxide::editor::{DocumentEditor, EditableDocument};
+use pdf_oxide::editor::{DocumentEditor, EditableDocument, FormFieldValue};
 use serde_json::{Value, json};
 use tpe::backend::BackendError;
 use tpe::oxide::{Context, Input, Limits, OperationOutput, execute};
@@ -46,6 +46,10 @@ fn fixture(prefix: &str, count: u32) -> Vec<u8> {
     bytes
 }
 
+#[allow(
+    clippy::needless_pass_by_value,
+    reason = "tests pass owned JSON requests and source snapshots through one consistent helper"
+)]
 fn run(
     operation: &str,
     sources: Vec<Vec<u8>>,
@@ -72,6 +76,16 @@ fn one_pdf(output: OperationOutput) -> Vec<u8> {
     assert_eq!(output.artifacts.len(), 1);
     assert_eq!(output.artifacts[0].mime, "application/pdf");
     output.artifacts.into_iter().next().unwrap().bytes
+}
+
+fn capture_form_fixture(name: &str, bytes: &[u8]) {
+    // Only fixed synthetic fixture names from this file are passed here. The
+    // integration owner supplies the optional disposable evidence directory.
+    if let Some(root) = std::env::var_os("TPE_OXIDE_FIXTURE_CAPTURE") {
+        let root = std::path::PathBuf::from(root);
+        std::fs::create_dir_all(&root).unwrap();
+        std::fs::write(root.join(name), bytes).unwrap();
+    }
 }
 
 #[test]
@@ -605,6 +619,10 @@ fn image_fixture() -> Vec<u8> {
 }
 
 #[test]
+#[allow(
+    clippy::float_cmp,
+    reason = "exact PDF constants must survive this geometry round-trip without rounding"
+)]
 fn direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails() {
     let source = image_fixture();
     let output = run(
@@ -784,6 +802,10 @@ fn annotation_repair_keeps_unknown_properties_and_ordered_action_identity() {
 }
 
 #[test]
+#[allow(
+    clippy::float_cmp,
+    reason = "exact binary-representable PDF style constants are the independent serialization assertion"
+)]
 fn form_properties_and_hierarchical_removal_preserve_unrelated_objects() {
     let bytes = one_pdf(run("forms.add", vec![fixture("Form properties",1)], json!({"fields":[
         {"name":"group.remove","page":1,"rect":[72,620,100,20],"widget":{"kind":"text","value":"remove"}},
@@ -978,4 +1000,412 @@ fn merge_rejects_signature_markers_in_every_input_slot() {
             Err(BackendError::Unsupported(_))
         ));
     }
+}
+
+fn appearance_form_fixture(inline_form: bool, separate_widget: bool) -> Vec<u8> {
+    let mut document = Document::load_mem(&fixture("Appearance sentinel", 1)).unwrap();
+    let page = document.get_pages()[&1];
+    let font = document
+        .add_object(dictionary! {"Type"=>"Font", "Subtype"=>"Type1", "BaseFont"=>"Helvetica"});
+    let appearance = document.add_object(Stream::new(
+        dictionary! {"Type"=>"XObject", "Subtype"=>"Form", "FormType"=>1,
+        "BBox"=>vec![0.into(),0.into(),200.into(),30.into()],
+        "Resources"=>dictionary! {"Font"=>dictionary! {"Helv"=>font}}},
+        b"q 1 1 1 rg 0 0 200 30 re f 0 0 0 RG 1 w 0.5 0.5 199 29 re S BT /Helv 18 Tf 0 g 2 6 Td (Before) Tj ET Q\n".to_vec(),
+    ));
+    let widget = document.add_object(dictionary! {
+        "Type"=>"Annot", "Subtype"=>"Widget", "P"=>page, "F"=>4,
+        "Rect"=>vec![72.into(),580.into(),272.into(),610.into()],
+        "DA"=>Object::string_literal("/Helv 18 Tf 0 g"),
+        "AP"=>dictionary! {"N"=>appearance},
+        "MK"=>dictionary! {"BG"=>vec![1.into(),1.into(),1.into()],
+        "BC"=>vec![0.into(),0.into(),0.into()]},
+        "BS"=>dictionary! {"W"=>1, "S"=>"S"}
+    });
+    let field = if separate_widget {
+        let field = document.add_object(dictionary! {
+            "FT"=>"Tx", "T"=>Object::string_literal("appearance"),
+            "V"=>Object::string_literal("Before"), "Kids"=>vec![widget.into()]
+        });
+        document
+            .get_dictionary_mut(widget)
+            .unwrap()
+            .set("Parent", field);
+        field
+    } else {
+        let field = document.get_dictionary_mut(widget).unwrap();
+        field.set("FT", "Tx");
+        field.set("T", Object::string_literal("appearance"));
+        field.set("V", Object::string_literal("Before"));
+        widget
+    };
+    document
+        .get_dictionary_mut(page)
+        .unwrap()
+        .set("Annots", vec![widget.into()]);
+    let form = dictionary! {
+        "Fields"=>vec![field.into()], "NeedAppearances"=>false,
+        "DA"=>Object::string_literal("/Helv 18 Tf 0 g"),
+        "DR"=>dictionary! {"Font"=>dictionary! {"Helv"=>font}},
+        "CO"=>vec![field.into()],
+        "SyntheticFormSentinel"=>Object::string_literal("preserve original form catalog")
+    };
+    let form = if inline_form {
+        Object::Dictionary(form)
+    } else {
+        document.add_object(form).into()
+    };
+    let catalog = document.catalog_mut().unwrap();
+    catalog.set("AcroForm", form);
+    catalog.set(
+        "SyntheticCatalogSentinel",
+        Object::string_literal("preserve unrelated catalog"),
+    );
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+fn form_dictionary(document: &Document) -> &lopdf::Dictionary {
+    document
+        .get_dict_in_dict(document.catalog().unwrap(), b"AcroForm")
+        .unwrap()
+}
+
+fn sole_form_field(document: &Document) -> &lopdf::Dictionary {
+    let fields = form_dictionary(document)
+        .get(b"Fields")
+        .unwrap()
+        .as_array()
+        .unwrap();
+    assert_eq!(fields.len(), 1);
+    document
+        .dereference(&fields[0])
+        .unwrap()
+        .1
+        .as_dict()
+        .unwrap()
+}
+
+fn normal_appearance_bytes(document: &Document) -> Vec<u8> {
+    let widgets = document
+        .get_page_annotations(document.get_pages()[&1])
+        .unwrap();
+    assert_eq!(widgets.len(), 1);
+    let appearances = document.get_dict_in_dict(widgets[0], b"AP").unwrap();
+    let stream = document
+        .dereference(appearances.get(b"N").unwrap())
+        .unwrap()
+        .1
+        .as_stream()
+        .unwrap();
+    stream
+        .decompressed_content()
+        .unwrap_or_else(|_| stream.content.clone())
+}
+
+fn assert_form_sentinels(document: &Document) {
+    assert_eq!(
+        document
+            .catalog()
+            .unwrap()
+            .get(b"SyntheticCatalogSentinel")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+        b"preserve unrelated catalog"
+    );
+    let form = form_dictionary(document);
+    assert_eq!(
+        form.get(b"SyntheticFormSentinel")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+        b"preserve original form catalog"
+    );
+    assert!(form.has(b"DR"));
+    assert!(form.has(b"DA"));
+    assert_eq!(form.get(b"CO").unwrap().as_array().unwrap().len(), 1);
+    assert_eq!(
+        sole_form_field(document)
+            .get(b"T")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+        b"appearance"
+    );
+}
+
+#[test]
+fn adding_to_existing_inline_or_indirect_acroform_rejects_without_catalog_loss() {
+    for inline_form in [false, true] {
+        let source = appearance_form_fixture(inline_form, false);
+        let result = run(
+            "forms.add",
+            vec![source.clone()],
+            json!({"fields":[
+                {"name":"new","page":1,"rect":[72,500,150,20],"widget":{"kind":"text","value":"New"}}
+            ]}),
+        );
+        assert!(
+            matches!(result, Err(BackendError::Unsupported(reason)) if reason.contains("existing AcroForm") && reason.contains("preservation"))
+        );
+        assert_form_sentinels(&Document::load_mem(&source).unwrap());
+    }
+}
+
+#[test]
+fn pinned_form_add_rebuild_drops_unique_catalog_and_inline_existing_fields() {
+    // Preserve direct pinned-library failure evidence independently of adapter
+    // rejection. This is intentionally not an assertion of supported behavior.
+    for inline_form in [false, true] {
+        let source = appearance_form_fixture(inline_form, false);
+        let mut editor = DocumentEditor::from_bytes(source.clone()).unwrap();
+        editor
+            .add_form_field(
+                0,
+                pdf_oxide::writer::TextFieldWidget::new(
+                    "new",
+                    pdf_oxide::geometry::Rect::new(72.0, 500.0, 150.0, 20.0),
+                )
+                .with_value("New"),
+            )
+            .unwrap();
+        let output = editor.save_to_bytes().unwrap();
+        let parsed = Document::load_mem(&output).unwrap();
+        let form = form_dictionary(&parsed);
+        assert!(
+            !form.has(b"SyntheticFormSentinel"),
+            "pinned catalog-loss evidence changed; review preservation guard before enabling additions"
+        );
+        assert!(!form.has(b"CO"));
+        let names = form
+            .get(b"Fields")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|field| {
+                parsed
+                    .dereference(field)
+                    .unwrap()
+                    .1
+                    .as_dict()
+                    .unwrap()
+                    .get(b"T")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+            })
+            .collect::<Vec<_>>();
+        assert!(names.contains(&b"new".as_slice()));
+        assert_eq!(names.contains(&b"appearance".as_slice()), !inline_form);
+        assert_eq!(
+            parsed
+                .catalog()
+                .unwrap()
+                .get(b"SyntheticCatalogSentinel")
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            b"preserve unrelated catalog"
+        );
+        assert_form_sentinels(&Document::load_mem(&source).unwrap());
+    }
+}
+
+#[test]
+fn appearance_bearing_fields_and_child_widgets_reject_changed_values_and_styles() {
+    for separate_widget in [false, true] {
+        let source = appearance_form_fixture(false, separate_widget);
+        for value in [
+            json!({"kind":"text","value":"After"}),
+            json!({"kind":"none"}),
+        ] {
+            assert!(
+                matches!(run("forms.fill", vec![source.clone()], json!({"fields":{"appearance":value}})),
+                Err(BackendError::Unsupported(reason)) if reason.contains("/AP") && reason.contains("stale"))
+            );
+        }
+        for property in [
+            json!({"rect":[72,580,250,35]}),
+            json!({"max_length":32}),
+            json!({"alignment":2}),
+            json!({"background_color":[1,0,0]}),
+            json!({"border_color":[0,1,0]}),
+            json!({"border_width":3}),
+        ] {
+            let mut properties = property;
+            properties["name"] = json!("appearance");
+            assert!(
+                matches!(run("forms.update", vec![source.clone()], json!({"fields":[properties]})),
+                Err(BackendError::Unsupported(reason)) if reason.contains("/AP") && reason.contains("stale"))
+            );
+        }
+        assert_form_sentinels(&Document::load_mem(&source).unwrap());
+    }
+}
+
+#[test]
+fn nonvisual_form_properties_and_noop_fill_preserve_existing_appearance_and_catalog() {
+    let source = appearance_form_fixture(false, false);
+    let original = Document::load_mem(&source).unwrap();
+    for (operation, params) in [
+        (
+            "forms.fill",
+            json!({"fields":{"appearance":{"kind":"text","value":"Before"}}}),
+        ),
+        (
+            "forms.update",
+            json!({"fields":[{"name":"appearance","readonly":true,"required":true,"tooltip":"Review only"}]}),
+        ),
+    ] {
+        let output = one_pdf(run(operation, vec![source.clone()], params).unwrap());
+        let parsed = Document::load_mem(&output).unwrap();
+        assert_form_sentinels(&parsed);
+        assert_eq!(
+            normal_appearance_bytes(&parsed),
+            normal_appearance_bytes(&original)
+        );
+        assert_eq!(
+            sole_form_field(&parsed)
+                .get(b"V")
+                .unwrap()
+                .as_str()
+                .unwrap(),
+            b"Before"
+        );
+        assert!(
+            !form_dictionary(&parsed)
+                .get(b"NeedAppearances")
+                .unwrap()
+                .as_bool()
+                .unwrap()
+        );
+        if operation == "forms.update" {
+            let field = sole_form_field(&parsed);
+            assert_eq!(field.get(b"Ff").unwrap().as_i64().unwrap() & 3, 3);
+            assert_eq!(field.get(b"TU").unwrap().as_str().unwrap(), b"Review only");
+        }
+    }
+}
+
+#[test]
+fn pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejects() {
+    // This one-page synthetic fixture is also suitable for independent Poppler
+    // rendering: V changes Before -> After while the flattened page paints Before.
+    let source = appearance_form_fixture(false, false);
+    capture_form_fixture("forms-appearance-source.pdf", &source);
+    let original = Document::load_mem(&source).unwrap();
+    let mut editor = DocumentEditor::from_bytes(source.clone()).unwrap();
+    editor
+        .set_form_field_value("appearance", FormFieldValue::Text("After".into()))
+        .unwrap();
+    let filled = editor.save_to_bytes().unwrap();
+    capture_form_fixture("forms-appearance-upstream-filled.pdf", &filled);
+    let parsed = Document::load_mem(&filled).unwrap();
+    assert_eq!(
+        sole_form_field(&parsed)
+            .get(b"V")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+        b"After"
+    );
+    assert_eq!(
+        normal_appearance_bytes(&parsed),
+        normal_appearance_bytes(&original)
+    );
+    assert!(
+        form_dictionary(&parsed)
+            .get(b"NeedAppearances")
+            .unwrap()
+            .as_bool()
+            .unwrap()
+    );
+    assert!(
+        matches!(run("forms.flatten", vec![filled.clone()], json!({})),
+        Err(BackendError::Unsupported(reason)) if reason.contains("NeedAppearances") && reason.contains("stale"))
+    );
+
+    let mut separate_session = DocumentEditor::from_bytes(filled).unwrap();
+    separate_session.flatten_forms().unwrap();
+    let flattened = separate_session.save_to_bytes().unwrap();
+    capture_form_fixture(
+        "forms-appearance-upstream-separate-flattened.pdf",
+        &flattened,
+    );
+    let parsed = Document::load_mem(&flattened).unwrap();
+    assert!(!parsed.catalog().unwrap().has(b"AcroForm"));
+    let page_id = parsed.get_pages()[&1];
+    assert!(parsed.get_page_annotations(page_id).unwrap().is_empty());
+    let page = parsed.get_dictionary(page_id).unwrap();
+    let resources = parsed.get_dict_in_dict(page, b"Resources").unwrap();
+    let xobjects = parsed.get_dict_in_dict(resources, b"XObject").unwrap();
+    let content = Content::decode(&parsed.get_page_content(page_id)).unwrap();
+    let painted_streams = content
+        .operations
+        .iter()
+        .filter(|operation| operation.operator == "Do")
+        .map(|operation| {
+            let name = operation.operands[0].as_name().unwrap();
+            let stream = parsed
+                .dereference(xobjects.get(name).unwrap())
+                .unwrap()
+                .1
+                .as_stream()
+                .unwrap();
+            stream
+                .decompressed_content()
+                .unwrap_or_else(|_| stream.content.clone())
+        })
+        .collect::<Vec<_>>();
+    assert!(
+        painted_streams.iter().any(|bytes| bytes
+            .windows(b"(Before) Tj".len())
+            .any(|window| window == b"(Before) Tj")),
+        "pinned stale-appearance evidence changed; independently requalify flattening before relaxing its guard"
+    );
+    assert!(!painted_streams.iter().any(|bytes| {
+        bytes
+            .windows(b"After".len())
+            .any(|window| window == b"After")
+    }));
+    assert_form_sentinels(&Document::load_mem(&source).unwrap());
+
+    // The pinned private regeneration path sees text staged in this same
+    // editor session. This control does not establish interactive regeneration
+    // or style preservation, and is not substituted for forms.fill.
+    let mut same_session = DocumentEditor::from_bytes(source).unwrap();
+    same_session
+        .set_form_field_value("appearance", FormFieldValue::Text("After".into()))
+        .unwrap();
+    same_session.flatten_forms().unwrap();
+    let control = same_session.save_to_bytes().unwrap();
+    capture_form_fixture(
+        "forms-appearance-upstream-same-session-control.pdf",
+        &control,
+    );
+    let text = PdfDocument::from_bytes(control)
+        .unwrap()
+        .extract_text(0)
+        .unwrap();
+    assert!(text.contains("After"));
+    assert!(!text.contains("Before"));
+}
+
+#[test]
+fn complete_existing_form_appearance_remains_available_for_flattening() {
+    let source = appearance_form_fixture(false, false);
+    let output = one_pdf(run("forms.flatten", vec![source], json!({})).unwrap());
+    capture_form_fixture("forms-appearance-control-flattened.pdf", &output);
+    let parsed = Document::load_mem(&output).unwrap();
+    assert!(!parsed.catalog().unwrap().has(b"AcroForm"));
+    assert!(
+        PdfDocument::from_bytes(output)
+            .unwrap()
+            .extract_text(0)
+            .unwrap()
+            .contains("Before")
+    );
 }

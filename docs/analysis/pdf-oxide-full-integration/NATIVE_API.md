@@ -6,7 +6,9 @@ matrix, and exact run evidence before treating a capability as qualified.
 The Rust entry point is `tpe::oxide::execute(operation, &Context, &params)` under
 `pdf-oxide`. Context contains immutable source bytes and verified hashes, optional
 one-based inclusive page selection, a password, and finite limits. Parsing hostile
-input in an ordinary application process is not supported: use the supervised CLI.
+input in an ordinary application process is not supported: use `tpe oxide` or
+`tpe extract --backend pdf-oxide`. The containment evidence here covers these
+worker routes; benchmark, bibliography and library callers do not inherit it.
 
 ```json
 {
@@ -41,7 +43,8 @@ file access; parser-worker evidence does not describe those processes.
 
 Outputs include exact source hashes, public request options, dependency/build
 identity, resource and containment evidence, diagnostics, and owned artifact
-bytes. With `--out`, artifacts are published without clobbering existing files;
+bytes. `producer.build_version` preserves the build's git/tag identity, including
+the dirty marker when present; it is not a signed attestation. With `--out`, artifacts are published without clobbering existing files;
 the receipt retains each artifact's name, size and SHA-256 while its inline byte
 array is emptied. A publisher failure can report `publication_unknown`; inspect
 existing outputs before retrying. Originals are never used as publication paths.

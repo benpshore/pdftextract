@@ -124,6 +124,8 @@ impl Split {
 }
 
 #[derive(Args)]
+// These are independent CLI output/projection opt-ins, not mutually exclusive states.
+#[allow(clippy::struct_excessive_bools)]
 struct ExtractArgs {
     /// PDF files or folders (regular PDFs, nonrecursive).
     #[arg(required = true, value_name = "PATH")]
@@ -131,7 +133,7 @@ struct ExtractArgs {
     /// Path of the `SQLite` ledger; created when missing.
     #[arg(long, value_name = "FILE")]
     db: PathBuf,
-    /// Extraction backend: lopdf, pdfium, pdf-oxide, routed (pdf-oxide with per-page pdfium), liteparse-layout, mupdf, poppler, or auto without OCR.
+    /// Extraction backend: lopdf, pdfium, pdf-oxide, liteparse-layout, mupdf, poppler, or auto without OCR. Routed extraction is unavailable in this checkpoint.
     #[arg(long, default_value = "lopdf")]
     backend: String,
     /// Directory that receives `<hash>.json` and `<hash>.txt` per document.

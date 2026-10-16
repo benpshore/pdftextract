@@ -150,10 +150,18 @@ execution results are recorded separately below.
 `ocr-combined-tests-01.log` subsequently records **15 passed, 0 failed** in this
 target, including the parent that executes the deterministic ONNX child,
 malformed-model child, and sealed raster child. That compiled the updated OCR
-preprocessing bounds. The final 1024×1 thin-image regression was added after
-that executable was built and still needs the next exact-source run. The
-positive result establishes byte-only inference and adapter plumbing for these
-tiny graphs, without recognition-accuracy evidence for trained OCR models.
+preprocessing bounds. The later `worker-ocr-repairs-01.log` passed all 15 tests
+again, including the final 1024×1 thin-image regression. A supervised CLI request
+also passed on executable SHA-256
+`7d11677203028d15c2a5ae5c8116e28cb1232aa6523f9b3530c65f0eee0c0084`
+(`git-e36807e-dirty`): four digest-checked input slots, two distinct image
+placements, deterministic `AB` spans, 10,056 processed pixels within the 16,384
+budget, a 5-second deadline and 256 MiB address-space growth. The exact request,
+response and verification receipt are under
+`/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001`.
+These results establish byte-only inference and adapter plumbing for tiny graphs
+that deliberately ignore image content, without trained-model recognition accuracy.
+The final combined-source checkpoint still requires its own frozen run.
 
 An independent visual check of the creation owner's text-only HTML fixture is
 preserved at `/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/html-css-text-only-001`.

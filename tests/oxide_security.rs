@@ -51,6 +51,8 @@ fn bytes(mut document: Document) -> Vec<u8> {
     bytes
 }
 
+// The fixture helper accepts temporary JSON alongside its owned source bytes.
+#[allow(clippy::needless_pass_by_value)]
 fn run(
     operation: &str,
     bytes: Vec<u8>,

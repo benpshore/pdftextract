@@ -63,6 +63,8 @@ fn text_content(text: &str, actual_text: Option<&str>) -> Vec<u8> {
     Content { operations }.encode().unwrap()
 }
 
+// Call sites provide temporary JSON with each synthetic conversion request.
+#[allow(clippy::needless_pass_by_value)]
 fn convert(
     bytes: &[u8],
     operation: &str,

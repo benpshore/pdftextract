@@ -1,0 +1,49 @@
+    Checking chacha20 v0.10.2
+    Checking aead v0.6.1
+    Checking aes-gcm v0.11.1
+    Checking pkcs5 v0.8.1
+    Checking rand v0.10.3
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+   Compiling futures-macro v0.3.34
+    Checking p12-keystore v0.3.2
+    Checking pdf_oxide v0.3.78
+    Checking lopdf v0.45.0
+    Checking futures-util v0.3.34
+    Checking futures-executor v0.3.34
+    Checking futures v0.3.34
+    Checking poly1305 v0.9.1
+    Checking blake2 v0.11.0
+    Checking argon2 v0.6.0
+    Checking chacha20poly1305 v0.11.0
+    Checking tpe-search v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-search)
+    Checking tpe-speech v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-speech)
+    Checking tpe-credentials v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-credentials)
+    Checking tpe-zotero v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-zotero)
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-biblio)
+    Checking tpe-browser v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-browser)
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-ffi)
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-common)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-app)
+error: unused import: `Read`
+ --> src/cli_worker/oxide.rs:5:21
+  |
+5 | use std::io::{self, Read, Write};
+  |                     ^^^^
+  |
+  = note: `-D unused-imports` implied by `-D warnings`
+  = help: to override `-D warnings` add `#[allow(unused_imports)]`
+
+error: could not compile `text-processing-engine` (bin "tpe" test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0599]: no method named `unwrap` found for struct `std::vec::Vec<u8>` in the current scope
+    --> tests/oxide_edit_forms.rs:1345:69
+     |
+1345 |     let content = Content::decode(&parsed.get_page_content(page_id).unwrap()).unwrap();
+     |                                                                     ^^^^^^
+     |
+help: there is a method `swap` with a similar name, but with different arguments
+    --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/slice/mod.rs:908:4
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `text-processing-engine` (test "oxide_edit_forms") due to 1 previous error
+error: could not compile `text-processing-engine` (bin "tpe") due to 1 previous error

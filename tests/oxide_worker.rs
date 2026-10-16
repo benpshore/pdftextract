@@ -161,6 +161,11 @@ fn creation_then_query_uses_workers_and_preserves_exact_source_provenance() {
     assert_eq!(created["operation"], "create.text");
     assert_eq!(created["backend"]["version"], "0.3.78");
     assert_eq!(
+        created["producer"]["build_version"],
+        env!("TPE_BUILD_VERSION")
+    );
+    assert_eq!(created["producer"]["dependencies"]["office_oxide"], "0.1.9");
+    assert_eq!(
         created["sources"][0]["sha256"],
         tpe::schema::sha256_hex(text)
     );
@@ -423,11 +428,11 @@ fn passwords_use_private_request_and_file_channels_not_argv_or_reports() {
 fn pressure_pdf() -> Vec<u8> {
     use flate2::Compression;
     use flate2::write::ZlibEncoder;
+    const BLOCK_BYTES: usize = 64 * 1024;
     // Construct compressed 128 MiB comments without retaining the decoded
     // bytes in the test host. Only the 32 MiB-budget child decodes the stream.
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::fast());
-    const BLOCK_BYTES: usize = 64 * 1024;
-    let mut block = [b' '; BLOCK_BYTES];
+    let mut block = vec![b' '; BLOCK_BYTES];
     block[0] = b'%';
     block[BLOCK_BYTES - 1] = b'\n';
     for _ in 0..2048 {

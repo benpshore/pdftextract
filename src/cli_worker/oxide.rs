@@ -1,8 +1,23 @@
 //! PDF Oxide operation controller. Uses the same disposable worker, deadline,
 //! kill/reap, capture cap, bounded publisher and output relay as extraction.
 
-use super::*;
+use std::fs;
+use std::io::{self, Write};
+use std::path::PathBuf;
+use std::process::ExitCode;
+use std::sync::Arc;
+use std::sync::atomic::AtomicBool;
+use std::time::{Duration, Instant};
+
+use anyhow::{Context, ensure};
+use serde::{Deserialize, Serialize};
 use tpe::oxide::{Context as OperationContext, Input, Limits, OperationOutput};
+use tpe::publication::StagedOutputs;
+
+use super::{
+    CancelSignals, Capture, ExtractArgs, LimitEvidence, OutputSink, REQUEST_BYTES, deliver,
+    read_limited, report_failure, supervise,
+};
 
 #[derive(clap::Args)]
 pub(crate) struct Args {
@@ -65,6 +80,7 @@ struct OperationResponse {
     version: u32,
     operation: String,
     backend: tpe::schema::BackendIdentity,
+    producer: serde_json::Value,
     sources: Vec<Source>,
     output: OperationOutput,
     extraction_limits: LimitEvidence,
@@ -224,16 +240,17 @@ pub(super) fn worker(encoded: &[u8], limits: LimitEvidence) -> anyhow::Result<()
     }))
     .map_err(|_| anyhow::anyhow!("PDF Oxide operation panicked; no result published"))??;
     let mut recorded_parameters = request.params;
-    if request.operation == "security.encrypt" {
-        if let Some(parameters) = recorded_parameters.as_object_mut() {
-            parameters.remove("user_password");
-            parameters.remove("owner_password");
-        }
+    if request.operation == "security.encrypt"
+        && let Some(parameters) = recorded_parameters.as_object_mut()
+    {
+        parameters.remove("user_password");
+        parameters.remove("owner_password");
     }
     let response = OperationResponse {
         version: 1,
         operation: request.operation.clone(),
         backend: tpe::oxide::identity(),
+        producer: tpe::oxide::producer(),
         sources: inputs
             .iter()
             .map(|input| Source {

@@ -95,6 +95,8 @@ fn query(bytes: &[u8], operation: &str, params: Value) -> OperationOutput {
     with_limits(bytes, operation, None, &Limits::default(), params).unwrap()
 }
 
+// Test cases supply temporary JSON alongside their bounded query configuration.
+#[allow(clippy::needless_pass_by_value)]
 fn with_limits(
     bytes: &[u8],
     operation: &str,

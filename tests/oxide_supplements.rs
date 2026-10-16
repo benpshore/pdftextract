@@ -620,7 +620,9 @@ fn inline_and_cmyk_images_use_real_memory_extraction() {
     assert_eq!(pixels.len(), 192);
     assert!(
         pixels
-            .chunks_exact(3)
+            .as_chunks::<3>()
+            .0
+            .iter()
             .all(|pixel| pixel[0] < pixel[1] && pixel[0] < pixel[2]),
         "cyan should retain green/blue dominance; no color-fidelity claim"
     );
@@ -778,7 +780,7 @@ fn assert_worker_rejects(bytes: &[u8], expected: &str) {
 
 #[test]
 fn image_limits_fail_in_disposable_workers_without_publication() {
-    let pixels = image_pdf(1001, 1000, "DeviceRGB", vec![0; 3003000], 1, None, None);
+    let pixels = image_pdf(1001, 1000, "DeviceRGB", vec![0; 3_003_000], 1, None, None);
     assert_worker_rejects(&pixels, "image pixels exceed");
     let count = image_pdf(8, 8, "DeviceRGB", [255, 0, 0].repeat(64), 33, None, None);
     assert_worker_rejects(&count, "images exceed 32/page");

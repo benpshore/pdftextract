@@ -30,11 +30,11 @@ and cancellation boundary. These local checks are not a security sandbox.
 | `edit.image_bounds` | `changes: [{page,name,rect}]` using `[x,y,width,height]`. Name must identify exactly one direct image occurrence. | `get_page_images`, `set_image_bounds` | Reopens output and compares each saved bounding rectangle. Repeated, missing and indirect/nested occurrences that cannot be identified exactly reject. |
 | `edit.whiteout` | `regions: [{page,rect}]` with PDF corner boxes and `acknowledge_text_remains: true`. | `erase_region` | Explicit visual overlay only. Tests prove underlying text remains recoverable. Never described as removing confidential content. |
 | `forms.inspect` | Empty parameters; stable fully qualified names, typed values, bounds, flags, tooltip, MaxLen, alignment, parent data, XFA presence. | Bounded shared AcroForm tree walk, `DocumentEditor::get_form_fields`, `FormFieldWrapper`, `has_xfa` | Cyclic/repeated nodes, excessive depth/items and duplicate names reject before unbounded upstream field recursion. Signed-source inspection remains available. Does not report the upstream default/first-widget page number as exact provenance. |
-| `forms.add` | `fields` with name/page/rectangle/widget plus optional read-only/required/tooltip. Widget kinds: text, checkbox, combo, list, inert push-button, empty signature widget. | Pinned widget builders, `add_form_field` / `add_form_field_hierarchical`; explicit `lopdf 0.45.0` property repair | Saved names and requested flags/tooltip are checked. No silent renaming of duplicate fields. Creating an empty signature widget is not signing. Radio-group insertion into existing PDFs remains unsupported. |
-| `forms.fill` | `fields` map to typed `{kind,value}`: text, boolean, choice, multi_choice, none. | `set_form_field_value` | Reopens saved PDF and compares every requested typed value. Rejects incompatible types, read-only fields, MaxLen overflow, unsupported signature values, missing names, and multi-selection on a single-choice field. |
-| `forms.update` | Bounded unique field list with optional read-only, required, tooltip, rectangle, MaxLen, alignment, RGB background/border, border width. | Corresponding `set_form_field_*` APIs; explicit `lopdf 0.45.0` property repair | The pinned writer omits staged field properties; the adapter writes requested dictionary keys against extracted indirect field identities and reopens the result. Geometry/appearance updates require one merged field/widget identity; every requested property is checked after saving. Arbitrary appearance strings, raw flags and event scripts are not accepted. |
+| `forms.add` | `fields` with name/page/rectangle/widget plus optional read-only/required/tooltip. Widget kinds: text, checkbox, combo, list, inert push-button, empty signature widget. Any existing AcroForm rejects. | Pinned widget builders, `add_form_field` / `add_form_field_hierarchical`; explicit `lopdf 0.45.0` property repair | Saved names and requested flags/tooltip are checked. Adding to an existing form is disabled because the pinned rebuild drops unique catalog properties and can drop existing fields. No silent renaming of duplicate fields. Creating an empty signature widget is not signing. |
+| `forms.fill` | `fields` map to typed `{kind,value}`: text, boolean, choice, multi_choice, none. Changed values reject when the target field or descendant widget retains a non-null `/AP`. | `set_form_field_value` | Reopens saved PDF and compares every requested typed value. Rejects stale-appearance cases, incompatible types, read-only fields, MaxLen overflow, unsupported signature values, missing names, and multi-selection on a single-choice field. Unchanged values do not invoke the upstream setter or set NeedAppearances. |
+| `forms.update` | Bounded unique field list with optional read-only, required, tooltip, rectangle, MaxLen, alignment, RGB background/border, border width. Style/geometry/MaxLen requests reject existing field or descendant-widget `/AP`; nonvisual flags/tooltip remain available. | Corresponding `set_form_field_*` APIs; explicit `lopdf 0.45.0` property repair | The pinned writer omits staged field properties; the adapter writes requested dictionary keys against extracted indirect field identities and reopens the result. Geometry updates also require one merged field/widget identity; every requested property is checked after saving. Arbitrary appearance strings, raw flags and event scripts are not accepted. |
 | `forms.remove` | `names` list of terminal fields. | `remove_form_field`; explicit `lopdf 0.45.0` reference repair | Reopens output and requires requested names to be absent. The corrective pass unlinks exact field/widget identities from AcroForm Fields, parent Kids, calculation order and page Annots, preserving unrelated annotations and siblings. Parent-container, ambiguous/direct-widget and signature-field removal reject. This does not erase orphaned values from the file. |
-| `forms.flatten` | Empty parameters; whole document, or explicitly selected pages. | `flatten_forms` / `flatten_forms_on_page` | Full flatten must leave no AcroForm fields. Missing appearance warnings are retained; flattening does not prove complete visual appearance. Signature widgets reject. |
+| `forms.flatten` | Empty parameters; whole document, or explicitly selected pages. An AcroForm with both `NeedAppearances: true` and an appearance-bearing field/widget rejects before flattening. | `flatten_forms` / `flatten_forms_on_page` | Full flatten must leave no AcroForm fields. The guard prevents baking stale appearances saved by an earlier fill. Missing appearance warnings are retained; accepted flattening does not prove complete visual appearance. Signature widgets reject. |
 | `forms.export` | `format: fdf` or `xfdf`; optional `include_no_export` defaults false. | `FdfWriter`, `XfdfWriter` on current field snapshots | In-memory output; FDF literal escaping and XML escaping tests. Editor file-export convenience helpers are not used because they read the original source instead of staged values. |
 | `forms.xfa` | `action: inspect` or `convert_static` with `accept_layout_loss: true`. | `XfaExtractor`, `XfaParser`, `XfaConverter`, `add_converted_page`, `PdfWriter` | Decoded XML byte count, element count, nesting, field/page count bounded. DTDs, custom entity references, scripts, connections, resource references and dynamic/repeated sections reject. Standard XML escapes and numeric character references are permitted. Skipped fields reject conversion. Output explicitly records lost original layout/non-form content. |
 
@@ -100,10 +100,35 @@ path or network resource is accepted by these modules.
 - `FormFieldWrapper::bounds` passes PDF `[x0,y0,x1,y1]` corners to a constructor
   expecting `[x,y,width,height]`. Form inspection and geometry verification use
   the original extracted corner array and subtract the origin explicitly.
-- Form value/property tests establish saved field dictionaries, not appearance
-  stream regeneration. Ordinary upstream fills set `/NeedAppearances`, and
-  existing `/AP` streams may remain stale; property updates likewise do not
-  regenerate them. Viewer-independent visual form fidelity remains unverified.
+- The pinned new-field writer at `editor/document_editor.rs:2205–2257` rebuilds
+  the AcroForm instead of preserving its dictionary. It copies old Fields only
+  from an indirect AcroForm with a direct Fields array; inline AcroForm fields
+  disappear, and unique dictionary keys/resources/calculation order can be
+  replaced even in the indirect case. `forms.add` therefore rejects any existing
+  AcroForm. Direct pinned-library regressions retain both cases and independent
+  catalog/field sentinel assertions; there is no verified preservation repair.
+- The existing-value writer at `editor/document_editor.rs:1698` changes `/V`
+  (and button `/AS`) and sets `/NeedAppearances` without regenerating `/AP`.
+  Property repair also does not rebuild appearance streams. Changed fills and
+  requested rectangle, MaxLen, alignment, background, border color or border
+  width updates therefore reject targets with any non-null `/AP`, including
+  separate widget children. A bounded reader follows only field/widget Kids
+  edges and rejects ambiguous indirect identities. The conservative style gate
+  also rejects an explicitly repeated style value. Read-only/required flags and
+  tooltips remain available; tests require source/catalog sentinels and original
+  appearance bytes to survive. No-op fills skip the pinned setter.
+- The flattener at `editor/document_editor.rs:6089` regenerates some text only
+  when a value was staged in the same editor session (`modified_widget_text` at
+  line 6181). After saving and reopening, it prefers the old `/AP`; the synthetic
+  regression records `/V = After`, an unchanged stream painting `Before`, and a
+  separate flatten that paints `Before` after removing all form fields. The
+  adapter rejects flattening when NeedAppearances is true and existing AP is
+  present. This conservative document-level check also applies to page-selected
+  flattening. A same-session fill-plus-flatten control exercises the limited
+  private regeneration path without substituting flattened output for an
+  interactive fill. There is no public verified general in-place appearance
+  regeneration path; missing AP and unmarked preexisting stale AP remain visual
+  qualification limits, not evidence of correctness.
 - The upstream annotation reader can skip malformed or direct annotation
   entries. Mutation reconciliation rejects a serialized inventory mismatch;
   read-only annotation enumeration is not proof that no other entries exist.
@@ -135,7 +160,23 @@ reads, ordered annotation identities and unknown dictionary keys, UTF-16 names,
 hierarchical field removal, independent widget geometry/appearance checks, rejection
 of signature-marked appended merge inputs, and
 preservation of unrelated annotations.
+Six further tests cover existing inline/indirect AcroForm rejection, direct
+pinned catalog-loss evidence, merged/separate-widget stale-appearance rejection,
+unchanged values/nonvisual property preservation, direct upstream stale fill
+followed by separate flatten, and flattening of an existing complete appearance.
+All earlier success assertions remain intact; the new tests distinguish rejected
+adapter operations from preserved upstream failure evidence.
 The helper snapshots every input to assert it remains unchanged.
+
+When the owner supplies `TPE_OXIDE_FIXTURE_CAPTURE`, these tests retain bounded
+synthetic PDFs under that directory: `forms-appearance-source.pdf`,
+`forms-appearance-upstream-filled.pdf`,
+`forms-appearance-upstream-separate-flattened.pdf`,
+`forms-appearance-upstream-same-session-control.pdf`, and
+`forms-appearance-control-flattened.pdf`. The source paints `Before` in one
+Helvetica widget, with unrelated page text and catalog sentinels. The direct
+upstream request sets that field to `After`. These are independent-rendering
+inputs, not a claim that a visual comparison has already passed.
 
 The integration owner runs the tests in the shared Cargo target; this module
 does not run concurrent Cargo jobs. `full-tests-03.log` recorded 14/17 passes and
@@ -146,7 +187,8 @@ absent. Those original assertions remain unchanged. `full-tests-05.log` recorded
 field requested for removal remained present. The removal repair and additional
 regressions then produced 20/22 passes in `full-tests-06.log`: UTF-16 annotation
 inspection and form geometry verification exposed the two reader defects above.
-Those assertions remain unchanged and both reader corrections are implemented;
-results for the current 23-test suite are pending.
+Those assertions remain unchanged and both reader corrections are implemented.
+The six additional appearance/preservation tests bring this worker's suite to
+29 tests; owner-run results for the changed source are pending.
 No commit, PR,
 merge, publication or release is performed by this worker.

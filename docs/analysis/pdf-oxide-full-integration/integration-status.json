@@ -1,0 +1,3666 @@
+{
+  "schema_version": 1,
+  "review_date_utc": "2026-10-16",
+  "status": "working-tree adapter coverage; every capability remains unqualified",
+  "scope": "Separate status overlay for all source capability IDs. Original source inventory, matrix, feature profiles and unique obligations remain unchanged.",
+  "source_indexes": {
+    "specification": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
+    "specification_sha256": "f00b3a120b9a6f55cfd2958bc159cf6a0853473b9cece8dada5c2df1f123e6d7",
+    "source_inventory": "docs/analysis/pdf-oxide-full-integration/source-inventory.json",
+    "capability_matrix": "docs/analysis/pdf-oxide-full-integration/capability-matrix.json",
+    "feature_build_matrix": "docs/analysis/pdf-oxide-full-integration/feature-build-matrix.json",
+    "pinned_packages": [
+      {
+        "name": "pdf_oxide",
+        "version": "0.3.78",
+        "archive_sha256": "95b1ecc1a60a314fbd1aea5fe8f700ec32af1efa70fef5c6879162444da3437d"
+      },
+      {
+        "name": "office_oxide",
+        "version": "0.1.9",
+        "archive_sha256": "e07e156a6bc62caaa66fc698daad7405dd62e86f5292fd22898c1a55f154748d"
+      }
+    ]
+  },
+  "state_definitions": {
+    "partial adapter": "Some bounded adapter behavior exists. The remaining unique obligations and all global qualification gaps still apply.",
+    "explicit unsupported": "A known defective or unadmitted path is explicitly rejected or declared unavailable; its preserved source proposal is not completed functionality.",
+    "source-only": "The pinned upstream capability is inventoried, with no adapter for the unique obligation. Adjacent functionality is not counted as completion.",
+    "parent-owned parity": "Parent-coordinated binding/toolkit parity is outstanding; nearby repository test passes do not establish it."
+  },
+  "qualification": {
+    "fully_qualified_capabilities": 0,
+    "evidence_owner": "/root; parent Ada owns task integration and final checkpoint review",
+    "exact_combined_source_checkpoint": null,
+    "final_test_receipts": [],
+    "test_target_semantics": "Paths identify relevant existing tests, not proof of execution, complete coverage or passing qualification. Empty arrays mean no dedicated adapter target exists for that source-only obligation.",
+    "reported_context_only": [
+      {
+        "reported_by": "/root",
+        "scope": "combined creation/Office, editing/forms, rendering/OCR, security and worker targets",
+        "passed": 83,
+        "limitation": "Predates later worker/OCR/form guards and is not an exact final-source qualification receipt."
+      },
+      {
+        "reported_by": "/root",
+        "scope": "later worker/OCR targets",
+        "passed": 27,
+        "limitation": "Focused follow-up, not the final complete combined-source run."
+      }
+    ],
+    "current_changes_requiring_parent_verification": [
+      "Forms: reject insertion into existing AcroForm, stale field/descendant appearances on value/style changes, and NeedAppearances with retained AP on flatten.",
+      "Publication: response and receipt writes remain inside staged artifact rollback; EISDIR failure regression preserves sources/sentinel and removes derivatives.",
+      "Supervised routed extraction: reject before input/ledger/output until PDFium lazy loading is qualified.",
+      "OCR thin-crop/tensor accounting and final combined optional-feature build."
+    ]
+  },
+  "shared_contract": {
+    "base_adapter_feature": "pdf-oxide",
+    "operation_input_limits": {
+      "max_inputs": 8,
+      "max_total_input_bytes": 67108864,
+      "max_selected_pages": 256,
+      "max_items": 10000,
+      "max_pixels": 16000000,
+      "max_serialized_output_bytes": 67108864,
+      "max_parameter_json_bytes": 65536
+    },
+    "scope_of_limits": "These are native operation ceilings; extraction supplements have additional, sometimes lower bounds. Upstream parsing/decoding can allocate before local checks.",
+    "untrusted_execution": "Use supervised CLI workers after immutable acquisition. Direct Rust calls do not acquire process isolation merely by constructing Context.",
+    "containment": "Verified Linux seccomp_sealed denies path IO, sockets, exec and process creation across worker threads. Threads remain allowed without a separate PID/cgroup/thread-count cap. The controller/publisher retain their intended file access.",
+    "platform_limit": "Linux x86_64 has bounded runtime evidence. Linux aarch64 is source-only here; Landlock reports ENOSYS, and other platform/toolkit parity is unverified.",
+    "provenance": "Original bytes/source hashes and raw observations remain distinct from derived projections; app-generated artifact names, no-clobber staging and explicit mutation/repair provenance are required."
+  },
+  "global_remaining_obligations": [
+    "Parent must attach final exact combined-source commit/build hashes and complete test receipts before proposing an existing-PR273 update.",
+    "All-platform, full toolkit/API, actual Python 3.14 binding and free-threaded binding parity remain unverified.",
+    "Independent extraction/visual/Office/form/table/render fidelity and approved trained-model OCR accuracy are not established by green synthetic tests or same-library reopen checks.",
+    "Backpressure, atomic publication, cleanup/cancellation, memory limits, filesystem/network/process denials and SSRF/RCE-related negative controls are bounded case evidence, not broad safety certification or a destructive fork-bomb test.",
+    "Exact parent-confirmed counterexample fixture identities and the broader frozen parity corpus remain outstanding; approved synthetic equivalents preserve defects without substituting for those fixtures.",
+    "No private keys, real signing, credential discovery, remote model/TSA fetching, persistent MCP registration, new queue/database service, publication/release or protected-branch merge is implemented by this status overlay."
+  ],
+  "operation_registry": {
+    "registered_operation_count": 70,
+    "special_dispatch_endpoints": [
+      "capabilities"
+    ],
+    "source_registries": {
+      "src/oxide/convert.rs": [
+        "convert.text",
+        "convert.markdown",
+        "convert.html"
+      ],
+      "src/oxide/create.rs": [
+        "create.text",
+        "create.markdown",
+        "create.html",
+        "create.html_css",
+        "create.images",
+        "create.document"
+      ],
+      "src/oxide/edit.rs": [
+        "edit.pages",
+        "edit.merge",
+        "edit.split",
+        "edit.metadata",
+        "edit.annotations",
+        "edit.attachments",
+        "edit.bookmarks",
+        "edit.content",
+        "edit.image_bounds",
+        "edit.whiteout"
+      ],
+      "src/oxide/forms.rs": [
+        "forms.inspect",
+        "forms.add",
+        "forms.fill",
+        "forms.update",
+        "forms.remove",
+        "forms.flatten",
+        "forms.export",
+        "forms.xfa"
+      ],
+      "src/oxide/ocr.rs": [
+        "ocr.classify",
+        "ocr.images",
+        "ml.capabilities"
+      ],
+      "src/oxide/office.rs": [
+        "office.to_pdf",
+        "office.from_pdf_docx",
+        "office.from_pdf_pptx",
+        "office.from_pdf_xlsx",
+        "office.create_markdown"
+      ],
+      "src/oxide/query.rs": [
+        "query.document",
+        "query.page",
+        "query.text",
+        "query.chars",
+        "query.spans",
+        "query.words",
+        "query.lines",
+        "query.page_text",
+        "query.structured",
+        "query.region",
+        "query.layers",
+        "query.inks",
+        "query.fonts",
+        "query.search",
+        "query.classify",
+        "query.outlines",
+        "query.paths",
+        "query.content",
+        "query.font_data",
+        "query.attachments"
+      ],
+      "src/oxide/render.rs": [
+        "render.pages",
+        "render.fit",
+        "render.region",
+        "render.separations",
+        "render.flatten",
+        "barcode.generate"
+      ],
+      "src/oxide/security.rs": [
+        "security.inspect",
+        "security.encrypt",
+        "security.decrypt",
+        "security.redact_text",
+        "security.sanitize",
+        "compliance.validate",
+        "compliance.convert_pdf_a",
+        "signatures.inspect",
+        "signatures.verify"
+      ]
+    },
+    "meaning": "Dispatch presence does not imply compiled feature availability, input admission, fidelity or completion."
+  },
+  "summary": {
+    "capability_count": 84,
+    "unique_capability_ids": 84,
+    "state_counts": {
+      "explicit unsupported": 6,
+      "parent-owned parity": 1,
+      "partial adapter": 66,
+      "source-only": 11
+    },
+    "registered_operations_referenced": 70,
+    "qualified_count": 0
+  },
+  "capabilities": [
+    {
+      "id": "intake.parse_auth",
+      "group": "intake",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.document",
+        "security.inspect"
+      ],
+      "extraction_or_other_surfaces": [
+        "tpe oxide --request",
+        "tpe extract --backend pdf-oxide",
+        "tpe::oxide::Context::open_pdf",
+        "PdfOxideBackend::open"
+      ],
+      "bounded_adapter_coverage": "Owned immutable input slots are size/hash checked before dispatch; PDF opening authenticates supplied bytes, uses fallible page count, and preserves distinct encrypted/password failures. The extraction backend additionally rejects zero-page input.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "src/cli_worker/oxide.rs",
+        "src/cli_worker.rs",
+        "src/backend/pdf_oxide_backend.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_worker.rs",
+        "tests/oxide_security.rs",
+        "tests/oxide_query.rs",
+        "tests/pdf_oxide_backend.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/containment.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Parser allocation occurs before some retained-result checks; hostile input requires the supervised worker.",
+        "Cipher/malformed-input and zero-page behavior across every operation and binding still needs the parent parity program."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound immutable bytes before parse; use fallible page count; distinguish malformed/encrypted/wrong-password/unsupported cipher and zero-page input.",
+      "preserved_validation_obligations": [
+        "malformed/truncated PDF",
+        "encrypted empty/correct/wrong password over private request channel",
+        "zero pages",
+        "oversized input and huge page range"
+      ]
+    },
+    {
+      "id": "intake.parser_config",
+      "group": "intake",
+      "source_owner": "integration",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "Context::limits and supervised resource limits are adjacent controls, not ParserOptions integration"
+      ],
+      "bounded_adapter_coverage": "No adapter exposes arbitrary ParserOptions or open_with_config controls. Effective adapter ceilings are implemented separately in Context and the worker; the reviewed upstream document hook ignores its config argument.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Implement and independently verify any additional parser controls before exposing them; do not advertise the ignored upstream hook as a limit."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/parser_config.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "ParserOptions exists, but PdfDocument::open_with_config ignores its argument. Do not advertise effective tunable document limits from this hook.",
+      "preserved_validation_obligations": [
+        "limit enforcement in adapter/worker independent of parser options"
+      ]
+    },
+    {
+      "id": "intake.object_graph",
+      "group": "intake",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.document",
+        "query.outlines",
+        "query.attachments",
+        "query.content",
+        "edit.bookmarks",
+        "forms.inspect",
+        "signatures.inspect"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Necessary catalog/field/outline/name-tree observations use bounded specialized walkers with cycle/depth/item checks. Decoded page operators are returned as inert owned artifacts; no generic graph mutation or dump is exposed.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/oxide/edit.rs",
+        "src/oxide/forms.rs",
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/oxide_edit_forms.rs",
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "A general reference-preserving object graph interface is absent.",
+        "Indirect-object decoding can allocate before local bounds, and malformed graph coverage is limited to current synthetic cases."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/object.rs",
+        "pdf_oxide:src/parser.rs",
+        "pdf_oxide:src/xref.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Expose only bounded necessary object summaries; preserve object-reference provenance without following arbitrary paths or recursive cycles.",
+      "preserved_validation_obligations": [
+        "cyclic references",
+        "oversized dictionaries/arrays",
+        "xref/object-stream corruption"
+      ]
+    },
+    {
+      "id": "intake.geometry",
+      "group": "intake",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.page",
+        "query.page_text",
+        "query.chars"
+      ],
+      "extraction_or_other_surfaces": [
+        "PdfOxideBackend page geometry"
+      ],
+      "bounded_adapter_coverage": "Queries expose MediaBox/visible-box corners, rotation and one-based source page identities. Page-text raw upstream width/height values remain separate from independently computed extents; the extraction adapter rejects nonfinite boxes.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_backend.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/pdf_oxide_backend.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "All rotation, CropBox, transformed-text and cross-binding coordinate cases remain unqualified.",
+        "Raw upstream geometry and derived span geometry are distinct observations."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/geometry.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Retain finite source geometry and rotation with explicit one-based engine versus zero-based upstream page mapping.",
+      "preserved_validation_obligations": [
+        "inherited boxes",
+        "rotations",
+        "nonfinite and inverted rectangles",
+        "out-of-range pages"
+      ]
+    },
+    {
+      "id": "extract.characters",
+      "group": "extraction",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.chars"
+      ],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide",
+        "PdfOxideBackend::page_text"
+      ],
+      "bounded_adapter_coverage": "Native characters retain font, size, geometry and sequence under per-page/document character and string budgets. Native uncertainty is preserved; the query adapter also offers an explicitly labeled span-derived representation.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_backend.rs",
+        "src/pipeline.rs",
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/pdf_oxide_backend.rs",
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Pinned native non-ASCII ActualText remaps UTF-8 bytes through fonts and can produce mojibake; original observations remain with diagnostics.",
+        "Character completeness, font-width accuracy and broad glyph/Unicode parity are unverified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/layout/text_block.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Retain text, source glyph uncertainty, geometry, font, size and sequence; bound character and string totals.",
+      "preserved_validation_obligations": [
+        "ActualText",
+        "missing ToUnicode",
+        "replacement glyphs",
+        "sparse mappings",
+        "damaged streams",
+        "font-width witnesses"
+      ]
+    },
+    {
+      "id": "extract.spans_words_lines",
+      "group": "extraction",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.spans",
+        "query.words",
+        "query.lines",
+        "query.page_text"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Granular selected-page outputs preserve settings, source geometry, raw spans/chars and named merging/threshold profiles under aggregate output/item budgets.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Upstream repair/filter behavior differs by representation; agreement of counts is not correctness.",
+        "Font, bidi, ligature, multi-column and complex-script coverage remains a parent parity obligation."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Map each granular representation honestly and preserve extraction settings and geometry; do not equate word/span counts with correctness.",
+      "preserved_validation_obligations": [
+        "Unicode/ligatures/RTL/CJK",
+        "rotated text",
+        "superscripts",
+        "overlapping spans",
+        "table columns"
+      ]
+    },
+    {
+      "id": "extract.text",
+      "group": "extraction",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.text",
+        "query.page_text"
+      ],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide"
+      ],
+      "bounded_adapter_coverage": "Selected-page extraction returns bounded text and conservative Partial/uncertainty evidence; queries preserve per-page failures and do not call eager all-page helpers.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_backend.rs",
+        "src/pipeline.rs",
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/pdf_oxide_backend.rs",
+        "tests/oxide_query.rs",
+        "tests/oxide_worker.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Empty output can reflect decode failure, absent text or OCR need; complete text recovery is not established.",
+        "All toolkit and Python 3.14 text behavior still needs common frozen-fixture comparison."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Prefer bounded selected-page processing; whole-document text accumulation must obey finite limits and preserve partial/error status.",
+      "preserved_validation_obligations": [
+        "empty/scanned pages",
+        "large document",
+        "per-page failure",
+        "UTF-8 boundary handling"
+      ]
+    },
+    {
+      "id": "extract.reading_order",
+      "group": "extraction",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.spans",
+        "query.page_text",
+        "query.structured",
+        "convert.text",
+        "convert.markdown",
+        "convert.html"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Explicit query reading-order choices and converter effective options are retained; page_text exposes top-to-bottom, column-aware and structure order, while structured output exposes auto/single/two-column modes.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/oxide/convert.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/oxide_convert.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Independent XY-cut, simple, article-thread and tagged-structure strategy parity is not implemented or qualified as a complete set.",
+        "Column/order and meaningful-heading regression fixtures still need independent acceptance."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/pipeline/reading_order/mod.rs",
+        "pdf_oxide:src/pipeline/reading_order/xycut.rs",
+        "pdf_oxide:src/pipeline/reading_order/structure_tree.rs",
+        "pdf_oxide:src/pipeline/reading_order/geometric.rs",
+        "pdf_oxide:src/pipeline/reading_order/simple.rs",
+        "pdf_oxide:src/pipeline/reading_order/article_thread.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Inventory independent geometric, XY-cut, structure-tree, simple and article-thread behavior; route only with evidence and retain selected strategy.",
+      "preserved_validation_obligations": [
+        "known two/three-column witnesses",
+        "tagged versus untagged",
+        "vertical writing",
+        "running headers versus body",
+        "cyclic article thread"
+      ]
+    },
+    {
+      "id": "extract.structured_regions",
+      "group": "structured_regions",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.structured"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded structured output retains regions, roles, columns, sections, source spans and boxes with explicit heuristic uncertainty.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Eager hierarchical content export is not exposed because nested image payloads lack a bounded provenance contract.",
+        "Role labels and reading order are not independently validated semantic structure."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/structured.rs",
+        "pdf_oxide:src/extractors/hierarchical.rs",
+        "pdf_oxide:src/extractors/structured.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve region roles, source page/boxes and reading order; heuristic role labels remain uncertain.",
+      "preserved_validation_obligations": [
+        "headers/footers/tables/figures/citations",
+        "mixed columns",
+        "rotations",
+        "empty structures"
+      ]
+    },
+    {
+      "id": "extract.region_filters",
+      "group": "structured_regions",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.region"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Finite PDF-coordinate rectangles select text/chars/spans/words/lines/paths with explicit intersection/containment/positive-overlap semantics and invalid-combination rejection.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Region-specific table and image extraction are not exposed by this query; whole-page table/image adapters do not satisfy those region obligations.",
+        "Boundary/rotation and transformed-resource behavior needs a wider frozen fixture set."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/layout/area_filter.rs",
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Validate finite rectangles and filter semantics; preserve original extraction and report whether containment or intersection was requested.",
+      "preserved_validation_obligations": [
+        "boundary-touching glyph/image",
+        "rotated page crop",
+        "empty/outside rectangle",
+        "many exclusion regions"
+      ]
+    },
+    {
+      "id": "extract.tables",
+      "group": "structured_regions",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide: PageText.tables raw candidates"
+      ],
+      "bounded_adapter_coverage": "Direct native rows/cells, spans, headers, boxes and MCIDs are retained under table/cell/text budgets as raw evaluation candidates. Every candidate carries validation_error; converters reject extract_tables=true.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_backend.rs",
+        "src/pipeline.rs",
+        "src/oxide/convert.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/pdf_oxide_backend.rs",
+        "tests/oxide_convert.rs",
+        "tests/oxide_supplements.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Validated table interpretation is unavailable: known native candidates split wrapped cells, lose headers/blank/final rows and invent prose tables.",
+        "Independent table-row/cell/merge/reading-order acceptance remains open; no Markdown substitute is counted as validation."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/structure/table_extractor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use direct rows/cells with headers, row/col spans, boxes and MCIDs; do not substitute Markdown or line-role labels. Bound tables/cells/text.",
+      "preserved_validation_obligations": [
+        "ruled and unruled tables",
+        "empty cells",
+        "merged cells",
+        "multi-line cells",
+        "prose false positives",
+        "multilingual cells"
+      ]
+    },
+    {
+      "id": "extract.paths",
+      "group": "structured_regions",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.paths",
+        "query.region",
+        "query.content"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Selected pages return bounded path/rectangle/vector-line observations and inert content-stream artifacts, preserving upstream operations/style/geometry.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Path observations are not full rendering evidence; nested transforms, clipping, patterns and unsupported graphics operators need broader checks.",
+        "No arbitrary low-level PDF operator execution or mutation is exposed."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/extractors/paths.rs",
+        "pdf_oxide:src/elements.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve path operations/transforms/style without treating vector counts as complete rendering; bound path operations.",
+      "preserved_validation_obligations": [
+        "curves and clipping",
+        "nested Form XObjects",
+        "malformed paths",
+        "large coordinate/operation counts"
+      ]
+    },
+    {
+      "id": "extract.classification_auto",
+      "group": "extraction",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.classify",
+        "ocr.classify"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Per-page classification retains heuristic signals and reasons without invoking document-wide error-to-empty fallbacks, AutoExtractor or model acquisition.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/oxide/ocr.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Automatic native/OCR routing is not enabled by these operations.",
+        "Classification accuracy, OCR-required decisions and complete-page recognition remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/extractors/auto.rs",
+        "pdf_oxide:src/extractors/status.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Retain classification signals, reasons, source, Partial/OCR-required statuses; no implicit model downloads or unsupported OCR success.",
+      "preserved_validation_obligations": [
+        "native/scan/mixed/invisible OCR layer",
+        "small meaningful text",
+        "garbled Unicode",
+        "missing models"
+      ]
+    },
+    {
+      "id": "extract.diagnostics",
+      "group": "extraction",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.chars",
+        "convert.text",
+        "convert.markdown",
+        "convert.html"
+      ],
+      "extraction_or_other_surfaces": [
+        "PageText diagnostics and supplement provenance",
+        "all tpe::oxide OperationOutput warning/provenance envelopes"
+      ],
+      "bounded_adapter_coverage": "Adapters preserve actual upstream warning category/message/spec section and known page/stage attribution; queries and converters retain source hashes and explicit empty-result uncertainty.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_backend.rs",
+        "src/pipeline.rs",
+        "src/oxide/query.rs",
+        "src/oxide/convert.rs",
+        "src/oxide/edit.rs",
+        "src/oxide/render.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/pdf_oxide_backend.rs",
+        "tests/oxide_query.rs",
+        "tests/oxide_convert.rs",
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Some upstream recovery/font-drop paths emit no structured warning; a quiet result is not complete.",
+        "Thread-local and nested-document warning sinks can have incomplete attribution; region provenance is not invented."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/extractors/warnings.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Retain actual category/message plus known adapter stage/page provenance; never fabricate region provenance absent upstream data.",
+      "preserved_validation_obligations": [
+        "fallback warning retained in JSON/ledger",
+        "page-stage warning association",
+        "warning count/text bounds"
+      ]
+    },
+    {
+      "id": "extract.fonts_layers_inks",
+      "group": "metadata",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.fonts",
+        "query.font_data",
+        "query.layers",
+        "query.inks"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Font statistics, bounded embedded font programs/width and Unicode maps, layer names/default-off observations, and shallow/deep ink names have inert query outputs.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Upstream deduplicates embedded subsets by base name and largest program; a retained program is not necessarily a superset.",
+        "Complete nested resource, shaping/width, tint/visibility and font provenance parity is unverified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/optional_content.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound returned font bytes and nested resources; preserve embedded-font/width/Unicode provenance and dependency/font notices.",
+      "preserved_validation_obligations": [
+        "missing/substituted fonts",
+        "nested spot inks/layers",
+        "large embedded font",
+        "invalid font program"
+      ]
+    },
+    {
+      "id": "query.search",
+      "group": "search",
+      "source_owner": "query",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.search"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Per-page literal/regex search bounds source pattern, compiled/DFA size, nesting and match count; preserves case/whole-word options, Unicode byte offsets and span-level boxes.",
+      "implementation_paths": [
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Boxes cover matching spans, not exact glyph highlights.",
+        "Cross-page search/cache behavior and the full upstream search surface remain unqualified; no hidden whole-document preparation is used."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/search/text_search.rs",
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound pattern length, pages, matches and cache lifetime; preserve boxes and case/regex options without hidden whole-document scans.",
+      "preserved_validation_obligations": [
+        "invalid regex",
+        "Unicode/case behavior",
+        "cross-span matches",
+        "match overflow",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "query.outlines",
+      "group": "metadata",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.outlines",
+        "edit.bookmarks"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Outline queries preflight bounded First/Next and destination graphs, detect cycles, compare parsed node counts, and retain raw destination/action identities without executing them.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Unresolved destinations remain unresolved rather than receiving invented page numbers.",
+        "Existing-document bookmark mutation and bookmark-driven split are separate unimplemented obligations."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/outline.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use bounded traversal of outline Next/First references; destinations remain data, not actions.",
+      "preserved_validation_obligations": [
+        "Next/First cycles",
+        "deep outline",
+        "remote/URI action",
+        "missing destination"
+      ]
+    },
+    {
+      "id": "query.page_labels",
+      "group": "metadata",
+      "source_owner": "editing_forms",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Pinned page-label extractor/builder APIs are indexed; there is no query.page_labels operation or adapter label output.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Implement a bounded number-tree reader with roman/alphabetic/prefix fixtures and separate label/source-page identity.",
+        "Existing-document label mutation has no reviewed editor setter and cannot be claimed from creation APIs."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/extractors/page_labels.rs",
+        "pdf_oxide:src/writer/page_labels.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Distinguish label text from source page number; existing-document label mutation has no direct editor setter in reviewed surface.",
+      "preserved_validation_obligations": [
+        "roman/alphabetic/prefixed labels",
+        "malformed number tree",
+        "missing labels"
+      ]
+    },
+    {
+      "id": "query.metadata",
+      "group": "metadata",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "query.document",
+        "edit.metadata"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "query.document returns producer/creator and document declarations; edit.metadata reads and writes a bounded set of Info fields with explicit ASCII-only preservation guards.",
+      "implementation_paths": [
+        "src/oxide/query.rs",
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_query.rs",
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "There is no complete read-only Info plus bounded XMP query; Info/XMP disagreement and malicious/large XML handling remain open.",
+        "Non-ASCII Info rewriting rejects instead of claiming round-trip support."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/extractors/xmp.rs",
+        "pdf_oxide:src/writer/xmp_metadata.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve Info and XMP separately with bounded XML/text; do not merge inconsistent values silently.",
+      "preserved_validation_obligations": [
+        "Info/XMP disagreement",
+        "malformed XMP",
+        "Unicode metadata",
+        "large XML/entity declarations"
+      ]
+    },
+    {
+      "id": "convert.page_text_markdown",
+      "group": "conversion",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "convert.text",
+        "convert.markdown"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Fallible per-page native conversion retains baseline and requested projections, complete effective options and source/page warnings; changed options use a separate parser and each page is capped at 1 MiB.",
+      "implementation_paths": [
+        "src/oxide/convert.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_convert.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Table reconstruction is explicitly unsupported, while images/formula/file outputs and automatic cleanup are disabled.",
+        "Baseline is another native projection, not original PDF strings; Markdown fidelity and reading order are unverified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/mod.rs",
+        "pdf_oxide:src/converters/markdown.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use pinned &ConversionOptions signatures and bounded page-wise conversion; retain original output and transformation settings.",
+      "preserved_validation_obligations": [
+        "tables/links/Unicode",
+        "page identity/order",
+        "individual/total byte limits",
+        "partial extraction"
+      ]
+    },
+    {
+      "id": "convert.page_html",
+      "group": "conversion",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [
+        "convert.html"
+      ],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide --pdf-oxide-html"
+      ],
+      "bounded_adapter_coverage": "Raw/baseline HTML remains separate from an attribute-free structural-tag display projection with escaped source-hash/page wrappers; no resource paths or external fetches are enabled.",
+      "implementation_paths": [
+        "src/oxide/convert.rs",
+        "src/backend/pdf_oxide_supplements.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_convert.rs",
+        "tests/oxide_supplements.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Sanitized display HTML omits image/style/link-resource semantics and is not a browser-faithful reconstruction.",
+        "Raw markup stays untrusted, and native table reconstruction is blocked."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/html.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Application owns escaped wrappers and deterministic page IDs. Sanitize untrusted HTML/links/image sources; no scripts/event handlers/external fetch. image_output_dir must never be document/model chosen.",
+      "preserved_validation_obligations": [
+        "quotes in paths/metadata",
+        "javascript/data/event attributes",
+        "external resource URL",
+        "bounded per-page HTML",
+        "image omission status"
+      ]
+    },
+    {
+      "id": "cleanup.whitespace",
+      "group": "cleanup",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide --pdf-oxide-cleanup-preview"
+      ],
+      "bounded_adapter_coverage": "Optional cleanup-preview text is separate from baseline spans/text and records exact transformation options and source identity.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_supplements.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_supplements.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Whitespace changes can alter code, tables and prose meaning; no cleanup-accuracy acceptance is claimed.",
+        "Adversarial heading/citation fixtures remain evidence for review, not authorization to overwrite baseline."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/converters/whitespace.rs",
+        "pdf_oxide:src/pipeline/text_processing/whitespace.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Optional derived transformation only; preserve original text/spans and record exact options. Whitespace/code/table formatting changes may lose meaning.",
+      "preserved_validation_obligations": [
+        "code indentation",
+        "table whitespace",
+        "citations",
+        "meaningful repeated prose",
+        "Unicode spaces"
+      ]
+    },
+    {
+      "id": "cleanup.header_footer_artifacts",
+      "group": "cleanup",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide --pdf-oxide-cleanup-preview"
+      ],
+      "bounded_adapter_coverage": "A separate parser holds optional header/footer/artifact masks; whole-document cleanup scanning is capped at 64 pages and uses a conservative 0.8 threshold while preserving baseline output.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_supplements.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_supplements.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Meaningful headings/citations can still be removed; the preview records this loss rather than presenting a repaired source.",
+        "Tagged early-return and mixed-page behavior, all option combinations and independent semantic acceptance remain open."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use a separate document for cleanup masks; bound whole-document scans and require conservative positive thresholds. Tagged early return can leave mixed pages untreated. Masks are not destructive redaction.",
+      "preserved_validation_obligations": [
+        "mixed tagged/untagged pages",
+        "repeated meaningful prose/table headers/citations",
+        "threshold zero rejected",
+        "cross-request contamination",
+        "original output unchanged"
+      ]
+    },
+    {
+      "id": "images.extract_memory",
+      "group": "images",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide --pdf-oxide-images"
+      ],
+      "bounded_adapter_coverage": "Memory image handles are inspected before decoding and encoded as owned PNGs with per-image/page/document count, pixel and byte limits. A bounded resource/mask preflight rejects known alpha-loss paths.",
+      "implementation_paths": [
+        "src/backend/pdf_oxide_supplements.rs",
+        "src/backend/pdf_oxide_images.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_supplements.rs",
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/query.md",
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Soft masks/image masks and unsupported encrypted nested resource inspection reject; faithful bounded alpha composition is missing.",
+        "Upstream enumeration can suppress decode errors, and allocations can precede post-decode checks; empty output is not image-free evidence."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/extractors/images.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound count, decoded pixels and individual/total encoded bytes plus process memory. Default filters/HTML max pixels do not universally limit inline decoding. Empty list does not prove image-free. Pinned PdfImage has no to_jpeg_bytes helper; preserve original JPEG data or verify a separate encoder.",
+      "preserved_validation_obligations": [
+        "original JPEG versus decoded pixels",
+        "inline/repeated/masked/transparent/CMYK image",
+        "malformed streams",
+        "pixel/count/output overflow",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "images.extract_disk",
+      "group": "images",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract --backend pdf-oxide --pdf-oxide-images",
+        "tpe oxide --out"
+      ],
+      "bounded_adapter_coverage": "Application-owned artifact names are staged and published without clobbering; bounded image artifacts flow through the existing publisher rather than upstream arbitrary-path extraction helpers.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "src/cli_worker/oxide.rs",
+        "src/cli_worker.rs",
+        "src/pipeline.rs",
+        "src/backend/pdf_oxide_supplements.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_supplements.rs",
+        "tests/oxide_worker.rs",
+        "tests/cli_containment.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/containment.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Direct upstream disk helper parity is intentionally absent; only controlled publication is admitted.",
+        "Final exact-source rollback, response/receipt-write failure, cancellation and cross-platform evidence belongs to the parent checkpoint."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Raw upstream disk-writing helper must not accept arbitrary paths. Optional artifact publication uses app-confined staging and atomic publication, preserving image provenance.",
+      "preserved_validation_obligations": [
+        "path traversal/alias",
+        "write failure",
+        "cancellation leaves no outputs"
+      ]
+    },
+    {
+      "id": "create.text",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.text"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded UTF-8 text creates a PDF in memory through the fallible writer, with page/geometry/output checks and explicit font/metadata limits.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Non-12pt requests and subject metadata reject because the pinned writer does not honor them.",
+        "Wrapping, Unicode coverage and independent visual fidelity remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound input text, geometry, page count and generated bytes; save fallibly in memory and identify font/encoding limits.",
+      "preserved_validation_obligations": [
+        "empty/Unicode text",
+        "pagination",
+        "invalid geometry",
+        "output overflow",
+        "reopen rendered result"
+      ]
+    },
+    {
+      "id": "create.markdown",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.markdown"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded Markdown uses the pinned supported subset; Unicode prose uses bundled DejaVu bytes with recorded hashes and retained public notices.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "No full CommonMark, wrapping or image/resource fidelity claim; unsupported resources are rejected.",
+        "Italic and non-ASCII code/table glyph behavior remains limited and needs independent visual acceptance."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/pipeline/input_parsers/markdown.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound Markdown parsing/layout and supplied fonts; verify actual supported syntax and report unsupported image/link behavior.",
+      "preserved_validation_obligations": [
+        "nested lists",
+        "tables/code",
+        "Unicode/ligatures",
+        "links and image paths",
+        "deep nesting"
+      ]
+    },
+    {
+      "id": "create.html_simple",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.html"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Passive bounded HTML is converted through the simple HTML-to-Markdown path; scripts/events/external resources, CSS and images outside that path are rejected.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "This is not CSS/browser layout; full HTML element/style fidelity remains unsupported or unqualified.",
+        "Complex-script, wrapping and output geometry need broader independent fixtures."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/pipeline/input_parsers/html.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Simple HTML conversion is distinct from HTML/CSS layout; do not claim browser fidelity or run scripts/resources.",
+      "preserved_validation_obligations": [
+        "script/event/URL input inert",
+        "escaping",
+        "unsupported CSS reported",
+        "nested markup limits"
+      ]
+    },
+    {
+      "id": "create.html_css",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "create.html_css"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The preserved supplied-font proposal performs admission and actual output-page geometry checks, then rejects the pinned A4 CSS-pixel/PDF-point mismatch instead of publishing a defective derivative. Table semantics are separately rejected.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Pinned text-only output is 794 by 1123 PDF points instead of A4; correct units and layout are not implemented.",
+        "Table overlap, complex CSS, shaping, data-image omissions and independent visual fidelity remain unresolved."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/html_css/mod.rs",
+        "pdf_oxide:src/html_css/paint.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Separate supported CSS layout path with explicitly supplied font bytes. Current image callback handles data URIs only and can omit invalid images; bounded parsing/rendering and omission diagnostics required.",
+      "preserved_validation_obligations": [
+        "CSS nesting/calc/variables",
+        "page breaks/multicol/tables",
+        "invalid data URI",
+        "resource no-fetch",
+        "font/input/pixel bounds"
+      ]
+    },
+    {
+      "id": "create.images",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.images"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Ordered immutable PNG/JPEG inputs are decoded under byte/dimension/pixel budgets and become one image per PDF page; arbitrary paths and ignored font/spacing overrides reject.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Other image formats, complete alpha/color/profile preservation and broad decoder parity are unqualified.",
+        "Decoder allocations still require the process memory/deadline boundary."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/api/pdf_builder.rs",
+        "pdf_oxide:src/writer/image_handler.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Prefer byte APIs with prevalidated format/dimensions; do not accept arbitrary image paths. Preserve encoding/alpha/color warnings.",
+      "preserved_validation_obligations": [
+        "JPEG/PNG",
+        "CMYK/alpha",
+        "oversize dimensions",
+        "many images",
+        "malformed image"
+      ]
+    },
+    {
+      "id": "create.document_graphics",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.document"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Typed bounded pages expose Standard-14 text, line, rectangle, filled rectangle and indexed PNG/JPEG images with finite geometry and in-memory build output.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Arbitrary fluent-builder/path/graphics-state APIs, groups, complex layout and non-Standard-14 composition fonts are not exposed.",
+        "Buffered tables reject; successful serialization does not qualify visual placement or complex-script rendering."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/document_builder.rs",
+        "pdf_oxide:src/writer/content_stream.rs",
+        "pdf_oxide:src/writer/graphics_state.rs",
+        "pdf_oxide:src/writer/shading.rs",
+        "pdf_oxide:src/writer/pattern.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Expose bounded typed pages/text/path/image/graphics operations with finite numeric inputs and fallible byte output.",
+      "preserved_validation_obligations": [
+        "reopen and source render",
+        "transforms/clipping/opacity",
+        "nonfinite parameters",
+        "operation/page/output budgets"
+      ]
+    },
+    {
+      "id": "create.tables",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "create.document",
+        "create.html_css"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "All buffered composition-table requests and HTML/CSS table semantics explicitly reject after observed text crossing borders, overlapping cells and lost row structure. The original source proposal is preserved.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "A correctly bounded and independently rendered table writer with headers, wrapping, blank rows and spans is still required.",
+        "Office IR streaming tables use a separate path and do not qualify this blocked capability."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/table_renderer.rs",
+        "pdf_oxide:src/writer/streaming_table.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Separate table creation from detection. Bound cells/rows/layout, repeated headers and streaming buffers.",
+      "preserved_validation_obligations": [
+        "merged/multiline cells",
+        "page breaks/repeated header",
+        "empty cells",
+        "long content",
+        "row backpressure"
+      ]
+    },
+    {
+      "id": "create.fonts",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "create.text",
+        "create.markdown",
+        "create.html",
+        "create.document",
+        "create.html_css"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Admitted creation uses Standard-14 or pinned bundled DejaVu fonts with explicit provenance; the blocked HTML/CSS proposal accepts bounded supplied font bytes without arbitrary path lookup.",
+      "implementation_paths": [
+        "src/oxide/create.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md",
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Supplied-font HTML/CSS output remains blocked by page geometry, so input validation is not a qualified font-layout path.",
+        "General embedding/subsetting, shaping, CJK/RTL, fallback selection and platform font parity remain open."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/font_manager.rs",
+        "pdf_oxide:src/writer/font_discovery.rs",
+        "pdf_oxide:src/writer/font_shaping.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Distinguish supplied/embedded/system fallback fonts and subsetting/shaping. Preserve font licenses; disallow arbitrary private filesystem reads.",
+      "preserved_validation_obligations": [
+        "missing fallback",
+        "CJK/RTL/ligatures",
+        "malformed font",
+        "font byte limits",
+        "host-font provenance"
+      ]
+    },
+    {
+      "id": "create.outline_labels_layers",
+      "group": "creation",
+      "source_owner": "creation_office",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Creation-only upstream outline/page-label/layer builder APIs are indexed but absent from the typed creation request schema.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/create-office.md",
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Implement bounded destination/tree/layer creation with inert actions and round-trip/visual tests.",
+        "Do not substitute query inspection or creation setters for existing-document modification."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/outline_builder.rs",
+        "pdf_oxide:src/writer/page_labels.rs",
+        "pdf_oxide:src/writer/layers.rs",
+        "pdf_oxide:src/writer/page_template.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Creation-only setters must not be misrepresented as existing-document editing. Bound trees/destinations and active actions.",
+      "preserved_validation_obligations": [
+        "reopen bookmarks/labels/layers",
+        "invalid destination",
+        "deep tree",
+        "template overflow"
+      ]
+    },
+    {
+      "id": "create.barcodes",
+      "group": "creation",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "barcode.generate"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The optional adapter bounds payload/intermediate bars/dimensions/output for QR and eight one-dimensional encoders, supports PNG/SVG/PDF, validates supplied UPC/EAN checksums and rejects unimplemented captions.",
+      "implementation_paths": [
+        "src/oxide/render.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-barcodes"
+      ],
+      "remaining_gaps": [
+        "Scanner/decode interoperability, print sizing and readability are unverified.",
+        "SVG alpha and unsupported caption options reject; successful encoding is not successful scanning."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/barcode.rs",
+        "pdf_oxide:src/api/pdf_builder.rs"
+      ],
+      "upstream_feature_gates": [
+        "barcodes"
+      ],
+      "preserved_source_obligation": "Bound payload/dimensions/output and report supported barcode types; generation does not provide barcode scanning/decoding.",
+      "preserved_validation_obligations": [
+        "valid QR/Code128/EAN-13/UPC-A",
+        "invalid length/check digit",
+        "payload/pixel overflow"
+      ]
+    },
+    {
+      "id": "edit.pages",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.pages"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Explicit selection/reordering/duplication, rotations and finite MediaBox/CropBox edits produce a distinct in-memory full rewrite; requested page order/count and source preservation are checked.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "General preservation of resources, unknown extensions and visual layout across page operations is unqualified.",
+        "Encrypted or filled-signature source rewriting rejects; no implicit invalidation override exists."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve original and return distinct derivative; validate page selections, duplicates, rotations and geometry before work.",
+      "preserved_validation_obligations": [
+        "select/reorder/duplicate/delete",
+        "invalid indices/rotation",
+        "crop inheritance",
+        "reopen derivative",
+        "atomic publication"
+      ]
+    },
+    {
+      "id": "edit.merge_split",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.merge",
+        "edit.split"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "All merge inputs are checked before import, with total-page limits and signature/encryption admission in every slot; split ranges are validated before expansion and serialized sequentially under aggregate output limits.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Merge imports pages but does not merge document-level outlines, labels, metadata, attachments or AcroForm catalogs.",
+        "Lossless preservation and complex resource/page-tree parity need independent fixtures."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/api/mod.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound total input/pages and process outputs sequentially; avoid eager expansion of huge user ranges and raw path helpers.",
+      "preserved_validation_obligations": [
+        "merge resource collisions",
+        "split selected pages",
+        "duplicate ranges",
+        "malformed second input",
+        "aggregate output limit"
+      ]
+    },
+    {
+      "id": "edit.split_bookmarks",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded outline inspection and explicit range splitting exist separately; no bookmark-to-range split operation is implemented.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Define bounded destination resolution, overlapping ranges, depth, output count and app-owned names before integrating the upstream bookmark split helper."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/split_bookmarks.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Review bounded outline traversal, normalized filenames, depth/range handling and output count before exposing bookmark splitting.",
+      "preserved_validation_obligations": [
+        "cyclic outlines",
+        "repeated/unsafe titles",
+        "overlapping destinations",
+        "many outputs",
+        "publication failure"
+      ]
+    },
+    {
+      "id": "edit.dom_text_paths_tables",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.content"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Typed content edits admit bounded ASCII Helvetica add_text overlays. replace_text is recognized but returns Unsupported after checks because the pinned save path paints black masks.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Text replacement requires an independently verified visual implementation; extracted replacement strings alone are insufficient.",
+        "DOM path/table mutation, rich text selection and preservation of existing resource/layout identity are not implemented."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/dom.rs",
+        "pdf_oxide:src/editor/resource_manager.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Typed DOM/query/edit surface must preserve selected elements/resources and disclose structural reconstruction uncertainty; bound queries/edits.",
+      "preserved_validation_obligations": [
+        "text replace Unicode/fonts",
+        "path/table edit",
+        "unselected content unchanged",
+        "reopen/render",
+        "missing element"
+      ]
+    },
+    {
+      "id": "edit.images",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.image_bounds"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Exactly identified direct image occurrences support bounded rectangle placement changes, followed by saved-bound verification.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Image insertion, pixel replacement and ambiguous/repeated/nested occurrences are not supported.",
+        "Independent rendering of transforms, clipping and alpha/color preservation remains open."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/editor/dom.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound image data/dimensions and transforms, retain identity and distinguish placement edits from pixel replacement.",
+      "preserved_validation_obligations": [
+        "repeated/shared XObject",
+        "inline image unsupported state",
+        "alpha/CMYK",
+        "invalid bounds",
+        "output byte limits"
+      ]
+    },
+    {
+      "id": "edit.metadata",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.metadata"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Explicit title/author/subject/keywords/creator/producer/date Info fields can be updated or cleared while retained/new non-ASCII Info values reject to avoid pinned encoding corruption.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Unicode Info writing is not repaired; XMP writing/synchronization is not exposed.",
+        "Unknown metadata preservation and Info/XMP disagreement need independent fixtures."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Record which Info fields changed, preserve unchanged fields; XMP updates require separate verified API support.",
+      "preserved_validation_obligations": [
+        "Unicode round trip",
+        "empty versus unset",
+        "Info/XMP disagreement",
+        "original hash unchanged"
+      ]
+    },
+    {
+      "id": "edit.save_modes",
+      "group": "editing",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.pages",
+        "edit.merge",
+        "edit.split",
+        "edit.metadata",
+        "edit.content",
+        "edit.image_bounds"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Editor derivatives use fallible in-memory full rewrites, check serialized bytes/pages, preserve originals and report full-rewrite provenance. Unsafe silent/tempfile convenience helpers are not used.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md",
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Incremental and linearized output modes are not exposed or tested for parity.",
+        "Full rewrite alone does not guarantee confidential erasure, preservation of unknown objects or valid existing signatures."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/writer/linearization.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Full rewrite/incremental/linearized output are distinct obligations; no fallback to silent Pdf::into_bytes or predictable temporary-file helper. Never promise secure erasure from incremental save.",
+      "preserved_validation_obligations": [
+        "reopen full/incremental outputs",
+        "serialization failure",
+        "xref chains",
+        "source unchanged",
+        "signature invalidation reported"
+      ]
+    },
+    {
+      "id": "forms.acroform",
+      "group": "forms",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "forms.inspect",
+        "forms.add",
+        "forms.fill",
+        "forms.update",
+        "forms.remove"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded field-tree inspection and typed value/property/removal operations use exact identities and named lopdf repairs. New source guards reject addition to any existing AcroForm and changed values/visual properties with field or descendant /AP streams; nonvisual updates/no-op values remain distinct.",
+      "implementation_paths": [
+        "src/oxide/forms.rs",
+        "src/oxide/edit.rs",
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Final combined-source evidence for the new existing-catalog, child-widget appearance and preservation guards is pending parent verification.",
+        "No general appearance regeneration, existing-AcroForm insertion or radio-group insertion; field dictionary checks do not establish viewer-independent form fidelity.",
+        "Removal unlinks exact references but is not confidential erasure."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/extractors/forms.rs",
+        "pdf_oxide:src/editor/form_fields.rs",
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/writer/form_fields/mod.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound fields/Kids traversal and values; support explicit text/check/radio/choice semantics and properties without evaluating actions/scripts.",
+      "preserved_validation_obligations": [
+        "duplicate/hierarchical names",
+        "cycles",
+        "checkbox/radio/choice values",
+        "Unicode and max length",
+        "appearance persistence"
+      ]
+    },
+    {
+      "id": "forms.flatten",
+      "group": "forms",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "forms.flatten"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Whole-document or selected-page flattening retains missing-appearance warnings, rejects signatures, and checks full AcroForm removal. A new guard rejects NeedAppearances=true with retained /AP streams to avoid baking stale values.",
+      "implementation_paths": [
+        "src/oxide/forms.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Exact-source tests for the latest stale-appearance guard are parent-owned and pending.",
+        "Missing or otherwise incorrect appearances and independent viewer/render fidelity remain unqualified; field removal is not appearance correctness."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Retain flatten warnings and verify visible appearances/AcroForm removal; success alone does not prove preservation.",
+      "preserved_validation_obligations": [
+        "missing appearance",
+        "selected-page flatten",
+        "radio/checkbox appearance",
+        "reopen/render comparison"
+      ]
+    },
+    {
+      "id": "forms.fdf_xfdf",
+      "group": "forms",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "forms.export"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "In-memory FDF/XFDF writers receive bounded current field snapshots and respect NoExport. Unsafe/non-ASCII FDF names/strings and comma-joined XFDF multivalue arrays reject rather than emit lossy success.",
+      "implementation_paths": [
+        "src/oxide/forms.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Form import and fully lossless Unicode/array support across both formats are not implemented.",
+        "External viewer interoperability and the complete upstream export surface remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/fdf.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use bounded in-memory writers and staged field state. Review FDF names escaping and XFDF arrays; file export helpers may read original source instead of pending edits.",
+      "preserved_validation_obligations": [
+        "delimiters/quotes/Unicode",
+        "array values",
+        "staged edits reflected",
+        "unsupported value explicit",
+        "XML limits"
+      ]
+    },
+    {
+      "id": "forms.xfa",
+      "group": "forms",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "forms.xfa"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Static XFA inspect/convert bounds XML bytes/events/depth/fields/pages, rejects DTD/scripts/actions/connections/resources/dynamic repetition, and requires explicit layout-loss acknowledgement for a new derivative.",
+      "implementation_paths": [
+        "src/oxide/forms.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Dynamic XFA, calculations, scripting and layout-preserving conversion remain unsupported.",
+        "Skipped fields reject, but bounded static conversion is not full XFA semantic or visual fidelity."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/xfa.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound XML, packet/field counts and conversion; scripts/calculations/dynamic layout must remain unsupported unless specifically implemented and verified.",
+      "preserved_validation_obligations": [
+        "static/dynamic XFA",
+        "DOCTYPE/entity declaration",
+        "deep XML",
+        "unsupported script",
+        "conversion fidelity"
+      ]
+    },
+    {
+      "id": "annotations.inspect_edit",
+      "group": "annotations",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.annotations"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded inert annotation inspection and selected text/shape/link CRUD retain geometry and decoded raw PDF strings. Exact identity-based postserialization repairs preserve requested changes and name both pinned libraries.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Read enumeration can omit malformed/direct entries; it is not exhaustive inventory.",
+        "Only the named passive subtypes are created; arbitrary actions, appearances and broad visual fidelity are not implemented or qualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/annotations.rs",
+        "pdf_oxide:src/annotation_types.rs",
+        "pdf_oxide:src/editor/dom.rs",
+        "pdf_oxide:src/writer/annotation_builder.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve subtype/geometry/target provenance and support only explicitly bounded mutations. URI/action values remain untrusted inert data.",
+      "preserved_validation_obligations": [
+        "text/markup/link/shape/free-text/ink/stamp",
+        "missing appearance",
+        "unsafe actions",
+        "cyclic references",
+        "annotation count limits"
+      ]
+    },
+    {
+      "id": "annotations.flatten",
+      "group": "annotations",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.annotations"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The explicit flatten action invokes bounded selected-page annotation flattening and returns upstream warnings in a separate full-rewrite artifact.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Appearance preservation across all annotation types lacks independent rendering evidence.",
+        "Flattening is not redaction, action sanitization or proof that all interactive content disappeared."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Return warnings and verify appearance preservation; do not call an overlay redaction or security sanitization.",
+      "preserved_validation_obligations": [
+        "missing/invalid appearance",
+        "page selection",
+        "render before/after",
+        "failed save leaves no output"
+      ]
+    },
+    {
+      "id": "annotations.rich_media",
+      "group": "annotations",
+      "source_owner": "editing_forms",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "edit.annotations"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The typed annotation schema admits only passive reviewed variants; rich-media construction, playback and active resource/action execution are not admitted.",
+      "implementation_paths": [
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "A bounded inert rich-media metadata contract and approved fixtures are absent.",
+        "No media fetching, launch or persistent execution capability is authorized or implemented."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/movie.rs",
+        "pdf_oxide:src/writer/sound.rs",
+        "pdf_oxide:src/writer/richmedia.rs",
+        "pdf_oxide:src/writer/threed.rs",
+        "pdf_oxide:src/writer/screen.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Public construction types exist; exposing active media/actions is separate from inert inspection. No playback, external execution or resource loading; explicit unsupported operations until bounded handling is verified.",
+      "preserved_validation_obligations": [
+        "embedded/external media reference inert",
+        "byte and count limits",
+        "unsupported action status"
+      ]
+    },
+    {
+      "id": "attachments.embed_extract",
+      "group": "annotations",
+      "source_owner": "editing_forms",
+      "state": "partial adapter",
+      "operation_names": [
+        "edit.attachments",
+        "query.attachments"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded name-tree traversal and original UF/F string decoding identify immutable attachment bytes; generated artifact names cannot use source names as paths. Additions reject existing EmbeddedFiles trees or indirect Names dictionaries.",
+      "implementation_paths": [
+        "src/oxide/edit.rs",
+        "src/oxide/query.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_edit_forms.rs",
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/edit-forms.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Upstream may omit malformed streams; even empty extraction is uncertain.",
+        "Merging into existing attachment/name trees and broad Unicode/duplicate-name interoperability remain unsupported or unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/writer/embedded_files.rs",
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Attachment names are metadata, never paths; bound name/count/individual/total bytes and never open/execute extracted data.",
+      "preserved_validation_obligations": [
+        "unsafe names",
+        "duplicate names",
+        "compressed payload limits",
+        "malformed embedded file",
+        "reopen derivative"
+      ]
+    },
+    {
+      "id": "security.permissions_auth",
+      "group": "security",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "security.inspect",
+        "query.document"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Encryption/authentication state and declared permission bits are reported separately; passwords arrive through private inputs and missing/wrong/unsupported states remain distinct without exposing key material.",
+      "implementation_paths": [
+        "src/oxide/security.rs",
+        "src/oxide/query.rs",
+        "src/cli_worker/oxide.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs",
+        "tests/oxide_worker.rs",
+        "tests/oxide_query.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "PDF permission flags are observations, not application authorization enforcement.",
+        "Cipher/platform/binding parity and all permission semantics remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/encryption.rs",
+        "pdf_oxide:src/document.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Report encryption/authentication and declared PDF permissions separately from application authorization; passwords stay out of argv/logs.",
+      "preserved_validation_obligations": [
+        "correct/wrong/empty password",
+        "owner versus user",
+        "legacy cipher disabled",
+        "private request cleanup"
+      ]
+    },
+    {
+      "id": "security.encrypt_decrypt",
+      "group": "security",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "security.encrypt",
+        "security.decrypt"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "AES-256 revision-6 encryption and authenticated decryption create full-rewrite derivatives. The adapter repairs only the missing mandatory Perms dictionary data, preserves ciphertext/file-key identity, applies password normalization limits, and independently loads with user/owner passwords before return.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs",
+        "tests/oxide_worker.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Legacy RC4/AES-128 writing and configurable encryption policy are not exposed.",
+        "Exact combined-source and wider independent-reader interoperability remain parent qualification work; no general cryptographic or security certification is asserted."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/editor/document_editor.rs",
+        "pdf_oxide:src/encryption.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Support explicit fallible byte transforms and authenticated full rewrites; preserve original, record changed encryption and avoid claiming policy enforcement by PDF permission bits.",
+      "preserved_validation_obligations": [
+        "AES-256 round trip",
+        "wrong password",
+        "malformed encryption dictionary",
+        "unsupported cipher",
+        "no password in logs/argv"
+      ]
+    },
+    {
+      "id": "security.redaction",
+      "group": "security",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "security.redact_text",
+        "edit.whiteout"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "redact_text performs a bounded explicit rectangle text rewrite after rejecting unsupported carriers and reports actual glyph counts with global_secret_removal_verified=false. whiteout is a separate visual overlay requiring acknowledgement that text remains.",
+      "implementation_paths": [
+        "src/oxide/security.rs",
+        "src/oxide/edit.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs",
+        "tests/oxide_edit_forms.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "XObjects, inline images, marked/alternate text, tagged content, annotations and unknown operators reject; image/path/Type3/OCG destructive coverage is missing.",
+        "Duplicate secrets in metadata, fonts or other locations are not globally removed or verified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/redaction.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Separate true destructive rewrite from erase masks/annotations. Reject unsupported XObjects/inline images/marked alternate text/tagged structures/annotations where complete removal is not verified.",
+      "preserved_validation_obligations": [
+        "selected text removed from bytes/extraction/render",
+        "unselected text preserved",
+        "ActualText/tagged content rejection",
+        "unsupported images",
+        "incremental save rejected"
+      ]
+    },
+    {
+      "id": "security.sanitization",
+      "group": "security",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "security.sanitize"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Catalog Metadata/OpenAction/AA, Names JavaScript/EmbeddedFiles and trailer Info cleanup reports actual removal scope/counts; source bytes remain immutable.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Page/field actions, annotation attachments, AF, image metadata, OCGs and other reachable carriers are not comprehensively scrubbed.",
+        "Shared attachment objects intentionally survive when still referenced; this is not malware removal or a sandbox."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/redaction.rs",
+        "pdf_oxide:src/editor/document_editor.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Precisely report sanitized object classes and remaining content; limited catalog/Info cleanup must not claim complete sanitization or malware removal.",
+      "preserved_validation_obligations": [
+        "JavaScript/OpenAction/embedded content",
+        "nested action trees",
+        "source unchanged",
+        "remaining structures reported"
+      ]
+    },
+    {
+      "id": "security.crypto_provider",
+      "group": "security",
+      "source_owner": "security",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Pinned provider/policy/algorithm APIs are indexed. The encryption repair uses the active provider internally, but no CBOM/provider inventory or global policy-management operation is exposed.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Bounded provider/algorithm metadata and unavailable-provider/policy tests remain absent.",
+        "HSM/KMS credentials, global policy changes and FIPS deployment certification are outside the authorized adapter scope."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/crypto/mod.rs",
+        "pdf_oxide:src/crypto/policy.rs",
+        "pdf_oxide:src/crypto/cbom.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Inventory provider/policy/algorithm metadata; do not mutate global security settings or load HSM/KMS credentials in this task. FIPS build flag alone is not a deployment certification.",
+      "preserved_validation_obligations": [
+        "policy rejection",
+        "legacy/fips compile conflict",
+        "provider unavailable",
+        "algorithm inventory bounded"
+      ]
+    },
+    {
+      "id": "signatures.inspect",
+      "group": "signatures",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "signatures.inspect"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "A custom bounded iterative field walker retains claimed metadata, inherited field types, typed ByteRange and catalog permission references without returning CMS/key bytes. Inspection is available with base pdf-oxide, independently of optional crypto verification.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Signature-gap binding and true whole-document coverage remain unverified.",
+        "Claimed metadata is not signer identity, trust, revocation, timestamp or modification-policy assurance."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/signatures/enumerate.rs",
+        "pdf_oxide:src/signatures/types.rs"
+      ],
+      "upstream_feature_gates": [
+        "signatures"
+      ],
+      "preserved_source_obligation": "Use bounded field traversal and bounded signature bytes; original upstream Kids recursion needs cycle/depth containment.",
+      "preserved_validation_obligations": [
+        "unsigned PDF",
+        "cyclic/deep Kids",
+        "malformed ByteRange/Contents",
+        "multiple signatures"
+      ]
+    },
+    {
+      "id": "signatures.verify",
+      "group": "signatures",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "signatures.verify"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Optional offline detached-CMS verification checks the digest/cryptography over claimed ranges for two supported SubFilter forms; it does not load system roots or fetch network evidence.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-signatures"
+      ],
+      "remaining_gaps": [
+        "Positive approved signed fixtures and independent cryptographic interoperability are still required.",
+        "Chain trust, current revocation, timestamp trust, signature-gap binding and later-modification analysis are not qualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/signatures/verifier.rs",
+        "pdf_oxide:src/signatures/cms_verify.rs"
+      ],
+      "upstream_feature_gates": [
+        "signatures"
+      ],
+      "preserved_source_obligation": "Report structural/digest/cryptographic checks distinctly; no implied chain trust, current revocation, trusted timestamp, or system-root validation.",
+      "preserved_validation_obligations": [
+        "synthetic public fixture valid/tampered",
+        "malformed CMS",
+        "unsupported algorithm",
+        "invalid ByteRange",
+        "bounded certificates"
+      ]
+    },
+    {
+      "id": "signatures.sign_pades",
+      "group": "signatures",
+      "source_owner": "security",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "capabilities"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The capability response explicitly lists signing as unsupported; no signing operation, private-key path or credential contract is exposed.",
+      "implementation_paths": [
+        "src/oxide/mod.rs"
+      ],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "PAdES signing remains indexed source work only until a separately authorized key-material contract and bounded verification are agreed.",
+        "No real signatures or private-key access were authorized or performed."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/signatures/sign_bytes.rs",
+        "pdf_oxide:src/signatures/signer.rs",
+        "pdf_oxide:src/signatures/pades/mod.rs"
+      ],
+      "upstream_feature_gates": [
+        "signatures"
+      ],
+      "preserved_source_obligation": "Source capability inventory only until explicit authorized key-material contract and bounded synthetic verification. No private-key access or real document signing is authorized.",
+      "preserved_validation_obligations": [
+        "no-key refusal",
+        "bounded placeholders",
+        "no accidental signing/credential lookup"
+      ]
+    },
+    {
+      "id": "signatures.timestamp",
+      "group": "signatures",
+      "source_owner": "security",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "capabilities"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Network timestamp acquisition is explicitly unsupported and tsa-client is not enabled by the adapter feature set; there is no TSA operation or implicit HTTP call.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "Cargo.toml"
+      ],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Local timestamp parsing/verification needs its own bounded contract and fixtures.",
+        "External TSA acquisition, credentials and trusted-time assurance remain outside this implementation."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/signatures/tsa_client.rs",
+        "pdf_oxide:src/signatures/timestamp.rs"
+      ],
+      "upstream_feature_gates": [
+        "tsa-client"
+      ],
+      "preserved_source_obligation": "HTTP timestamp client is network- and credential-capable; do not enable/call implicitly. Local timestamp parsing is separate from external TSA acquisition.",
+      "preserved_validation_obligations": [
+        "disabled feature status",
+        "no external network request",
+        "bounded timestamp DER"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfa",
+      "group": "compliance",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "compliance.validate"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Eight requested PDF/A levels return original upstream errors/warnings/locations/statistics, labeled upstream_is_compliant with independent_certification=false.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Independent standards-validator comparison and full conformance corpus evidence are missing.",
+        "A pinned validator result is not current-standard certification."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/compliance/pdf_a.rs",
+        "pdf_oxide:src/compliance/types.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Return exact upstream checks/errors/warnings by requested level; no formal certification or validator weakening.",
+      "preserved_validation_obligations": [
+        "all 8 declared A levels",
+        "missing fonts/XMP/output intent",
+        "encrypted input",
+        "independent validator comparison where available"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfua",
+      "group": "compliance",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "compliance.validate"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "PDF/UA-1 and PDF/UA-2 requested checks retain upstream findings and explicit noncertification provenance.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Actual usable reading order, assistive-technology behavior and independently validated accessibility remain unverified.",
+        "Tag/alt-text declarations alone are not accessibility acceptance."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/compliance/pdf_ua.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Preserve accessibility check scope and limitations; declared tagging/alt text does not establish usable reading order.",
+      "preserved_validation_obligations": [
+        "UA1/UA2",
+        "untagged PDF",
+        "missing alt/language/table headers",
+        "tag cycles"
+      ]
+    },
+    {
+      "id": "compliance.validate_pdfx",
+      "group": "compliance",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "compliance.validate"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Ten requested PDF/X levels return unmodified pinned print-production checks, locations and warnings with no independent certification claim.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Independent prepress/standards-validator and output-intent/color fidelity evidence remain absent.",
+        "No press-output correctness is established by these reports."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/compliance/pdf_x/mod.rs",
+        "pdf_oxide:src/compliance/pdf_x/types.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Report exact print-production checks by level, output intents and missing dependencies; do not claim press fidelity.",
+      "preserved_validation_obligations": [
+        "all declared X levels",
+        "transparency/spot/ICC",
+        "external references",
+        "nonfinite boxes"
+      ]
+    },
+    {
+      "id": "compliance.convert_pdfa",
+      "group": "compliance",
+      "source_owner": "security",
+      "state": "partial adapter",
+      "operation_names": [
+        "compliance.convert_pdf_a"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "A candidate derivative includes converter actions/errors and a fresh unchanged validator report, preserving missing-font findings that the converter can downgrade. Implicit font embedding, raster flattening and synthetic structure are disabled.",
+      "implementation_paths": [
+        "src/oxide/security.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_security.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/security.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "The candidate may remain nonconformant; no validator weakening or certification is claimed.",
+        "Verified font embedding, transparency conversion, accessibility structure and independent target-level acceptance remain open."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/compliance/converter.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Return conversion action report AND fresh unmodified validation result. Converter warning downgrade or placeholder output intent is not compliance proof.",
+      "preserved_validation_obligations": [
+        "missing fonts",
+        "failed conversion",
+        "post-conversion validation",
+        "reopen/render preservation",
+        "output limit"
+      ]
+    },
+    {
+      "id": "render.page_region_fit",
+      "group": "rendering",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "render.pages",
+        "render.fit",
+        "render.region"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Verified sealed workers render selected pages with finite DPI/dimensions, aggregate pixels/bytes and post-render dimension checks. Fit uses pinned MediaBox/CropBox semantics; unsupported region-coordinate cases reject.",
+      "implementation_paths": [
+        "src/oxide/render.rs",
+        "crates/tpe-ffi/src/oxide_containment.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs",
+        "tests/oxide_containment.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-rendering"
+      ],
+      "remaining_gaps": [
+        "Rotated/nonzero-origin/effective-CropBox region cases are not supported.",
+        "Sealed font discovery cannot read host fonts; fallback can emit rectangle placeholders and is explicitly warned. Usable general text rasterization and independent visual fidelity remain unqualified.",
+        "Feature/dependency and non-Linux platform parity remain open."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/rendering/mod.rs",
+        "pdf_oxide:src/rendering/page_renderer.rs"
+      ],
+      "upstream_feature_gates": [
+        "rendering"
+      ],
+      "preserved_source_obligation": "Validate page/DPI/pixels/bytes before allocation and expose actual rendering omissions. Public renderer loads host fonts; requires reviewed font confinement or explicit supported environment before enablement.",
+      "preserved_validation_obligations": [
+        "native/scan/transparency/CMYK/font fixtures",
+        "crop/rotation",
+        "invalid DPI/oversize",
+        "missing fonts",
+        "cancellation/memory cap"
+      ]
+    },
+    {
+      "id": "render.separations",
+      "group": "rendering",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "render.separations"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded single-ink or process/spot separation rendering returns owned PGM plates with ink/source/page identity and aggregate plate/pixel/byte checks inside verified containment.",
+      "implementation_paths": [
+        "src/oxide/render.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-rendering"
+      ],
+      "remaining_gaps": [
+        "RGB/Gray/Indexed images, inline images, patterns, annotations and color transforms have upstream limitations.",
+        "ICC/spot/tint/transparency and independent press-fidelity qualification are missing."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/rendering/separation_renderer.rs",
+        "pdf_oxide:src/rendering/mod.rs"
+      ],
+      "upstream_feature_gates": [
+        "rendering"
+      ],
+      "preserved_source_obligation": "Bound plate count and aggregate pixels/bytes; report spot/process color handling and ICC dependencies.",
+      "preserved_validation_obligations": [
+        "CMYK/spot/overprint",
+        "large plate count",
+        "missing ICC",
+        "render bounds"
+      ]
+    },
+    {
+      "id": "render.flatten",
+      "group": "rendering",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "render.flatten"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The adapter renders sequential bounded pages and writes an in-memory raster PDF with displayed page dimensions and source-to-derivative mapping; it avoids the upstream PID-temp-directory helper.",
+      "implementation_paths": [
+        "src/oxide/render.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-rendering"
+      ],
+      "remaining_gaps": [
+        "Text, tags, links and editability are intentionally lost; this is neither verified redaction nor PDF/A.",
+        "Fonts/render omissions and independent image/page geometry fidelity remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/rendering/mod.rs"
+      ],
+      "upstream_feature_gates": [
+        "rendering"
+      ],
+      "preserved_source_obligation": "Upstream helper uses PID-named temporary files and accumulates all page paths. Do not expose it as in-memory/no-disk; implement bounded staged alternative or explicit unsupported status.",
+      "preserved_validation_obligations": [
+        "temporary-path collision avoided",
+        "failed page leaves no outputs",
+        "pixel/page/output limits",
+        "annotations/forms retained visually"
+      ]
+    },
+    {
+      "id": "render.debug",
+      "group": "rendering",
+      "source_owner": "rendering_ocr",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Upstream debug-visualization helpers are indexed; no bounded debug-overlay operation is exposed.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Define diagnostic-only derivatives, finite overlay/pixel budgets and independent reference comparisons before exposing these helpers."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/debug/mod.rs"
+      ],
+      "upstream_feature_gates": [
+        "rendering"
+      ],
+      "preserved_source_obligation": "Diagnostic overlays are bounded derivatives, never canonical extraction or source render proof by themselves.",
+      "preserved_validation_obligations": [
+        "boxes/labels provenance",
+        "many elements",
+        "output and pixel bounds"
+      ]
+    },
+    {
+      "id": "ocr.image_page",
+      "group": "ocr_ml",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "ocr.classify",
+        "ocr.images"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Offline tract inference accepts exactly PDF/detector/recognizer/dictionary byte slots with required caller digests, bounded image/padding/crop/recognizer tensors and source/page/paint-order provenance. Deterministic synthetic ONNX graphs exercise plumbing, not image recognition.",
+      "implementation_paths": [
+        "src/oxide/ocr.rs",
+        "src/backend/pdf_oxide_images.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs",
+        "tests/oxide_worker.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-ocr"
+      ],
+      "remaining_gaps": [
+        "No approved trained-model accuracy fixture or production recognition evidence is present.",
+        "OCR runs over reported painted images, not an automatically rendered full page; native text is not silently replaced or merged.",
+        "Arbitrary inference-graph allocations still require worker memory/deadline containment and exact-source failure-path qualification."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/ocr/engine.rs",
+        "pdf_oxide:src/ocr/backend.rs",
+        "pdf_oxide:src/ocr/mod.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Explicit feature/model/runtime contract, hash-verified authorized model bytes, pixel/time/memory limits and missing-model errors; no automatic downloads.",
+      "preserved_validation_obligations": [
+        "missing/wrong-hash model",
+        "synthetic scan with known text",
+        "mixed native/OCR spans",
+        "invalid tensor/huge image",
+        "cancellation"
+      ]
+    },
+    {
+      "id": "ocr.provisioning_languages",
+      "group": "ocr_ml",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "ocr.images"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Explicit immutable model/dictionary bytes are digest checked; dictionary UTF-8/line/character limits are enforced. No model download, cache write or language-model discovery runs.",
+      "implementation_paths": [
+        "src/oxide/ocr.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-ocr"
+      ],
+      "remaining_gaps": [
+        "A bounded inert model/language manifest is not exposed; caller hashes identify bytes but do not attest approval or safety.",
+        "Automatic prefetch/provisioning remains disabled, and language coverage cannot be inferred from dictionary acceptance."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/extractors/auto.rs"
+      ],
+      "upstream_feature_gates": [
+        "ocr"
+      ],
+      "preserved_source_obligation": "Model manifest may be exposed as inert metadata. Prefetch performs network/cache writes and unbounded read_to_end; retain disabled status in this adapter.",
+      "preserved_validation_obligations": [
+        "prefetch never called",
+        "unknown language",
+        "offline/missing model diagnostics",
+        "no cache write"
+      ]
+    },
+    {
+      "id": "ml.hybrid_layout",
+      "group": "ocr_ml",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "ml.capabilities"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The adapter reports the actual SmartLayoutAnalyzer capability flags as false for removed ML reading-order/heading/model-loaded methods; it does not label classical output as ML execution.",
+      "implementation_paths": [
+        "src/oxide/ocr.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "No trained hybrid-layout inference path or accuracy evidence is integrated.",
+        "Enabling the upstream ml feature alone would not restore removed methods."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/hybrid/mod.rs",
+        "pdf_oxide:src/hybrid/smart_analyzer.rs",
+        "pdf_oxide:src/layout/clustering.rs"
+      ],
+      "upstream_feature_gates": [
+        "ml"
+      ],
+      "preserved_source_obligation": "Distinguish classical fallback from ML execution, model/runtime availability and selected strategy; no accuracy claim without fixture evidence.",
+      "preserved_validation_obligations": [
+        "fallback reason",
+        "model missing",
+        "complex columns",
+        "bounded features/tensors"
+      ]
+    },
+    {
+      "id": "ml.table_models",
+      "group": "ocr_ml",
+      "source_owner": "rendering_ocr",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The table-ml source feature and its ML/PDFium dependencies are indexed; the adapter does not enable or dispatch a trained table-model operation.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md",
+        "docs/analysis/pdf-oxide-full-integration/query.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Pinned model/runtime/PDFium availability, bounded callable inference and approved-model fixtures remain unresolved.",
+        "Raw heuristic table candidates are not ML success or validated tables."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:Cargo.toml",
+        "pdf_oxide:src/structure/mod.rs"
+      ],
+      "upstream_feature_gates": [
+        "table-ml"
+      ],
+      "preserved_source_obligation": "Feature pulls ml and pdfium-render; native PDFium/model dependencies and actual callable model path require separate verified availability. Do not substitute heuristic tables as ML success.",
+      "preserved_validation_obligations": [
+        "missing PDFium/model",
+        "declared feature compile",
+        "table cell comparisons",
+        "bounded render/tensor memory"
+      ]
+    },
+    {
+      "id": "ml.gpu",
+      "group": "ocr_ml",
+      "source_owner": "rendering_ocr",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "GPU/ORT feature paths are inventoried but no GPU execution or device selection is integrated; offline OCR uses the separate tract backend.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md",
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Platform/device/runtime builds and bounded explicit model execution need independent evidence.",
+        "CPU execution or feature names cannot qualify GPU parity."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:Cargo.toml",
+        "pdf_oxide:src/ocr/backend.rs"
+      ],
+      "upstream_feature_gates": [
+        "gpu"
+      ],
+      "preserved_source_obligation": "GPU/ORT dependencies are optional and platform-dependent; no GPU execution claim from feature names or CPU fallback.",
+      "preserved_validation_obligations": [
+        "provider unavailable",
+        "runtime load failure",
+        "explicit CPU fallback provenance",
+        "device memory bound evidence"
+      ]
+    },
+    {
+      "id": "color.icc_codecs",
+      "group": "rendering",
+      "source_owner": "rendering_ocr",
+      "state": "partial adapter",
+      "operation_names": [
+        "render.pages",
+        "render.separations",
+        "render.flatten"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Optional rendering exercises pinned codec/color internals under the worker boundary; feature inventory records qcms versus native lcms2 and JPEG2000/JBIG2 dependencies. Image creation/Office admission is restricted to PNG/JPEG.",
+      "implementation_paths": [
+        "src/oxide/render.rs",
+        "Cargo.toml",
+        "src/oxide/create.rs",
+        "src/oxide/office.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/render-ocr.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide",
+        "pdf-oxide-rendering"
+      ],
+      "remaining_gaps": [
+        "There is no independent public ICC conversion/codec API or complete codec fixture suite.",
+        "Native lcms2/platform builds, JPEG2000/JBIG2 edge cases, CMYK/profile/spot fidelity and omission reporting remain unqualified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/color/mod.rs",
+        "pdf_oxide:src/decoders/mod.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Record qcms versus native lcms2 and JPEG2000/JBIG2 support. No silent CMYK/profile substitution; missing codec must be explicit.",
+      "preserved_validation_obligations": [
+        "ICC malformed/missing",
+        "CMYK/spot profile",
+        "JPEG2000/JBIG2 unsupported/build variants",
+        "decompression bounds"
+      ]
+    },
+    {
+      "id": "office.to_pdf_ooxml",
+      "group": "office",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "office.to_pdf"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "DOCX/XLSX/PPTX byte conversion has bounded ZIP/XML/image/IR admission and rejects macros/OLE/ActiveX/external relationships. Default flow_no_system_fonts uses IR directly; native mode requires verified filesystem containment and records its differing behavior.",
+      "implementation_paths": [
+        "src/oxide/office.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Default flow omits embedded fonts/positioned import routing; native font fallback under denied path access is not generally qualified.",
+        "Real Office table/long-cell fidelity remains open: pinned streaming table rendering truncates long cells and ignores push_row results.",
+        "Application interoperability, vector/image/font fidelity and non-UTF-8/ZIP64/other container support remain unqualified or unsupported."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/converters/office/mod.rs",
+        "office_oxide:src/core/opc.rs",
+        "office_oxide:src/core/xml.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "DOCX/XLSX/PPTX byte conversion requires ZIP entry/total/decompression/XML-depth/sheet/image budgets and rejection of macros/OLE/ActiveX/external relationships; preserve font/system dependency provenance.",
+      "preserved_validation_obligations": [
+        "minimal DOCX/XLSX/PPTX",
+        "CRC/path/duplicate ZIP rejection",
+        "ZIP/XML bomb bounded",
+        "external relationship/macro/OLE rejected",
+        "Unicode/fonts"
+      ]
+    },
+    {
+      "id": "office.from_pdf",
+      "group": "office",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "office.from_pdf_docx",
+        "office.from_pdf_pptx",
+        "office.from_pdf_xlsx"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Explicit auto/flow/layout PDF exports record effective strategies, DOCX/PPTX 30/31 and XLSX 200/201 thresholds, bounded archives and image-mask preflight. XLSX layout DrawingML shapes are distinguished from flow cells.",
+      "implementation_paths": [
+        "src/oxide/office.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Full editable-element/layout fidelity and Office application interoperability are unqualified.",
+        "Masked images reject, upstream image enumeration/conversion can omit content, and flow can change slide count.",
+        "Threshold tests and text presence do not establish visual equivalence."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/document.rs",
+        "pdf_oxide:src/converters/pdf_to_ir.rs",
+        "pdf_oxide:src/converters/docx_layout.rs",
+        "pdf_oxide:src/converters/pptx_layout.rs",
+        "pdf_oxide:src/converters/xlsx_layout.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "All outputs allocate owned ZIP bytes. Record positioned versus flow strategy and transition thresholds: DOCX/PPTX above 30 pages, XLSX above 200. Editable elements do not establish fidelity.",
+      "preserved_validation_obligations": [
+        "30/31 and 200/201 pages",
+        "tables/images/layout round trip",
+        "Unicode/CJK",
+        "output/entry bounds",
+        "reopen converted package"
+      ]
+    },
+    {
+      "id": "office.legacy_binary",
+      "group": "office",
+      "source_owner": "creation_office",
+      "state": "explicit unsupported",
+      "operation_names": [
+        "office.to_pdf"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Format admission explicitly rejects legacy CFB DOC/XLS/PPT, encrypted/macro-enabled containers and unreviewed binary parts despite dependency source readers being present.",
+      "implementation_paths": [
+        "src/oxide/office.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Guarded CFB sector chains, macros/OLE and bounded legacy parsing are not implemented.",
+        "Legacy fidelity/interoperability needs a separate approved fixture and worker qualification program."
+      ],
+      "source_inventory_refs": [
+        "office_oxide:src/cfb.rs",
+        "office_oxide:src/doc/mod.rs",
+        "office_oxide:src/xls/mod.rs",
+        "office_oxide:src/ppt/mod.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Dependency has legacy DOC/XLS/PPT readers; current PDF adapter byte methods do not establish legacy support. Guard CFB sector chains/macros/OLE and fidelity before exposing.",
+      "preserved_validation_obligations": [
+        "explicit unsupported adapter response",
+        "CFB cycle/depth/count budgets",
+        "macro-bearing legacy fixture rejected"
+      ]
+    },
+    {
+      "id": "office.direct_create_edit_ir",
+      "group": "office",
+      "source_owner": "creation_office",
+      "state": "partial adapter",
+      "operation_names": [
+        "office.create_markdown",
+        "office.to_pdf"
+      ],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Bounded Markdown can create DOCX/XLSX/PPTX through DocumentIR; the PDF bridge uses reviewed IR conversion with archive/output preflight.",
+      "implementation_paths": [
+        "src/oxide/office.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_create_office.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/create-office.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "General direct Office editing, full typed IR construction and all format-specific APIs remain unexposed.",
+        "Tables, styles, shapes, embedded fonts and application fidelity are not qualified by simple-text/RGB fixtures."
+      ],
+      "source_inventory_refs": [
+        "office_oxide:src/create.rs",
+        "office_oxide:src/edit.rs",
+        "office_oxide:src/ir.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Direct Office dependency includes creation/editing/IR interfaces beyond PDF bridge; inventory separately, with format-specific limits and no implied direct adapter coverage.",
+      "preserved_validation_obligations": [
+        "DOCX/XLSX/PPTX create/edit round trip",
+        "formula versus cached value",
+        "unsupported format state",
+        "ZIP/XML bounds"
+      ]
+    },
+    {
+      "id": "batch.bounded_queue",
+      "group": "batch",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "tpe extract input-path batch controller",
+        "tpe oxide private request worker/publisher"
+      ],
+      "bounded_adapter_coverage": "The existing extraction controller uses a zero-capacity handoff, per-document workers, bounded captures/deadlines and sequential publication; the operation CLI handles one bounded request through the same supervised process lifecycle.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "src/cli_worker/oxide.rs",
+        "src/cli_worker.rs",
+        "src/pipeline.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_worker.rs",
+        "tests/oxide_supplements.rs",
+        "tests/cli_containment.rs",
+        "tests/resource_outcomes.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/containment.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Upstream eager whole-corpus Vec/path helpers are not exposed as streaming, and no new database/queue architecture is introduced.",
+        "Exact-source end-to-end backpressure, atomic rollback and cancellation evidence plus all-platform behavior remain parent-owned."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/batch.rs",
+        "pdf_oxide:src/parallel.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Use existing bounded application queue and per-file failure/backpressure. Upstream helpers return whole-corpus/page Vecs and arbitrary path IO; do not expose unbounded collection as streaming.",
+      "preserved_validation_obligations": [
+        "more inputs than worker slots",
+        "slow consumer backpressure",
+        "one failed file does not drop others",
+        "cancel queued/active work",
+        "worker kill/reap"
+      ]
+    },
+    {
+      "id": "batch.cache_threads",
+      "group": "batch",
+      "source_owner": "integration",
+      "state": "partial adapter",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [
+        "supervised worker lifetime and process policy"
+      ],
+      "bounded_adapter_coverage": "Parser/cache lifetime is scoped to a bounded disposable request; the controller sets Rayon/OMP thread hints and seccomp permits threads while denying process creation. All worker threads share memory/time and synchronized syscall restrictions.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "src/cli_worker/oxide.rs",
+        "src/cli_worker.rs",
+        "crates/tpe-ffi/src/oxide_containment.rs",
+        "src/worker_limits.rs",
+        "src/oxide/ocr.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_worker.rs",
+        "tests/oxide_containment.rs",
+        "tests/oxide_render_ocr.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/containment.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Thread hints are not a PID/thread-count/cgroup quota; no separate thread cap is enforced.",
+        "Office stack allocation, per-document caches and arbitrary model graph threads need workload/platform evidence within resource ceilings.",
+        "Positive Landlock allowlist behavior is blocked by ENOSYS on this VM; aarch64 source is not runtime-tested."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/fonts/global_cache.rs",
+        "pdf_oxide:src/fonts/cmap.rs",
+        "office_oxide:src/lib.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Bound threads/cache/document lifetime. Office may spawn parsing threads with a 16 MiB stack; root process budgets and existing worker limits must include them.",
+      "preserved_validation_obligations": [
+        "repeat documents memory plateau",
+        "cancellation while parsing",
+        "cache isolation/provenance",
+        "thread-count bounds"
+      ]
+    },
+    {
+      "id": "bindings.c_ffi",
+      "group": "bindings",
+      "source_owner": "inventory",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Pinned PDF/Office C ABI sources are indexed but are not exposed or qualified through this native operation adapter. The engine tpe-ffi containment module is a separate Rust/OS boundary, not evidence of upstream C API coverage.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "C pointer/handle/length/ownership/error contracts, native packaging and per-platform ABI tests remain absent."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/ffi.rs",
+        "office_oxide:src/ffi.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "C ABI exports are separate from the engine's Rust API; pointer ownership/error/length contracts and native packaging require dedicated tests. No binding parity claim.",
+      "preserved_validation_obligations": [
+        "null/invalid handle and lengths",
+        "buffer lifetime/free",
+        "error propagation",
+        "ABI smoke per platform"
+      ]
+    },
+    {
+      "id": "bindings.python",
+      "group": "bindings",
+      "source_owner": "python_external",
+      "state": "parent-owned parity",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Standard Python 3.14 binding parity is owned by the parent; repository Python test passes do not demonstrate the pinned PDF/Office bindings or these Rust operation contracts.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Run the same frozen success/failure/provenance fixtures through actual Python 3.14 bindings and compare supported behavior.",
+        "Optional rendering/signature/TSA dependencies, packaging, cancellation and free-threaded Python parity remain unverified."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/python.rs",
+        "office_oxide:src/python.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "upstream_feature_gates": [
+        "python"
+      ],
+      "preserved_source_obligation": "Parent-coordinated Python integration needs standard Python 3.14 parity evidence; feature pulls rendering, parallel, logging, signatures, tsa-client and barcodes. Free-threaded parity is unverified.",
+      "preserved_validation_obligations": [
+        "same frozen fixtures/API outcomes",
+        "Python 3.14 success/failure",
+        "GIL/free-threaded distinction",
+        "optional feature/network behavior"
+      ]
+    },
+    {
+      "id": "bindings.wasm",
+      "group": "bindings",
+      "source_owner": "inventory",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "Pinned WASM/wasm-ocr exports are inventoried but no browser/Node adapter or target qualification is part of this checkpoint.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "JS ownership/errors, bounded memory, UTF-8 and explicit model loading require WASM-specific tests.",
+        "The native supervisor and Linux syscall boundary do not transfer to WASM hosts."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/wasm.rs",
+        "office_oxide:src/wasm.rs",
+        "pdf_oxide:Cargo.toml"
+      ],
+      "upstream_feature_gates": [
+        "wasm"
+      ],
+      "preserved_source_obligation": "WASM/wasm-ocr have distinct runtime/memory/host interfaces; native supervisor and filesystem controls do not transfer automatically.",
+      "preserved_validation_obligations": [
+        "target compile",
+        "JS ownership/errors",
+        "bounded memory/UTF-8",
+        "browser/Node distinction",
+        "model loading explicit"
+      ]
+    },
+    {
+      "id": "bindings.cli_mcp",
+      "group": "bindings",
+      "source_owner": "inventory",
+      "state": "partial adapter",
+      "operation_names": [
+        "capabilities"
+      ],
+      "extraction_or_other_surfaces": [
+        "tpe oxide --request/--out",
+        "tpe extract --backend pdf-oxide",
+        "tpe extract --backend routed returns Unsupported"
+      ],
+      "bounded_adapter_coverage": "The project tpe oxide CLI exposes the registered typed operations via private bounded requests and a supervised worker/publisher. Its capability response reports compiled features and known unsupported edges; upstream companion CLI/MCP packages are not imported.",
+      "implementation_paths": [
+        "src/oxide/mod.rs",
+        "src/cli_worker/oxide.rs",
+        "src/cli_worker.rs",
+        "src/main.rs"
+      ],
+      "relevant_test_target_paths": [
+        "tests/oxide_worker.rs",
+        "tests/oxide_supplements.rs",
+        "tests/cli_containment.rs"
+      ],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+        "docs/analysis/pdf-oxide-full-integration/containment.md"
+      ],
+      "adapter_feature_gates": [
+        "pdf-oxide"
+      ],
+      "remaining_gaps": [
+        "Full project/upstream CLI and MCP toolkit parity remains parent-owned; no MCP server, registration, persistent service or arbitrary write tool is installed.",
+        "Supervised routed extraction explicitly rejects until lazy PDFium loading has a qualified filesystem policy; the existing library route is preserved.",
+        "Final exact-source CLI provenance/publication regressions and platform/binding behavior require parent receipts."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:Cargo.toml"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Published library crate does not include the companion CLI/MCP packages. User-requested MCP exposure remains a separate pinned-source design/review: write-capable tools, confined paths, no installation/registration/persistent service or @latest.",
+      "preserved_validation_obligations": [
+        "separate CLI/MCP version/source inventory",
+        "one-based CLI page mapping",
+        "write-capable tool policy",
+        "path confinement before any exposure"
+      ]
+    },
+    {
+      "id": "developer.low_level_primitives",
+      "group": "developer",
+      "source_owner": "inventory",
+      "state": "source-only",
+      "operation_names": [],
+      "extraction_or_other_surfaces": [],
+      "bounded_adapter_coverage": "The lexical public source inventory retains parser/decoder/function/object/filename utilities as upstream support APIs; no arbitrary low-level primitive dispatcher is exposed.",
+      "implementation_paths": [],
+      "relevant_test_target_paths": [],
+      "reference_document_paths": [
+        "docs/analysis/pdf-oxide-full-integration/README.md"
+      ],
+      "adapter_feature_gates": [],
+      "remaining_gaps": [
+        "Any future API needs a typed bounded request, ownership/error contract and dedicated approved fixtures.",
+        "Native pointers, arbitrary object mutation and calculator/execution-like primitives are not covered by nearby high-level operation success."
+      ],
+      "source_inventory_refs": [
+        "pdf_oxide:src/lexer.rs",
+        "pdf_oxide:src/objstm.rs",
+        "pdf_oxide:src/xref_reconstruction.rs",
+        "pdf_oxide:src/functions/mod.rs",
+        "pdf_oxide:src/filename.rs"
+      ],
+      "upstream_feature_gates": [],
+      "preserved_source_obligation": "Low-level parser/decoder/function/filename utilities are indexed as support APIs, not automatically remote operations. Do not expose arbitrary objects, native pointers or execution-like calculators without a bounded request contract.",
+      "preserved_validation_obligations": [
+        "finite function evaluator steps/stack",
+        "decoder bomb limits",
+        "filename normalization",
+        "malformed low-level objects"
+      ]
+    }
+  ]
+}

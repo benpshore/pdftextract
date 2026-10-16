@@ -1,0 +1,23 @@
+{
+  "attempt": 2,
+  "source_qualification": "e36807e-dirty combined-feature executable explicitly identified by integration owner; final exact-source qualification follows owner final guards",
+  "binary_sha256": "7d11677203028d15c2a5ae5c8116e28cb1232aa6523f9b3530c65f0eee0c0084",
+  "binary_version": "tpe git-e36807e-dirty",
+  "command": [
+    "/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/tpe-combined-e36807e-dirty",
+    "oxide",
+    "--request",
+    "/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001/request.json",
+    "--timeout-ms",
+    "5000",
+    "--max-memory-growth-mib",
+    "256",
+    "--max-output-bytes",
+    "1048576"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.12,
+  "request_sha256": "666719e504c145d249ed6968f835efebc244ebed97c6f281664fae43672bd0b9",
+  "stdout_sha256": "ce87b78b87e7976c9a084846bdcd2d0d11c0c7b248c02a8d261e030dc6263caf",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

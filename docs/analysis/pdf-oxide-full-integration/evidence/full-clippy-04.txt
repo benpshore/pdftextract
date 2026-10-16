@@ -1,0 +1,187 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+error: this argument is passed by value, but not consumed in the function body
+  --> tests/oxide_edit_forms.rs:52:13
+   |
+52 |     params: Value,
+   |             ^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+   = note: `-D clippy::needless-pass-by-value` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_pass_by_value)]`
+help: consider taking a reference instead
+   |
+52 |     params: &Value,
+   |             +
+
+error: strict comparison of `f32` or `f64` arrays
+   --> tests/oxide_edit_forms.rs:621:5
+    |
+621 |     assert_eq!(images[0].bounds, [180.0, 260.0, 80.0, 60.0]);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#float_cmp
+    = note: `-D clippy::float-cmp` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::float_cmp)]`
+
+error: strict comparison of `f32` or `f64`
+   --> tests/oxide_edit_forms.rs:853:5
+    |
+853 | /     assert_eq!(
+854 | |         widget
+855 | |             .get(b"BS")
+856 | |             .unwrap()
+...   |
+863 | |         2.5
+864 | |     );
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#float_cmp
+
+error: could not compile `text-processing-engine` (test "oxide_edit_forms") due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: this argument is passed by value, but not consumed in the function body
+  --> tests/oxide_convert.rs:71:13
+   |
+71 |     params: Value,
+   |             ^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+   = note: `-D clippy::needless-pass-by-value` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_pass_by_value)]`
+help: consider taking a reference instead
+   |
+71 |     params: &Value,
+   |             +
+
+error: could not compile `text-processing-engine` (test "oxide_convert") due to 1 previous error
+error: this argument is passed by value, but not consumed in the function body
+   --> tests/oxide_query.rs:103:13
+    |
+103 |     params: Value,
+    |             ^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+    = note: `-D clippy::needless-pass-by-value` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::needless_pass_by_value)]`
+help: consider taking a reference instead
+    |
+103 |     params: &Value,
+    |             +
+
+error: could not compile `text-processing-engine` (test "oxide_query") due to 1 previous error
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> tests/oxide_worker.rs:429:5
+    |
+429 |     const BLOCK_BYTES: usize = 64 * 1024;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#items_after_statements
+    = note: `-D clippy::items-after-statements` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::items_after_statements)]`
+
+error: allocating a local array larger than 16384 bytes
+   --> tests/oxide_worker.rs:430:21
+    |
+430 |     let mut block = [b' '; BLOCK_BYTES];
+    |                     ^^^^^^^^^^^^^^^^^^^
+    |
+    = help: consider allocating on the heap with `vec![b' '; BLOCK_BYTES].into_boxed_slice()`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#large_stack_arrays
+    = note: `-D clippy::large-stack-arrays` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::large_stack_arrays)]`
+
+error: could not compile `text-processing-engine` (test "oxide_worker") due to 2 previous errors
+error: usage of wildcard import
+ --> src/cli_worker/oxide.rs:4:5
+  |
+4 | use super::*;
+  |     ^^^^^^^^ help: try: `super::{Deserialize, Serialize, ensure, PathBuf, Read, LimitEvidence, ExitCode, ExtractArgs, Arc, AtomicBool, CancelSignals, Instant, Duration, Capture, supervise, OutputSink, Context, read_limited, REQUEST_BYTES, fs, deliver, report_failure, Write, io, StagedOutputs}`
+  |
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#wildcard_imports
+  = note: `-D clippy::wildcard-imports` implied by `-D warnings`
+  = help: to override `-D warnings` add `#[allow(clippy::wildcard_imports)]`
+
+error: this `if` statement can be collapsed
+   --> src/cli_worker/oxide.rs:227:5
+    |
+227 | /     if request.operation == "security.encrypt" {
+228 | |         if let Some(parameters) = recorded_parameters.as_object_mut() {
+229 | |             parameters.remove("user_password");
+230 | |             parameters.remove("owner_password");
+231 | |         }
+232 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+227 ~     if request.operation == "security.encrypt"
+228 ~         && let Some(parameters) = recorded_parameters.as_object_mut() {
+229 |             parameters.remove("user_password");
+230 |             parameters.remove("owner_password");
+231 ~         }
+    |
+
+error: more than 3 bools in a struct
+   --> src/main.rs:127:1
+    |
+127 | / struct ExtractArgs {
+128 | |     /// PDF files or folders (regular PDFs, nonrecursive).
+129 | |     #[arg(required = true, value_name = "PATH")]
+130 | |     paths: Vec<PathBuf>,
+...   |
+187 | |     progress: bool,
+188 | | }
+    | |_^
+    |
+    = help: consider using a state machine or refactoring bools into two-variant enums
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#struct_excessive_bools
+    = note: `-D clippy::struct-excessive-bools` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::struct_excessive_bools)]`
+
+error: could not compile `text-processing-engine` (bin "tpe") due to 3 previous errors
+error: long literal lacking separators
+   --> tests/oxide_supplements.rs:781:61
+    |
+781 |     let pixels = image_pdf(1001, 1000, "DeviceRGB", vec![0; 3003000], 1, None, None);
+    |                                                             ^^^^^^^ help: consider: `3_003_000`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#unreadable_literal
+    = note: `-D clippy::unreadable-literal` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::unreadable_literal)]`
+
+error: using `chunks_exact` with a constant chunk size
+   --> tests/oxide_supplements.rs:623:14
+    |
+623 |             .chunks_exact(3)
+    |              ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<3>().0.iter()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+    = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: could not compile `text-processing-engine` (test "oxide_supplements") due to 2 previous errors
+error: using `chunks_exact` with a constant chunk size
+   --> tests/oxide_render_ocr.rs:445:10
+    |
+445 |         .chunks_exact(4)
+    |          ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<4>().0.iter()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+    = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: you should put bare URLs between `<`/`>` or make a proper Markdown link
+   --> tests/oxide_render_ocr.rs:548:5
+    |
+548 | /// https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: try: `<https://github.com/onnx/onnx/blob/v1.14.1/onnx/onnx.proto>`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#doc_markdown
+    = note: `-D clippy::doc-markdown` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::doc_markdown)]`
+
+error: could not compile `text-processing-engine` (test "oxide_render_ocr") due to 2 previous errors
+error: could not compile `text-processing-engine` (bin "tpe" test) due to 2 previous errors
