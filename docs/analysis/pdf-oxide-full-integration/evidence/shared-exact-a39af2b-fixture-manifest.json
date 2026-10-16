@@ -1,0 +1,101 @@
+{
+  "purpose": "Frozen common Rust/Python PDF Oxide recovery inputs; prior results are comparison evidence, not truth labels",
+  "fixtures": [
+    {
+      "id": "fedreg-3col",
+      "file": "fedreg-3col.pdf",
+      "sha256": "ac419e4e084ea7a7a33a7be3f129dd07bc705b1a9e45ad751e33357f17d60f5c",
+      "bytes": 713992,
+      "pages": 15,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/fedreg-3col/page-001.png",
+        "sha256": "54a2b0ab176e1f748a28608f5d3e39dea1f5bd75c6782c0f5d37f54926a0c143"
+      }
+    },
+    {
+      "id": "font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09",
+      "file": "font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09.pdf",
+      "sha256": "00929d40c76677029ed77f599baa430638cc8416dc4c88fa804a6bb01deef62e",
+      "bytes": 657,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09/page-001.png",
+        "sha256": "2ed2e780e1fc72c8286f04ceae4cb40055971731ee24fc8c8975ebf274ca4abc"
+      }
+    },
+    {
+      "id": "font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13",
+      "file": "font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13.pdf",
+      "sha256": "78edcdf729b3adaa93b9a860d47d2cb2d61a22d8ed61c0ec693dbe88f99a5bb9",
+      "bytes": 1019,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13/page-001.png",
+        "sha256": "22a687eeff589743dae485142b355743cc0b518cc05228dafaa638c031ce498f"
+      }
+    },
+    {
+      "id": "font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17",
+      "file": "font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17.pdf",
+      "sha256": "6297b7e7135908e68ccd92fb1ae076ace12d3f689e8470df6cde40ffb70c6d3b",
+      "bytes": 616,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17/page-001.png",
+        "sha256": "a86028cecc8c33bb06bf69825564b109e47168224e3f0355c8f9f4bfbe869396"
+      }
+    },
+    {
+      "id": "font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21",
+      "file": "font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21.pdf",
+      "sha256": "a2ea1e0638c282f7400e8e19976e97b4aa412fe9faa9c76d0d07d0529db15024",
+      "bytes": 678,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21/page-001.png",
+        "sha256": "8267c7fd5823ac2798e617099b48fac434a157f37428272c4301d0c770fa620a"
+      }
+    },
+    {
+      "id": "pwl04",
+      "file": "pwl04.pdf",
+      "sha256": "f04940c07d2a12726bce4147fd4217e876cd969ddf44094ad90c866893deed34",
+      "bytes": 733782,
+      "pages": 8,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/pwl04/page-001.png",
+        "sha256": "9686a0ec047e9b4452c395560308b01151a74ab48d669552a8d62a6783fc266c"
+      }
+    },
+    {
+      "id": "semantic-three",
+      "file": "semantic-three.pdf",
+      "sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+      "bytes": 2119,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/semantic-three/page-001.png",
+        "sha256": "54cc345e5152f4429f732dde9fc8277073f8f00b1d1dce8c19488fbf546e5124"
+      }
+    },
+    {
+      "id": "semantic-two",
+      "file": "semantic-two.pdf",
+      "sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+      "bytes": 2081,
+      "pages": 1,
+      "source": "frozen PR273 visual-review-20261015",
+      "source_render": {
+        "file": "/workspace/tpe-integration-evidence/visual-review-20261015/semantic-two/page-001.png",
+        "sha256": "38850327edf09c47b19783f76f6727e9e3d9fea32c8e87347f92b131f2233d98"
+      }
+    }
+  ]
+}

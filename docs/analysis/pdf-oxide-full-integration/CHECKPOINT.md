@@ -178,3 +178,19 @@ original page-operation/resource/appearance survival and malformed Contents. All
 39 form/editing tests and strict workspace Clippy pass. The first follow-up run
 had a test compilation error (Operation lacks PartialEq); its original log is
 retained. Final exact complete-source verification of these guards is next.
+
+The exact clean follow-up source is now `a39af2b312a39f36f384031d7f81bb22d22daf59`
+(tree `ed4aa34eca5fc11e0a1785e759548b95328eb465`). All four features passed formatting,
+strict workspace Clippy and the complete workspace tests: 1,293 top-level passes
+plus three nested child probes, zero failures and ten ignored; five additional
+bounded containment scenarios ran with Landlock explicitly unavailable. Python
+3.14.7 again passed 210 tooling tests and both Ruff checks.
+
+The same preserved clean binary repeated the eight shared fixtures / 29 pages as
+Partial outcomes, the deterministic offline OCR control, and four new supervised
+flatten-carrier rejections. All four failed for their expected explicit carrier
+reason, kept inputs unchanged, published no output and removed private captures.
+Original 3251660 receipts and the four failed carrier baselines remain unchanged.
+See [FINAL_HANDOFF.md](FINAL_HANDOFF.md) and
+[evidence/exact-a39af2b-manifest.json](evidence/exact-a39af2b-manifest.json).
+This does not qualify any capability or the still-unreconciled PR273 combination.

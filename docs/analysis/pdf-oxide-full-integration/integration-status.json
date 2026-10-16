@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "review_date_utc": "2026-10-16",
-  "status": "new flatten carrier guard has focused evidence; exact complete native follow-up pending; every capability remains unqualified",
+  "status": "clean native checkpoint a39af2b tested on Linux x86_64; every capability remains unqualified",
   "scope": "Separate status overlay for all source capability IDs. Original source inventory, matrix, feature profiles and unique obligations remain unchanged.",
   "source_indexes": {
     "specification": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
@@ -35,7 +35,11 @@
     "final_test_receipts": [
       "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
       "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
-      "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json"
+      "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+      "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+      "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+      "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json"
     ],
     "test_target_semantics": "Paths identify relevant existing tests, not proof of execution, complete coverage or passing qualification. Empty arrays mean no dedicated adapter target exists for that source-only obligation.",
     "reported_context_only": [
@@ -56,35 +60,47 @@
       "Forms: reject insertion into existing AcroForm, stale field/descendant appearances on value/style changes, and NeedAppearances with retained AP on flatten.",
       "Publication: response and receipt writes remain inside staged artifact rollback; EISDIR failure regression preserves sources/sentinel and removes derivatives.",
       "Supervised routed extraction: reject before input/ledger/output until PDFium lazy loading is qualified.",
-      "OCR thin-crop/tensor accounting and all four optional features pass together at native source 3251660; verify again on the eventual PR273 combined source.",
+      "OCR thin-crop/tensor accounting and all four optional features pass together at native source a39af2b; verify again on the eventual PR273 combined source.",
       "Redaction: explicit bounded verification targets, q/Q and ActualText/carrier admission, strict independent decoded-object/text verification; targets omitted from receipts and errors.",
       "Annotations: require supported normal appearances before flattening, verify selected annotation removal and nonselected preservation; no-AP links return Unsupported.",
       "Form text: reject native subtype disagreement and inline nested subtype shapes before projections; bounded nested resources and stream work checks, no cache-preload fallback.",
       "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated.",
-      "Publisher transport: supervised immutable acquisition/staging; exact input/request/build/capture binding before filesystem publication. Seven transport tests including a positive control pass at native source 3251660; parent combination remains untested.",
+      "Publisher transport: supervised immutable acquisition/staging; exact input/request/build/capture binding before filesystem publication. Seven transport tests including a positive control pass at native source a39af2b; parent combination remains untested.",
       "Forms flatten: require usable existing widget normal/state appearances until regeneration value/style preservation is qualified; reject omission warnings. Missing-normal regression distinguishes native retained-widget extraction from absent static page painting.",
-      "Flatten carrier follow-up: four concrete annotation/form defects on absent Contents or inherited Resources. Raw page-tree admission rejects these shapes; explicit local resources and content/appearance survival controls pass. All 39 editing/form tests and strict workspace Clippy pass; exact full native rerun pending."
+      "Flatten carrier follow-up: four concrete annotation/form defects on absent Contents or inherited Resources. Raw page-tree admission rejects these shapes; explicit local resources and content/appearance survival controls pass. All 39 editing/form tests, strict workspace Clippy, complete exact native workspace run and four supervised no-publication controls pass at a39af2b; PR273 reconciliation remains pending."
     ],
     "exact_native_source_checkpoint": {
-      "commit": "325166027331ee4ca6a053bd81f8ca43b7527de1",
-      "tree": "efb93bb23c13964bd28983644caffec9faa97c10",
-      "binary_sha256": "664036e97117038f5cff670fc86ec3e4d259ca600940b8d52d65de4eebabf84f",
+      "commit": "a39af2b312a39f36f384031d7f81bb22d22daf59",
+      "tree": "ed4aa34eca5fc11e0a1785e759548b95328eb465",
+      "binary_sha256": "ba82387554bb695840f0a18c13f9624005daab923b18cc9ec50ed1f8efa69295",
       "branch": "codex/pdf-oxide-rust-recovery-20261015",
-      "scope": "All current native worker/adapters tested together. Separate from PR273 checkpoint 88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35; no PR273 combination has been tested here."
+      "scope": "All current native adapters, worker and flatten carrier guards tested together; no combination with PR273 checkpoint 88822fd has been tested here."
     },
     "native_test_result": {
-      "rust_top_level_passed": 1286,
+      "rust_top_level_passed": 1293,
       "rust_nested_child_probe_passed": 3,
       "rust_failed": 0,
       "rust_ignored": 10,
       "additional_bounded_containment_harness_scenarios": 5,
       "python_314_tooling_passed": 210,
-      "qualification": "Source-scoped regression evidence; no capability, toolkit, binding, fidelity or broad safety qualification."
+      "qualification": "Source-scoped regression evidence; no capability, toolkit, binding, fidelity or broad safety qualification.",
+      "flatten_carrier_supervised_rejections_passed": 4
     },
-    "pending_native_followup": {
-      "scope": "flatten carrier admission guards after native source 3251660",
-      "evidence": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
-      "exact_source_workspace_receipt": null
+    "prior_exact_native_checkpoints": [
+      {
+        "commit": "325166027331ee4ca6a053bd81f8ca43b7527de1",
+        "tree": "efb93bb23c13964bd28983644caffec9faa97c10",
+        "binary_sha256": "664036e97117038f5cff670fc86ec3e4d259ca600940b8d52d65de4eebabf84f",
+        "branch": "codex/pdf-oxide-rust-recovery-20261015",
+        "scope": "All current native worker/adapters tested together. Separate from PR273 checkpoint 88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35; no PR273 combination has been tested here."
+      }
+    ],
+    "flatten_carrier_followup": {
+      "source_commit": "a39af2b312a39f36f384031d7f81bb22d22daf59",
+      "baseline_failures_preserved": 4,
+      "form_editing_tests_passed": 39,
+      "exact_source_workspace_receipt": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "exact_cli_rejection_receipt": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json"
     }
   },
   "shared_contract": {
@@ -105,7 +121,7 @@
     "provenance": "Original bytes/source hashes and raw observations remain distinct from derived projections; app-generated artifact names, no-clobber staging and explicit mutation/repair provenance are required. Publication transport now binds a fresh invocation identity, controller-owned ordered staged-input digests/sizes, operation, public options and exact response capture; private-request/password digests stay private. This does not prove artifact semantics."
   },
   "global_remaining_obligations": [
-    "Parent must reconcile the separately preserved PR273 and native checkpoints, then attach exact combined-source build/test and ARM64 Native receipts before proposing an existing-PR273 update. Native source 3251660 receipts are preserved separately.",
+    "Parent must reconcile the separately preserved PR273 and native checkpoints, then attach exact combined-source build/test and ARM64 Native receipts before proposing an existing-PR273 update. Native source a39af2b receipts are preserved separately.",
     "All-platform, full toolkit/API, actual Python 3.14 binding and free-threaded binding parity remain unverified.",
     "Independent extraction/visual/Office/form/table/render fidelity and approved trained-model OCR accuracy are not established by green synthetic tests or same-library reopen checks.",
     "Backpressure, atomic publication, cleanup/cancellation, memory limits, filesystem/network/process denials and SSRF/RCE-related negative controls are bounded case evidence, not broad safety certification or a destructive fork-bomb test.",
@@ -1348,7 +1364,7 @@
       ],
       "remaining_gaps": [
         "Direct upstream disk helper parity is intentionally absent; only controlled publication is admitted.",
-        "Native source 3251660 passes bounded rollback, response/receipt-write failure and cancellation regressions; eventual PR273 combined-source and cross-platform evidence remain parent-owned."
+        "Native source a39af2b passes bounded rollback, response/receipt-write failure and cancellation regressions; eventual PR273 combined-source and cross-platform evidence remain parent-owned."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs"
@@ -2496,7 +2512,7 @@
       "remaining_gaps": [
         "XObjects, inline images, marked/alternate text, tagged content, annotations and unknown operators reject; image/path/Type3/OCG destructive coverage is missing.",
         "Duplicate secrets in metadata, fonts or other locations are not globally removed or verified.",
-        "The supported explicit-target verifier is narrow; no universal erasure, all-font/encoding, image, forensic or cross-viewer security claim. Native source 3251660 passes 29 security regressions; eventual PR273 combined-source verification remains pending."
+        "The supported explicit-target verifier is narrow; no universal erasure, all-font/encoding, image, forensic or cross-viewer security claim. Native source a39af2b passes 29 security regressions; eventual PR273 combined-source verification remains pending."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/redaction.rs",
@@ -3711,7 +3727,7 @@
       "remaining_gaps": [
         "Full project/upstream CLI and MCP toolkit parity remains parent-owned; no MCP server, registration, persistent service or arbitrary write tool is installed.",
         "Supervised routed extraction explicitly rejects until lazy PDFium loading has a qualified filesystem policy; the existing library route is preserved.",
-        "Native source 3251660 passes CLI provenance/publication regressions. Eventual PR273 combined-source, platform and binding behavior still require parent receipts."
+        "Native source a39af2b passes CLI provenance/publication regressions. Eventual PR273 combined-source, platform and binding behavior still require parent receipts."
       ],
       "source_inventory_refs": [
         "pdf_oxide:Cargo.toml"

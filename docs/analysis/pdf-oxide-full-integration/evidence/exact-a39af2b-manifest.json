@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "source_commit": "a39af2b312a39f36f384031d7f81bb22d22daf59",
+  "source_tree": "ed4aa34eca5fc11e0a1785e759548b95328eb465",
+  "base_commit": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "scope": "Clean native recovery branch including the final flatten carrier guards. It remains separate from PR273 checkpoint 88822fd.",
+  "documentation_commit_semantics": "Original receipts describe a39af2b; the later evidence-only commit does not replace that compiled source identity.",
+  "rust_top_level_passed": 1293,
+  "rust_nested_child_probe_passed": 3,
+  "rust_summary_passed": 1296,
+  "rust_failed": 0,
+  "rust_ignored": 10,
+  "additional_bounded_containment_harness_scenarios": 5,
+  "landlock_positive_allowlist_executed": false,
+  "landlock_unavailable_reason": "ENOSYS",
+  "python_version": "3.14.7",
+  "python_tooling_tests_passed": 210,
+  "python_binding_parity_established": false,
+  "shared_fixtures": 8,
+  "shared_fixture_pages": 29,
+  "shared_fixture_outcomes": "All Partial / exit 1 with unchanged sources and expected page coverage; no accuracy pass.",
+  "synthetic_ocr_control_passed": true,
+  "trained_ocr_accuracy_established": false,
+  "flatten_carrier_supervised_rejections_passed": 4,
+  "flatten_carrier_outcomes": "Correct failure reasons, unchanged inputs, no output publication, all private captures removed.",
+  "fully_qualified_capabilities": 0,
+  "archived_files": [
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/receipt.json",
+      "bytes": 4774,
+      "sha256": "1eae649323f4fbefac83ad21756611ef51b977121398550f41e0ed57660d5c67"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/receipt.json",
+      "bytes": 14565,
+      "sha256": "805227f23e6b3d0cd41dc05fb73a0b726789b73a53ae6bbcd58cae67db7c9a3f"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-fixture-manifest.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-fixtures/manifest.json",
+      "bytes": 5003,
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-a39af2b-01/receipt.json",
+      "bytes": 2822,
+      "sha256": "e14a0bce0b1aa2dc1be5b2bf0576af3404e861ebb70484cbbb3776c93911de69"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-response.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-a39af2b-01/response.json",
+      "bytes": 4205,
+      "sha256": "1cc93f0367faa87b98cebe2675cc73375be462ad9e6e5fdbdd84baaabe21e3d8"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-stderr.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-a39af2b-01/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-exact-a39af2b-01/receipt.json",
+      "bytes": 8109,
+      "sha256": "19f453ceacee02bd61d4073c0928fff2a82c09113af9fd036c0a2272c2555292"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_exact_checkpoint.py",
+      "bytes": 3623,
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/evaluate_shared_fixtures.py",
+      "bytes": 4378,
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_synthetic_ocr.py",
+      "bytes": 3670,
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_flatten_carrier_cli.py",
+      "bytes": 4132,
+      "sha256": "a6c957a496f4a8a6f368b20dcc75a6fd899f7594aedd4fdb6fbc8738081b4e93"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-fmt.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-clippy.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/clippy.log",
+      "bytes": 216,
+      "sha256": "b21c617a8bdefd0775ff03261ac3c0c90f0a65aaf5e0e3cc94ee8dbd893f34f4"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/tests.log",
+      "bytes": 108736,
+      "sha256": "26556eb8e96d94663d2c5b2e6234321d0d0a75151f8ab881da2c100ef094ac49"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-format.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/ruff-format.log",
+      "bytes": 28,
+      "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-check.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/ruff-check.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-pytest.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/pytest.log",
+      "bytes": 1050,
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8"
+    }
+  ],
+  "retained_workspace_files": [
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/fedreg-3col/response.json",
+      "bytes": 7484529,
+      "sha256": "ec41de3e8d97856acfc74caf4f7d954b931993734647d01088d87ed476d731ba"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09/response.json",
+      "bytes": 4938,
+      "sha256": "6abbf6f41b841c31245b5bae0f4ebd2939d8f481b997c2d26a60286705f8d36b"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13/response.json",
+      "bytes": 3815,
+      "sha256": "22c765cc5d6f7970e4c053c9e4b013fd904e47169c5e0af901143fa70aed4b8d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17/response.json",
+      "bytes": 3910,
+      "sha256": "e374024b373a6956b6824002640aad9fa63a40866974694b0bd8675f69a4a377"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21/response.json",
+      "bytes": 3634,
+      "sha256": "a890c6138bc155ee46fe0781e66de9d423fa7d464b95e0124229c5993d6602d9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/pwl04/response.json",
+      "bytes": 5302930,
+      "sha256": "eb27cf6a1580c66af371531c00ad187373df3093eaa6c76a19ef0463f015181f"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/semantic-three/response.json",
+      "bytes": 8377,
+      "sha256": "f5e21bdfda3510db2602960235de18e938a2393c985614672613803de72f5387"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-a39af2b-01/semantic-two/response.json",
+      "bytes": 10785,
+      "sha256": "025e4517c07c9e99c4f324bf12d3f5bb6c287cfd2ec824324e6f6df2c3d514d0"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-exact-a39af2b-01/flatten-annotation-inherited-resources/response.json",
+      "bytes": 356,
+      "sha256": "a2165ae037f040b7d243c42c5c632032560296cdd8fde68b93298ce31d264bc5"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-exact-a39af2b-01/flatten-annotation-no-contents/response.json",
+      "bytes": 359,
+      "sha256": "cae3b6c3f3db0284fd581d77fdb14b3d69d5aa8c9b172ed4dbdeb553b566d1e8"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-exact-a39af2b-01/flatten-form-inherited-resources/response.json",
+      "bytes": 341,
+      "sha256": "a0b9bae1a67435115b91c02c97f57de8dab3e44f19f096e11375ebfd23a7dab0"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-exact-a39af2b-01/flatten-form-no-contents/response.json",
+      "bytes": 362,
+      "sha256": "971d03836e7a841958c31a1490c5b996afbce94a7c30ee51677443b76c1893d7"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-a39af2b-01/tpe",
+      "bytes": 232531168,
+      "sha256": "ba82387554bb695840f0a18c13f9624005daab923b18cc9ec50ed1f8efa69295"
+    }
+  ],
+  "earlier_exact_receipts_preserved": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-manifest.json",
+  "baseline_and_independent_defect_evidence": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json"
+}
