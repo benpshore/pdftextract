@@ -209,3 +209,14 @@ without changing direct-state or ordinary normal-stream handling. All 41 editing
 form tests, strict workspace Clippy, Ruff and 210 Python 3.14.7 tooling tests pass.
 OSV remains unreachable and Swift/CMake/CTest unavailable. Complete exact-source
 verification follows the new source checkpoint. See STATE_APPEARANCE_HANDOFF.md.
+
+The exact clean indirect-state correction `e2991be508ff6e68ee175fceaea6d493da36ed89`
+passed the complete four-feature workspace: 1,295 top-level tests plus three
+nested child probes, zero failures, ten ignored; five additional bounded
+containment scenarios ran with Landlock unavailable. Strict Clippy/formatting,
+Ruff and 210 Python 3.14.7 tooling tests pass. Eight supervised CLI cases passed:
+four explicit indirect-state rejections with no publication, plus four direct
+controls whose published first-page Poppler renders match their sources exactly.
+All source bytes and private capture cleanup checks passed. No capability was
+qualified; prior checkpoints and their source-scoped receipts remain preserved.
+See [STATE_APPEARANCE_HANDOFF.md](STATE_APPEARANCE_HANDOFF.md).
