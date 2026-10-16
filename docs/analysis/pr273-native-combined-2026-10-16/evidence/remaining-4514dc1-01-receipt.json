@@ -1,0 +1,163 @@
+{
+  "source_commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "source_tree": "36fe1e2bf4536bcac48f33c2563ab91957292d30",
+  "git_status_before": "",
+  "checks": [
+    {
+      "name": "provider-clippy",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "cargo",
+        "clippy",
+        "--locked",
+        "-p",
+        "tpe-ffi",
+        "--all-targets",
+        "--features",
+        "provider",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.623,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/provider-clippy.log",
+      "sha256": "2f166dbbaab5e37a10fb16b4390114c817f443dda6a306dc4646ee426b9342b8"
+    },
+    {
+      "name": "provider-tests",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "cargo",
+        "test",
+        "--locked",
+        "-p",
+        "tpe-ffi",
+        "--features",
+        "provider"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.723,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/provider-tests.log",
+      "sha256": "1abea4f9d52892a159fb9705f301f8e277326eca10e0bf43650c06d90613ab11"
+    },
+    {
+      "name": "web-pytest",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "uv",
+        "run",
+        "--locked",
+        "pytest",
+        "web/tests/test_site_source.py"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.465,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/web-pytest.log",
+      "sha256": "93a775a235406939f850ddbda83dccd14a0bdf8206ab9e6cf67e4d0e6a720a86"
+    },
+    {
+      "name": "site-source",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "uv",
+        "run",
+        "--locked",
+        "python",
+        "scripts/site_source.py",
+        "verify",
+        "--source",
+        "web"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.115,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/site-source.log",
+      "sha256": "495938e36b8a1ccc5d13069b2ad26aa8d91b1362b9a2614b84579d113525dd97"
+    },
+    {
+      "name": "python-build",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "uv",
+        "build",
+        "--out-dir",
+        "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/dist"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.533,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/python-build.log",
+      "sha256": "96f6122c97ef07e121d37cdd4106f7ccbc5c3978ea5cc7d0a7bbdd8600b4d803"
+    },
+    {
+      "name": "full-docling",
+      "command": [
+        "prlimit",
+        "--as=8589934592",
+        "--core=0",
+        "--",
+        "timeout",
+        "-k",
+        "10",
+        "300",
+        "cargo",
+        "check",
+        "--locked",
+        "--workspace",
+        "--all-targets",
+        "--features",
+        "pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr,docling,pdfium,pdf-extract,grobid"
+      ],
+      "exit_code": 101,
+      "elapsed_seconds": 11.288,
+      "log": "/workspace/tpe-combined-integration-evidence-20261016/remaining-4514dc1-01/full-docling.log",
+      "sha256": "44e7e7d1541f39463c6b4859e00877ce9c34aa2a0f2f9fc0b3f0b80f36d69723"
+    }
+  ],
+  "runtime_paths": {
+    "PDFIUM_DYNAMIC_LIB_PATH": "/workspace/pdftextract/.pdfium/lib",
+    "DOCLING_RS_MODELS_DIR": "/workspace/pdftextract/.models"
+  },
+  "scope": "Linux x86_64 available CI checks; full Docling is a separate unresolved gate. No ARM64 or Python engine/API parity claim.",
+  "git_status_after": "",
+  "source_commit_after": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "source_tree_after": "36fe1e2bf4536bcac48f33c2563ab91957292d30",
+  "source_unchanged": true,
+  "available_checks_passed": true,
+  "full_docling_passed": false,
+  "passed": false
+}

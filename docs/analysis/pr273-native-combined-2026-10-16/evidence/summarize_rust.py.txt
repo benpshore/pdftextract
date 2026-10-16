@@ -1,0 +1,27 @@
+"""Separate top-level libtest totals from explicitly supervised child probes."""
+import json
+from pathlib import Path
+import re
+import sys
+
+for filename in sys.argv[1:]:
+    path = Path(filename)
+    groups = []
+    current = None
+    for line in path.read_text(errors='replace').splitlines():
+        if re.match(r'^\s*(Running |Doc-tests )', line):
+            if current:
+                groups.append(current)
+            current = {'target':line.strip(), 'summaries':[]}
+        summary = re.match(r'test result: (\w+)\. (\d+) passed; (\d+) failed; (\d+) ignored',line)
+        if summary and current is not None:
+            current['summaries'].append(dict(zip(['passed','failed','ignored'],map(int,summary.groups()[1:]))))
+    if current:
+        groups.append(current)
+    totals = {key:sum(group['summaries'][-1][key] for group in groups if group['summaries']) for key in ['passed','failed','ignored']}
+    nested = {key:sum(row[key] for group in groups for row in group['summaries'][:-1]) for key in ['passed','failed','ignored']}
+    receipt = {'log':str(path),'top_level':totals,'nested':nested,'groups':groups,
+               'bounded_custom_harness': '5 bounded subprocess scenarios' in path.read_text(),
+               'landlock_unavailable': 'LANDLOCK_UNAVAILABLE' in path.read_text()}
+    path.with_suffix('.summary.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps({k:v for k,v in receipt.items() if k!='groups'}))

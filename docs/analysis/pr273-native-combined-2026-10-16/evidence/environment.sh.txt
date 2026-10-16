@@ -1,0 +1,15 @@
+export PATH=/workspace/.tools/cargo/bin:$PATH
+export RUSTUP_HOME=/workspace/.tools/rustup
+export CARGO_HOME=/workspace/.tools/cargo
+export CARGO_TARGET_DIR=/workspace/pdftextract/target
+export CARGO_BUILD_JOBS=2
+export CARGO_PROFILE_DEV_DEBUG=0
+export CARGO_INCREMENTAL=0
+export RUST_TEST_THREADS=2
+export RAYON_NUM_THREADS=2
+export OMP_NUM_THREADS=2
+export UV_CACHE_DIR=/workspace/.cache/uv
+export UV_PYTHON_INSTALL_DIR=/workspace/.tools/python
+export UV_PROJECT_ENVIRONMENT=/workspace/pdftextract/.venv
+export PDFIUM_DYNAMIC_LIB_PATH=/workspace/pdftextract/.pdfium/lib
+export DOCLING_RS_MODELS_DIR=/workspace/pdftextract/.models

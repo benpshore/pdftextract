@@ -1,0 +1,80 @@
+    Checking crypto-common v0.2.2
+    Checking serde_json v1.0.151
+    Checking digest v0.11.3
+    Checking cipher v0.5.2
+    Checking crypto-bigint v0.7.5
+    Checking chacha20 v0.10.2
+    Checking ahash v0.8.12
+    Checking universal-hash v0.6.1
+    Checking hashbrown v0.14.5
+    Checking sha2 v0.11.0
+    Checking hmac v0.13.0
+    Checking string-interner v0.15.0
+    Checking tract-data v0.22.5
+    Checking rand v0.10.3
+    Checking aes v0.9.2
+    Checking aead v0.6.1
+    Checking tract-linalg v0.22.5
+    Checking cbc v0.2.1
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-common)
+    Checking rustls v0.23.45
+    Checking tract-core v0.22.5
+    Checking elliptic-curve v0.14.1
+    Checking primefield v0.14.0
+    Checking polyval v0.7.3
+    Checking signature v3.0.0
+    Checking ureq v3.4.2
+    Checking ghash v0.6.0
+    Checking wnaf v0.14.1
+    Checking rfc6979 v0.6.0
+    Checking pbkdf2 v0.13.0
+    Checking salsa20 v0.11.0
+    Checking ctr v0.10.1
+    Checking safetensors v0.6.2
+    Checking aes-gcm v0.11.1
+    Checking scrypt v0.12.0
+    Checking ecdsa v0.17.0
+    Checking primeorder v0.14.0
+    Checking ecb v0.2.1
+    Checking md-5 v0.11.0
+    Checking read-fonts v0.43.3
+    Checking tract-nnef v0.22.5
+    Checking tract-onnx-opl v0.22.5
+    Checking tract-hir v0.22.5
+    Checking pkcs5 v0.8.1
+    Checking pkcs12 v0.2.0-pre.0
+    Checking crypto-primes v0.7.2
+    Checking des v0.9.0
+    Checking rc2 v0.9.0
+    Checking sha1 v0.11.0
+    Checking office_oxide v0.1.9
+    Checking rsa v0.10.0-rc.19
+    Checking p12-keystore v0.3.2
+    Checking env_logger v0.11.11
+    Checking lopdf v0.42.0
+    Checking tract-onnx v0.22.5
+    Checking harfrust v0.13.3
+    Checking lopdf v0.44.0
+    Checking p384 v0.14.0
+    Checking p256 v0.14.0
+    Checking docling-core v1.69.2
+    Checking euclid v0.20.14
+    Checking uuid v1.26.1
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Checking pdf-extract v0.12.1
+    Checking pdf_oxide v0.3.78
+    Checking pdfium-render v0.8.37
+    Checking docling-pdf v1.69.2
+    Checking lopdf v0.45.0
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-biblio)
+    Checking poly1305 v0.9.1
+    Checking blake2 v0.11.0
+    Checking argon2 v0.6.0
+    Checking chacha20poly1305 v0.11.0
+    Checking tpe-search v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-search)
+    Checking tpe-speech v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-speech)
+    Checking tpe-credentials v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-credentials)
+    Checking tpe-zotero v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-zotero)
+    Checking tpe-browser v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-browser)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-app)
+    Finished `dev` profile [unoptimized] target(s) in 46.85s

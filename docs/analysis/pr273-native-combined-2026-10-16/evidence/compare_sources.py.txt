@@ -1,0 +1,83 @@
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tomllib
+
+root = Path('/workspace/pdftextract-combined-recovery')
+out = Path('/workspace/tpe-combined-integration-evidence-20261016')
+base = 'b3730aa958d947fcbf6ea45b0efef07fcfa20f29'
+backlog = '88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35'
+native = '4e60d3949b12f9d3baeb36067e7804ac67b39c6e'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=root)
+
+def changed(commit):
+    return set(git('diff', '--name-only', base, commit).decode().splitlines())
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def blob(commit, path):
+    return git('show', f'{commit}:{path}')
+
+left, right = changed(backlog), changed(native)
+packages = {}
+for label, commit in [('main', base), ('backlog', backlog), ('native', native)]:
+    lock = tomllib.loads(blob(commit, 'Cargo.lock').decode())
+    packages[label] = {
+        (p['name'], p['version'], p.get('source', '')): p.get('checksum')
+        for p in lock['package']
+    }
+
+preservation = []
+for label, commit, paths in [('backlog', backlog, left-right), ('native', native, right-left)]:
+    for path in sorted(paths):
+        original = blob(commit, path)
+        combined = (root/path).read_bytes()
+        preservation.append({'origin': label, 'path': path, 'original_sha256': sha(original),
+                             'combined_sha256': sha(combined), 'unchanged': original == combined})
+
+invariants = []
+for commit, path in [
+    (base, 'LICENSE'), (base, 'crates/tpe-ffi/src/provider.rs'),
+    (backlog, 'native/reviewed-partials.json'), (backlog, 'native/validate_eval.py'),
+    (backlog, 'native/manifest.json'), (native, 'Cargo.lock'),
+]:
+    original, combined = blob(commit, path), (root/path).read_bytes()
+    invariants.append({'path': path, 'reference_commit': commit, 'sha256': sha(combined),
+                       'unchanged': original == combined})
+for path in git('ls-tree', '-r', '--name-only', backlog, '.github/workflows').decode().splitlines():
+    invariants.append({'path': path, 'reference_commit': backlog,
+                       'sha256': sha((root/path).read_bytes()),
+                       'unchanged': blob(backlog,path) == (root/path).read_bytes()})
+
+receipt = {
+    'base': base, 'backlog': backlog, 'native': native,
+    'merge_base': git('merge-base', backlog, native).decode().strip(),
+    'automatic_merge_index_tree': git('write-tree').decode().strip(),
+    'backlog_changed_paths': sorted(left), 'native_changed_paths': sorted(right),
+    'overlap': sorted(left & right),
+    'dependency_review': {
+        'backlog_lock_same_as_main': blob(base,'Cargo.lock') == blob(backlog,'Cargo.lock'),
+        'native_added_packages': [list(k) for k in sorted(packages['native'].keys()-packages['main'].keys())],
+        'native_removed_packages': [list(k) for k in sorted(packages['main'].keys()-packages['native'].keys())],
+        'shared_package_checksum_changes': [list(k) for k in sorted(packages['native'].keys() & packages['main'].keys())
+                                             if packages['native'][k] != packages['main'][k]],
+        'resolution': 'Retain native Cargo.lock verbatim; combine PR281 rustix fs feature with native optional feature/dependency additions. No dependency refresh.'
+    },
+    'holds': {
+        'authorization': 'Ada explicitly authorized combining these exact preserved checkpoints on a separate recovery/integration branch; existing PR heads and main must remain unchanged.',
+        'scope_review': 'Recorded holds require parent promotion/reconciliation review; no recorded hold forbids this expressly authorized nonpublishing branch combination.',
+        'retained': ['PR226 global hold', 'PR163', 'PR135/136/138/141/143', 'PR275/280/281 refreshed proposals'],
+        'excluded': 'No held refreshed proposal head is substituted for the exact historical PR280/281 commits already preserved in the backlog checkpoint.'
+    },
+    'preservation': preservation, 'invariants': invariants,
+    'all_disjoint_sources_preserved': all(p['unchanged'] for p in preservation),
+    'all_invariants_preserved': all(p['unchanged'] for p in invariants),
+    'cache_cleanup': 'Removed only /workspace/pdftextract/target/debug/incremental (8.6 GiB rebuildable Cargo cache), with no build running; all source/evidence/binary files retained.'
+}
+(out/'source-comparison.json').write_text(json.dumps(receipt, indent=2)+'\n')
+print(json.dumps({k: receipt[k] for k in ['overlap','automatic_merge_index_tree','all_disjoint_sources_preserved','all_invariants_preserved']}))
+print(json.dumps(receipt['dependency_review'],indent=2))

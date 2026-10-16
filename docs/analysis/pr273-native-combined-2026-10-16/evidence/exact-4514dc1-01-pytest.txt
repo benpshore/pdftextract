@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: /workspace/pdftextract-combined-recovery
+configfile: pyproject.toml
+testpaths: tests
+collected 241 items
+
+tests/test_bibliography_evidence.py .........                            [  3%]
+tests/test_compare_eval.py .................................             [ 17%]
+tests/test_measure_eval.py ......                                        [ 19%]
+tests/test_pmc_bib_eval.py ......................                        [ 29%]
+tests/test_pmc_snapshot.py ......                                        [ 31%]
+tests/test_smoke.py .                                                    [ 31%]
+tests/test_validate_eval.py ............................................ [ 50%]
+........................................................................ [ 80%]
+................................................                         [100%]
+
+============================= 241 passed in 0.60s ==============================

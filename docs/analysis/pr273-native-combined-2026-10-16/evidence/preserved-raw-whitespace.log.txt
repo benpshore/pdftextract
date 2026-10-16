@@ -1,0 +1,16 @@
+docs/analysis/pdf-oxide-full-integration/evidence/default-tests-02.txt:1044: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt:819: trailing whitespace.
++test worker_limits::tests::os_limit_probe ... 
+docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt:1660: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt:1644: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/ffi-containment-cargo-01.txt:37: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-tests.txt:47: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt:40: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/ocr-combined-tests-01.txt:262: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt:34: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt:796: trailing whitespace.
++test worker_limits::tests::os_limit_probe ... 
+docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt:1646: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-tests.txt:49: new blank line at EOF.
+docs/analysis/pdf-oxide-full-integration/evidence/worker-ocr-repairs-01.txt:50: new blank line at EOF.
+third_party/ammonia/LICENSE-APACHE:202: new blank line at EOF.

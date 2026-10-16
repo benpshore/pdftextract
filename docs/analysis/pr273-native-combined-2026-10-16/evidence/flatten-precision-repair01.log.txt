@@ -1,0 +1,51 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Finished `test` profile [unoptimized] target(s) in 15.82s
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-002c7df4846ca63f)
+
+running 43 tests
+test adding_to_existing_inline_or_indirect_acroform_rejects_without_catalog_loss ... ok
+test annotation_flatten_removes_selected_links_and_preserves_nonselected_no_ap_links ... ok
+test annotation_add_update_remove_and_unsafe_action_rejection ... ok
+test appearance_bearing_fields_and_child_widgets_reject_changed_values_and_styles ... ok
+test annotation_repair_keeps_unknown_properties_and_ordered_action_identity ... ok
+test complete_existing_form_appearance_remains_available_for_flattening ... ok
+test cyclic_acroform_read_paths_fail_before_upstream_recursion ... ok
+test cyclic_bookmarks_fail_without_entering_the_upstream_unbounded_walk ... ok
+test choice_fields_keep_multi_values_and_lossy_xfdf_export_is_rejected ... ok
+test direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails ... ok
+test edit_rejects_invalid_pages_rectangles_rotations_and_unknown_parameters ... ok
+test embedded_bytes_roundtrip_without_document_chosen_output_paths ... ok
+test direct_widget_state_dictionary_preserves_selected_custom_appearance ... ok
+test flatten_page_carrier_annotation_rejects_shadowed_inherited_fonts_images ... ok
+test flatten_page_carrier_annotation_without_contents_rejects_lost_appearance ... ok
+test flatten_page_carrier_annotation_explicit_resources_preserve_content_and_appearance ... ok
+test flatten_page_carrier_form_rejects_shadowed_inherited_fonts_images ... ok
+test flatten_page_carrier_form_without_contents_rejects_lost_appearance ... ok
+test flatten_page_carrier_malformed_contents_rejects_without_publication ... ok
+test flatten_page_carrier_form_explicit_resources_preserve_content_and_appearance ... ok
+test flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units ... ok
+test flatten_precision_retains_exact_tiny_scale_and_ordinary_controls ... ok
+test form_export_escapes_fdf_and_xml_and_respects_output_bounds ... ok
+test form_add_fill_inspect_update_remove_roundtrips_values_and_flags ... ok
+test hierarchical_form_names_are_not_silently_flattened_or_renamed ... ok
+test form_properties_and_hierarchical_removal_preserve_unrelated_objects ... ok
+test indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement ... ok
+test merge_rejects_signature_markers_in_every_input_slot ... ok
+test metadata_roundtrip_is_explicit_about_unicode_and_xmp_limitations ... ok
+test merge_and_split_preserve_requested_text_pages_and_range_bounds ... ok
+test page_and_item_budgets_fail_before_expanding_large_requests ... ok
+test page_reorder_duplicates_rotation_and_crop_survive_serialization ... ok
+test nonvisual_form_properties_and_noop_fill_preserve_existing_appearance_and_catalog ... ok
+test pinned_dom_replacement_retains_black_mask_regression_evidence ... ok
+test pinned_form_add_rebuild_drops_unique_catalog_and_inline_existing_fields ... ok
+test pinned_link_only_flatten_retains_interactivity_and_adapter_explicitly_rejects ... ok
+test pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejects ... ok
+test pinned_no_ap_form_regeneration_is_preserved_as_unqualified_evidence ... ok
+test static_xfa_is_an_explicit_derivative_and_dynamic_or_external_xml_fails ... ok
+test unicode_attachment_names_are_metadata_and_never_output_paths ... ok
+test text_overlays_roundtrip_and_visually_defective_replacement_is_rejected ... ok
+test visual_whiteout_explicitly_retains_recoverable_source_content ... ok
+test unregeneratable_widget_without_normal_appearance_rejects_before_field_loss ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+

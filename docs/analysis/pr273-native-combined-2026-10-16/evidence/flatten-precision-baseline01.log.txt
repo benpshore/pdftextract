@@ -1,0 +1,20 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Finished `test` profile [unoptimized] target(s) in 15.85s
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-002c7df4846ca63f)
+
+running 2 tests
+test flatten_precision_retains_exact_tiny_scale_and_ordinary_controls ... ok
+
+thread 'flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units' (196658) panicked at tests/oxide_edit_forms.rs:2396:5:
+geometrically damaged appearances admitted: ["flatten-precision-annotation-zero-scale", "flatten-precision-annotation-nonzero-rounding", "flatten-precision-form-zero-scale", "flatten-precision-form-nonzero-rounding"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units ... FAILED
+
+failures:
+
+failures:
+    flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 41 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `--test oxide_edit_forms`

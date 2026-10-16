@@ -1,0 +1,55 @@
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+base = 'b3730aa958d947fcbf6ea45b0efef07fcfa20f29'
+backlog = '88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35'
+native = '4e60d3949b12f9d3baeb36067e7804ac67b39c6e'
+automatic = 'c1031b2486e83fc6059a3c191dda8e8ab0b3ecd0'
+out = Path('/workspace/tpe-combined-integration-evidence-20261016')
+
+def git(*args):
+    return subprocess.check_output(['git', *args])
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+checks=[]
+def equal(path, commit):
+    original = git('show',f'{commit}:{path}')
+    current = Path(path).read_bytes()
+    checks.append({'path':path,'reference':commit,'sha256':sha(current),'unchanged':original==current})
+
+left=set(git('diff','--name-only',base,backlog).decode().splitlines())
+right=set(git('diff','--name-only',base,native).decode().splitlines())
+for path in sorted(left-right): equal(path,backlog)
+for path in sorted(right-left-{'src/cli_worker/oxide.rs'}): equal(path,native)
+for path in git('ls-tree','-r','--name-only',backlog,'docs/analysis/backlog-2026-10-15').decode().splitlines(): equal(path,backlog)
+for path in git('ls-tree','-r','--name-only',native,'docs/analysis/pdf-oxide-full-integration').decode().splitlines(): equal(path,native)
+for path in ['LICENSE','crates/tpe-ffi/src/provider.rs','native/reviewed-partials.json']:equal(path,base)
+for path in git('ls-tree','-r','--name-only',backlog,'.github/workflows').decode().splitlines():equal(path,backlog)
+equal('native/validate_eval.py',backlog)
+equal('native/manifest.json',backlog)
+equal('Cargo.lock',native)
+expected=git('show',f'{native}:src/cli_worker/oxide.rs').replace(b'let common = ExtractArgs {\n',b'let common = ExtractArgs {\n        dry_run: false,\n',1)
+checks.append({'path':'src/cli_worker/oxide.rs','reference':'native plus required explicit dry_run: false field','unchanged':Path('src/cli_worker/oxide.rs').read_bytes()==expected})
+index=json.loads(Path('docs/analysis/backlog-2026-10-15/sources.json').read_text())
+archives=[]
+for row in index['prs']:
+    actual=git('rev-parse',row['archive_ref']).decode().strip()
+    archives.append({'pr':row['number'],'expected':row['head_sha'],'actual':actual,'matches':actual==row['head_sha']})
+ancestors=[]
+for commit in [base,backlog,native,'7cabac188b5d89c5f0a9127392f5213df7d349a1','bae267aff0c999c452ede13c5dea079c5243350a','059436c46b4e352a38d62a7922dca05ad0c927cf']:
+    result=subprocess.run(['git','merge-base','--is-ancestor',commit,'HEAD'],check=False)
+    ancestors.append({'commit':commit,'is_ancestor':result.returncode==0})
+manual=git('diff','--name-only',automatic,'HEAD').decode().splitlines()
+receipt={'commit':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),
+         'status':git('status','--porcelain').decode(),'checks':checks,'archive_heads':archives,'ancestors':ancestors,
+         'manual_changes_after_automatic_merge':manual,
+         'manual_source_changes_are_reviewed':set(manual)=={'src/acquire.rs','src/cli_worker/oxide.rs'},
+         'historical_policy_not_restamped':True,
+         'all_preserved':all(row['unchanged'] for row in checks) and all(row['matches'] for row in archives) and all(row['is_ancestor'] for row in ancestors)}
+(out/'exact-preservation.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({k:receipt[k] for k in ['commit','tree','status','manual_changes_after_automatic_merge','all_preserved']}))
+assert receipt['all_preserved'] and receipt['manual_source_changes_are_reviewed'] and not receipt['status']

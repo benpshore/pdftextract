@@ -1,0 +1,34 @@
+import hashlib
+import json
+from pathlib import Path
+import shutil
+
+raw=Path('/workspace/tpe-combined-integration-evidence-20261016')
+artifact=Path('/workspace/pdftextract-combined-recovery/docs/analysis/pr273-native-combined-2026-10-16')
+evidence=artifact/'evidence';evidence.mkdir(parents=True,exist_ok=False)
+def copy(source,name):shutil.copy2(source,evidence/name)
+for pattern in ['*.json','*.log','*.patch','remote-heads-*.txt','environment.sh']:
+    for source in sorted(raw.glob(pattern)):
+        copy(source,source.name+'.txt' if source.suffix in ['.log','.sh'] else source.name)
+for source in sorted(raw.glob('*.py')):copy(source,source.name+'.txt')
+for directory in ['precommit-01','readiness-repair-01','precision-precommit-01','exact-c2c87b2-01','exact-4514dc1-01','platform-01','remaining-4514dc1-01']:
+    for source in sorted((raw/directory).iterdir()):
+        if source.is_file() and source.suffix in ['.json','.log']:
+            copy(source,directory+'-'+source.name.replace('.log','.txt'))
+for directory in ['current-diagnostics-replay','current-diagnostics-4514dc1']:
+    copy(raw/directory/'summary.json',directory+'-summary.json')
+for directory in ['flatten-precision-poppler01','flatten-precision-poppler02','flatten-border-poppler01']:
+    copy(raw/directory/'receipt.json',directory+'-receipt.json')
+for directory in ['flatten-precision-baseline01','flatten-precision-repair02']:
+    for source in sorted((raw/directory).glob('*-evidence.json')):copy(source,directory+'-'+source.name)
+runtime=raw/'runtime-4514dc1-01'
+copy(runtime/'receipt.json','runtime-4514dc1-01-receipt.json')
+for name in ['shared-fixtures','synthetic-ocr','flatten-carriers','widget-states','flatten-precision']:
+    copy(runtime/name/'receipt.json','runtime-'+name+'-receipt.json')
+    copy(runtime/(name+'.log'),'runtime-'+name+'.txt')
+for name in ['evaluate_shared_fixtures.py','verify_synthetic_ocr.py','verify_flatten_carrier_cli.py','verify_widget_state_cli.py']:
+    copy(Path('/workspace/tpe-pdf-oxide-evidence-20261015')/name,name+'.txt')
+copy(Path('/workspace/tpe-pdf-oxide-evidence-20261015/shared-fixtures/manifest.json'),'shared-fixture-manifest.json')
+entries=[{'path':str(path.relative_to(artifact)),'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()} for path in sorted(evidence.iterdir())]
+(artifact/'evidence-manifest.json').write_text(json.dumps({'scope':'Unmodified local logs, receipts, runner sources, and hashes. Binaries, PDFs, images and build artifacts remain on the cloud VM; none is released or published.','raw_root':str(raw),'files':entries},indent=2)+'\n')
+print(json.dumps({'files':len(entries),'artifact':str(artifact),'bytes':sum(x['bytes'] for x in entries)}))

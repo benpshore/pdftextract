@@ -1,0 +1,37 @@
+{
+  "scope": "Rehash previously provisioned pinned Linux x64 PDFium and four models; no provisioning/model change.",
+  "manifest_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+  "assets": [
+    {
+      "path": "/workspace/pdftextract/.pdfium/lib/libpdfium.so",
+      "sha256": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+      "expected": "7670b3c597b02dfa3f98b23b49c3bb52536312f1ea686b739321731b6011f5a9",
+      "matches": true
+    },
+    {
+      "path": "/workspace/pdftextract/.models/layout_heron_int8.onnx",
+      "sha256": "87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a",
+      "expected": "87ac925d4183b4f4745fb48f6ff216fe88ce244d9ab635725e6d514fe490fc2a",
+      "matches": true
+    },
+    {
+      "path": "/workspace/pdftextract/.models/ocr_det.onnx",
+      "sha256": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "expected": "090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f",
+      "matches": true
+    },
+    {
+      "path": "/workspace/pdftextract/.models/ocr_rec_en.onnx",
+      "sha256": "ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea",
+      "expected": "ef7abd8bd3629ae57ea2c28b425c1bd258a871b93fd2fe7c433946ade9b5d9ea",
+      "matches": true
+    },
+    {
+      "path": "/workspace/pdftextract/.models/en_dict.txt",
+      "sha256": "5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3",
+      "expected": "5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3",
+      "matches": true
+    }
+  ],
+  "all_match": true
+}

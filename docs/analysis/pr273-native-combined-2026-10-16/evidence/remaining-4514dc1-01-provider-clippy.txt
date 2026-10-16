@@ -1,0 +1,2 @@
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-ffi)
+    Finished `dev` profile [unoptimized] target(s) in 0.50s

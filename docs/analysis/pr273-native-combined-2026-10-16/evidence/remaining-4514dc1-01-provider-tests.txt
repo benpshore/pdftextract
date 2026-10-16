@@ -1,0 +1,25 @@
+   Compiling tpe-ffi v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-ffi)
+    Finished `test` profile [unoptimized] target(s) in 0.59s
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_ffi-dd3089b15b7779b1)
+
+running 10 tests
+test alloc::tests::enforcement_is_off_in_this_process ... ok
+test alloc::tests::small_control_round_trips_through_system ... ok
+test mem::tests::small_mapping_round_trips ... ok
+test oxide_containment::tests::raw_process_child ... ignored, private helper; bounded_raw_process_denials launches isolated workers
+test provider::tests::error_messages_stop_at_nul ... ok
+test provider::tests::identity_read_stops_at_the_exact_byte_bound ... ok
+test provider::tests::identity_strings_are_bounded ... ok
+test provider::tests::missing_libraries_fail_before_any_symbol_is_resolved ... ok
+test provider::tests::provider_strings_preserve_high_bytes ... ok
+test oxide_containment::tests::bounded_raw_process_denials ... ok
+
+test result: ok. 9 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+   Doc-tests tpe_ffi
+
+running 1 test
+test crates/tpe-ffi/src/alloc.rs - alloc (line 11) ... ignored
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

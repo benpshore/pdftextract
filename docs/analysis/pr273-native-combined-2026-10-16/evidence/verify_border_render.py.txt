@@ -1,0 +1,23 @@
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+source=Path('/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02')
+out=Path(sys.argv[1]);out.mkdir(exist_ok=False)
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+receipt={'scope':'Independent Poppler controls for missing external Link borders despite matching appearance corners. No broad flattening qualification.','cases':[]}
+for style in ['Border','default','BS']:
+    name=f'flatten-link-border-{style}';renders=[]
+    for suffix in ['source','upstream']:
+        pdf=source/(name+'-'+suffix+'.pdf');prefix=out/(name+'-'+suffix)
+        cmd=['prlimit','--as=1073741824','--core=0','--','timeout','-k','2','15','pdftoppm','-f','1','-singlefile','-r','96','-png',str(pdf),str(prefix)]
+        result=subprocess.run(cmd,capture_output=True,timeout=20,check=False);png=prefix.with_suffix('.png')
+        renders.append({'pdf':str(pdf),'pdf_sha256':sha(pdf),'command':cmd,'exit_code':result.returncode,'stderr':result.stderr.decode(errors='replace'),'png':str(png),'png_sha256':sha(png) if png.exists() else None})
+    changed=renders[0]['png_sha256']!=renders[1]['png_sha256']
+    receipt['cases'].append({'name':name,'render_changed':changed,'renders':renders,'passed':changed and all(row['exit_code']==0 for row in renders)})
+receipt['passed']=all(row['passed'] for row in receipt['cases'])
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'cases':[{k:row[k] for k in ['name','render_changed','passed']} for row in receipt['cases']]}))
+sys.exit(0 if receipt['passed'] else 1)

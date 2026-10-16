@@ -1,0 +1,38 @@
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir(exist_ok=False)
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],text=True).strip()
+native=Path('/workspace/tpe-pdf-oxide-evidence-20261015')
+receipt={'source_commit':git('rev-parse','HEAD'),'source_tree':git('rev-parse','HEAD^{tree}'),'git_status_before':git('status','--porcelain'),'binary':str(binary),'binary_sha256':sha(binary),'checks':[]}
+assert not receipt['git_status_before']
+for name,script in [
+    ('shared-fixtures',native/'evaluate_shared_fixtures.py'),
+    ('synthetic-ocr',native/'verify_synthetic_ocr.py'),
+    ('flatten-carriers',native/'verify_flatten_carrier_cli.py'),
+    ('widget-states',native/'verify_widget_state_cli.py'),
+    ('flatten-precision',Path('/workspace/tpe-combined-integration-evidence-20261016/verify_precision_cli.py')),
+]:
+    command=['prlimit','--as=2147483648','--core=0','--','timeout','-k','5','180',sys.executable,str(script),str(binary),str(out/name)]
+    log=out/(name+'.log')
+    with log.open('wb') as output:
+        result=subprocess.run(command,stdout=output,stderr=subprocess.STDOUT,timeout=190,check=False)
+    details_path=out/name/'receipt.json'
+    details=json.loads(details_path.read_text()) if details_path.exists() else {}
+    if name=='shared-fixtures':
+        passed=result.returncode==0 and len(details.get('fixtures',[]))==8 and all(
+            row.get('exit_code')==1 and row.get('status')=='partial' and all(row.get(key) is True for key in
+            ['source_unchanged','captures_clean','source_identity_matches','page_numbers_match','parser_sealing_reported','table_candidates_all_marked_unverified'])
+            for row in details.get('fixtures',[]))
+    else:passed=result.returncode==0 and details.get('passed') is True
+    row={'name':name,'command':command,'exit_code':result.returncode,'passed':passed,'log':str(log),'sha256':sha(log),'runner':str(script),'runner_sha256':sha(script),'receipt':str(details_path),'receipt_sha256':sha(details_path) if details_path.exists() else None}
+    receipt['checks'].append(row);(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps(row),flush=True)
+receipt['git_status_after']=git('status','--porcelain');receipt['source_commit_after']=git('rev-parse','HEAD');receipt['source_tree_after']=git('rev-parse','HEAD^{tree}')
+receipt['source_unchanged']=not receipt['git_status_after'] and receipt['source_commit_after']==receipt['source_commit'] and receipt['source_tree_after']==receipt['source_tree']
+receipt['binary_unchanged']=sha(binary)==receipt['binary_sha256'];receipt['passed']=receipt['source_unchanged'] and receipt['binary_unchanged'] and all(row['passed'] for row in receipt['checks'])
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({'passed':receipt['passed'],'source_unchanged':receipt['source_unchanged']}),flush=True)
+sys.exit(0 if receipt['passed'] else 1)

@@ -1,0 +1,2684 @@
+{
+  "base": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "backlog": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+  "native": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+  "merge_base": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "automatic_merge_index_tree": "c1031b2486e83fc6059a3c191dda8e8ab0b3ecd0",
+  "backlog_changed_paths": [
+    ".github/workflows/build-binaries.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/native.yml",
+    "Cargo.toml",
+    "docs/CLI-WORKERS.md",
+    "docs/analysis/backlog-2026-10-15/HANDOFF.md",
+    "docs/analysis/backlog-2026-10-15/README.md",
+    "docs/analysis/backlog-2026-10-15/original-native-failure.json",
+    "docs/analysis/backlog-2026-10-15/sources.json",
+    "docs/analysis/backlog-2026-10-15/synthetic-validator-replay.json",
+    "docs/analysis/backlog-2026-10-15/validation-summary.json",
+    "docs/analysis/docling-model-checksum-2026-10-11-evidence.json",
+    "docs/analysis/docling-model-checksum-2026-10-11.md",
+    "docs/analysis/input-open-bounds-2026-10-14.md",
+    "docs/analysis/native-diagnostics-2026-10-14.md",
+    "docs/analysis/tonight-2026-10-10.md",
+    "docs/analysis/tonight-2026-10-10/before-after.json",
+    "docs/analysis/tonight-2026-10-10/raw-output-manifest.json",
+    "native/manifest.json",
+    "native/validate_eval.py",
+    "scripts/fetch_layout_witnesses.py",
+    "src/acquire.rs",
+    "src/backend/lopdf_backend.rs",
+    "src/backend/lopdf_backend/STANDARD_WIDTHS-LICENSE.txt",
+    "src/backend/lopdf_backend/STANDARD_WIDTHS.md",
+    "src/backend/lopdf_backend/font_resources.rs",
+    "src/backend/lopdf_backend/standard_widths.rs",
+    "src/backend/lopdf_backend/widths.rs",
+    "src/cli_worker.rs",
+    "src/main.rs",
+    "src/reading_order.rs",
+    "tests/cli_dry_run.rs",
+    "tests/fixtures/layout-witnesses/README.md",
+    "tests/fixtures/layout-witnesses/expected.json",
+    "tests/fixtures/reading-order/.gitattributes",
+    "tests/fixtures/reading-order/README.md",
+    "tests/fixtures/reading-order/semantic-three.pdf",
+    "tests/fixtures/reading-order/semantic-three.txt",
+    "tests/fixtures/reading-order/semantic-two.pdf",
+    "tests/fixtures/reading-order/semantic-two.txt",
+    "tests/layout_real_corpus.rs",
+    "tests/reading_order_columns.rs",
+    "tests/test_validate_eval.py"
+  ],
+  "native_changed_paths": [
+    "Cargo.lock",
+    "Cargo.toml",
+    "crates/tpe-ffi/Cargo.toml",
+    "crates/tpe-ffi/src/lib.rs",
+    "crates/tpe-ffi/src/oxide_containment.rs",
+    "docs/analysis/pdf-oxide-full-integration/CHECKPOINT.md",
+    "docs/analysis/pdf-oxide-full-integration/FINAL_HANDOFF.md",
+    "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+    "docs/analysis/pdf-oxide-full-integration/README.md",
+    "docs/analysis/pdf-oxide-full-integration/STATE_APPEARANCE_HANDOFF.md",
+    "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json",
+    "docs/analysis/pdf-oxide-full-integration/build_inventory.py",
+    "docs/analysis/pdf-oxide-full-integration/capability-matrix.json",
+    "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
+    "docs/analysis/pdf-oxide-full-integration/containment-evidence.json",
+    "docs/analysis/pdf-oxide-full-integration/containment.md",
+    "docs/analysis/pdf-oxide-full-integration/create-office.md",
+    "docs/analysis/pdf-oxide-full-integration/edit-forms.md",
+    "docs/analysis/pdf-oxide-full-integration/evidence/admission-build-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/admission-log-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ctest-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ctest-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/default-clippy-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/default-tests-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-fmt.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-pytest.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-check.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-format.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-fmt.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-pytest.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-check.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-format.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ffi-containment-cargo-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01-binary.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/forms-final-guard-log-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/forms-poppler-001.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-04.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-05.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-06.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-07.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-08.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-09.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-10.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-11.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-12.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-05.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-06.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/historical-log-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-attempt-02.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-verification-02.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-combined-tests-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-response.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-stderr.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-response.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-stderr.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-before-fix-native.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-ctm-restores-before-fix.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/pytest-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/pytest-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/recovery-log-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/redaction-poppler-001.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-04.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-04.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-fixture-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-fixture-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/transport-log-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-02.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-03.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01-source.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.patch.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-environment-availability-01.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-fmt.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-pytest.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-check.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-format.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01-runner.py.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-audit.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-clippy.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-build.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-configure.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ctest.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-pytest.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-receipt.json",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-check.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-format.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-build.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-test.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-tests.txt",
+    "docs/analysis/pdf-oxide-full-integration/evidence/worker-ocr-repairs-01.txt",
+    "docs/analysis/pdf-oxide-full-integration/feature-build-matrix.json",
+    "docs/analysis/pdf-oxide-full-integration/integration-status.json",
+    "docs/analysis/pdf-oxide-full-integration/query.md",
+    "docs/analysis/pdf-oxide-full-integration/render-ocr.md",
+    "docs/analysis/pdf-oxide-full-integration/security.md",
+    "docs/analysis/pdf-oxide-full-integration/source-inventory.json",
+    "src/acquire.rs",
+    "src/backend/mod.rs",
+    "src/backend/pdf_oxide_backend.rs",
+    "src/backend/pdf_oxide_content.rs",
+    "src/backend/pdf_oxide_images.rs",
+    "src/backend/pdf_oxide_resources.rs",
+    "src/backend/pdf_oxide_supplements.rs",
+    "src/backend/routed_backend.rs",
+    "src/cli_worker.rs",
+    "src/cli_worker/oxide.rs",
+    "src/ledger.rs",
+    "src/lib.rs",
+    "src/main.rs",
+    "src/oxide/convert.rs",
+    "src/oxide/create.rs",
+    "src/oxide/edit.rs",
+    "src/oxide/flatten.rs",
+    "src/oxide/forms.rs",
+    "src/oxide/mod.rs",
+    "src/oxide/ocr.rs",
+    "src/oxide/office.rs",
+    "src/oxide/query.rs",
+    "src/oxide/render.rs",
+    "src/oxide/security.rs",
+    "src/pipeline.rs",
+    "src/schema.rs",
+    "tests/oxide_containment.rs",
+    "tests/oxide_convert.rs",
+    "tests/oxide_create_office.rs",
+    "tests/oxide_edit_forms.rs",
+    "tests/oxide_query.rs",
+    "tests/oxide_render_ocr.rs",
+    "tests/oxide_security.rs",
+    "tests/oxide_supplements.rs",
+    "tests/oxide_transport.rs",
+    "tests/oxide_worker.rs",
+    "tests/pdf_oxide_backend.rs",
+    "third_party/ammonia/LICENSE-APACHE",
+    "third_party/ammonia/LICENSE-MIT",
+    "third_party/office_oxide/LICENSE-APACHE",
+    "third_party/office_oxide/LICENSE-MIT",
+    "third_party/office_oxide/NOTICE",
+    "third_party/pdf_oxide/LICENSE-APACHE",
+    "third_party/pdf_oxide/LICENSE-DejaVu",
+    "third_party/pdf_oxide/LICENSE-MIT",
+    "third_party/pdf_oxide/LICENSE-fallback-fonts",
+    "third_party/pdf_oxide/NOTICE"
+  ],
+  "overlap": [
+    "Cargo.toml",
+    "src/acquire.rs",
+    "src/cli_worker.rs",
+    "src/main.rs"
+  ],
+  "dependency_review": {
+    "backlog_lock_same_as_main": true,
+    "native_added_packages": [
+      [
+        "aes-gcm",
+        "0.11.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ammonia",
+        "4.1.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "anymap2",
+        "0.13.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "anymap3",
+        "1.1.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "asn1-rs",
+        "0.7.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "asn1-rs-derive",
+        "0.6.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "asn1-rs-impl",
+        "0.2.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "barcoders",
+        "2.0.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "base16ct",
+        "1.0.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "bit-set",
+        "0.5.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "bit-vec",
+        "0.6.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "cms",
+        "0.3.0-pre.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "crypto-bigint",
+        "0.7.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "crypto-primes",
+        "0.7.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "cssparser",
+        "0.35.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "cssparser-macros",
+        "0.6.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ctr",
+        "0.10.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "data-encoding",
+        "2.11.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "der-parser",
+        "10.0.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "der_derive",
+        "0.8.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "derive-new",
+        "0.5.9",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "des",
+        "0.9.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "dtoa",
+        "1.0.11",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "dtoa-short",
+        "0.3.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "dyn-hash",
+        "0.2.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ecdsa",
+        "0.17.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "elliptic-curve",
+        "0.14.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "fast_image_resize",
+        "6.1.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ff",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "fiat-crypto",
+        "0.3.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "flagset",
+        "0.4.7",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "fontdb",
+        "0.24.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ghash",
+        "0.6.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "group",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "harfrust",
+        "0.13.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "hayro-ccitt",
+        "0.4.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "hayro-jbig2",
+        "0.3.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "hayro-jpeg2000",
+        "0.4.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "hmac",
+        "0.13.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "html5ever",
+        "0.35.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "itertools",
+        "0.10.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "kstring",
+        "2.0.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "liquid",
+        "0.26.11",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "liquid-core",
+        "0.26.11",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "liquid-derive",
+        "0.26.10",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "liquid-lib",
+        "0.26.11",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "maplit",
+        "1.0.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "markup5ever",
+        "0.35.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "match_token",
+        "0.35.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ndarray",
+        "0.16.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "nom-language",
+        "0.1.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "oid-registry",
+        "0.8.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "p12-keystore",
+        "0.3.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "p256",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "p384",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pbkdf2",
+        "0.13.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pest",
+        "2.9.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pest_derive",
+        "2.9.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pest_generator",
+        "2.9.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pest_meta",
+        "2.9.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "phf",
+        "0.11.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "phf_codegen",
+        "0.11.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "phf_generator",
+        "0.11.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "phf_macros",
+        "0.11.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "phf_shared",
+        "0.11.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pkcs1",
+        "0.8.0-rc.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pkcs12",
+        "0.2.0-pre.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pkcs5",
+        "0.8.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "pkcs8",
+        "0.11.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "polyval",
+        "0.7.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "precomputed-hash",
+        "0.1.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "primal-check",
+        "0.3.4",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "primefield",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "primeorder",
+        "0.14.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "prost",
+        "0.11.9",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "prost-derive",
+        "0.11.9",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "qrcode",
+        "0.14.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rand_distr",
+        "0.4.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rc2",
+        "0.9.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "read-fonts",
+        "0.43.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rfc6979",
+        "0.6.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rsa",
+        "0.10.0-rc.19",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rustfft",
+        "6.4.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "rusticata-macros",
+        "4.1.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "safetensors",
+        "0.6.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "salsa20",
+        "0.11.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "scan_fmt",
+        "0.2.6",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "scrypt",
+        "0.12.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "sec1",
+        "0.8.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "serdect",
+        "0.4.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "sha1",
+        "0.11.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "signature",
+        "3.0.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "spki",
+        "0.8.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "strength_reduce",
+        "0.2.4",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "string-interner",
+        "0.15.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "string_cache",
+        "0.8.9",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "string_cache_codegen",
+        "0.5.4",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "synstructure",
+        "0.13.2",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tiny-skia",
+        "0.12.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tiny-skia-path",
+        "0.12.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-core",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-data",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-hir",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-linalg",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-nnef",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-onnx",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "tract-onnx-opl",
+        "0.22.5",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "transpose",
+        "0.2.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "ucd-trie",
+        "0.1.7",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "web_atoms",
+        "0.1.3",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "wnaf",
+        "0.14.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "x509-cert",
+        "0.3.0",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ],
+      [
+        "x509-parser",
+        "0.18.1",
+        "registry+https://github.com/rust-lang/crates.io-index"
+      ]
+    ],
+    "native_removed_packages": [],
+    "shared_package_checksum_changes": [],
+    "resolution": "Retain native Cargo.lock verbatim; combine PR281 rustix fs feature with native optional feature/dependency additions. No dependency refresh."
+  },
+  "holds": {
+    "authorization": "Ada explicitly authorized combining these exact preserved checkpoints on a separate recovery/integration branch; existing PR heads and main must remain unchanged.",
+    "scope_review": "Recorded holds require parent promotion/reconciliation review; no recorded hold forbids this expressly authorized nonpublishing branch combination.",
+    "retained": [
+      "PR226 global hold",
+      "PR163",
+      "PR135/136/138/141/143",
+      "PR275/280/281 refreshed proposals"
+    ],
+    "excluded": "No held refreshed proposal head is substituted for the exact historical PR280/281 commits already preserved in the backlog checkpoint."
+  },
+  "preservation": [
+    {
+      "origin": "backlog",
+      "path": ".github/workflows/build-binaries.yml",
+      "original_sha256": "ee1dc80026e0f487546623f351984e56b4c5d616f10a07cf3dd19fd37e27966b",
+      "combined_sha256": "ee1dc80026e0f487546623f351984e56b4c5d616f10a07cf3dd19fd37e27966b",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": ".github/workflows/ci.yml",
+      "original_sha256": "64d0cdc2363890411a0810a674a1389331c581c8bade8e2f296179abc91a7a56",
+      "combined_sha256": "64d0cdc2363890411a0810a674a1389331c581c8bade8e2f296179abc91a7a56",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": ".github/workflows/native.yml",
+      "original_sha256": "ef50218913bcf16f1f91bfbb4076bc5feb3652fcd04fd870a9519549e7246493",
+      "combined_sha256": "ef50218913bcf16f1f91bfbb4076bc5feb3652fcd04fd870a9519549e7246493",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/CLI-WORKERS.md",
+      "original_sha256": "ec892fa5c09ff321f2de76c828066fd970ade0e81a1a5b48169c54921c332a80",
+      "combined_sha256": "ec892fa5c09ff321f2de76c828066fd970ade0e81a1a5b48169c54921c332a80",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/HANDOFF.md",
+      "original_sha256": "664292461072ce2ae7e4992784653b94bf393a6fde463bce0c45123c05a83275",
+      "combined_sha256": "664292461072ce2ae7e4992784653b94bf393a6fde463bce0c45123c05a83275",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/README.md",
+      "original_sha256": "0aca305cb8dae8d3bdbc1f2b6e5a2e504c58d0871886398c949970629fbabc98",
+      "combined_sha256": "0aca305cb8dae8d3bdbc1f2b6e5a2e504c58d0871886398c949970629fbabc98",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/original-native-failure.json",
+      "original_sha256": "0d891c9d3f535dc4bf792684efb3583c2966dfa19cd456790e4b6aa3a2c04312",
+      "combined_sha256": "0d891c9d3f535dc4bf792684efb3583c2966dfa19cd456790e4b6aa3a2c04312",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/sources.json",
+      "original_sha256": "9416ba1e74480f92eb73974927b331d34e0da99f2c4d43585594a8a281e1151b",
+      "combined_sha256": "9416ba1e74480f92eb73974927b331d34e0da99f2c4d43585594a8a281e1151b",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/synthetic-validator-replay.json",
+      "original_sha256": "3662bcb4011321ca1270e8f79cbb6646ef7ddddac5994ddcdf7204ffed71f181",
+      "combined_sha256": "3662bcb4011321ca1270e8f79cbb6646ef7ddddac5994ddcdf7204ffed71f181",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/backlog-2026-10-15/validation-summary.json",
+      "original_sha256": "0aa0739fddf9174b7edf25ba1afea92beb4a7fe2753bff7b02211a8389c3fced",
+      "combined_sha256": "0aa0739fddf9174b7edf25ba1afea92beb4a7fe2753bff7b02211a8389c3fced",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/docling-model-checksum-2026-10-11-evidence.json",
+      "original_sha256": "0f96962e09404b264f4f0ba81f2d64f658e5ba9f6c3224ebbf5bcb72259082e7",
+      "combined_sha256": "0f96962e09404b264f4f0ba81f2d64f658e5ba9f6c3224ebbf5bcb72259082e7",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/docling-model-checksum-2026-10-11.md",
+      "original_sha256": "0b26fafe86831dcb2fdeb9d8d23403da524f52df42370e4a57be2277a660b441",
+      "combined_sha256": "0b26fafe86831dcb2fdeb9d8d23403da524f52df42370e4a57be2277a660b441",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/input-open-bounds-2026-10-14.md",
+      "original_sha256": "0ebc8280751e1dac925ed68d3a08f82e3897a87164df5c1413570e3ca027d6ff",
+      "combined_sha256": "0ebc8280751e1dac925ed68d3a08f82e3897a87164df5c1413570e3ca027d6ff",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/native-diagnostics-2026-10-14.md",
+      "original_sha256": "1d62ce3adfb545d7cf1456f868611d735b9e4196dd4e4ef8faca73e9329a44ca",
+      "combined_sha256": "1d62ce3adfb545d7cf1456f868611d735b9e4196dd4e4ef8faca73e9329a44ca",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/tonight-2026-10-10.md",
+      "original_sha256": "2024e10f3b16ea56027b30c9616858a6d640dc99030c1747e716db4af3711b45",
+      "combined_sha256": "2024e10f3b16ea56027b30c9616858a6d640dc99030c1747e716db4af3711b45",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/tonight-2026-10-10/before-after.json",
+      "original_sha256": "fc8bdfb7e16760b989222733c6263de10d4e41ebd68ad51a9b8924890a8ff1eb",
+      "combined_sha256": "fc8bdfb7e16760b989222733c6263de10d4e41ebd68ad51a9b8924890a8ff1eb",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "docs/analysis/tonight-2026-10-10/raw-output-manifest.json",
+      "original_sha256": "7dab5ae205869ad56c1dc39e07a891393172b4b2eb772184ca3eadf8ac99e062",
+      "combined_sha256": "7dab5ae205869ad56c1dc39e07a891393172b4b2eb772184ca3eadf8ac99e062",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "native/manifest.json",
+      "original_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+      "combined_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "native/validate_eval.py",
+      "original_sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+      "combined_sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "scripts/fetch_layout_witnesses.py",
+      "original_sha256": "bf43b561835ce32e3372fdf95f73b1546be84490ae52faec126fbd85fbe61805",
+      "combined_sha256": "bf43b561835ce32e3372fdf95f73b1546be84490ae52faec126fbd85fbe61805",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend.rs",
+      "original_sha256": "900b0957c0261eaf4deae3168a67c529d12e3fe818c7313486374521a403f6c9",
+      "combined_sha256": "900b0957c0261eaf4deae3168a67c529d12e3fe818c7313486374521a403f6c9",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend/STANDARD_WIDTHS-LICENSE.txt",
+      "original_sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "combined_sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend/STANDARD_WIDTHS.md",
+      "original_sha256": "d3749e4a45440865a2a7b0606f924f36acbebb8e46b00666088e63d283b46a13",
+      "combined_sha256": "d3749e4a45440865a2a7b0606f924f36acbebb8e46b00666088e63d283b46a13",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend/font_resources.rs",
+      "original_sha256": "6ae3fcfd2c1dbaa92876b726801e7d23315c2f945feb2d11db81aa432a380758",
+      "combined_sha256": "6ae3fcfd2c1dbaa92876b726801e7d23315c2f945feb2d11db81aa432a380758",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend/standard_widths.rs",
+      "original_sha256": "f1d460835c3eb0ee7fc358c7def23848324131a4a08711be6516e41382a6f6f5",
+      "combined_sha256": "f1d460835c3eb0ee7fc358c7def23848324131a4a08711be6516e41382a6f6f5",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/backend/lopdf_backend/widths.rs",
+      "original_sha256": "2de4bedf7c100070c03d66fd8e5c42588a1a19b194cea1e22c5089984b489d61",
+      "combined_sha256": "2de4bedf7c100070c03d66fd8e5c42588a1a19b194cea1e22c5089984b489d61",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "src/reading_order.rs",
+      "original_sha256": "3cd9ef97ee29504f5b72dede90c98b750ba6db7e69cf9776e2eb2d726054cf37",
+      "combined_sha256": "3cd9ef97ee29504f5b72dede90c98b750ba6db7e69cf9776e2eb2d726054cf37",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/cli_dry_run.rs",
+      "original_sha256": "03aa1def1449feefcf6e72fb1edba3bf1021bfe29a1850c37a229c25e1d908b7",
+      "combined_sha256": "03aa1def1449feefcf6e72fb1edba3bf1021bfe29a1850c37a229c25e1d908b7",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/layout-witnesses/README.md",
+      "original_sha256": "c0aac7edf805d7a2d6ad47a4bf9c25839b83d0dcba6328914ecb73e8190d54aa",
+      "combined_sha256": "c0aac7edf805d7a2d6ad47a4bf9c25839b83d0dcba6328914ecb73e8190d54aa",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/layout-witnesses/expected.json",
+      "original_sha256": "473e697b171f24ff46427a98eed60ac37741ee7f1a2f1d2e4f76af680a643b74",
+      "combined_sha256": "473e697b171f24ff46427a98eed60ac37741ee7f1a2f1d2e4f76af680a643b74",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/.gitattributes",
+      "original_sha256": "a1c13568527ec73ae22806fcb504dd24fddffba3ca93d9b253ff43ad97d21678",
+      "combined_sha256": "a1c13568527ec73ae22806fcb504dd24fddffba3ca93d9b253ff43ad97d21678",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/README.md",
+      "original_sha256": "59f72a1c0831c6fa8aae50c0a76316b47a086cf70d063d76594d9cef83d4f204",
+      "combined_sha256": "59f72a1c0831c6fa8aae50c0a76316b47a086cf70d063d76594d9cef83d4f204",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/semantic-three.pdf",
+      "original_sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+      "combined_sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/semantic-three.txt",
+      "original_sha256": "c4ee7ec546a7afd11711b26e1877904929d6c07db60fc500b6a932e8c1264539",
+      "combined_sha256": "c4ee7ec546a7afd11711b26e1877904929d6c07db60fc500b6a932e8c1264539",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/semantic-two.pdf",
+      "original_sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+      "combined_sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/fixtures/reading-order/semantic-two.txt",
+      "original_sha256": "1ce50e9b472d6c7c36980d12b7db87e32afdcd0551c877cebe785a3c343ef3ad",
+      "combined_sha256": "1ce50e9b472d6c7c36980d12b7db87e32afdcd0551c877cebe785a3c343ef3ad",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/layout_real_corpus.rs",
+      "original_sha256": "a9f535a6bafba12c11738c6efe2e7ebfdee88fbb6b1bd0992fb3ac1e236f46a4",
+      "combined_sha256": "a9f535a6bafba12c11738c6efe2e7ebfdee88fbb6b1bd0992fb3ac1e236f46a4",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/reading_order_columns.rs",
+      "original_sha256": "fb4fac8603eb430793d906f3132a265d3a0ae67326a4b09dd62fa8f618c4d71f",
+      "combined_sha256": "fb4fac8603eb430793d906f3132a265d3a0ae67326a4b09dd62fa8f618c4d71f",
+      "unchanged": true
+    },
+    {
+      "origin": "backlog",
+      "path": "tests/test_validate_eval.py",
+      "original_sha256": "ca49858157e47b6cfa91729196546bc2ee6469df18b3af9b78fb8d55e309e30b",
+      "combined_sha256": "ca49858157e47b6cfa91729196546bc2ee6469df18b3af9b78fb8d55e309e30b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "Cargo.lock",
+      "original_sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "combined_sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "crates/tpe-ffi/Cargo.toml",
+      "original_sha256": "190c12ba0e5cf5c5ab8cfe101ebeb4e2e461e7b66e8304ad7ed58a553581dcf5",
+      "combined_sha256": "190c12ba0e5cf5c5ab8cfe101ebeb4e2e461e7b66e8304ad7ed58a553581dcf5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "crates/tpe-ffi/src/lib.rs",
+      "original_sha256": "7aff10e079a0b69c4a4fac86bd78034f7e94b5fffd7744b787ed4b579ed53415",
+      "combined_sha256": "7aff10e079a0b69c4a4fac86bd78034f7e94b5fffd7744b787ed4b579ed53415",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "crates/tpe-ffi/src/oxide_containment.rs",
+      "original_sha256": "d1ae6fdac875bb34df0b2ef5ef3f63828da87c8ed529fc0ee64b4e37353864cd",
+      "combined_sha256": "d1ae6fdac875bb34df0b2ef5ef3f63828da87c8ed529fc0ee64b4e37353864cd",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/CHECKPOINT.md",
+      "original_sha256": "7994e48a0c1d1f1ff31cbff580c81fa4ba1b34d95655798e2485b0162e6aec6c",
+      "combined_sha256": "7994e48a0c1d1f1ff31cbff580c81fa4ba1b34d95655798e2485b0162e6aec6c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/FINAL_HANDOFF.md",
+      "original_sha256": "bc3e7dba4b2854324c6018d1f38edc2cdd89d28427626b73e8c4d3bc80497763",
+      "combined_sha256": "bc3e7dba4b2854324c6018d1f38edc2cdd89d28427626b73e8c4d3bc80497763",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+      "original_sha256": "884bf42d28cf262601133c2406a029ba380076dc246997610e0817875a9b72a1",
+      "combined_sha256": "884bf42d28cf262601133c2406a029ba380076dc246997610e0817875a9b72a1",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/README.md",
+      "original_sha256": "28dc11c870d658510018301a5b29ea3ace41637ef2d32faecf76bed97e50e0ef",
+      "combined_sha256": "28dc11c870d658510018301a5b29ea3ace41637ef2d32faecf76bed97e50e0ef",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/STATE_APPEARANCE_HANDOFF.md",
+      "original_sha256": "6abf75fd5dc84750a96200a58716b9cb16de81a9f5d286970cc140e8e0812d0b",
+      "combined_sha256": "6abf75fd5dc84750a96200a58716b9cb16de81a9f5d286970cc140e8e0812d0b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json",
+      "original_sha256": "ad33f9f512727f1db91fa50996b15fc7ba732b82117dbb351e08cd50cba30f25",
+      "combined_sha256": "ad33f9f512727f1db91fa50996b15fc7ba732b82117dbb351e08cd50cba30f25",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/build_inventory.py",
+      "original_sha256": "03872d5af0da7e0d3c239bebeb6e9507c22b3ec98221b0ab556bccfe1d5e0c6f",
+      "combined_sha256": "03872d5af0da7e0d3c239bebeb6e9507c22b3ec98221b0ab556bccfe1d5e0c6f",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-matrix.json",
+      "original_sha256": "b970c265e3397db6a36215da4dec7e15950f9086d2d080dfead159ccb8e3ee93",
+      "combined_sha256": "b970c265e3397db6a36215da4dec7e15950f9086d2d080dfead159ccb8e3ee93",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
+      "original_sha256": "f00b3a120b9a6f55cfd2958bc159cf6a0853473b9cece8dada5c2df1f123e6d7",
+      "combined_sha256": "f00b3a120b9a6f55cfd2958bc159cf6a0853473b9cece8dada5c2df1f123e6d7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/containment-evidence.json",
+      "original_sha256": "2838475aa55d03d35301d473cfe2b37060d990b78aaae39013fd9e599e9bd001",
+      "combined_sha256": "2838475aa55d03d35301d473cfe2b37060d990b78aaae39013fd9e599e9bd001",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/containment.md",
+      "original_sha256": "d7f5be317d0294aa136c52f12cc97efab985ee9f14dce3d3c24afbaffa0ae410",
+      "combined_sha256": "d7f5be317d0294aa136c52f12cc97efab985ee9f14dce3d3c24afbaffa0ae410",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/create-office.md",
+      "original_sha256": "4e0ac1af50149650b21210d097b34a977df52be2438e8d2df7597ff6a2178c75",
+      "combined_sha256": "4e0ac1af50149650b21210d097b34a977df52be2438e8d2df7597ff6a2178c75",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/edit-forms.md",
+      "original_sha256": "c72b18af69921367f01da8bac0f0ce92386260b30c170d23b94a0a246573f9f6",
+      "combined_sha256": "c72b18af69921367f01da8bac0f0ce92386260b30c170d23b94a0a246573f9f6",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-build-01.txt",
+      "original_sha256": "9e368df3b43c59b9511dee372dd8c4079d82078090ec4e5bc57b71e3a502c628",
+      "combined_sha256": "9e368df3b43c59b9511dee372dd8c4079d82078090ec4e5bc57b71e3a502c628",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-log-manifest.json",
+      "original_sha256": "4917b6105a3703ab99fccd92f4aa02a380a07494576322e6ed293329aaedbb69",
+      "combined_sha256": "4917b6105a3703ab99fccd92f4aa02a380a07494576322e6ed293329aaedbb69",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-01.txt",
+      "original_sha256": "2026d6e1740523a12b3ba3a47733b2596a19cc9f31994dd86555207923604fff",
+      "combined_sha256": "2026d6e1740523a12b3ba3a47733b2596a19cc9f31994dd86555207923604fff",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-02.txt",
+      "original_sha256": "2220543a8cf1c5daab6906ffdd03c060f56abdea24d30139007e29495f8eb239",
+      "combined_sha256": "2220543a8cf1c5daab6906ffdd03c060f56abdea24d30139007e29495f8eb239",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-03.txt",
+      "original_sha256": "347a923b01e222d1cb9f6da6cfe03830eb552e05308ffcb0814c9f76127dffb9",
+      "combined_sha256": "347a923b01e222d1cb9f6da6cfe03830eb552e05308ffcb0814c9f76127dffb9",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-02.txt",
+      "original_sha256": "5041f80dbce223bcfa616500f168ebde623b5cd51653dac6b8ccd0f3c7b8036b",
+      "combined_sha256": "5041f80dbce223bcfa616500f168ebde623b5cd51653dac6b8ccd0f3c7b8036b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-03.txt",
+      "original_sha256": "722f616625d12bc486183deb7c69ba3d004f2defc1c98c83b300e5a23cca0b95",
+      "combined_sha256": "722f616625d12bc486183deb7c69ba3d004f2defc1c98c83b300e5a23cca0b95",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-02.txt",
+      "original_sha256": "7d2775aeb2023552cc9c16deb765235fc92729f0bb0bd57dcd4c7a9c7fdcd01d",
+      "combined_sha256": "7d2775aeb2023552cc9c16deb765235fc92729f0bb0bd57dcd4c7a9c7fdcd01d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-03.txt",
+      "original_sha256": "c09430c7ffd06e2937e5ce4760c8bd29a52747fc779c2b74f89772476c88a32a",
+      "combined_sha256": "c09430c7ffd06e2937e5ce4760c8bd29a52747fc779c2b74f89772476c88a32a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-02.txt",
+      "original_sha256": "a6796ed8316af372e4b8de3ab7cb8049f9ea2b212df33228e6844fc8f2a1a84d",
+      "combined_sha256": "a6796ed8316af372e4b8de3ab7cb8049f9ea2b212df33228e6844fc8f2a1a84d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-03.txt",
+      "original_sha256": "7d39926deae37e1e207df5f19712c153b93577fe2d14c433cd5463156a96052f",
+      "combined_sha256": "7d39926deae37e1e207df5f19712c153b93577fe2d14c433cd5463156a96052f",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-clippy-02.txt",
+      "original_sha256": "83673cb77ab9bed14322620a79c4117528ac9ec501c1cdb3aa8c7b378fa54528",
+      "combined_sha256": "83673cb77ab9bed14322620a79c4117528ac9ec501c1cdb3aa8c7b378fa54528",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-tests-02.txt",
+      "original_sha256": "16dabd5ee1720cabfee41a105c727da4e684dc37ecb2b244718663d2651bb8f5",
+      "combined_sha256": "16dabd5ee1720cabfee41a105c727da4e684dc37ecb2b244718663d2651bb8f5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-clippy.txt",
+      "original_sha256": "40bd2f3d3137a2de2278919653749453d6c515fc39cf23aedfbf104e6ed7224c",
+      "combined_sha256": "40bd2f3d3137a2de2278919653749453d6c515fc39cf23aedfbf104e6ed7224c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-fmt.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-manifest.json",
+      "original_sha256": "979cdbbf3964c460cef83a9d6cbb5b67b0c518fb7e8df62d9a8e9859b10ea25d",
+      "combined_sha256": "979cdbbf3964c460cef83a9d6cbb5b67b0c518fb7e8df62d9a8e9859b10ea25d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-pytest.txt",
+      "original_sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "combined_sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
+      "original_sha256": "c5b4e23afc67604838fc4845aa4d5daa6ea6ddb435c9522df7a283f43be9144c",
+      "combined_sha256": "c5b4e23afc67604838fc4845aa4d5daa6ea6ddb435c9522df7a283f43be9144c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-check.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-format.txt",
+      "original_sha256": "b1589e558de12a68704dd4a8223f2d36ac6a88906f2ee6989c0778b550734808",
+      "combined_sha256": "b1589e558de12a68704dd4a8223f2d36ac6a88906f2ee6989c0778b550734808",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-runner.py.txt",
+      "original_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "combined_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt",
+      "original_sha256": "3d0facf767f1f3d4414933625a967c1b6679a6738724b3550dac288ab663d1da",
+      "combined_sha256": "3d0facf767f1f3d4414933625a967c1b6679a6738724b3550dac288ab663d1da",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-clippy.txt",
+      "original_sha256": "b21c617a8bdefd0775ff03261ac3c0c90f0a65aaf5e0e3cc94ee8dbd893f34f4",
+      "combined_sha256": "b21c617a8bdefd0775ff03261ac3c0c90f0a65aaf5e0e3cc94ee8dbd893f34f4",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-fmt.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-manifest.json",
+      "original_sha256": "aeb2e3ac71a9ce12d8c09ae137c5368a11ace4542d14d97d3e08a4d2c776b93d",
+      "combined_sha256": "aeb2e3ac71a9ce12d8c09ae137c5368a11ace4542d14d97d3e08a4d2c776b93d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-pytest.txt",
+      "original_sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "combined_sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "original_sha256": "1eae649323f4fbefac83ad21756611ef51b977121398550f41e0ed57660d5c67",
+      "combined_sha256": "1eae649323f4fbefac83ad21756611ef51b977121398550f41e0ed57660d5c67",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-check.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-format.txt",
+      "original_sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "combined_sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-runner.py.txt",
+      "original_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "combined_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt",
+      "original_sha256": "26556eb8e96d94663d2c5b2e6234321d0d0a75151f8ab881da2c100ef094ac49",
+      "combined_sha256": "26556eb8e96d94663d2c5b2e6234321d0d0a75151f8ab881da2c100ef094ac49",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ffi-containment-cargo-01.txt",
+      "original_sha256": "2fedfac02b22d58d9d07ebafc5731da9f36b3a4256bede0633b0afb0dabc2e08",
+      "combined_sha256": "2fedfac02b22d58d9d07ebafc5731da9f36b3a4256bede0633b0afb0dabc2e08",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01-binary.json",
+      "original_sha256": "eeffdcefe8b7aab960fda8a8d5e9bf41102012ffb736eaf3ff72fcc6447e3ceb",
+      "combined_sha256": "eeffdcefe8b7aab960fda8a8d5e9bf41102012ffb736eaf3ff72fcc6447e3ceb",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01.txt",
+      "original_sha256": "8b4d27399a3eb34be49e6332c4fe087796b572030de06fb281802dbfbae11b78",
+      "combined_sha256": "8b4d27399a3eb34be49e6332c4fe087796b572030de06fb281802dbfbae11b78",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json",
+      "original_sha256": "19f453ceacee02bd61d4073c0928fff2a82c09113af9fd036c0a2272c2555292",
+      "combined_sha256": "19f453ceacee02bd61d4073c0928fff2a82c09113af9fd036c0a2272c2555292",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-runner.py.txt",
+      "original_sha256": "a6c957a496f4a8a6f368b20dcc75a6fd899f7594aedd4fdb6fbc8738081b4e93",
+      "combined_sha256": "a6c957a496f4a8a6f368b20dcc75a6fd899f7594aedd4fdb6fbc8738081b4e93",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
+      "original_sha256": "172fcf130d94c3a466e22fec8155d5e98cc93a7a7ba8fc949bea931e042daf6a",
+      "combined_sha256": "172fcf130d94c3a466e22fec8155d5e98cc93a7a7ba8fc949bea931e042daf6a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01-runner.py.txt",
+      "original_sha256": "bdc825128de09db0e8b0c1e9016592184b00d19c6c7d10c820475e1b74bb8579",
+      "combined_sha256": "bdc825128de09db0e8b0c1e9016592184b00d19c6c7d10c820475e1b74bb8579",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01.json",
+      "original_sha256": "c3e2d5f8c51842fa20707fd18d79002907404f967cfb951a5b26051e4ff10db3",
+      "combined_sha256": "c3e2d5f8c51842fa20707fd18d79002907404f967cfb951a5b26051e4ff10db3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-clippy.txt",
+      "original_sha256": "6ae14d54ff31e9ab90d76fe3e12de067fae9cc253e98bf2a6553926ed0b135b0",
+      "combined_sha256": "6ae14d54ff31e9ab90d76fe3e12de067fae9cc253e98bf2a6553926ed0b135b0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-receipt.json",
+      "original_sha256": "c317f9eb88ecd1ec2eef51a57de0f82640c27e2e658eba256e1c7280b15040c8",
+      "combined_sha256": "c317f9eb88ecd1ec2eef51a57de0f82640c27e2e658eba256e1c7280b15040c8",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-tests.txt",
+      "original_sha256": "de7328fd477f100cfe8e3595371183acf51100ed3c8e329438f00d3c479e20e5",
+      "combined_sha256": "de7328fd477f100cfe8e3595371183acf51100ed3c8e329438f00d3c479e20e5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-clippy.txt",
+      "original_sha256": "da6dd22a422690d1a3f4ff36e2d8545ca3f7dedcee30226f135db722cea2f5a7",
+      "combined_sha256": "da6dd22a422690d1a3f4ff36e2d8545ca3f7dedcee30226f135db722cea2f5a7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-receipt.json",
+      "original_sha256": "ad3a782d8b1df68269534f0867329b22599f34eb0892ac86b7705cc53e2cca2d",
+      "combined_sha256": "ad3a782d8b1df68269534f0867329b22599f34eb0892ac86b7705cc53e2cca2d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-tests.txt",
+      "original_sha256": "d71a53dce9a2a0b5cf5c41462733727624faf5587b60841725236e8dd8d605eb",
+      "combined_sha256": "d71a53dce9a2a0b5cf5c41462733727624faf5587b60841725236e8dd8d605eb",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-final-guard-log-manifest.json",
+      "original_sha256": "2693f02f97fe1aa750e2270973a14ea32d0bc7f7661651198b5682dde6fb461b",
+      "combined_sha256": "2693f02f97fe1aa750e2270973a14ea32d0bc7f7661651198b5682dde6fb461b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-01.txt",
+      "original_sha256": "76fa20ec8fa85a13bc7355aae0518e0fff2a460e6c8157974c14735177687491",
+      "combined_sha256": "76fa20ec8fa85a13bc7355aae0518e0fff2a460e6c8157974c14735177687491",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-02.txt",
+      "original_sha256": "1f3159ed1bc7fc8a8debba6dd531af849d01b8ad9c17f69960c0cdcf83952d3e",
+      "combined_sha256": "1f3159ed1bc7fc8a8debba6dd531af849d01b8ad9c17f69960c0cdcf83952d3e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt",
+      "original_sha256": "a4641bcafffcf6f7109cdd6e97c3f61280959b02126387ff9fd6324459bdb2f6",
+      "combined_sha256": "a4641bcafffcf6f7109cdd6e97c3f61280959b02126387ff9fd6324459bdb2f6",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-poppler-001.json",
+      "original_sha256": "1af001b7aec50041873c4e38eb4df01ab20957e0c187cc2802413678223ad53e",
+      "combined_sha256": "1af001b7aec50041873c4e38eb4df01ab20957e0c187cc2802413678223ad53e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-01.txt",
+      "original_sha256": "6ad72461a2cdd04adc3418174e69a5240e66fbba7ee2d99151ff4c7985a9103f",
+      "combined_sha256": "6ad72461a2cdd04adc3418174e69a5240e66fbba7ee2d99151ff4c7985a9103f",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-02.txt",
+      "original_sha256": "3a0d003d102b42fe8fe755f245bd9ed865581a2f9b4e9d35d85402a909b0edbe",
+      "combined_sha256": "3a0d003d102b42fe8fe755f245bd9ed865581a2f9b4e9d35d85402a909b0edbe",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-03.txt",
+      "original_sha256": "7b7937bcf6cccf93168b2ebcc19798d65f47f53f1571cb5a729ea2202013d6aa",
+      "combined_sha256": "7b7937bcf6cccf93168b2ebcc19798d65f47f53f1571cb5a729ea2202013d6aa",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-04.txt",
+      "original_sha256": "3dd25ad987d6d0df814405bfe7e99a1b61e1efcaaf9f48e767957143860001da",
+      "combined_sha256": "3dd25ad987d6d0df814405bfe7e99a1b61e1efcaaf9f48e767957143860001da",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-05.txt",
+      "original_sha256": "535f2f4aa097e596c5a9cabb79714224d5274e84a17e3b3a47e012cb6e0e0018",
+      "combined_sha256": "535f2f4aa097e596c5a9cabb79714224d5274e84a17e3b3a47e012cb6e0e0018",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-06.txt",
+      "original_sha256": "b3c1817e668eeb34e44e6fb3b07fab9491e769175f0cbfef6f9375e4eb759c1b",
+      "combined_sha256": "b3c1817e668eeb34e44e6fb3b07fab9491e769175f0cbfef6f9375e4eb759c1b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-07.txt",
+      "original_sha256": "ab0a43042afe787d2b46f5fbb265ff5e87c58914305f55dfac343c754de2fb07",
+      "combined_sha256": "ab0a43042afe787d2b46f5fbb265ff5e87c58914305f55dfac343c754de2fb07",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-08.txt",
+      "original_sha256": "d4fcde1635b3c7064128216eb4fec0176fe5e3e938a40eb611dbcaa614bf0e76",
+      "combined_sha256": "d4fcde1635b3c7064128216eb4fec0176fe5e3e938a40eb611dbcaa614bf0e76",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-09.txt",
+      "original_sha256": "a5b2a240620322a47bcbf327ff205a915e16a38ab0df761cb74aa9924f3c8194",
+      "combined_sha256": "a5b2a240620322a47bcbf327ff205a915e16a38ab0df761cb74aa9924f3c8194",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-10.txt",
+      "original_sha256": "b2d8eac6c86377eae663989ccafcbac104e30f82136d6ac8d62e5242e93214c2",
+      "combined_sha256": "b2d8eac6c86377eae663989ccafcbac104e30f82136d6ac8d62e5242e93214c2",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-11.txt",
+      "original_sha256": "05ced8da19f1c6b027442bb4443477b382bbb8bae8b640ff4a4a4e9e599333ad",
+      "combined_sha256": "05ced8da19f1c6b027442bb4443477b382bbb8bae8b640ff4a4a4e9e599333ad",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-12.txt",
+      "original_sha256": "fd12daea801d6df2703b35e0d100a057a256fe7dfaa7ec64248f2f02641af320",
+      "combined_sha256": "fd12daea801d6df2703b35e0d100a057a256fe7dfaa7ec64248f2f02641af320",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-03.txt",
+      "original_sha256": "fde352e3fed365901c19aac06103a6970a4c076bc682f46a3451baf31d83dfb7",
+      "combined_sha256": "fde352e3fed365901c19aac06103a6970a4c076bc682f46a3451baf31d83dfb7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-05.txt",
+      "original_sha256": "c6446f84d2b9859da795e9b3df0fddf26be75b1f1b6f311bdcfd9154af474233",
+      "combined_sha256": "c6446f84d2b9859da795e9b3df0fddf26be75b1f1b6f311bdcfd9154af474233",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-06.txt",
+      "original_sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "combined_sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/historical-log-manifest.json",
+      "original_sha256": "40f0505bd28d22175d1aa6de2ee960a93a2dde8463a45578418a90e7c3213fe3",
+      "combined_sha256": "40f0505bd28d22175d1aa6de2ee960a93a2dde8463a45578418a90e7c3213fe3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-attempt-02.json",
+      "original_sha256": "3f12ca6addd1d88de36b81b118e6908fad7d77d66b5ba7fd39127ca52029a316",
+      "combined_sha256": "3f12ca6addd1d88de36b81b118e6908fad7d77d66b5ba7fd39127ca52029a316",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-verification-02.json",
+      "original_sha256": "d843ae9d023ca3727f592f4a5657eea315bbf8d7cfecb5e1920b1ada674c553d",
+      "combined_sha256": "d843ae9d023ca3727f592f4a5657eea315bbf8d7cfecb5e1920b1ada674c553d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-combined-tests-01.txt",
+      "original_sha256": "c7da21353b5162635e2cb0d38b754aca7bd7d8beadeec3d6ab88f6d03e487642",
+      "combined_sha256": "c7da21353b5162635e2cb0d38b754aca7bd7d8beadeec3d6ab88f6d03e487642",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+      "original_sha256": "24fd4066f9b53613a3d0bbb82e20802a32ee62ce6d74d59fe200ef3263e4d0b3",
+      "combined_sha256": "24fd4066f9b53613a3d0bbb82e20802a32ee62ce6d74d59fe200ef3263e4d0b3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-response.json",
+      "original_sha256": "35130f0b9942691c4e243cf76f5962a210a619b44bce0edb88e121e980c0e5ec",
+      "combined_sha256": "35130f0b9942691c4e243cf76f5962a210a619b44bce0edb88e121e980c0e5ec",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-runner.py.txt",
+      "original_sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "combined_sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+      "original_sha256": "e14a0bce0b1aa2dc1be5b2bf0576af3404e861ebb70484cbbb3776c93911de69",
+      "combined_sha256": "e14a0bce0b1aa2dc1be5b2bf0576af3404e861ebb70484cbbb3776c93911de69",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-response.json",
+      "original_sha256": "1cc93f0367faa87b98cebe2675cc73375be462ad9e6e5fdbdd84baaabe21e3d8",
+      "combined_sha256": "1cc93f0367faa87b98cebe2675cc73375be462ad9e6e5fdbdd84baaabe21e3d8",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-runner.py.txt",
+      "original_sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "combined_sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-stderr.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-before-fix-native.json",
+      "original_sha256": "14ea2914749d90bfc5a22b2ab1e51aabfe0708ad948b34284bd09a243bd9d82e",
+      "combined_sha256": "14ea2914749d90bfc5a22b2ab1e51aabfe0708ad948b34284bd09a243bd9d82e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-ctm-restores-before-fix.json",
+      "original_sha256": "5a7baca338b600781e2a338eefb47dfca91bd7cd0d793f4c25b0ed08023bb157",
+      "combined_sha256": "5a7baca338b600781e2a338eefb47dfca91bd7cd0d793f4c25b0ed08023bb157",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-02.txt",
+      "original_sha256": "88b2b4ce4c6104fabf23fe3469b81e0a1d7cc65c8f176ae7967d33a03da916fb",
+      "combined_sha256": "88b2b4ce4c6104fabf23fe3469b81e0a1d7cc65c8f176ae7967d33a03da916fb",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-03.txt",
+      "original_sha256": "3fff5864e8feef4ead7d277559138452374f14a51f21d658ff86b2960481082c",
+      "combined_sha256": "3fff5864e8feef4ead7d277559138452374f14a51f21d658ff86b2960481082c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/recovery-log-manifest.json",
+      "original_sha256": "c8d7bc10e47bbe7a5da879fb25efcf1811f695bbf4103e7942486e3928fa2694",
+      "combined_sha256": "c8d7bc10e47bbe7a5da879fb25efcf1811f695bbf4103e7942486e3928fa2694",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-01.txt",
+      "original_sha256": "9498eee5f378a9f1cba73c76a3fd881fbac86dec48a564eb2ce27f4168070d67",
+      "combined_sha256": "9498eee5f378a9f1cba73c76a3fd881fbac86dec48a564eb2ce27f4168070d67",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-manifest.json",
+      "original_sha256": "516af28b151cb2c75b190a62bec9089c78878028f339238101a564f6586730b1",
+      "combined_sha256": "516af28b151cb2c75b190a62bec9089c78878028f339238101a564f6586730b1",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-poppler-001.json",
+      "original_sha256": "faf2f88a5e516af08d17e2c7948ac38b3e73618cf8e59173029f8525987b1cf0",
+      "combined_sha256": "faf2f88a5e516af08d17e2c7948ac38b3e73618cf8e59173029f8525987b1cf0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-03.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-04.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-03.txt",
+      "original_sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "combined_sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-04.txt",
+      "original_sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "combined_sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-fixture-manifest.json",
+      "original_sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "combined_sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
+      "original_sha256": "c65bd2f1fbf03c51b479d41d75ee36d45c6406b5427e19e50be780c5c8397feb",
+      "combined_sha256": "c65bd2f1fbf03c51b479d41d75ee36d45c6406b5427e19e50be780c5c8397feb",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-runner.py.txt",
+      "original_sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "combined_sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-fixture-manifest.json",
+      "original_sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "combined_sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+      "original_sha256": "805227f23e6b3d0cd41dc05fb73a0b726789b73a53ae6bbcd58cae67db7c9a3f",
+      "combined_sha256": "805227f23e6b3d0cd41dc05fb73a0b726789b73a53ae6bbcd58cae67db7c9a3f",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-runner.py.txt",
+      "original_sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "combined_sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-02.txt",
+      "original_sha256": "87e1e3156ff8e9868b43ea6cfe98d839ceaeef348fcecea2ea2557edf21f92ba",
+      "combined_sha256": "87e1e3156ff8e9868b43ea6cfe98d839ceaeef348fcecea2ea2557edf21f92ba",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-03.txt",
+      "original_sha256": "13f1a1fceab70fd209580101fcf59131681d84b6d260a18ce5f5ed58939e0ec5",
+      "combined_sha256": "13f1a1fceab70fd209580101fcf59131681d84b6d260a18ce5f5ed58939e0ec5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-02.txt",
+      "original_sha256": "270e8ffee2256f871e601123c928a4f15c9b59f28e2301774d8a5a76c3da222e",
+      "combined_sha256": "270e8ffee2256f871e601123c928a4f15c9b59f28e2301774d8a5a76c3da222e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-03.txt",
+      "original_sha256": "8aa3b07c6a506c458d93b0a1bb2c0b5db12b31e7d74abf5c562929ce026a8033",
+      "combined_sha256": "8aa3b07c6a506c458d93b0a1bb2c0b5db12b31e7d74abf5c562929ce026a8033",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-log-manifest.json",
+      "original_sha256": "de306ba26b9885ef30a7048f4b69638277ec783341091b54cddd41b018ead77b",
+      "combined_sha256": "de306ba26b9885ef30a7048f4b69638277ec783341091b54cddd41b018ead77b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt",
+      "original_sha256": "de942505094bf39e59b9222d2af2439965c7d857f007f8e8981316081d0329a5",
+      "combined_sha256": "de942505094bf39e59b9222d2af2439965c7d857f007f8e8981316081d0329a5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-02.txt",
+      "original_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "combined_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-03.txt",
+      "original_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "combined_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01-source.json",
+      "original_sha256": "d88887f5fc6c28181f5c2aa28ff9e724b69c9024340914b8eaa90d73cad61894",
+      "combined_sha256": "d88887f5fc6c28181f5c2aa28ff9e724b69c9024340914b8eaa90d73cad61894",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.patch.txt",
+      "original_sha256": "6c4634d383c45d0e5a5f34fa67aea49d04cf53b4daced8a2f435946d98405fb5",
+      "combined_sha256": "6c4634d383c45d0e5a5f34fa67aea49d04cf53b4daced8a2f435946d98405fb5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.txt",
+      "original_sha256": "b03f3ac87c2142f5789fc3ee613b9863e2ae02070ec38cd39edf4e29c1a9dbd4",
+      "combined_sha256": "b03f3ac87c2142f5789fc3ee613b9863e2ae02070ec38cd39edf4e29c1a9dbd4",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-environment-availability-01.json",
+      "original_sha256": "41ebfe94e4b8d34a078a0974918d2f52772e4be0a38b92c96aeb437629d51e8b",
+      "combined_sha256": "41ebfe94e4b8d34a078a0974918d2f52772e4be0a38b92c96aeb437629d51e8b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01-runner.py.txt",
+      "original_sha256": "94ad3005de20aece879eea5023132393f57e74891c9a3c008369de452490083c",
+      "combined_sha256": "94ad3005de20aece879eea5023132393f57e74891c9a3c008369de452490083c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01.json",
+      "original_sha256": "6074d57003fcc6ea110a30273509a86a47775dd0f278192e554d1e01b9af5a49",
+      "combined_sha256": "6074d57003fcc6ea110a30273509a86a47775dd0f278192e554d1e01b9af5a49",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-receipt.json",
+      "original_sha256": "18fbb1a8740ecf55871bdec8379e6a2e70443a2e41565663f87bddf84c2e0d9f",
+      "combined_sha256": "18fbb1a8740ecf55871bdec8379e6a2e70443a2e41565663f87bddf84c2e0d9f",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-runner.py.txt",
+      "original_sha256": "c141314c8a95ac709c415d99c7d179b824cf519c8398765abcc11522d01bfde2",
+      "combined_sha256": "c141314c8a95ac709c415d99c7d179b824cf519c8398765abcc11522d01bfde2",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-clippy.txt",
+      "original_sha256": "2c511ad052df12d6b75fd41c0e8eb3142c526ef9158bf19b133054b995724fbc",
+      "combined_sha256": "2c511ad052df12d6b75fd41c0e8eb3142c526ef9158bf19b133054b995724fbc",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-fmt.txt",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "combined_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-manifest.json",
+      "original_sha256": "54c355b83cc783f687ef51ee014c942e7619e1f2d145a1e2832059aaadd4142c",
+      "combined_sha256": "54c355b83cc783f687ef51ee014c942e7619e1f2d145a1e2832059aaadd4142c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-pytest.txt",
+      "original_sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "combined_sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-receipt.json",
+      "original_sha256": "23bdfc73e3454269f3adb713ce9b06f298ba377500455614d46828c895f03fa0",
+      "combined_sha256": "23bdfc73e3454269f3adb713ce9b06f298ba377500455614d46828c895f03fa0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-check.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-format.txt",
+      "original_sha256": "13e464c51f06111cd86ebb779bb2d99cde1fdcb339799360a239e85887946152",
+      "combined_sha256": "13e464c51f06111cd86ebb779bb2d99cde1fdcb339799360a239e85887946152",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-runner.py.txt",
+      "original_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "combined_sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt",
+      "original_sha256": "eaf7bb94acc580ebd0446da02e35ddd783d211c290d10491bfff3ea83904eb7b",
+      "combined_sha256": "eaf7bb94acc580ebd0446da02e35ddd783d211c290d10491bfff3ea83904eb7b",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+      "original_sha256": "4247dd8597b8458fa7e860adc54542a6bd025c3cba74984afee1a2950ef601ff",
+      "combined_sha256": "4247dd8597b8458fa7e860adc54542a6bd025c3cba74984afee1a2950ef601ff",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01-runner.py.txt",
+      "original_sha256": "653c4cc101d0dfa6658b2b62c022bbc338bfcae88dc928d894d14831bc667ed3",
+      "combined_sha256": "653c4cc101d0dfa6658b2b62c022bbc338bfcae88dc928d894d14831bc667ed3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01.json",
+      "original_sha256": "6bef013fef5274c0362ac368d8017f29caf2f934e1430ab3b2ac495603fe0438",
+      "combined_sha256": "6bef013fef5274c0362ac368d8017f29caf2f934e1430ab3b2ac495603fe0438",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-audit.txt",
+      "original_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "combined_sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-clippy.txt",
+      "original_sha256": "d7f8f09f606d40e4701723ed7edd83261a75d4c2a9cf3729e5c377cbd97727ba",
+      "combined_sha256": "d7f8f09f606d40e4701723ed7edd83261a75d4c2a9cf3729e5c377cbd97727ba",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-build.txt",
+      "original_sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "combined_sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-configure.txt",
+      "original_sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "combined_sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ctest.txt",
+      "original_sha256": "8a00bfdba85b83c4002cf2336cd883ae042126f0361ec6f9b2ed2d53cc537734",
+      "combined_sha256": "8a00bfdba85b83c4002cf2336cd883ae042126f0361ec6f9b2ed2d53cc537734",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-pytest.txt",
+      "original_sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "combined_sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-receipt.json",
+      "original_sha256": "6f13cb1812750dc9575c78cdd35c016f008635a81b5cf357554bdceba93be9b6",
+      "combined_sha256": "6f13cb1812750dc9575c78cdd35c016f008635a81b5cf357554bdceba93be9b6",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-check.txt",
+      "original_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "combined_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-format.txt",
+      "original_sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "combined_sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-build.txt",
+      "original_sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "combined_sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-test.txt",
+      "original_sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "combined_sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-tests.txt",
+      "original_sha256": "ff22d61606faf28d77b82762e370caa56a301853241f159b8a832541c567d200",
+      "combined_sha256": "ff22d61606faf28d77b82762e370caa56a301853241f159b8a832541c567d200",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/worker-ocr-repairs-01.txt",
+      "original_sha256": "ed252b43b0763debd21db00c83ad907a47d3ab422c60d75028b925eb65cc5980",
+      "combined_sha256": "ed252b43b0763debd21db00c83ad907a47d3ab422c60d75028b925eb65cc5980",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/feature-build-matrix.json",
+      "original_sha256": "89b42957b0f872fe4e3e74d6b4edf7c9b9a5ba6634daaccfc0fc08325367ae87",
+      "combined_sha256": "89b42957b0f872fe4e3e74d6b4edf7c9b9a5ba6634daaccfc0fc08325367ae87",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/integration-status.json",
+      "original_sha256": "755f63bcec1d825917edd303bf6870583fdd38741e124a141d59b711817f72ca",
+      "combined_sha256": "755f63bcec1d825917edd303bf6870583fdd38741e124a141d59b711817f72ca",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/query.md",
+      "original_sha256": "600a66f29c0be1d832904cb6af6d5f5cfb7f839ac011460df5ca918fe9c958d4",
+      "combined_sha256": "600a66f29c0be1d832904cb6af6d5f5cfb7f839ac011460df5ca918fe9c958d4",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/render-ocr.md",
+      "original_sha256": "819c8b83e94bf454a4b5fb4c1789e735ec9ee40c151e8faa9c28103b1f46f1e8",
+      "combined_sha256": "819c8b83e94bf454a4b5fb4c1789e735ec9ee40c151e8faa9c28103b1f46f1e8",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/security.md",
+      "original_sha256": "5255c3a2ee6f2f309e3ee71932692bd56ead728a85f66b133380cd3cd14e57d0",
+      "combined_sha256": "5255c3a2ee6f2f309e3ee71932692bd56ead728a85f66b133380cd3cd14e57d0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "docs/analysis/pdf-oxide-full-integration/source-inventory.json",
+      "original_sha256": "280a918aa664a91647d4eda36bfe536b03cef87f44ec6b461f2da70ecd0d98d6",
+      "combined_sha256": "280a918aa664a91647d4eda36bfe536b03cef87f44ec6b461f2da70ecd0d98d6",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/mod.rs",
+      "original_sha256": "407fb57be883dfcbf11417b4903eb554d8a71ece9253dd9375e9675cf9e2d03e",
+      "combined_sha256": "407fb57be883dfcbf11417b4903eb554d8a71ece9253dd9375e9675cf9e2d03e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/pdf_oxide_backend.rs",
+      "original_sha256": "d866146f2ca03f59f4cc275d30ed27a0e72e20f2299216e81b4ce2497cf69503",
+      "combined_sha256": "d866146f2ca03f59f4cc275d30ed27a0e72e20f2299216e81b4ce2497cf69503",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/pdf_oxide_content.rs",
+      "original_sha256": "fe625e75504ec6502aba9c87d00e0e7fa2487c1f15158596952a0e5f39608b56",
+      "combined_sha256": "fe625e75504ec6502aba9c87d00e0e7fa2487c1f15158596952a0e5f39608b56",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/pdf_oxide_images.rs",
+      "original_sha256": "3e83cdd13ad7b0d4bf84389738c390474eff394f08454a6e3dcf3e67cd3ec443",
+      "combined_sha256": "3e83cdd13ad7b0d4bf84389738c390474eff394f08454a6e3dcf3e67cd3ec443",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/pdf_oxide_resources.rs",
+      "original_sha256": "cd1a9fa97581fe7d55315552fa9d6c9214b25341a52554d59eed6264842ff881",
+      "combined_sha256": "cd1a9fa97581fe7d55315552fa9d6c9214b25341a52554d59eed6264842ff881",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/pdf_oxide_supplements.rs",
+      "original_sha256": "3e8fb25d7d353227046511900dda0cf44243d8fa75912e01a60ea6b4e1a8a815",
+      "combined_sha256": "3e8fb25d7d353227046511900dda0cf44243d8fa75912e01a60ea6b4e1a8a815",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/backend/routed_backend.rs",
+      "original_sha256": "17d98f6753ae121144487e6da5288210af0e0bb5c0b7b462b7eed356881165b0",
+      "combined_sha256": "17d98f6753ae121144487e6da5288210af0e0bb5c0b7b462b7eed356881165b0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/cli_worker/oxide.rs",
+      "original_sha256": "81c6ee70c4d1bf30a0c6d6dbd251567ebc08749f222d43e5c8b8b25181eed0e2",
+      "combined_sha256": "81c6ee70c4d1bf30a0c6d6dbd251567ebc08749f222d43e5c8b8b25181eed0e2",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/ledger.rs",
+      "original_sha256": "0033526c144069c72693ac3ea4469dc06e7575d0a6c551a8dc383d6903564430",
+      "combined_sha256": "0033526c144069c72693ac3ea4469dc06e7575d0a6c551a8dc383d6903564430",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/lib.rs",
+      "original_sha256": "afc76e20112b9e8b426b96c6e697ece5311b225f51b0a0769753cb3d8ce022af",
+      "combined_sha256": "afc76e20112b9e8b426b96c6e697ece5311b225f51b0a0769753cb3d8ce022af",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/convert.rs",
+      "original_sha256": "871ce1e74eb09b9855737e0d53e21a381fb2ae005324d6008f060dd303d59537",
+      "combined_sha256": "871ce1e74eb09b9855737e0d53e21a381fb2ae005324d6008f060dd303d59537",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/create.rs",
+      "original_sha256": "74e4fb83a1bb770e784fb69669166cdb9d4660dac5433778804882594045411c",
+      "combined_sha256": "74e4fb83a1bb770e784fb69669166cdb9d4660dac5433778804882594045411c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/edit.rs",
+      "original_sha256": "f2159b9a8f6a8797a9b3450926eda266edd72c4b680c81a18dda7db51eac244a",
+      "combined_sha256": "f2159b9a8f6a8797a9b3450926eda266edd72c4b680c81a18dda7db51eac244a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/flatten.rs",
+      "original_sha256": "0cb98a7a24080fb2ec01dc908508ec33d9fec084a7e0e623204613297302df94",
+      "combined_sha256": "0cb98a7a24080fb2ec01dc908508ec33d9fec084a7e0e623204613297302df94",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/forms.rs",
+      "original_sha256": "c9f6c91a9aab4444e234ab82e52063375cce9972203ea3e70f3822683918dd43",
+      "combined_sha256": "c9f6c91a9aab4444e234ab82e52063375cce9972203ea3e70f3822683918dd43",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/mod.rs",
+      "original_sha256": "634bc785f7de35e2012efd53c2a31a4f60b6dd22159251845fa541c9a2ba9e81",
+      "combined_sha256": "634bc785f7de35e2012efd53c2a31a4f60b6dd22159251845fa541c9a2ba9e81",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/ocr.rs",
+      "original_sha256": "5158c30726394f62e122ab1e291d68b9c37909f62e2745b749c23c5443919786",
+      "combined_sha256": "5158c30726394f62e122ab1e291d68b9c37909f62e2745b749c23c5443919786",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/office.rs",
+      "original_sha256": "2244faf534343cfdd2b28fd56088bf5de77fc441451b3e21749a391b6cf5a9f1",
+      "combined_sha256": "2244faf534343cfdd2b28fd56088bf5de77fc441451b3e21749a391b6cf5a9f1",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/query.rs",
+      "original_sha256": "1da87d57214dda260b6ebede42659a856082c78fdaece506a9f8e29f86bcf37a",
+      "combined_sha256": "1da87d57214dda260b6ebede42659a856082c78fdaece506a9f8e29f86bcf37a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/render.rs",
+      "original_sha256": "09f68f9735f84823dcaf082bc664a71bad3c4172ace1b2e47b59efa092567f72",
+      "combined_sha256": "09f68f9735f84823dcaf082bc664a71bad3c4172ace1b2e47b59efa092567f72",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/oxide/security.rs",
+      "original_sha256": "3795aa0a49ce39a090b3668539e719bee9f36324c8b360cb6c5e4f257771e51d",
+      "combined_sha256": "3795aa0a49ce39a090b3668539e719bee9f36324c8b360cb6c5e4f257771e51d",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/pipeline.rs",
+      "original_sha256": "77eec44554b57491d4e5c3d43697fb42532a8621e63488386a73eed6d7581b52",
+      "combined_sha256": "77eec44554b57491d4e5c3d43697fb42532a8621e63488386a73eed6d7581b52",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "src/schema.rs",
+      "original_sha256": "1296963410fa6b6dc4b5fda5d57af02744a8b83d0471042e1d342805729ffc76",
+      "combined_sha256": "1296963410fa6b6dc4b5fda5d57af02744a8b83d0471042e1d342805729ffc76",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_containment.rs",
+      "original_sha256": "cd1aa2d510333c6292582c2e1b604c586615228d94e79a9e4d908bbc09db5e71",
+      "combined_sha256": "cd1aa2d510333c6292582c2e1b604c586615228d94e79a9e4d908bbc09db5e71",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_convert.rs",
+      "original_sha256": "7e12359790e4c27314009ce67594855674df260c6f82dca45e73a75db648245e",
+      "combined_sha256": "7e12359790e4c27314009ce67594855674df260c6f82dca45e73a75db648245e",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_create_office.rs",
+      "original_sha256": "3bd18725890d7bad0f67901a2c9385d442251fb9511d67cffce2b545a86b9414",
+      "combined_sha256": "3bd18725890d7bad0f67901a2c9385d442251fb9511d67cffce2b545a86b9414",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_edit_forms.rs",
+      "original_sha256": "cdac96b7ba6730976d7ba16fa6049742a90631ceb6cc0744e91f1d4ce2e4cb31",
+      "combined_sha256": "cdac96b7ba6730976d7ba16fa6049742a90631ceb6cc0744e91f1d4ce2e4cb31",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_query.rs",
+      "original_sha256": "7abcc5c822d7c997bb23f53a682d4289bf1ed3fdc7b20d35b1cb0e0061129a33",
+      "combined_sha256": "7abcc5c822d7c997bb23f53a682d4289bf1ed3fdc7b20d35b1cb0e0061129a33",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_render_ocr.rs",
+      "original_sha256": "182c37281714838f8087dd85d99f1b3d8a4523653c7935bb6a1a6955ba7c85a5",
+      "combined_sha256": "182c37281714838f8087dd85d99f1b3d8a4523653c7935bb6a1a6955ba7c85a5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_security.rs",
+      "original_sha256": "dc5b1d8cded5b060abdf835fb62000e1b02ab12c59e791b20b4dfc99ea55b16c",
+      "combined_sha256": "dc5b1d8cded5b060abdf835fb62000e1b02ab12c59e791b20b4dfc99ea55b16c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_supplements.rs",
+      "original_sha256": "654459d7690ab8dc331a90d51d83b0f37dd6063d28909b2eb1833cbe4b98ddf7",
+      "combined_sha256": "654459d7690ab8dc331a90d51d83b0f37dd6063d28909b2eb1833cbe4b98ddf7",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_transport.rs",
+      "original_sha256": "53a97aedef8015fa17aa7a23b07bcadc77689c4e5714c864601379fec8f51ed3",
+      "combined_sha256": "53a97aedef8015fa17aa7a23b07bcadc77689c4e5714c864601379fec8f51ed3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/oxide_worker.rs",
+      "original_sha256": "b78c8e018d68564d3431fd4dea120ae61c9f436b1930bb674ea3afb207e849c0",
+      "combined_sha256": "b78c8e018d68564d3431fd4dea120ae61c9f436b1930bb674ea3afb207e849c0",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "tests/pdf_oxide_backend.rs",
+      "original_sha256": "c7160d92077a5a5b81d910a864dfb91e34074ff09be0468a3db6ba2e1293d93c",
+      "combined_sha256": "c7160d92077a5a5b81d910a864dfb91e34074ff09be0468a3db6ba2e1293d93c",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/ammonia/LICENSE-APACHE",
+      "original_sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+      "combined_sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/ammonia/LICENSE-MIT",
+      "original_sha256": "6ced8d1b9d96dae227bb1b31876359bbd089d8c18378e4e42eb45b84f29e9ae9",
+      "combined_sha256": "6ced8d1b9d96dae227bb1b31876359bbd089d8c18378e4e42eb45b84f29e9ae9",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/office_oxide/LICENSE-APACHE",
+      "original_sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "combined_sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/office_oxide/LICENSE-MIT",
+      "original_sha256": "9816cc65c1271b7193fa418d709ac43dda8a1b59b4b82c9f870b7f419a2ae0d5",
+      "combined_sha256": "9816cc65c1271b7193fa418d709ac43dda8a1b59b4b82c9f870b7f419a2ae0d5",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/office_oxide/NOTICE",
+      "original_sha256": "4559aeb03286b9ffa85de4303edd8d46ceac6d80c6e5e6b31eadf331f2a870ff",
+      "combined_sha256": "4559aeb03286b9ffa85de4303edd8d46ceac6d80c6e5e6b31eadf331f2a870ff",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/pdf_oxide/LICENSE-APACHE",
+      "original_sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "combined_sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/pdf_oxide/LICENSE-DejaVu",
+      "original_sha256": "a56b293d91356f5cad310a5f65c2da8ef459e1b23dd3f662228d5f23b8bb9946",
+      "combined_sha256": "a56b293d91356f5cad310a5f65c2da8ef459e1b23dd3f662228d5f23b8bb9946",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/pdf_oxide/LICENSE-MIT",
+      "original_sha256": "33409f3fd68d9e95a48c751757782f468bb5c183f241d26bd1028678faa0baa3",
+      "combined_sha256": "33409f3fd68d9e95a48c751757782f468bb5c183f241d26bd1028678faa0baa3",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/pdf_oxide/LICENSE-fallback-fonts",
+      "original_sha256": "5adcc08a77145a2569fd056e6cb7133420fa04b2a7ef35ccab6bdad9c097cc69",
+      "combined_sha256": "5adcc08a77145a2569fd056e6cb7133420fa04b2a7ef35ccab6bdad9c097cc69",
+      "unchanged": true
+    },
+    {
+      "origin": "native",
+      "path": "third_party/pdf_oxide/NOTICE",
+      "original_sha256": "a914e104fc9e195ab15594a89546192b66114d6dc8e9052771a26f9a91dd537c",
+      "combined_sha256": "a914e104fc9e195ab15594a89546192b66114d6dc8e9052771a26f9a91dd537c",
+      "unchanged": true
+    }
+  ],
+  "invariants": [
+    {
+      "path": "LICENSE",
+      "reference_commit": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "sha256": "57411afebd084482658b294bc643db7f93b32a01d5215492f96a149fa5f92e78",
+      "unchanged": true
+    },
+    {
+      "path": "crates/tpe-ffi/src/provider.rs",
+      "reference_commit": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "sha256": "81d89389a71aa4ca0da5a53a33be6cb29cfe3f8fe3bf4125648a931b3ce1fabf",
+      "unchanged": true
+    },
+    {
+      "path": "native/reviewed-partials.json",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+      "unchanged": true
+    },
+    {
+      "path": "native/validate_eval.py",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+      "unchanged": true
+    },
+    {
+      "path": "native/manifest.json",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+      "unchanged": true
+    },
+    {
+      "path": "Cargo.lock",
+      "reference_commit": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/app.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "700b4dbad8765647accb9b8999cb0d8b560f35e9668d8e6b9518514a3566817c",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/auto-release.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "5e3607c0e4ef868fd20ef7b9f7f0ab8da2fd369e193183196c7860848764c289",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/build-binaries.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ee1dc80026e0f487546623f351984e56b4c5d616f10a07cf3dd19fd37e27966b",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "64d0cdc2363890411a0810a674a1389331c581c8bade8e2f296179abc91a7a56",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/codeql.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0bb9fe8b1ef784ff3c9a3370c4e25074d9f8513c6bb593ba3f05c7617a89505c",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/eval.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ceb574d1dd71aab003c804a07fa833c9c421f961fe63d13be0fd203d67459954",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/install-check.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "9bd9f987fd3aa86a59a4252a7a72bc3cb41394fd7f3139f13398f39e1b675967",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native-bibliography-evidence.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "278968707b05bd459261606ae2318873e38baf52eae3743c401805234df035c0",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native-repair-checks.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "48ba1a6e4ae19e75eb7805a6cc1f26fac01b541a0b5d251cd1adce866203bf11",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ef50218913bcf16f1f91bfbb4076bc5feb3652fcd04fd870a9519549e7246493",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/pdfium-probe.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "e7beae61321a43162a562e0653ff2e26f8f552fd64d26e2fee72c56d8e202f22",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/pmc-bibliography.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "155a4acfc9cba1545899530ca6706d3cffdc70e06ffe9418d50268e7ff8de965",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/poppler-compare.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "15dfc652fa1b795277ced2d6ff95557211273097d23bb890e0045c97ba51ce87",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/registry-accuracy.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "64e31bdb2890da20e4508bc976afc1df065b519b9393bf8453a227de7cce2007",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "5b3ddb3fc7fb0dd62af43f1015c97970c1826ccc7bed89a7f945d43b32bbc7ab",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/web.yml",
+      "reference_commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "cf646babe38ed8404fb5043546fd83aa0f467a458bbf9f71621b3578702ad316",
+      "unchanged": true
+    }
+  ],
+  "all_disjoint_sources_preserved": true,
+  "all_invariants_preserved": true,
+  "cache_cleanup": "Removed only /workspace/pdftextract/target/debug/incremental (8.6 GiB rebuildable Cargo cache), with no build running; all source/evidence/binary files retained."
+}

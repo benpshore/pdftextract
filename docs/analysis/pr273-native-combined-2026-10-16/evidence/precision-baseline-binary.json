@@ -1,0 +1,7 @@
+{
+  "scope": "Preserved dirty test-addition baseline binary; not an exact clean qualification. The direct-library counterexamples are tied to ad9fd753 plus the preserved baseline test patch.",
+  "binary": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-baseline01/tpe",
+  "sha256": "cc3c065ec527aca99043833742fdb428faa09143a5d16e243abe47b2cb3703db",
+  "version": "tpe git-ad9fd75-dirty",
+  "baseline_patch_sha256": "193e28793893706643a008a083be10eb19addf66d49ec6faaaadd2a9f13a1d34"
+}

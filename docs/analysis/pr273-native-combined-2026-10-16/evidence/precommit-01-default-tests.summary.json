@@ -1,0 +1,587 @@
+{
+  "log": "/workspace/tpe-combined-integration-evidence-20261016/precommit-01/default-tests.log",
+  "top_level": {
+    "passed": 1139,
+    "failed": 0,
+    "ignored": 12
+  },
+  "nested": {
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  "groups": [
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe-b96978ba85c414e2)",
+      "summaries": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 759,
+          "failed": 0,
+          "ignored": 7
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/main.rs (/workspace/pdftextract/target/debug/deps/tpe-3e189b3c40b6f430)",
+      "summaries": [
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 1,
+          "failed": 0,
+          "ignored": 0
+        },
+        {
+          "passed": 14,
+          "failed": 0,
+          "ignored": 2
+        }
+      ]
+    },
+    {
+      "target": "Running tests/bibliography_column_headings.rs (/workspace/pdftextract/target/debug/deps/bibliography_column_headings-95e9e6dc4f03aba5)",
+      "summaries": [
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/bibliography_input_safety.rs (/workspace/pdftextract/target/debug/deps/bibliography_input_safety-3d28d2ede44bd844)",
+      "summaries": [
+        {
+          "passed": 7,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/build_identity.rs (/workspace/pdftextract/target/debug/deps/build_identity-b3e67f87a9d7c847)",
+      "summaries": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/cli_containment.rs (/workspace/pdftextract/target/debug/deps/cli_containment-6404d185e611b101)",
+      "summaries": [
+        {
+          "passed": 18,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/cli_dry_run.rs (/workspace/pdftextract/target/debug/deps/cli_dry_run-358f8f38f995c999)",
+      "summaries": [
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/docling_text.rs (/workspace/pdftextract/target/debug/deps/docling_text-1baabec03c035321)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/end_to_end.rs (/workspace/pdftextract/target/debug/deps/end_to_end-f6ee9cf153fd98c8)",
+      "summaries": [
+        {
+          "passed": 14,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/eval_cli.rs (/workspace/pdftextract/target/debug/deps/eval_cli-6d3adb271ff06f33)",
+      "summaries": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/grobid_contract.rs (/workspace/pdftextract/target/debug/deps/grobid_contract-f919a4a95edb22ce)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/layout_real_corpus.rs (/workspace/pdftextract/target/debug/deps/layout_real_corpus-1d629a29af567244)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 1
+        }
+      ]
+    },
+    {
+      "target": "Running tests/liteparse_layout.rs (/workspace/pdftextract/target/debug/deps/liteparse_layout-6d0795652f414b1b)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/lopdf_unicode_status.rs (/workspace/pdftextract/target/debug/deps/lopdf_unicode_status-7069d53c30d2479c)",
+      "summaries": [
+        {
+          "passed": 5,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/native_provider.rs (/workspace/pdftextract/target/debug/deps/native_provider-2aa746caa9753427)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_convert.rs (/workspace/pdftextract/target/debug/deps/oxide_convert-eed22ae9aeb51f31)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_create_office.rs (/workspace/pdftextract/target/debug/deps/oxide_create_office-bbe681412d563840)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-e94e672cd678182a)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_query.rs (/workspace/pdftextract/target/debug/deps/oxide_query-e57fd70306ecf99b)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_render_ocr.rs (/workspace/pdftextract/target/debug/deps/oxide_render_ocr-0b9d85d5f065f415)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-7d7f955436d2837c)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_supplements.rs (/workspace/pdftextract/target/debug/deps/oxide_supplements-62097ae7d9cda157)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_transport.rs (/workspace/pdftextract/target/debug/deps/oxide_transport-7f5f854eaa6e5770)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-5f017fe5195ba5ea)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/pdf_extract_cff.rs (/workspace/pdftextract/target/debug/deps/pdf_extract_cff-db7672f4e05e5769)",
+      "summaries": [
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/pdf_oxide_backend.rs (/workspace/pdftextract/target/debug/deps/pdf_oxide_backend-fe65d82b11198d30)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/pdfium_hyphens.rs (/workspace/pdftextract/target/debug/deps/pdfium_hyphens-1500bf757e450f31)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/pdfium_paragraph_regions.rs (/workspace/pdftextract/target/debug/deps/pdfium_paragraph_regions-b9312eaa40e4d7ca)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/pdfium_unicode.rs (/workspace/pdftextract/target/debug/deps/pdfium_unicode-81b524359c6a7ebe)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/reading_order_columns.rs (/workspace/pdftextract/target/debug/deps/reading_order_columns-ad4122f546ced72d)",
+      "summaries": [
+        {
+          "passed": 3,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/resource_outcomes.rs (/workspace/pdftextract/target/debug/deps/resource_outcomes-8c1252755c2ce646)",
+      "summaries": [
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/scanned_fixture.rs (/workspace/pdftextract/target/debug/deps/scanned_fixture-b939c7bc8cd1b5d9)",
+      "summaries": [
+        {
+          "passed": 6,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running tests/worker_startup.rs (/workspace/pdftextract/target/debug/deps/worker_startup-5bbf927a4f2cb9a4)",
+      "summaries": [
+        {
+          "passed": 2,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_app-b8e32ff4e8a7ef65)",
+      "summaries": [
+        {
+          "passed": 40,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/main.rs (/workspace/pdftextract/target/debug/deps/tpe_app-2252f42246b347e4)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_biblio-604eb150a57c3281)",
+      "summaries": [
+        {
+          "passed": 49,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_browser-e2f43f6b2a9783ca)",
+      "summaries": [
+        {
+          "passed": 81,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_common-e990d351710526a2)",
+      "summaries": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_credentials-c4d8e7b01e8a0a02)",
+      "summaries": [
+        {
+          "passed": 25,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_ffi-68a89aa69bc59efd)",
+      "summaries": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 1
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_search-f4b25d8d9cf8be94)",
+      "summaries": [
+        {
+          "passed": 31,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/bin/tpe-search.rs (/workspace/pdftextract/target/debug/deps/tpe_search-bc99aa9f3eb8076e)",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_speech-7e8c35bf5ed76046)",
+      "summaries": [
+        {
+          "passed": 21,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/bin/tpe-speak.rs (/workspace/pdftextract/target/debug/deps/tpe_speak-c3af8e38b6497593)",
+      "summaries": [
+        {
+          "passed": 4,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_zotero-95f6c5c6003bedbf)",
+      "summaries": [
+        {
+          "passed": 35,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_app",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_biblio",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_browser",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_common",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_credentials",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_ffi",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 1
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_search",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_speech",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    },
+    {
+      "target": "Doc-tests tpe_zotero",
+      "summaries": [
+        {
+          "passed": 0,
+          "failed": 0,
+          "ignored": 0
+        }
+      ]
+    }
+  ],
+  "bounded_custom_harness": false,
+  "landlock_unavailable": false
+}

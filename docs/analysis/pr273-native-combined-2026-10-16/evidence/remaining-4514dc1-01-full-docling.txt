@@ -1,0 +1,24 @@
+    Checking aho-corasick v1.1.5
+    Checking itertools v0.12.1
+    Checking regex-automata v0.4.18
+    Checking av-scenechange v0.14.1
+    Checking rav1e v0.8.1
+    Checking regex v1.13.1
+    Checking scan_fmt v0.2.6
+    Checking tract-data v0.22.5
+   Compiling darling_core v0.20.11
+    Checking liquid-core v0.26.11
+   Compiling darling_macro v0.20.11
+    Checking ravif v0.13.0
+    Checking tract-linalg v0.22.5
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-common)
+    Checking image v0.25.10
+    Checking tract-core v0.22.5
+    Checking liquid-lib v0.26.11
+   Compiling darling v0.20.11
+   Compiling derive_builder_core v0.20.2
+    Checking liquid v0.26.11
+   Compiling ort-sys v2.0.0-rc.13
+error: ort-sys@2.0.0-rc.13: ort-sys failed to download prebuilt binaries from `https://cdn.pyke.io/0/pyke:ort-rs/ms@1.28.0/x86_64-unknown-linux-gnu.tar.lzma2`: CONNECT proxy failed: proxy server responded 403/403
+error: build script logged errors
+warning: build failed, waiting for other jobs to finish...

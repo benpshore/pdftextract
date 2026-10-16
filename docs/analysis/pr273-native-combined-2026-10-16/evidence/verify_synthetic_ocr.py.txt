@@ -1,0 +1,59 @@
+"""Repeat the frozen offline graph control against an exact checkpoint binary."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+binary = Path(sys.argv[1]).resolve()
+destination = Path(sys.argv[2]).resolve()
+destination.mkdir(parents=True, exist_ok=False)
+source = Path('/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001')
+request = source/'request.json'
+inputs = json.loads(request.read_text())['inputs']
+before = [sha(path) for path in inputs]
+captures = destination/'captures'
+captures.mkdir()
+command = ['prlimit','--as=2147483648','--core=0','--','timeout','-k','2','15',str(binary),
+           'oxide','--request',str(request),'--timeout-ms','5000',
+           '--max-memory-growth-mib','256','--max-output-bytes','1048576']
+started = time.monotonic()
+with (destination/'response.json').open('wb') as output, (destination/'stderr.txt').open('wb') as errors:
+    result = subprocess.run(command, stdout=output, stderr=errors, timeout=20, check=False,
+                            env={**os.environ,'TMPDIR':str(captures),'TMP':str(captures)})
+receipt = {'scope':'synthetic offline plumbing only; graphs ignore image content and do not establish OCR accuracy',
+           'git_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+           'git_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+           'git_status':subprocess.check_output(['git','status','--porcelain'],text=True),
+           'binary':str(binary),'binary_sha256':sha(binary),'request_sha256':sha(request),
+           'command':command,'exit_code':result.returncode,'elapsed_seconds':round(time.monotonic()-started,3),
+           'source_hashes_before':before,'source_hashes_after':[sha(path) for path in inputs],
+           'response_sha256':sha(destination/'response.json'),'stderr_sha256':sha(destination/'stderr.txt'),
+           'captures_clean':not any(captures.iterdir())}
+checks = {}
+if result.returncode == 0:
+    value = json.loads((destination/'response.json').read_bytes())
+    data = value['output']['data']
+    images = data['pages'][0]['images']
+    checks = {
+        'all_input_digests_preserved':[item['sha256'] for item in value['sources']] == before == receipt['source_hashes_after'],
+        'actual_sealed_worker':value['containment']['mode']=='seccomp_sealed' and all(value['containment'][key] for key in ['filesystem_enforced','network_enforced','process_enforced','seccomp_tsync']),
+        'two_image_placements':len(images)==2 and images[0]['pdf_bbox']!=images[1]['pdf_bbox'],
+        'deterministic_AB':all(image['spans'][0]['text']=='AB' and len(image['spans'][0]['character_confidences'])==2 for image in images),
+        'bounded_pixels':data['processed_pixels']==10056 and data['processed_pixels']<=16384,
+        'partial_and_no_native_replacement':data['status']=='partial' and data['native_text_replaced'] is False,
+        'no_artifacts':not value['output']['artifacts'] and not value['output_paths'],
+        'actual_build_provenance':'dirty' not in value['producer']['build_version'],
+    }
+    receipt['producer'] = value['producer']
+    receipt['containment'] = value['containment']
+receipt['checks'] = checks
+receipt['passed'] = result.returncode==0 and all(checks.values()) and receipt['captures_clean']
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'checks':checks,'receipt':str(destination/'receipt.json')}))
+sys.exit(0 if receipt['passed'] else 1)

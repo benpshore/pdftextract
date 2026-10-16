@@ -1,0 +1,11 @@
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-common)
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-biblio)
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-ffi)
+    Checking tpe-search v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-search)
+    Checking tpe-speech v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-speech)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-app)
+    Checking tpe-credentials v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-credentials)
+    Checking tpe-zotero v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-zotero)
+    Checking tpe-browser v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-browser)
+    Finished `dev` profile [unoptimized] target(s) in 10.16s

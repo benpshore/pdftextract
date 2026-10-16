@@ -1,0 +1,3 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-app)
+    Finished `dev` profile [unoptimized] target(s) in 13.41s

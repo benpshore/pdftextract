@@ -1,0 +1,78 @@
+{
+  "scope": "synthetic offline plumbing only; graphs ignore image content and do not establish OCR accuracy",
+  "git_commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "git_tree": "36fe1e2bf4536bcac48f33c2563ab91957292d30",
+  "git_status": "",
+  "binary": "/workspace/tpe-combined-integration-evidence-20261016/exact-4514dc1-01/tpe",
+  "binary_sha256": "03c2fa604500e1db468f0c0734f1cd21d24506b05defe0a8874aaaeafb630ccf",
+  "request_sha256": "666719e504c145d249ed6968f835efebc244ebed97c6f281664fae43672bd0b9",
+  "command": [
+    "prlimit",
+    "--as=2147483648",
+    "--core=0",
+    "--",
+    "timeout",
+    "-k",
+    "2",
+    "15",
+    "/workspace/tpe-combined-integration-evidence-20261016/exact-4514dc1-01/tpe",
+    "oxide",
+    "--request",
+    "/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001/request.json",
+    "--timeout-ms",
+    "5000",
+    "--max-memory-growth-mib",
+    "256",
+    "--max-output-bytes",
+    "1048576"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.388,
+  "source_hashes_before": [
+    "1ec12b3c4b4bc0edc73b97bafa9ed9a1c821c3e0e471878e6403315e605406a9",
+    "bed0053500b4baa547edcfd33b5a883900af3672b7cfa4774b8c1592606329eb",
+    "0a737cf761860205b4166e18e43c3f8efb017d446ba5607e79e224b54d98b0ef",
+    "bd676a03dc63a907a114d5d4c1fb5b157187035b567a70bfe26cfdeb8fb6daa5"
+  ],
+  "source_hashes_after": [
+    "1ec12b3c4b4bc0edc73b97bafa9ed9a1c821c3e0e471878e6403315e605406a9",
+    "bed0053500b4baa547edcfd33b5a883900af3672b7cfa4774b8c1592606329eb",
+    "0a737cf761860205b4166e18e43c3f8efb017d446ba5607e79e224b54d98b0ef",
+    "bd676a03dc63a907a114d5d4c1fb5b157187035b567a70bfe26cfdeb8fb6daa5"
+  ],
+  "response_sha256": "8590abaff314b18861096ced12b9736ec5b12a9707a9c76b67f23b25fa9d0e84",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "captures_clean": true,
+  "producer": {
+    "name": "text-processing-engine",
+    "build_version": "git-4514dc1",
+    "dependencies": {
+      "pdf_oxide": "0.3.78",
+      "office_oxide": "0.1.9",
+      "lopdf": "0.45.0",
+      "ammonia": "4.1.2"
+    },
+    "qualification": "build identity and pinned versions; not a signed attestation or fidelity guarantee"
+  },
+  "containment": {
+    "mode": "seccomp_sealed",
+    "landlock_abi": null,
+    "filesystem_enforced": true,
+    "network_enforced": true,
+    "process_enforced": true,
+    "seccomp_tsync": true,
+    "read_only_paths": 0,
+    "scope": "operation worker only; controller and atomic publisher retain their authorized file access"
+  },
+  "checks": {
+    "all_input_digests_preserved": true,
+    "actual_sealed_worker": true,
+    "two_image_placements": true,
+    "deterministic_AB": true,
+    "bounded_pixels": true,
+    "partial_and_no_native_replacement": true,
+    "no_artifacts": true,
+    "actual_build_provenance": true
+  },
+  "passed": true
+}

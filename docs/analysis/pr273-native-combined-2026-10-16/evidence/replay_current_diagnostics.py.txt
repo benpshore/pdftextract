@@ -1,0 +1,73 @@
+"""Bounded synthetic CLI replay; never real corpus or extraction evidence."""
+import copy
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+root = Path('/workspace/pdftextract-combined-recovery')
+out = Path('/workspace/tpe-combined-integration-evidence-20261016/current-diagnostics-4514dc1')
+out.mkdir(exist_ok=False)
+spec = importlib.util.spec_from_file_location('fixture_helpers', root / 'tests/test_validate_eval.py')
+helpers = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helpers)
+validator = helpers.MODULE
+manifest, report, policy, provenance = helpers.reviewed_inputs(helpers.inputs.__wrapped__())
+for item in manifest['items']:
+    for field in ('pdf_sha256', 'source_sha256'):
+        item[field] = hashlib.sha256(f'synthetic {field} {item["id"]}'.encode()).hexdigest()
+selected = {item['id']: {key: item[key] for key in ('pdf_sha256', 'source_sha256')} for item in manifest['items'] if item['split'] == 'dev'}
+provenance['paper_inputs'] = selected
+policy['papers']['pdfium']['a']['inputs'] = selected['a']
+manifest_path = out / 'manifest.json'
+manifest_path.write_text(json.dumps(manifest, indent=2)+'\n')
+current = validator.source_provenance(root, manifest_path)
+historical_bytes = (root / 'native/reviewed-partials.json').read_bytes()
+historical = json.loads(historical_bytes)
+policy['provenance_pins'] = {key: value for key, value in current.items() if key != 'git_commit'}
+for field in ('native_manifest_sha256', 'cargo_lock_sha256'):
+    policy['provenance_pins'][field] = historical['provenance_pins'][field]
+provenance.update(current)
+results=[]
+for kind in ('partial', 'complete', 'wrong-source'):
+    case = out / kind
+    case.mkdir(exist_ok=True)
+    (case / 'dumps').mkdir(exist_ok=True)
+    papers = copy.deepcopy(report)
+    source = copy.deepcopy(provenance)
+    if kind == 'complete':
+        papers['papers'][0].update(status='complete', warnings=0)
+    if kind == 'wrong-source':
+        source['git_commit']='0'*40
+    dumps = helpers.retained_dumps(papers)
+    if kind != 'complete':
+        outcome = policy['papers']['pdfium']['a']
+        dumps['a'].update(warnings=outcome['warnings'], page_warnings=outcome['resource_page_warnings'])
+    for paper_id, dump in dumps.items():
+        (case / 'dumps' / f'{paper_id}.json').write_text(json.dumps(dump)+'\n')
+    for name, value in [('policy',policy),('report',papers),('provenance',source)]:
+        (case / f'{name}.json').write_text(json.dumps(value,indent=2)+'\n')
+    command=[sys.executable, str(root/'native/validate_eval.py'), '--manifest', str(manifest_path), '--report', str(case/'report.json'), '--reviewed-partials', str(case/'policy.json'), '--provenance', str(case/'provenance.json'), '--dumps', str(case/'dumps'), '--backend','pdfium','--split','dev','--source-root',str(root),'--diagnostics-json',str(case/'validation.json')]
+    child=subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=15)
+    assert child.returncode == 1, (kind,child.returncode,child.stdout,child.stderr)
+    (case/'stderr.txt').write_text(child.stderr)
+    result={'kind':kind,'exit_code':child.returncode,'stderr':child.stderr}
+    if kind == 'wrong-source':
+        assert 'current-source provenance mismatch: git_commit' in child.stderr
+        assert not (case/'validation.json').exists()
+    else:
+        diagnostics=json.loads((case/'validation.json').read_text())
+        assert diagnostics['source_provenance']['git_commit'] == current['git_commit']
+        assert diagnostics['historical_exceptions_applied'] == 0
+        assert diagnostics['historical_eligibility_errors'] == ['reviewed-partial provenance mismatch: native_manifest_sha256']
+        assert diagnostics['retained_baselines'] == ['a']
+        assert diagnostics['dump_errors'] == []
+        assert diagnostics['strict_current_errors'] == ([] if kind == 'complete' else ["incomplete paper a: status 'partial'"])
+        result['diagnostics']=diagnostics
+    results.append(result)
+assert (root/'native/reviewed-partials.json').read_bytes() == historical_bytes
+summary={'scope':'Synthetic fixture replay of real CLI/current clean checkout. No real artifact/corpus revalidation.', 'source': current['git_commit'], 'policy_file_unchanged_sha256': hashlib.sha256(historical_bytes).hexdigest(), 'cases': results}
+(out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+print(json.dumps({'source':current['git_commit'], 'expected_rejections_verified':len(results),'historical_policy_unchanged':True}))

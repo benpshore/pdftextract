@@ -1,0 +1,189 @@
+{
+  "scope": "Independent Poppler controls for missing external Link borders despite matching appearance corners. No broad flattening qualification.",
+  "cases": [
+    {
+      "name": "flatten-link-border-Border",
+      "render_changed": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-Border-source.pdf",
+          "pdf_sha256": "c97af867b3f24ef0bdfa263cff032da9e013498650f02d084a1f5ab74fee15b7",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-Border-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-Border-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-Border-source.png",
+          "png_sha256": "7e56b6f055c4a4ae7ed125d06522f89f5c230f234812beea785f3aafc2334b42"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-Border-upstream.pdf",
+          "pdf_sha256": "fb60b4a985e0a2a61fff0523058b53bddb0a76bb07eaaeb2b89284eb719a45dd",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-Border-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-Border-upstream"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-Border-upstream.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-link-border-default",
+      "render_changed": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-default-source.pdf",
+          "pdf_sha256": "8749255d34b4bb862045631be329828c29168c58274aafed33d45b80b0ff47e2",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-default-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-default-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-default-source.png",
+          "png_sha256": "7e56b6f055c4a4ae7ed125d06522f89f5c230f234812beea785f3aafc2334b42"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-default-upstream.pdf",
+          "pdf_sha256": "8e6f83f71194ecdbb72d39a1c7cddb39b86aa58065a7f777884d9662375ea3d6",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-default-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-default-upstream"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-default-upstream.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-link-border-BS",
+      "render_changed": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-BS-source.pdf",
+          "pdf_sha256": "97f5ff308a2a7bd4bdd4fe0927a6f5441c64b08318de2e2d36ec043b8559ad3d",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-BS-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-BS-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-BS-source.png",
+          "png_sha256": "7e56b6f055c4a4ae7ed125d06522f89f5c230f234812beea785f3aafc2334b42"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-BS-upstream.pdf",
+          "pdf_sha256": "b5f42405b2664a4296d1a3bc9641203ae834da5be700bd2bc23c72b79a5f777d",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-link-border-BS-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-BS-upstream"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-border-poppler01/flatten-link-border-BS-upstream.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true
+}

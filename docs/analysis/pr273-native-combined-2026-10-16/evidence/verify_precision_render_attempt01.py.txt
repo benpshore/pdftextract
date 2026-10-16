@@ -1,0 +1,30 @@
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+source=Path('/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-baseline01')
+out=Path(sys.argv[1]).resolve();out.mkdir(exist_ok=False)
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+receipt={'scope':'Independent first-page Poppler render comparisons of eight bounded synthetic precision fixtures; no general rendering or flattening qualification.',
+         'renderer':subprocess.run(['pdftoppm','-v'],capture_output=True,text=True,check=False).stderr.strip(),'cases':[]}
+for kind in ['annotation','form']:
+    for case in ['zero-scale','nonzero-rounding','tiny-exact','ordinary']:
+        name=f'flatten-precision-{kind}-{case}'
+        expected_same=case in ['tiny-exact','ordinary']
+        files=[source/(name+'-source.pdf'),source/(name+('-control.pdf' if expected_same else '-upstream.pdf'))]
+        images=[];rows=[]
+        for label,path in zip(['source','derivative'],files):
+            prefix=out/(name+'-'+label)
+            command=['prlimit','--as=1073741824','--core=0','--','timeout','-k','2','15','pdftoppm','-f','1','-singlefile','-r','96','-png',str(path),str(prefix)]
+            result=subprocess.run(command,capture_output=True,check=False,timeout=20)
+            png=prefix.with_suffix('.png')
+            rows.append({'pdf':str(path),'pdf_sha256':sha(path),'command':command,'exit_code':result.returncode,'stderr':result.stderr.decode(errors='replace'),'png':str(png),'png_sha256':sha(png) if png.exists() else None})
+            images.append(rows[-1]['png_sha256'])
+        matched=images[0]==images[1]
+        receipt['cases'].append({'name':name,'expected_same':expected_same,'matched':matched,'renders':rows,'passed':all(row['exit_code']==0 for row in rows) and matched==expected_same})
+receipt['passed']=all(row['passed'] for row in receipt['cases'])
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'cases':[{k:row[k] for k in ['name','matched','expected_same','passed']} for row in receipt['cases']]}))
+sys.exit(0 if receipt['passed'] else 1)

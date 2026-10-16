@@ -1,0 +1,84 @@
+"""Bounded checks; exact mode requires an immutable clean source checkpoint."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+parser = argparse.ArgumentParser()
+parser.add_argument('phase', choices=['precommit', 'exact', 'platform'])
+parser.add_argument('destination', type=Path)
+args = parser.parse_args()
+destination = args.destination.resolve()
+destination.mkdir(parents=True, exist_ok=False)
+
+def git(*argv):
+    return subprocess.check_output(['git', *argv], text=True).strip()
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+features = 'pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr,docling-text,pdfium,pdf-extract,grobid'
+receipt = {'phase': args.phase, 'source_commit': git('rev-parse','HEAD'),
+           'source_tree': git('rev-parse','HEAD^{tree}'),
+           'git_status_before': git('status','--porcelain'),
+           'python': sys.version, 'rust': subprocess.check_output(['rustc','--version'],text=True).strip(),
+           'features': features, 'checks': [],
+           'scope': 'Bounded Linux x86_64 repository/tooling verification; no Python engine/API parity, ARM64 qualification, extraction accuracy or broad safety claim.'}
+if args.phase == 'exact':
+    assert not receipt['git_status_before'], 'exact-source tests require clean tree'
+if args.phase == 'platform':
+    commands = [
+        ('audit', ['uv','audit','--preview-features','audit-command']),
+        ('swift-build', ['swift','build']), ('swift-test', ['swift','test']),
+        ('cmake-configure', ['cmake','-S','.','-B','build']),
+        ('cmake-build', ['cmake','--build','build']),
+        ('ctest', ['ctest','--test-dir','build']),
+    ]
+else:
+    commands = [('fmt', ['cargo','fmt','--all','--check'])]
+    if args.phase == 'precommit':
+        commands += [
+            ('default-clippy', ['cargo','clippy','--locked','--workspace','--all-targets','--','-D','warnings']),
+            ('default-tests', ['cargo','test','--locked','--workspace','--no-fail-fast']),
+        ]
+    commands += [
+        ('combined-clippy', ['cargo','clippy','--locked','--workspace','--all-targets','--features',features,'--','-D','warnings']),
+        ('combined-tests', ['cargo','test','--locked','--workspace','--features',features,'--no-fail-fast']),
+        ('ruff-format', ['uv','run','--locked','ruff','format','--check']),
+        ('ruff-check', ['uv','run','--locked','ruff','check']),
+        ('pytest', ['uv','run','--locked','pytest']),
+    ]
+for name, command in commands:
+    limit = 90 if args.phase == 'platform' else 600
+    bounded = ['prlimit','--as=8589934592','--core=0','--','timeout','-k','10',str(limit),*command]
+    log = destination/(name+'.log')
+    started = time.monotonic()
+    with log.open('wb') as output:
+        result = subprocess.run(bounded,stdout=output,stderr=subprocess.STDOUT,timeout=limit+20,check=False)
+    summaries = re.findall(r'test result: (\w+)\. (\d+) passed; (\d+) failed; (\d+) ignored',log.read_text(errors='replace'))
+    entry = {'name':name,'command':bounded,'exit_code':result.returncode,
+             'elapsed_seconds':round(time.monotonic()-started,3),'log':str(log),'sha256':sha(log),
+             'rust_summary_totals_including_nested_child_probes': {key:sum(int(row[index]) for row in summaries) for key,index in [('passed',1),('failed',2),('ignored',3)]} if summaries else None}
+    receipt['checks'].append(entry)
+    (destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps(entry),flush=True)
+receipt['git_status_after'] = git('status','--porcelain')
+receipt['source_commit_after'] = git('rev-parse','HEAD')
+receipt['source_tree_after'] = git('rev-parse','HEAD^{tree}')
+receipt['source_unchanged'] = receipt['git_status_after'] == receipt['git_status_before'] and receipt['source_commit_after'] == receipt['source_commit'] and receipt['source_tree_after'] == receipt['source_tree']
+if args.phase == 'exact' and all(row['exit_code'] == 0 for row in receipt['checks']):
+    binary = Path(os.environ['CARGO_TARGET_DIR'])/'debug'/'tpe'
+    preserved = destination/'tpe'
+    shutil.copy2(binary,preserved)
+    receipt.update(binary=str(preserved),binary_sha256=sha(preserved),
+                   binary_version=subprocess.check_output([str(preserved),'--version'],text=True).strip())
+receipt['passed'] = receipt['source_unchanged'] and all(row['exit_code'] == 0 for row in receipt['checks'])
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'source_unchanged':receipt['source_unchanged'],'receipt':str(destination/'receipt.json')}),flush=True)
+sys.exit(0 if receipt['passed'] else 1)

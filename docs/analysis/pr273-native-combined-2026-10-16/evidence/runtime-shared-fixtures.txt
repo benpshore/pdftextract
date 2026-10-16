@@ -1,0 +1,98 @@
+[
+  {
+    "id": "fedreg-3col",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 15,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "pwl04",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 8,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "semantic-three",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  },
+  {
+    "id": "semantic-two",
+    "exit_code": 1,
+    "status": "partial",
+    "pages": 1,
+    "source_unchanged": true,
+    "captures_clean": true,
+    "source_identity_matches": true,
+    "page_numbers_match": true,
+    "parser_sealing_reported": true,
+    "error": null
+  }
+]

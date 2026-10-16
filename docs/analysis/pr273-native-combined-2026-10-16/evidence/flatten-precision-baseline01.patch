@@ -1,0 +1,175 @@
+diff --git a/tests/oxide_edit_forms.rs b/tests/oxide_edit_forms.rs
+index 8152ba6..c153620 100644
+--- a/tests/oxide_edit_forms.rs
++++ b/tests/oxide_edit_forms.rs
+@@ -2246,3 +2246,170 @@ fn direct_widget_state_dictionary_preserves_selected_custom_appearance() {
+         }
+     }
+ }
++
++fn precision_appearance_fixture(kind: FlattenCarrierKind, extent: i64) -> Vec<u8> {
++    let mut document = Document::load_mem(&kind.source()).unwrap();
++    let page = document.get_pages()[&1];
++    let annotation = document
++        .get_dictionary(page)
++        .unwrap()
++        .get(b"Annots")
++        .unwrap()
++        .as_array()
++        .unwrap()[0]
++        .as_reference()
++        .unwrap();
++    let normal = document
++        .get_dict_in_dict(document.get_dictionary(annotation).unwrap(), b"AP")
++        .unwrap()
++        .get(b"N")
++        .unwrap()
++        .as_reference()
++        .unwrap();
++    document
++        .get_dictionary_mut(annotation)
++        .unwrap()
++        .set("Rect", vec![72.into(), 500.into(), 172.into(), 600.into()]);
++    let stream = document
++        .get_object_mut(normal)
++        .unwrap()
++        .as_stream_mut()
++        .unwrap();
++    stream.dict.set(
++        "BBox",
++        vec![0.into(), 0.into(), extent.into(), extent.into()],
++    );
++    stream.set_content(format!("q 1 0 1 rg 0 0 {extent} {extent} re f Q\n").into_bytes());
++    let mut bytes = Vec::new();
++    document.save_to(&mut bytes).unwrap();
++    bytes
++}
++
++fn serialized_appearance_corners(bytes: &[u8]) -> [[f64; 2]; 4] {
++    // Independent lopdf decoding of the saved overlay and invoked XObject.
++    // These fixtures have one appearance and no preexisting page cm/Do.
++    let document = Document::load_mem(bytes).unwrap();
++    let page = document.get_pages()[&1];
++    let content = Content::decode(&document.get_page_content(page)).unwrap();
++    let matrices: Vec<_> = content
++        .operations
++        .iter()
++        .filter(|op| op.operator == "cm")
++        .collect();
++    let invocations: Vec<_> = content
++        .operations
++        .iter()
++        .filter(|op| op.operator == "Do")
++        .collect();
++    assert_eq!(matrices.len(), 1);
++    assert_eq!(invocations.len(), 1);
++    let numbers = |values: &[Object]| {
++        values
++            .iter()
++            .map(|value| f64::from(value.as_float().unwrap()))
++            .collect::<Vec<_>>()
++    };
++    let matrix = numbers(&matrices[0].operands);
++    assert_eq!(matrix.len(), 6);
++    let resources = document
++        .get_dict_in_dict(document.get_dictionary(page).unwrap(), b"Resources")
++        .unwrap();
++    let xobjects = document.get_dict_in_dict(resources, b"XObject").unwrap();
++    let name = invocations[0].operands[0].as_name().unwrap();
++    let stream = document
++        .dereference(xobjects.get(name).unwrap())
++        .unwrap()
++        .1
++        .as_stream()
++        .unwrap();
++    assert!(!stream.dict.has(b"Matrix"));
++    let bbox = numbers(stream.dict.get(b"BBox").unwrap().as_array().unwrap());
++    [
++        [bbox[0], bbox[1]],
++        [bbox[2], bbox[1]],
++        [bbox[2], bbox[3]],
++        [bbox[0], bbox[3]],
++    ]
++    .map(|[x, y]| {
++        [
++            matrix[0] * x + matrix[2] * y + matrix[4],
++            matrix[1] * x + matrix[3] * y + matrix[5],
++        ]
++    })
++}
++
++fn appearance_corner_error(corners: [[f64; 2]; 4]) -> f64 {
++    let expected = [[72.0, 500.0], [172.0, 500.0], [172.0, 600.0], [72.0, 600.0]];
++    corners
++        .into_iter()
++        .zip(expected)
++        .flat_map(|(actual, expected)| {
++            actual
++                .into_iter()
++                .zip(expected)
++                .map(|(actual, expected)| (actual - expected).abs())
++        })
++        .fold(0.0, f64::max)
++}
++
++#[test]
++fn flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units() {
++    let mut admitted = Vec::new();
++    for kind in [FlattenCarrierKind::Annotation, FlattenCarrierKind::Form] {
++        for (label, extent) in [
++            ("zero-scale", 1_000_000_000),
++            ("nonzero-rounding", 80_000_000),
++        ] {
++            let source = precision_appearance_fixture(kind, extent);
++            let prefix = format!("flatten-precision-{}-{label}", kind.name());
++            capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
++            let upstream = kind.upstream(source.clone());
++            capture_form_fixture(&format!("{prefix}-upstream.pdf"), &upstream);
++            let corners = serialized_appearance_corners(&upstream);
++            let error = appearance_corner_error(corners);
++            assert!(
++                error > 10.0,
++                "independent page-space counterexample vanished: {corners:?}"
++            );
++            capture_form_fixture(
++                &format!("{prefix}-evidence.json"),
++                &serde_json::to_vec_pretty(&json!({
++                    "kind":kind.name(), "case":label, "bbox_extent":extent,
++                    "expected_corners_pt":[[72,500],[172,500],[172,600],[72,600]],
++                    "serialized_corners_pt":corners, "max_corner_error_pt":error,
++                    "scope":"independent decoded saved-transform corners, not coefficient tolerance"
++                }))
++                .unwrap(),
++            );
++            match kind.adapter(source) {
++                Err(BackendError::Unsupported(reason)) => {
++                    assert!(reason.contains("appearance transform"), "{reason}")
++                }
++                Ok(output) => {
++                    capture_form_fixture(&format!("{prefix}-admitted.pdf"), &one_pdf(output));
++                    admitted.push(prefix);
++                }
++                other => panic!("unexpected precision result: {other:?}"),
++            }
++        }
++    }
++    assert!(
++        admitted.is_empty(),
++        "geometrically damaged appearances admitted: {admitted:?}"
++    );
++}
++
++#[test]
++fn flatten_precision_retains_exact_tiny_scale_and_ordinary_controls() {
++    for kind in [FlattenCarrierKind::Annotation, FlattenCarrierKind::Form] {
++        for (label, extent) in [("tiny-exact", 100_000_000), ("ordinary", 100)] {
++            let source = precision_appearance_fixture(kind, extent);
++            let prefix = format!("flatten-precision-{}-{label}", kind.name());
++            capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
++            let output = one_pdf(kind.adapter(source).unwrap());
++            capture_form_fixture(&format!("{prefix}-control.pdf"), &output);
++            let corners = serialized_appearance_corners(&output);
++            assert!(appearance_corner_error(corners) <= 0.001, "{corners:?}");
++        }
++    }
++}

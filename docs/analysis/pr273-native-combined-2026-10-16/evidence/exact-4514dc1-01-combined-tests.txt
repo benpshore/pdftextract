@@ -1,0 +1,1751 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+   Compiling tpe-app v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-app)
+    Finished `test` profile [unoptimized] target(s) in 45.99s
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe-768a7486c3a35c69)
+
+running 807 tests
+test acquire::tests::directory_is_rejected ... ok
+test acquire::tests::auxiliary_input_allows_empty_without_relaxing_document_or_size_checks ... ok
+test acquire::tests::empty_file_is_rejected ... ok
+test acquire::tests::fifo_replacement_probe ... ignored, run in a bounded subprocess by fifo_replacement_cannot_block_input_open
+test acquire::tests::growth_after_descriptor_observation_is_bounded_and_rejected ... ok
+test acquire::tests::limit_equal_to_size_is_accepted ... ok
+test acquire::tests::missing_file_is_io_error ... ok
+test acquire::tests::oversized_file_is_rejected ... ok
+test acquire::tests::regular_file_symlinks_keep_the_verified_content ... ok
+test acquire::tests::replacing_the_path_does_not_change_the_open_snapshot_identity ... ok
+test acquire::tests::snapshot_has_hash_size_and_path ... ok
+test acquire::tests::unhashed_read_matches_snapshot ... ok
+
+running 1 test
+test acquire::tests::fifo_replacement_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 806 filtered out; finished in 0.00s
+
+test acquire::tests::fifo_replacement_cannot_block_input_open ... ok
+test backend::docling_layout::tests::no_clear_gap_or_misaligned_continuation_keeps_original_order ... ok
+test backend::docling_layout::tests::normal_column_endings_and_untyped_numbered_prose_keep_upstream_order ... ok
+test backend::docling_layout::tests::ordinary_typed_numbered_lists_do_not_qualify_as_bibliography ... ok
+test backend::docling_layout::tests::reset_or_missing_next_page_list_does_not_prove_reference_continuity ... ok
+test backend::docling_layout::tests::rotated_geometry_is_not_treated_as_an_upright_reference_band ... ok
+test backend::docling_layout::tests::unknown_geometry_or_intervening_list_item_is_a_hard_order_boundary ... ok
+test backend::docling_text_backend::tests::actual_parser_retains_raw_links_crop_offsets_and_page_ranges ... ok
+test backend::docling_text_backend::tests::null_cropbox_keeps_upstream_inheritance_frame ... ok
+test backend::docling_text_backend::tests::silent_upstream_drop_keeps_native_text_and_marks_partial ... ok
+test backend::lopdf_backend::font_resources::tests::names_comments_and_metadata_do_not_open_mapping_sections ... ok
+test backend::docling_layout::tests::actual_docling_reference_band_recovers_all_36_matches_without_changing_spans ... ok
+test backend::lopdf_backend::font_resources::tests::only_complete_outer_epilogue_ends_mapping_accounting ... ok
+test backend::lopdf_backend::font_resources::tests::reverse_unicode_payload_is_bounded_independently_of_source_count ... ok
+test backend::lopdf_backend::font_resources::tests::source_ranges_are_counted_before_expansion_even_with_false_counts ... ok
+test backend::lopdf_backend::font_resources::tests::touching_inserts_clone_arrays_but_distant_inserts_do_not ... ok
+test backend::lopdf_backend::font_resources::tests::width_and_differences_items_reserve_construction_space ... ok
+test backend::lopdf_backend::graphics::tests::containment_is_charged_and_exhaustion_keeps_the_covering_extent ... ok
+test backend::lopdf_backend::font_resources::tests::repeated_array_splits_are_charged_before_upstream_clones_the_payload ... ok
+test backend::lopdf_backend::graphics::tests::dense_details_inside_a_late_cluster_keep_all_vector_regions ... ok
+test backend::lopdf_backend::graphics::tests::inverted_boxes_do_not_take_the_containment_shortcut ... ok
+test backend::lopdf_backend::tests::byte_table_matches_lopdf_for_differences ... ok
+test backend::lopdf_backend::tests::byte_table_matches_lopdf_for_standard_encoding ... ok
+test backend::lopdf_backend::tests::byte_table_matches_lopdf_for_win_ansi_encoding ... ok
+test backend::lopdf_backend::tests::byte_table_rejects_what_lopdf_rejects ... ok
+test backend::lopdf_backend::graphics::tests::containment_shortcuts_preserve_every_prefix_and_cluster_order ... ok
+test backend::lopdf_backend::tests::clusters_merge_to_a_fixed_point_and_overflow_to_one_union ... ok
+test backend::lopdf_backend::tests::cmap_binary_trailer_preserves_decoding_and_malformed_font_fallback ... ok
+test backend::lopdf_backend::tests::cached_empty_forms_have_a_work_limit_and_page_budgets_reset ... ok
+test backend::lopdf_backend::tests::composite_width_entries_are_bounded_before_flattening ... ok
+test backend::lopdf_backend::tests::dense_paths_keep_separate_vector_clusters_and_match_full_clustering ... ok
+test backend::lopdf_backend::tests::differences_font_decodes_through_table_and_flags_unmapped_bytes ... ok
+test backend::lopdf_backend::tests::differences_over_a_tex_font_keep_its_builtin_base ... ok
+test backend::lopdf_backend::tests::differences_resolve_tex_glyph_names_over_the_base ... ok
+test backend::lopdf_backend::tests::embedded_type1_program_supplies_the_builtin_encoding ... ok
+test backend::lopdf_backend::tests::enabled_predictors_and_chains_keep_the_worst_case_reservation ... ok
+test backend::lopdf_backend::tests::cmap_decompression_and_predictor_limits_precede_font_fallback ... ok
+test backend::lopdf_backend::tests::font_cache_hit_yields_identical_spans ... ok
+test backend::lopdf_backend::tests::form_cache_stops_growing_at_its_byte_budget ... ok
+test backend::lopdf_backend::tests::form_cannot_pop_the_callers_graphics_state ... ok
+test backend::lopdf_backend::tests::form_charge_includes_spare_capacity_and_nested_dictionary_data ... ok
+test backend::lopdf_backend::tests::form_folding_keeps_state_and_paint_barriers_and_unbalanced_restores ... ok
+test backend::lopdf_backend::tests::form_folding_preserves_repeated_text_and_transforms ... ok
+test backend::lopdf_backend::tests::form_paths_are_placed_through_cm ... ok
+test backend::lopdf_backend::tests::form_xobject_is_placed_through_cm ... ok
+test backend::lopdf_backend::tests::glyph_names_resolve_through_every_form ... ok
+test backend::lopdf_backend::tests::glyph_names_table_is_sorted_and_unique ... ok
+test backend::lopdf_backend::tests::hostile_form_filter_metadata_is_rejected_before_decoding ... ok
+test backend::lopdf_backend::tests::identity_cmap_does_not_accept_one_byte_codes_or_an_odd_trailing_byte ... ok
+test backend::lopdf_backend::tests::identity_is_stable ... ok
+test backend::lopdf_backend::tests::image_xobject_is_a_raster_figure_under_the_ctm ... ok
+test backend::lopdf_backend::tests::incremental_clusters_preserve_bridges_and_report_comparison_exhaustion ... ok
+test backend::lopdf_backend::tests::info_exposes_string_entries ... ok
+test backend::lopdf_backend::tests::inline_image_data_containing_ei_is_skipped ... ok
+test backend::lopdf_backend::tests::irrelevant_embedded_programs_do_not_block_decodable_fonts ... ok
+test backend::lopdf_backend::tests::lexer_folds_painted_paths_into_boxes ... ok
+test backend::lopdf_backend::tests::lexer_incomplete_flag_distinguishes_malformed_tails_from_valid_endings ... ok
+test backend::lopdf_backend::tests::font_cache_caps_entries_and_charged_bytes_and_eviction_keeps_live_fonts_valid ... ok
+test backend::lopdf_backend::tests::lexer_reads_strings_numbers_and_arrays_exactly ... ok
+test backend::lopdf_backend::tests::ligatures_are_expanded_with_one_page_warning ... ok
+test backend::lopdf_backend::tests::lopdf_version_matches_cargo_lock ... ok
+test backend::lopdf_backend::tests::malformed_bytes_are_rejected ... ok
+test backend::lopdf_backend::tests::malformed_simple_to_unicode_cannot_silently_fall_back_to_complete ... ok
+test backend::lopdf_backend::tests::malformed_to_unicode_preserves_named_and_differences_text_as_partial ... ok
+test backend::lopdf_backend::tests::measure_corpus_form_work ... ignored, requires TPE_CORPUS_CACHE containing the pinned public PDFs
+test backend::lopdf_backend::tests::measure_form_cache_reuse ... ignored, run in release mode with --nocapture for a cache reuse diagnostic
+test backend::lopdf_backend::tests::measure_shallow_nested_forms ... ignored, manual nested-Forms timing/RSS diagnostic; set TPE_FORM_DIAGNOSTIC_N
+test backend::lopdf_backend::tests::measure_unused_font_cmap_expansion ... ignored, manual font-cache/CMap expansion audit; run each case in a fresh process
+test backend::lopdf_backend::tests::missing_all_page_content_is_partial_but_blank_pages_are_complete ... ok
+test backend::lopdf_backend::tests::missing_custom_and_substituted_widths_are_partial_without_losing_text ... ok
+test backend::lopdf_backend::tests::missing_font_falls_back_to_latin1_with_warning ... ok
+test backend::lopdf_backend::tests::nearby_filled_rectangles_are_one_vector_figure_and_text_is_unchanged ... ok
+test backend::lopdf_backend::tests::non_ascii_text_is_nfc_normalised ... ok
+test backend::lopdf_backend::tests::non_predictor_decode_parameters_refund_nine_distinct_forms ... ok
+test backend::lopdf_backend::tests::lexer_matches_content_decode ... ok
+test backend::lopdf_backend::tests::page_content_recovery_is_partial_and_preserves_valid_streams ... ok
+test backend::lopdf_backend::tests::page_out_of_range_is_reported ... ok
+test backend::lopdf_backend::tests::page_without_ligatures_has_no_ligature_warning ... ok
+test backend::lopdf_backend::tests::painted_paths_become_figures_without_changing_spans ... ok
+test backend::lopdf_backend::tests::premature_outer_cmap_epilogue_is_rejected_by_upstream_grammar ... ok
+test backend::lopdf_backend::tests::pure_vector_form_is_cached_with_its_paths_and_mixed_form_still_recurses ... ok
+test backend::lopdf_backend::tests::raster_placements_are_bounded ... ok
+test backend::lopdf_backend::tests::oversized_compressed_form_is_rejected_before_lexing ... ok
+test backend::lopdf_backend::tests::repeated_uncached_forms_stop_at_the_page_decode_budget ... ok
+test backend::lopdf_backend::tests::shared_form_xobject_is_decoded_once_and_yields_identical_spans ... ok
+test backend::lopdf_backend::tests::simple_font_to_unicode_takes_precedence_over_rendering_encoding ... ok
+test backend::lopdf_backend::tests::simple_rendering_encoding_cannot_bypass_to_unicode_resource_limits ... ok
+test backend::lopdf_backend::tests::skipped_invoked_forms_are_partial_and_keep_native_text ... ok
+test backend::lopdf_backend::tests::small_cmap_keeps_upstream_decoding_and_named_font_prefers_unicode ... ok
+test backend::lopdf_backend::tests::sparse_identity_cmap_preserves_mapped_codes_after_an_unknown_code ... ok
+test backend::lopdf_backend::tests::sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings ... ok
+test backend::lopdf_backend::tests::standard_advances_respect_rendering_differences_and_explicit_widths ... ok
+test backend::lopdf_backend::tests::subbyte_tiff_accumulator_is_bounded_before_decoding ... ok
+test backend::lopdf_backend::tests::tex_fonts_are_recognised_by_family_and_size ... ok
+test backend::lopdf_backend::tests::tex_math_italic_and_extension_fonts_use_their_builtin_encodings ... ok
+test backend::lopdf_backend::tests::tex_symbol_font_without_encoding_uses_its_builtin_encoding ... ok
+test backend::lopdf_backend::tests::tex_text_font_ligatures_are_still_expanded ... ok
+test backend::lopdf_backend::tests::thin_rectangles_and_lines_are_rules ... ok
+test backend::lopdf_backend::tests::tiny_forms_are_charged_and_cache_cardinality_is_bounded ... ok
+test backend::lopdf_backend::tests::tj_adjustments_shift_position ... ok
+test backend::lopdf_backend::tests::truncated_content_preserves_prefix_and_partial_evidence_on_cache_hits ... ok
+test backend::lopdf_backend::tests::two_text_blocks_have_positions_and_sizes ... ok
+test backend::lopdf_backend::tests::type1_encoding_reads_the_clear_text_array_only ... ok
+test backend::lopdf_backend::tests::type3_widths_go_through_font_matrix ... ok
+test backend::lopdf_backend::tests::unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest ... ok
+test backend::lopdf_backend::tests::unused_four_byte_cmap_is_not_expanded_and_used_cmap_fails_explicitly ... ok
+test backend::lopdf_backend::tests::unused_malformed_form_does_not_make_page_partial ... ok
+test backend::lopdf_backend::tests::xobject_depth_limit_is_enforced ... ok
+test backend::lopdf_backend::widths::tests::composite_widths_lookup_matches_first_match_scan ... ok
+test backend::lopdf_backend::tests::shallow_nested_forms_charge_each_repeated_execution_and_fail_explicitly ... ok
+test backend::lopdf_backend::widths::tests::maximum_cid_empty_runs_and_gaps_preserve_defaults ... ok
+test backend::lopdf_backend::widths::tests::normalization_preserves_nan_payloads_and_signed_zero ... ok
+test backend::lopdf_backend::widths::tests::overlapping_widths_keep_input_precedence_across_every_boundary ... ok
+test backend::lopdf_backend::widths::tests::randomized_ranges_match_the_original_linear_oracle ... ok
+test backend::lopdf_backend::widths::tests::simple_widths_keep_missing_width_and_type3_scaling ... ok
+test backend::pdf_oxide_supplements::tests::display_html_has_no_active_attributes_or_resource_urls ... ok
+test backend::pdfium_backend::tests::adjacent_text_objects_on_one_baseline_form_one_line ... ok
+test backend::pdfium_backend::tests::capped_image_pdf_preserves_geometry_digest_and_text_with_warning ... ok
+test backend::pdfium_backend::tests::configured_pdfium_path_must_be_absolute ... ok
+test backend::pdfium_backend::tests::effective_library_path_and_bytes_distinguish_run_identity ... ok
+test backend::pdfium_backend::tests::form_xobject_children_are_placed_on_the_page ... ok
+test backend::pdfium_backend::tests::hyphen_inspection_exhaustion_keeps_text_and_marks_partial ... ok
+test backend::pdfium_backend::tests::hyphen_markers_require_native_evidence_and_preserve_other_hyphens ... ok
+test backend::pdfium_backend::tests::identity_is_stable ... ok
+test backend::pdfium_backend::tests::image_becomes_figure_with_bytes_kept_out_of_text ... ok
+test backend::pdfium_backend::tests::image_cap_rejects_distinct_overflow_without_losing_retained_duplicates ... ok
+test backend::pdfium_backend::tests::info_exposes_title ... ok
+test backend::pdfium_backend::tests::malformed_bytes_are_rejected ... ok
+test backend::pdfium_backend::tests::matrix_composition_applies_first_then_second ... ok
+test backend::pdfium_backend::tests::mime_is_sniffed_from_signatures ... ok
+test backend::lopdf_backend::widths::tests::fragmented_ranges_have_a_linear_output_bound ... ok
+test backend::pdfium_backend::tests::native_line_end_hyphens_survive_as_spans_and_reference_fields ... ok
+test backend::pdfium_backend::tests::oversized_image_and_zero_cap_keep_no_payload ... ok
+test backend::pdfium_backend::tests::oversized_library_is_rejected_before_fingerprinting_or_loading ... ok
+test backend::pdfium_backend::tests::page_out_of_range_is_reported ... ok
+test backend::pdfium_backend::tests::pdfium_render_version_matches_cargo_lock ... ok
+test backend::pdfium_backend::tests::repeated_image_pdf_retains_one_blob_across_and_within_pages ... ok
+test backend::pdfium_backend::tests::repeated_images_share_the_cap_and_release_after_the_last_take ... ok
+test backend::pdfium_backend::tests::rotated_page_reports_unrotated_geometry ... ok
+test backend::pdfium_backend::tests::text_layer_separators_become_single_spaces ... ok
+test backend::pdfium_backend::tests::two_page_pdf_yields_positioned_spans ... ok
+test backend::pdfium_backend::tests::unrotated_size_matches_the_reading_order_turn ... ok
+test backend::pdfium_backend::unicode_mapping::tests::generated_separators_are_not_mapping_failures ... ok
+test backend::pdfium_backend::unicode_mapping::tests::native_failure_closes_handles_and_preserves_the_next_query ... ok
+test backend::pdfium_backend::unicode_mapping::tests::native_page_count_conversion_is_checked ... ok
+test backend::pdfium_backend::unicode_mapping::tests::warning_size_is_bounded_but_counts_are_complete ... ok
+test backend::pdfium_backend::unicode_mapping::tests::zero_unicode_and_failed_queries_cannot_look_successful ... ok
+test backend::routed_backend::tests::clean_pages_come_from_pdf_oxide_without_binding_pdfium ... ok
+test backend::routed_backend::tests::identity_names_both_parsers_and_the_policy ... ok
+test backend::routed_backend::tests::missing_pdfium_is_recorded_rather_than_substituted ... ok
+test backend::routed_backend::tests::pipeline_result_carries_the_routed_identity_and_per_page_supplier ... ok
+test backend::routed_backend::tests::unusable_oxide_text_routes_the_page_to_pdfium ... ok
+test backend::pdfium_backend::tests::native_page_count_beyond_binding_range_is_rejected ... ok
+test backend::tests::features_are_named_for_native_backends ... ok
+test backend::tests::lopdf_does_not_provide_reading_order_and_opens_the_probe ... ok
+test bibliography::tests::annotation_fallback_does_not_invent_a_transform_or_erase_backend_evidence ... ok
+test bibliography::tests::annotation_fallback_merges_each_page_without_losing_distinct_placements ... ok
+test bibliography::tests::fallback_keeps_repaired_text_even_with_equal_entry_count ... ok
+test bibliography::tests::fallback_prefers_plausible_lists_over_spurious_extra_entries ... ok
+test bibliography::tests::fallback_retains_ties_but_accepts_longer_equally_usable_lists ... ok
+test bibliography::tests::finds_headingless_numbered_list_after_scanning_backward ... ok
+test bibliography::tests::limited_candidate_cannot_replace_or_certify_an_intact_list ... ok
+test bibliography::tests::progress_counts_pages_read_from_the_end ... ok
+test bibliography::tests::record_keeps_the_cli_shape_and_renders_plain_text ... ok
+test bibliography::tests::rejected_empty_fallback_does_not_certify_the_retained_scan ... ok
+test bibliography::tests::reports_missing_boundary_without_inventing_references ... ok
+test bibliography::tests::selects_last_list_across_pages_without_reading_earlier_pages ... ok
+test bibliography::tests::selects_the_last_qualified_heading_when_lists_share_a_page ... ok
+test bibliography::tests::unresolved_pdfium_mapping_survives_without_erasing_the_better_native_list ... ok
+test bibliography::tests::zero_page_scan_is_rejected_before_any_progress_or_complete_record ... ok
+test citations::loop12_parse_tests::author_lists_that_ended_early ... ok
+test citations::loop12_parse_tests::capitals_and_title_case_compounds_at_line_ends ... ok
+test citations::loop12_parse_tests::entries_the_evaluation_could_not_pair ... ok
+test backend::tests::every_available_name_resolves_and_is_known ... ok
+test citations::loop12_parse_tests::publisher_volume_and_venue_tails_leave_the_title ... ok
+test citations::loop12_parse_tests::rsc_entries_without_a_printed_title ... ok
+test citations::loop12_parse_tests::titles_after_organisations_and_without_authors ... ok
+test citations::loop12_parse_tests::titles_run_past_inner_commas_periods_and_quotes ... ok
+test citations::tests::acm_year_sentence_between_authors_and_title ... ok
+test citations::loop12_parse_tests::entry_starts_and_list_ends ... ok
+test citations::tests::author_splitting_forms ... ok
+test citations::tests::arxiv_lines_at_the_page_edge_are_not_furniture ... ok
+test citations::tests::author_year_without_layout_uses_the_name_pattern ... ok
+test citations::tests::detached_label_column_and_initials_first_starts ... ok
+test citations::tests::detached_labels_number_the_list ... ok
+test citations::tests::detached_numbered_labels_need_a_nearby_row_on_the_same_page ... ok
+test citations::tests::doi_back_references_are_not_joined ... ok
+test citations::tests::doi_closed_up_across_line_wraps ... ok
+test citations::tests::dot_and_paren_numbering_styles ... ok
+test citations::tests::elsevier_comma_delimited_titles ... ok
+test citations::tests::empty_input_is_harmless ... ok
+test citations::tests::et_al_and_inline_quotation_before_unquoted_title ... ok
+test citations::tests::false_start_without_evidence_folds_into_previous_entry ... ok
+test citations::tests::floating_accents_do_not_hide_numbered_labels ... ok
+test citations::tests::author_year_references_with_hanging_indent ... ok
+test citations::tests::heading_variants ... ok
+test citations::tests::foreign_column_lines_are_dropped_from_numbered_lists ... ok
+test citations::tests::headingless_numbered_list_is_found ... ok
+test citations::tests::hyphen_breaks_are_resolved_at_line_joins ... ok
+test citations::tests::ieee_book_titles_before_publisher ... ok
+test citations::tests::headingless_revtex_list_wrapping_across_pages ... ok
+test citations::tests::indent_levels_ignore_the_appendix_after_the_list ... ok
+test citations::tests::loop12_marker_tests::author_keys_for_et_al_caps_surnames_and_page_breaks ... ok
+test citations::tests::loop12_marker_tests::coauthors_narrow_same_surname_same_year_entries ... ok
+test citations::tests::loop12_marker_tests::bare_year_clauses_and_lowercase_coauthors ... ok
+test citations::tests::loop12_marker_tests::detached_superscript_lines_need_prose_around_them ... ok
+test citations::tests::loop12_marker_tests::superscript_lines_of_their_own_cite_a_numbered_list ... ok
+test citations::tests::loop12_marker_tests::ieee_second_range_foreign_locators_and_glued_caps ... ok
+test citations::tests::loop6_parse_tests::informs_authors_run_to_the_parenthesised_year ... ok
+test citations::tests::loop6_parse_tests::acm_no_date_token_is_not_the_title ... ok
+test citations::tests::loop6_parse_tests::rsc_entries_have_a_journal_and_no_title ... ok
+test citations::tests::loop6_parse_tests::trailing_year_is_not_part_of_the_title ... ok
+test citations::tests::loop6_segmentation_tests::bare_number_style_needs_a_run_from_one ... ok
+test citations::tests::loop6_segmentation_tests::notes_and_references_headings ... ok
+test citations::tests::loop6_segmentation_tests::numbered_list_does_not_resume_after_a_heading ... ok
+test citations::tests::loop6_segmentation_tests::numbered_list_resumes_after_a_biography ... ok
+test citations::tests::loop6_segmentation_tests::author_year_signature_overrides_indent_levels ... ok
+test citations::tests::loop6_segmentation_tests::organisation_authors_with_year_sentences ... ok
+test citations::tests::loop6_segmentation_tests::rsc_bare_number_list_and_a_bracket_list ... ok
+test citations::tests::loop6_segmentation_tests::sentence_ends_for_the_signature ... ok
+test citations::tests::loop8_marker_tests::detached_labels_are_read_from_their_rows ... ok
+test citations::tests::loop8_marker_tests::et_al_without_period_and_bare_citations ... ok
+test citations::tests::loop8_marker_tests::groups_open_at_a_page_end_continue_on_the_next_page ... ok
+test citations::tests::loop8_marker_tests::labels_above_the_heading_prefix_the_detached_labels ... ok
+test citations::tests::loop8_marker_tests::comma_clauses_year_lists_letter_lists_and_locators ... ok
+test citations::tests::loop8_marker_tests::superscript_runs_cite_a_numbered_list ... ok
+test citations::tests::loop8_marker_tests::three_or_more_authors ... ok
+test citations::tests::loop9_title_tests::book_series_goes_to_the_venue ... ok
+test citations::tests::loop9_title_tests::ditto_dash_entry_keeps_its_quoted_title ... ok
+test citations::tests::loop9_title_tests::ieee_accented_names_stay_in_the_author_list ... ok
+test citations::tests::loop9_title_tests::ieee_particles_stay_in_the_author_list ... ok
+test citations::tests::loop9_title_tests::quoted_title_after_loose_names_starts_at_the_quote ... ok
+test citations::tests::loop9_title_tests::regulation_without_authors_titles_the_leading_clause ... ok
+test citations::tests::loop8_marker_tests::multi_token_particle_and_organisation_names ... ok
+test citations::tests::loop9_title_tests::trailing_year_and_arxiv_preprint_leave_the_title ... ok
+test citations::tests::loop9b_title_tests::line_end_hyphens_follow_the_cleanup_policy ... ok
+test citations::tests::loop9b_title_tests::long_surname_particles_stay_in_the_author_list ... ok
+test citations::tests::loop9b_title_tests::organisation_and_particle_author_lists_stay_authors ... ok
+test citations::tests::loop9b_title_tests::part_markers_stay_in_the_title ... ok
+test citations::tests::loop9b_title_tests::question_mark_before_a_venue_clause ... ok
+test citations::tests::loop9b_title_tests::surname_first_lists_end_before_a_title_word ... ok
+test citations::tests::loop9b_title_tests::terminal_title_punctuation_survives_journal_boundary ... ok
+test citations::tests::loop9b_title_tests::question_mark_subtitles ... ok
+test citations::tests::loop9b_title_tests::titles_before_the_year_are_not_authors ... ok
+test citations::tests::lowercase_handle_starts_an_entry ... ok
+test citations::tests::lowercase_hyphenated_initials_apostrophes_and_descriptors ... ok
+test citations::tests::markers_after_the_list_with_guards ... ok
+test citations::tests::middle_initial_is_not_vancouver ... ok
+test citations::tests::no_reference_section_gives_empty_vectors ... ok
+test citations::tests::numbered_label_columns_continue_across_pages ... ok
+test citations::tests::multiple_reference_lists_are_concatenated ... ok
+test citations::tests::page_footers_with_changing_numbers_are_furniture ... ok
+test citations::tests::numbered_references_across_pages_with_continuations ... ok
+test citations::tests::parse_acm_conference_paper ... ok
+test citations::tests::parse_apa_article_with_doi_url ... ok
+test citations::tests::parse_arxiv_preprint ... ok
+test citations::tests::parse_ieee_journal_article ... ok
+test citations::tests::parse_keeps_raw_and_never_invents ... ok
+test citations::tests::parse_book_with_publisher ... ok
+test citations::tests::parse_nature_style_entry ... ok
+test citations::tests::parse_vancouver_article_with_vol_issue_pages ... ok
+test citations::tests::parse_web_page_with_url_and_access_date ... ok
+test citations::tests::quoted_title_after_year_and_question_mark_titles ... ok
+test citations::tests::pre_1900_entry_stays_separate ... ok
+test citations::tests::quoted_title_keeps_inner_apostrophe ... ok
+test citations::tests::restarted_numbering_resolves_by_position ... ok
+test citations::tests::row_fragment_budget_splits_hostile_geometry ... ok
+test citations::tests::row_fragments_join_in_x_order ... ok
+test citations::tests::row_tolerance_follows_the_largest_fragment_size ... ok
+test citations::tests::running_headers_in_the_top_band_are_furniture ... ok
+test citations::tests::row_fragments_and_section_wide_indent_levels ... ok
+test citations::tests::section_ends_at_appendix_and_furniture_is_dropped ... ok
+test citations::tests::section_end_markers ... ok
+test citations::tests::siam_titles_before_in_venue ... ok
+test citations::tests::springer_lncs_colon_author_lists ... ok
+test citations::tests::table_of_contents_heading_is_skipped ... ok
+test citations::tests::trailing_table_cells_are_dropped ... ok
+test citations::tests::undated_and_old_entries_are_evidence ... ok
+test citations::tests::siam_comma_delimited_titles_with_dois ... ok
+test citations::tests::undated_final_entry_is_kept ... ok
+test citations::tests::url_closed_up_across_line_wrap ... ok
+test citations::tests::vancouver_colon_requires_the_whole_personal_author_list ... ok
+test citations::tests::year_suffix_picks_among_same_year_entries ... ok
+test corpus::tests::absolute_entry_is_rejected ... ok
+test corpus::tests::bare_gzip_single_file_becomes_main_tex ... ok
+test citations::tests::vancouver_author_colon_precedes_title_and_venue_colons ... ok
+test corpus::tests::cache_dir_name_hashes_unsafe_ids ... ok
+test corpus::tests::cache_dir_name_replaces_colon_and_collapses_repeats ... ok
+test corpus::tests::cache_dir_name_never_escapes_cache_dir ... ok
+test corpus::tests::cache_paths_have_expected_shape ... ok
+test corpus::tests::corrupt_gzip_is_unpack_error ... ok
+test corpus::tests::fetch_item_offline_verifies_manifest_hashes ... ok
+test corpus::tests::fetch_item_offline_with_empty_cache_is_offline_error ... ok
+test corpus::tests::fetch_item_offline_with_pdf_e_print_has_no_source_dir ... ok
+test corpus::tests::find_latex_files_sorts_and_ignores_case_of_extension ... ok
+test corpus::tests::fetch_item_offline_uses_seeded_cache ... ok
+test corpus::tests::manifest_round_trips_through_json ... ok
+test corpus::tests::missing_manifest_is_io_error ... ok
+test corpus::tests::pdf_bytes_are_no_source ... ok
+test corpus::tests::tar_detection_by_checksum_without_magic ... ok
+test corpus::tests::path_traversal_entry_is_rejected ... ok
+test corpus::tests::uncompressed_tar_is_recognised ... ok
+test corpus::tests::update_manifest_hashes_fills_only_missing_fields ... ok
+test corpus::tests::tar_gz_bundle_unpacks_and_latex_files_are_found ... ok
+test eval::tests::align_counts_match_word_alignment ... ok
+test eval::tests::alignment_words_drop_math_tokens_on_both_sides ... ok
+test eval::tests::alignment_words_drop_numbers_and_operator_names ... ok
+test eval::tests::author_matches_is_one_to_one ... ok
+test eval::tests::author_year_entry_after_a_caption_resumes_the_list ... ok
+test eval::tests::body_alignment_drops_caption_paragraphs ... ok
+test eval::tests::body_alignment_drops_math_heavy_lines_on_both_sides ... ok
+test eval::tests::body_alignment_excludes_figure_lines_but_raw_keeps_them ... ok
+test eval::tests::body_alignment_ignores_reference_section_and_marker ... ok
+test eval::tests::body_alignment_raw_matches_plain_word_alignment ... ok
+test eval::tests::body_alignment_removes_unrecorded_marker_groups_by_pattern ... ok
+test eval::tests::body_alignment_strips_math_tokens_but_raw_keeps_them ... ok
+test eval::tests::body_alignment_without_reference_heading_uses_all_text ... ok
+test eval::tests::body_cuts_every_reference_list_and_keeps_text_between ... ok
+test eval::tests::body_excludes_last_entry_wrapped_onto_the_next_page ... ok
+test eval::tests::body_keeps_appendix_after_reference_list ... ok
+test eval::tests::body_keeps_appendix_after_text_only_reference_heading ... ok
+test eval::tests::body_resumes_at_appendix_heading_on_the_reference_page ... ok
+test eval::tests::body_resumes_on_the_page_after_the_last_reference_entry ... ok
+test eval::tests::body_text_skips_non_body_roles_and_keeps_body_and_headings ... ok
+test eval::tests::body_text_without_roles_or_lines_keeps_the_old_text ... ok
+test eval::tests::caption_inside_reference_list_does_not_end_it ... ok
+test eval::tests::caption_of_several_sentences_is_dropped_whole ... ok
+test eval::tests::caption_start_accepts_number_then_capitalised_word ... ok
+test eval::tests::caption_without_blank_line_does_not_swallow_following_prose ... ok
+test eval::tests::code_and_biography_roles_are_not_body ... ok
+test eval::tests::detached_label_after_a_finished_entry_continues_the_list_over_the_page ... ok
+test eval::tests::dropped_line_keeps_paragraph_separators ... ok
+test eval::tests::align_counts_is_exact_above_the_old_sampling_cap ... ok
+test eval::tests::dump_carries_extracted_metadata_and_paper_truth ... ok
+test eval::tests::dump_paper_collects_tagged_lines_and_role_counts_across_pages ... ok
+test eval::tests::dump_paper_collects_truth_extraction_and_reference_text ... ok
+test eval::tests::evaluate_counts_matches_and_fields ... ok
+test eval::tests::evaluate_counts_printed_dois ... ok
+test eval::tests::evaluate_field_accuracy_ignores_unmatched_truth_refs ... ok
+test eval::tests::evaluate_lists_paper_metadata_mismatches ... ok
+test eval::tests::evaluate_paper_doi_matches_prefixed_upper_case_extraction ... ok
+test eval::tests::evaluate_reports_over_segmentation ... ok
+test eval::tests::evaluate_scores_paper_metadata ... ok
+test eval::tests::evaluate_without_body_text_has_no_alignment ... ok
+test eval::tests::evaluate_without_cite_commands_has_no_marker_recall ... ok
+test eval::tests::failed_paper_is_zeroed ... ok
+test eval::tests::dump_body_texts_are_capped_on_char_boundary ... ok
+test eval::tests::lcs_len_bit_parallel_matches_dp ... ok
+test eval::tests::lcs_len_small_cases ... ok
+test eval::tests::marker_correctness_ignores_key_case ... ok
+test eval::tests::marker_recall_counts_cited_references_not_marker_groups ... ok
+test eval::tests::marker_resolving_to_the_right_entry_is_correct ... ok
+test eval::tests::marker_resolving_to_the_wrong_entry_is_not_correct ... ok
+test eval::tests::match_references_author_venue_needs_truth_year_and_no_extracted_title ... ok
+test eval::tests::match_references_by_each_method ... ok
+test eval::tests::match_references_empty_inputs ... ok
+test eval::tests::match_references_exact_title_prefers_same_year ... ok
+test eval::tests::match_references_exact_title_single_candidate_ignores_year ... ok
+test eval::tests::match_references_is_one_to_one ... ok
+test eval::tests::match_references_keeps_same_title_entries_with_different_dois ... ok
+test eval::tests::match_references_orders_duplicate_truth_entries ... ok
+test eval::tests::match_references_pairs_title_less_entries_by_author_and_venue ... ok
+test eval::tests::match_references_rejects_other_version_titles ... ok
+test eval::tests::match_references_text_pass_leaves_keyed_matches_alone ... ok
+test eval::tests::match_references_text_pass_recovers_untitled_truth ... ok
+test eval::tests::match_references_text_pass_threshold_and_ties ... ok
+test eval::tests::match_references_title_year_tie_broken_by_first_author ... ok
+test eval::tests::math_symbols_count_as_math_not_letters ... ok
+test eval::tests::math_tokens_are_recognised ... ok
+test eval::tests::mismatch_values_are_capped_at_100_chars ... ok
+test eval::tests::normalize_doi_is_symmetric_over_prefixes_case_and_punctuation ... ok
+test eval::tests::normalize_title_keeps_alphanumerics_and_single_spaces ... ok
+test eval::tests::normalizers_strip_prefixes_and_versions ... ok
+test eval::tests::paper_title_matches_exact_and_fuzzy ... ok
+test eval::tests::person_key_folds_markers_case_and_comma_form ... ok
+test eval::tests::placeholder_dois_are_recognised ... ok
+test eval::tests::recorded_marker_after_a_dropped_line_is_still_removed ... ok
+test eval::tests::reference_section_text_falls_back_to_text_lines ... ok
+test eval::tests::reference_section_text_is_capped_on_char_boundary ... ok
+test eval::tests::render_markdown_has_header_and_rows ... ok
+test eval::tests::render_markdown_lists_paper_metadata_mismatches ... ok
+test eval::tests::render_markdown_no_unmatched_keys ... ok
+test eval::tests::render_markdown_paper_doi_accuracy_is_na_without_truth_dois ... ok
+test eval::tests::render_markdown_paper_rows_match_header_columns ... ok
+test eval::tests::render_markdown_shows_paper_metadata ... ok
+test eval::tests::report_round_trips_json ... ok
+test eval::tests::report_without_marker_correctness_fields_still_loads ... ok
+test eval::tests::safe_file_stem_replaces_unsafe_characters ... ok
+test eval::tests::short_tagged_line_only_matches_a_whole_line ... ok
+test eval::tests::summarize_and_render_paper_doi_accuracy ... ok
+test eval::tests::summarize_empty_and_all_failed ... ok
+test eval::tests::summarize_means_stage_timings_over_non_failed_papers ... ok
+test eval::tests::summarize_percentiles_and_rates ... ok
+test eval::tests::surname_handles_common_shapes ... ok
+test eval::tests::tagged_lines_capped_with_truncated_marker ... ok
+test eval::tests::title_accuracy_skips_titleless_styles ... ok
+test eval::tests::title_digit_runs_conflict_only_on_both_sides ... ok
+test eval::tests::title_equal_folds_nfkc_and_tex_sub_superscripts ... ok
+test eval::tests::title_not_applicable_needs_titleless_raw_text ... ok
+test eval::tests::titleless_raw_accepts_e_numbers_article_numbers_and_et_al ... ok
+test eval::tests::titleless_raw_accepts_only_rsc_style ... ok
+test eval::tests::unlabeled_author_year_entries_continue_the_list_over_the_page ... ok
+test eval::tests::word_alignment_disjoint_is_zero ... ok
+test eval::tests::word_alignment_empty_both_is_one ... ok
+test eval::tests::word_alignment_identical_is_one ... ok
+test eval::tests::word_alignment_partial_overlap ... ok
+test eval::tests::wrapped_last_entry_ends_at_a_prose_paragraph_or_the_line_cap ... ok
+test eval::tests::write_dump_writes_pretty_json_that_round_trips ... ok
+test latex_refs::tests::author_year_inline_keeps_abbreviation_periods ... ok
+test latex_refs::tests::body_text_drops_acm_front_matter ... ok
+test latex_refs::tests::body_text_drops_box_settings_options_and_biographies ... ok
+test latex_refs::tests::body_text_drops_elsarticle_front_matter ... ok
+test latex_refs::tests::body_text_drops_figures_and_keeps_sections ... ok
+test latex_refs::tests::body_text_drops_footnotes ... ok
+test latex_refs::tests::body_text_drops_icml_front_matter ... ok
+test latex_refs::tests::body_text_drops_ieee_front_matter ... ok
+test latex_refs::tests::body_text_drops_verbatim_and_defined_listing_environments ... ok
+test latex_refs::tests::body_text_expands_equation_aliases_and_removes_all_math ... ok
+test latex_refs::tests::body_text_keeps_only_the_abstract_of_a_titlepage ... ok
+test latex_refs::tests::escaped_underscore_in_doi_is_unescaped ... ok
+test latex_refs::tests::first_year_skips_page_and_volume_numbers ... ok
+test latex_refs::tests::ground_truth_bibunits_uses_unit_bbls_in_order_and_ignores_stale_bbl ... ok
+test latex_refs::tests::ground_truth_concatenates_readme_toplevel_documents ... ok
+test latex_refs::tests::ground_truth_ignores_cites_in_comment_environments_of_input_files ... ok
+test latex_refs::tests::ground_truth_merges_bib_for_multibib_with_partial_bbl ... ok
+test latex_refs::tests::ground_truth_merges_bib_when_inline_list_covers_under_half ... ok
+test latex_refs::tests::ground_truth_nocite_all_and_errors ... ok
+test latex_refs::tests::ground_truth_nocite_all_multibib_merges_every_missing_bib_entry ... ok
+test latex_refs::tests::ground_truth_partial_bbl_without_newcites_merges_below_half_coverage ... ok
+test latex_refs::tests::ground_truth_prefers_bbl_and_filters_bib ... ok
+test latex_refs::tests::ground_truth_rejects_oversized_bibliography_before_reading_it ... ok
+test latex_refs::tests::ground_truth_rejects_oversized_fallback_main_before_reading_it ... ok
+test latex_refs::tests::ground_truth_size_includes_paper_metadata ... ok
+test latex_refs::tests::ground_truth_uses_inline_thebibliography ... ok
+test latex_refs::tests::latex_to_text_table ... ok
+test latex_refs::tests::listing_environments_are_dropped_and_prose_boxes_kept ... ok
+test latex_refs::tests::manifest_with_too_many_main_documents_is_a_resource_limit ... ok
+test latex_refs::tests::matching_close_handles_nesting_and_escapes ... ok
+test latex_refs::tests::paper_truth_acm_author_and_affiliation ... ok
+test latex_refs::tests::paper_truth_article_with_and ... ok
+test latex_refs::tests::paper_truth_elsarticle_frontmatter ... ok
+test latex_refs::tests::paper_truth_icml_author_list ... ok
+test latex_refs::tests::paper_truth_ieeetran_author_blocks ... ok
+test latex_refs::tests::paper_truth_ignores_cited_dois_in_sectionless_papers ... ok
+test latex_refs::tests::paper_truth_inline_affiliation_lines_and_layout_title ... ok
+test latex_refs::tests::paper_truth_titles_with_line_breaks_and_optional_arguments ... ok
+test latex_refs::tests::parse_bbl_author_year_initials ... ok
+test latex_refs::tests::parse_bbl_author_year_inline_guards ... ok
+test latex_refs::tests::parse_bbl_biblatex_entries ... ok
+test latex_refs::tests::parse_bbl_ieee_without_newblock ... ok
+test latex_refs::tests::parse_bbl_informs_title_in_first_block ... ok
+test latex_refs::tests::parse_bbl_informs_without_newblock ... ok
+test latex_refs::tests::parse_bbl_natbib_snippet ... ok
+test latex_refs::tests::parse_bbl_series_is_not_part_of_the_title ... ok
+test latex_refs::tests::parse_bbl_siam_without_newblock ... ok
+test latex_refs::tests::parse_bbl_title_drops_year_descriptor_and_url ... ok
+test latex_refs::tests::parse_bib_parenthesised_entry_and_other_archive ... ok
+test latex_refs::tests::parse_bib_snippet ... ok
+test latex_refs::tests::parse_cites_generic_cite_commands ... ok
+test latex_refs::tests::parse_cites_variants ... ok
+test latex_refs::tests::person_name_heuristic ... ok
+test latex_refs::tests::remove_disabled_drops_comment_environments_and_iffalse_blocks ... ok
+test latex_refs::tests::remove_math_handles_escapes_and_unclosed_delimiters ... ok
+test latex_refs::tests::resolve_inputs_accepts_brace_free_input ... ok
+test latex_refs::tests::resolve_inputs_accepts_explicit_tex_suffix ... ok
+test eval::tests::lcs_builds_mask_rows_only_for_tokens_in_both_sides ... ok
+test latex_refs::tests::resolve_inputs_handles_dotted_basename ... ok
+test latex_refs::tests::resolve_inputs_inlines_relative_files ... ok
+test latex_refs::tests::resolve_inputs_limits_include_operations ... ok
+test latex_refs::tests::resolve_inputs_rejects_cycles ... ok
+test latex_refs::tests::verbatim_env_names_reads_listing_definitions_only ... ok
+test ledger::tests::abandoned_result_restores_the_previous_run ... ok
+test ledger::tests::file_ledger_persists_across_reopen ... ok
+test ledger::tests::find_run_reports_status ... ok
+test ledger::tests::in_memory_ledger_starts_empty ... ok
+test ledger::tests::ledger_without_figures_table_gains_it_on_open ... ok
+test ledger::tests::prepared_result_commit_failure_rolls_back ... ok
+test ledger::tests::record_source_dedupes_identical_observations ... ok
+test ledger::tests::rewriting_same_identity_replaces_the_run ... ok
+test ledger::tests::version_five_migration_adds_columns_without_restamping_runs ... ok
+test ledger::tests::version_four_upgrade_preserves_existing_runs_and_resolution ... ok
+test ledger::tests::write_then_load_round_trips ... ok
+test metadata::tests::acm_footer_doi_wins_over_arxiv_own_doi ... ok
+test metadata::tests::acm_footer_doi_wins_over_cited_doi_in_body ... ok
+test metadata::tests::affiliation_and_label_rules ... ok
+test metadata::tests::arxiv_doi_prefix_matched_case_insensitively ... ok
+test metadata::tests::arxiv_id_from_page_one_gives_year ... ok
+test metadata::tests::arxiv_own_doi_is_kept_and_fills_arxiv_id_when_it_is_the_only_doi ... ok
+test metadata::tests::arxiv_own_doi_wins_over_a_doi_cited_in_the_abstract ... ok
+test metadata::tests::author_block_with_interleaved_affiliations_keeps_only_people ... ok
+test metadata::tests::doi_trimming_and_year ... ok
+test metadata::tests::empty_input_gives_default ... ok
+test metadata::tests::find_doi_accepts_prefixes_and_closes_wraps ... ok
+test metadata::tests::generic_info_author_yields_no_authors ... ok
+test metadata::tests::generic_info_title_falls_back_to_page_one ... ok
+test metadata::tests::generic_titles_and_authors ... ok
+test metadata::tests::header_footer_band_needs_a_bbox_and_height ... ok
+test metadata::tests::ieee_header_doi_split_across_lines_and_member_suffixes ... ok
+test metadata::tests::info_arxiv_doi_is_kept_when_page_one_has_no_other_doi ... ok
+test metadata::tests::info_author_list_of_full_names_splits ... ok
+test metadata::tests::info_author_splitting_cases ... ok
+test metadata::tests::info_author_surname_first_is_one_person ... ok
+test metadata::tests::info_dict_fields_carry_provenance ... ok
+test metadata::tests::info_publisher_doi_wins_over_page_one_arxiv_doi ... ok
+test metadata::tests::info_title_absent_from_page_falls_back_to_largest_font_block ... ok
+test metadata::tests::info_title_differing_in_one_word_is_replaced_by_printed_title ... ok
+test metadata::tests::info_title_is_located_across_wrapped_lines ... ok
+test metadata::tests::info_title_printed_on_the_page_is_kept_over_a_different_block ... ok
+test metadata::tests::info_title_without_author_reads_authors_below_page_one_title ... ok
+test metadata::tests::info_title_without_printed_subtitle_is_replaced ... ok
+test metadata::tests::keywords_from_page_one ... ok
+test metadata::tests::later_info_doi_does_not_override_info_arxiv_doi ... ok
+test metadata::tests::line_doi_does_not_join_words_or_years_from_the_next_line ... ok
+test metadata::tests::merged_unicode_superscripts_are_stripped_from_author_lines ... ok
+test metadata::tests::merged_unicode_superscripts_are_stripped_through_the_author_line_path ... ok
+test metadata::tests::old_style_arxiv_ids ... ok
+test metadata::tests::page1_publisher_doi_wins_over_info_arxiv_doi ... ok
+test metadata::tests::printed_title_supersedes_only_on_clear_evidence ... ok
+test metadata::tests::rotated_arxiv_stamp_is_never_the_title ... ok
+test metadata::tests::springer_doi_line_is_preferred_over_bare_doi_and_rejoined ... ok
+test metadata::tests::stale_info_title_is_replaced_by_printed_title ... ok
+test metadata::tests::strip_superscripts_still_handles_separate_small_spans ... ok
+test metadata::tests::superscript_spans_are_stripped_from_author_lines ... ok
+test metadata::tests::uniform_font_page_has_no_title ... ok
+test oxide::render::raster::tests::dimensions_and_counters_reject_before_allocation ... ok
+test pipeline::tests::absent_or_failed_fallback_retains_partial_native_text ... ok
+test pipeline::tests::actual_blank_stays_complete ... ok
+test pipeline::tests::backend_reading_order_is_kept_when_declared ... ok
+test pipeline::tests::chunk_hash_covers_joined_texts ... ok
+test pipeline::tests::complete_fallback_cannot_drop_good_native_page_text ... ok
+test pipeline::tests::different_sub_ranges_have_different_digests ... ok
+test pipeline::tests::document_hash_is_the_file_hash ... ok
+test pipeline::tests::empty_fallback_cannot_clear_scan_or_unicode_evidence ... ok
+test pipeline::tests::empty_input_has_no_chunks ... ok
+test pipeline::tests::explicit_range_covering_every_page_is_a_full_run ... ok
+test pipeline::tests::failed_page_marks_chunk_partial ... ok
+test pipeline::tests::fallback_cannot_drop_decoded_native_text_regardless_of_status ... ok
+test pipeline::tests::fallback_cannot_launder_failed_or_inconsistent_status ... ok
+test pipeline::tests::fallback_cannot_make_a_good_native_page_partial ... ok
+test pipeline::tests::fallback_must_read_the_same_source_and_page_range ... ok
+test pipeline::tests::figure_bytes_are_hashed_and_exported ... ok
+test pipeline::tests::figure_bytes_without_dir_only_set_the_hash ... ok
+test pipeline::tests::figure_extensions_follow_mime ... ok
+test pipeline::tests::forty_five_pages_make_three_chunks ... ok
+test pipeline::tests::full_run_keeps_backend_identity_and_is_complete ... ok
+test pipeline::tests::mapped_native_fallback_can_complete_a_partial_page ... ok
+test pipeline::tests::mixed_scan_and_unicode_evidence_cannot_jump_to_ocr ... ok
+test pipeline::tests::native_cascade_cannot_change_source_coverage_status_or_known_evidence ... ok
+test pipeline::tests::native_cascade_does_not_drop_link_evidence_during_pdfium_replacement ... ok
+test pipeline::tests::native_cascade_keeps_mapped_lopdf_and_successfully_repaired_pdfium ... ok
+test pipeline::tests::native_cascade_policy_is_explicit_and_has_a_distinct_ledger_identity ... ok
+test pipeline::tests::native_cascade_preserves_best_partial_result_and_never_enters_ocr ... ok
+test pipeline::tests::native_cascade_recovers_after_missing_failed_or_regressing_pdfium ... ok
+test pipeline::tests::native_cascade_tries_poppler_once_after_mupdf_cannot_improve ... ok
+test pipeline::tests::page_range_defaults_and_clamps ... ok
+test pipeline::tests::progress_reports_the_open_and_every_page_of_the_range ... ok
+test pipeline::tests::real_lopdf_scan_is_partial_but_a_blank_page_is_complete ... ok
+test pipeline::tests::replacement_text_is_partial_even_without_backend_warning ... ok
+test pipeline::tests::reversed_page_range_returns_an_error_without_panicking ... ok
+test pipeline::tests::scan_evidence_survives_pipeline_chunks_json_and_ledger ... ok
+test pipeline::tests::sub_range_digest_folds_backend_digest_and_range ... ok
+test pipeline::tests::sub_range_keeps_chunk_numbering ... ok
+test pipeline::tests::sub_range_run_is_partial_with_its_own_digest ... ok
+test pipeline::tests::unknown_backend_is_reported_before_acquire ... ok
+test pipeline::tests::warm_up_is_repeatable ... ok
+test pipeline::tests::zero_page_document_returns_an_error_without_panicking ... ok
+test publication::tests::collision_during_second_link_retries_both_without_overwriting ... ok
+test publication::tests::concurrent_publishers_get_distinct_complete_pairs ... ok
+test publication::tests::failed_commit_removes_all_published_files ... ok
+test publication::tests::failure_after_first_link_removes_it_and_does_not_commit ... ok
+test publication::tests::publication_permissions_child ... ok
+test publication::tests::published_outputs_respect_caller_umask ... ok
+test publication::tests::rollback_does_not_remove_a_replacement_from_another_owner ... ok
+test publication::tests::unsupported_links_fail_without_writing_a_partial_final_file ... ok
+test reading_order::line_index::tests::exhaustion_during_rebuild_or_update_disables_further_searches ... ok
+test reading_order::line_index::tests::indexed_winners_match_the_naive_reverse_scan_at_every_prefix ... ok
+test reading_order::line_index::tests::latest_matching_line_wins_after_pruning_and_bounds_refresh ... ok
+test reading_order::line_index::tests::original_float_boundaries_are_preserved ... ok
+test reading_order::line_index::tests::separated_spans_remain_within_budget_and_index_memory_limit ... ok
+test reading_order::tests::accent_closing_a_string_composes_onto_the_letter_kerned_back_under_it ... ok
+test reading_order::tests::accent_glyph_composes_onto_the_letter_under_it ... ok
+test reading_order::tests::accent_helpers ... ok
+test reading_order::tests::accent_over_no_glyph_stays_separate_with_warning ... ok
+test reading_order::tests::accent_shown_before_its_letter_still_attaches ... ok
+test reading_order::tests::aligned_gap_is_kept_inside_columns_when_the_text_flows_down_them ... ok
+test reading_order::tests::aligned_paragraph_gaps_do_not_cut_columns_into_bands ... ok
+test reading_order::tests::ascii_tilde_on_the_baseline_over_no_glyph_is_an_ordinary_span ... ok
+test reading_order::tests::backend_order_follows_seq_not_geometry ... ok
+test reading_order::tests::balanced_column_band_above_a_new_two_column_band_is_read_by_rows ... ok
+test reading_order::tests::bridge_needs_two_columns_of_prose_beside_the_bridging_lines ... ok
+test reading_order::tests::bridging_line_at_the_bottom_is_cut_off_without_a_row_gap ... ok
+test reading_order::tests::caption_bridging_the_gutter_cuts_the_columns_into_bands ... ok
+test reading_order::tests::cedilla_below_the_baseline_composes ... ok
+test reading_order::tests::columns_coexist_needs_vertical_overlap_and_two_lines_each ... ok
+test reading_order::tests::distant_running_heads_aligned_with_both_columns_remain_a_header_band ... ok
+test reading_order::tests::empty_page_produces_nothing ... ok
+test reading_order::tests::excessive_accent_work_keeps_glyphs_verbatim ... ok
+test reading_order::tests::excessive_accent_work_keeps_separated_accent_spans_linear ... ok
+test reading_order::tests::existing_boundary_space_is_not_doubled ... ok
+test reading_order::tests::flow_scores_line_continuity ... ok
+test reading_order::tests::full_width_title_with_a_wide_word_space_still_joins ... ok
+test reading_order::tests::gutter_rule_needs_three_words_on_each_side ... ok
+test reading_order::tests::header_columns_footer ... ok
+test reading_order::tests::horizontal_budget_preserves_every_remaining_span ... ok
+test reading_order::tests::horizontal_index_limit_is_visible_on_the_page_without_dropping_text ... ok
+test reading_order::tests::left_line_overhanging_the_gutter_does_not_interleave_the_columns ... ok
+test reading_order::tests::line_numbers_and_zero_advance_spans_are_not_vertical_text ... ok
+test reading_order::tests::median_of_odd_even_and_empty ... ok
+test reading_order::tests::order_page_is_idempotent ... ok
+test reading_order::tests::overhang_cut_tolerates_only_left_lines_running_into_the_gutter ... ok
+test reading_order::tests::overhanging_line_beside_a_bridging_caption_still_cuts_bands ... ok
+test reading_order::tests::page_header_band_is_cut_off_before_the_columns_are_weighed ... ok
+test reading_order::tests::reference_label_stays_first_before_accented_author ... ok
+test reading_order::tests::right_aligned_heading_above_left_prose_is_read_first ... ok
+test reading_order::tests::rotated_arxiv_stamp_is_kept_out_of_the_body_and_placed_last ... ok
+test reading_order::tests::rotated_page_groups_lines_along_the_turned_baselines ... ok
+test reading_order::tests::running_head_and_gutter_page_number_frame_the_columns ... ok
+test reading_order::tests::short_last_line_of_a_full_width_paragraph_stays_with_it ... ok
+test reading_order::tests::single_column_order_and_paragraph_break ... ok
+test reading_order::tests::spans_out_of_stream_order_join_left_to_right ... ok
+test reading_order::tests::spans_without_bbox_go_last_with_warning ... ok
+test reading_order::tests::stamp_of_stacked_rotated_glyphs_does_not_join_body_lines ... ok
+test reading_order::tests::title_then_left_column_then_right_column ... ok
+test reading_order::tests::turn_maps_boxes_into_the_displayed_frame_and_back ... ok
+test reading_order::tests::two_columns_on_shared_baselines_stay_two_lines_per_row ... ok
+test reading_order::tests::vertical_budget_warning_reaches_the_page_once ... ok
+test reading_order::tests::vertical_grouping_stops_searching_when_its_budget_is_exhausted ... ok
+test reading_order::tests::vertical_span_and_stack_helpers ... ok
+test regions::tests::a_box_without_a_caption_keeps_its_prose_and_a_whole_page_box_is_unused ... ok
+test regions::tests::a_caption_at_the_top_of_a_column_above_prose_tags_nothing ... ok
+test regions::tests::a_caption_continues_through_sentence_ends_in_a_closed_block ... ok
+test regions::tests::a_caption_start_inside_a_paragraph_is_ignored ... ok
+test regions::tests::a_caption_stops_at_a_line_in_another_font_size ... ok
+test regions::tests::a_continued_table_page_is_table_text_through_its_last_row ... ok
+test regions::tests::a_figure_below_a_mid_page_caption_is_figure_text ... ok
+test regions::tests::a_framed_prose_box_above_a_figure_caption_is_figure_text ... ok
+test regions::tests::a_full_width_figure_caption_above_two_prose_columns_tags_nothing ... ok
+test regions::tests::a_raster_figure_with_no_lines_inside_tags_nothing ... ok
+test regions::tests::a_raster_figure_with_prose_around_it_tags_nothing ... ok
+test regions::tests::a_region_longer_than_the_cap_is_dropped ... ok
+test regions::tests::a_short_paragraph_tail_above_diagram_labels_stays_body ... ok
+test regions::tests::a_shredded_sideways_page_without_a_table_label_tags_nothing ... ok
+test regions::tests::a_shredded_sideways_table_page_is_table_text ... ok
+test regions::tests::a_sideways_page_after_a_sideways_table_page_continues_it ... ok
+test regions::tests::a_sideways_page_without_a_table_label_tags_nothing ... ok
+test regions::tests::a_sideways_table_page_is_table_text_in_the_turned_frame ... ok
+test regions::tests::a_table_caption_followed_by_prose_tags_nothing ... ok
+test regions::tests::a_table_with_paragraph_cells_in_three_columns_is_table_text ... ok
+test regions::tests::a_tall_vector_frame_without_a_caption_is_figure_text ... ok
+test regions::tests::an_algorithm_block_is_algorithm_text ... ok
+test regions::tests::an_untagged_caption_continuation_is_skipped_and_tagged_caption ... ok
+test regions::tests::body_text_after_a_paragraph_table_is_not_table_text ... ok
+test regions::tests::caption_kind_propagates_along_a_long_box_chain ... ok
+test regions::tests::caption_starts ... ok
+test regions::tests::cells_below_a_table_caption_are_table_text ... ok
+test regions::tests::column_prose_far_above_the_caption_of_a_box_that_is_no_text_box_stays_body ... ok
+test regions::tests::column_prose_is_prose_like ... ok
+test regions::tests::competing_caption_chains_keep_the_lowest_index_tie_break ... ok
+test regions::tests::diagram_labels_above_a_figure_caption_are_figure_text ... ok
+test regions::tests::display_math_fragments_are_math ... ok
+test regions::tests::elsevier_table_with_the_caption_below_uses_the_lines_above ... ok
+test regions::tests::every_line_of_a_tall_captioned_prompt_box_is_figure_text ... ok
+test regions::tests::excessive_caption_candidates_skip_caption_based_tagging ... ok
+test regions::tests::graphics_labels_on_a_figure_box_and_above_its_caption_are_figure_text ... ok
+test regions::tests::letter_numbered_and_continued_labels_are_caption_starts ... ok
+test regions::tests::math_lines_allow_one_long_word ... ok
+test regions::tests::mostly_numeric_lines_are_fragments_whatever_their_length ... ok
+test regions::tests::other_roles_are_never_retagged_and_stop_the_walk ... ok
+test regions::tests::prose_cells_between_table_rules_are_table_text ... ok
+test regions::tests::prose_inside_a_figure_box_without_a_caption_stays_body ... ok
+test regions::tests::section_headings_below_a_figure_caption_are_not_figure_text ... ok
+test regions::tests::short_diagram_labels_near_prose_still_belong_to_the_figure ... ok
+test regions::tests::small_lines_without_a_marker_or_in_a_long_run_are_not_footnotes ... ok
+test regions::tests::small_marked_lines_at_the_page_foot_are_footnotes ... ok
+test regions::tests::stacked_and_nearby_labels_of_a_figure_box_are_figure_text ... ok
+test regions::tests::stacked_single_letters_are_vertical ... ok
+test regions::tests::tagging_is_idempotent ... ok
+test regions::tests::three_consecutive_monospace_lines_are_code ... ok
+test regions::tests::token_and_line_classes ... ok
+test regions::tests::two_prose_columns_under_a_full_width_table_caption_are_no_table ... ok
+test regions::tests::vertical_lines_below_a_table_caption_are_table_text ... ok
+test resolve::tests::ambiguity_is_unresolved_without_metadata_rejection ... ok
+test resolve::tests::biomedical_lookup_does_not_pick_distinct_records_by_order ... ok
+test resolve::tests::biomedical_lookup_rejects_wrong_ids_metadata_and_conflicts ... ok
+test resolve::tests::broken_doi_does_not_hide_later_conflicting_identifiers ... ok
+test resolve::tests::citing_article_footer_cannot_verify_the_last_reference ... ok
+test resolve::tests::doi_lookup_keeps_balanced_biomedical_suffixes ... ok
+test resolve::tests::doi_strings_are_cut_at_sentence_punctuation_and_lower_cased ... ok
+test resolve::tests::europepmc_mismatch_counts_even_after_not_found_or_transport_error ... ok
+test resolve::tests::explicit_biomedical_ids_are_typed_and_deduplicated ... ok
+test resolve::tests::explicit_ids_accept_only_verified_joint_identity ... ok
+test resolve::tests::explicit_ids_block_fallback_for_conflicts_missing_records_and_bad_metadata ... ok
+test resolve::tests::failed_registry_requests_are_visible_in_summary ... ok
+test resolve::tests::family_names_keep_particles ... ok
+test resolve::tests::links_attach_to_the_entry_they_sit_on ... ok
+test resolve::tests::live_biomedical_exact_identifiers ... ignored, requires live Europe PMC and Crossref access
+test resolve::tests::live_crossref_exact_identifier ... ignored, requires live Crossref access
+test resolve::tests::merged_wrapped_dois_are_ambiguous_before_any_registry_request ... ok
+test resolve::tests::old_resolved_json_remains_readable ... ok
+test resolve::tests::paper_exact_lookup_requires_normalized_requested_doi ... ok
+test resolve::tests::paper_query_checks_near_ties_in_both_orders ... ok
+test resolve::tests::printed_doi_preserves_repairs_and_raw_extensions ... ok
+test resolve::tests::pubmed_record_without_doi_resolves_without_inventing_one ... ok
+test resolve::tests::query_ambiguity_is_not_decided_by_response_order ... ok
+test resolve::tests::query_needs_title_evidence_and_deduplicates_identical_dois ... ok
+test resolve::tests::query_uses_venue_evidence_to_distinguish_versions ... ok
+test resolve::tests::repeated_doi_forms_do_not_create_ambiguity ... ok
+test resolve::tests::venue_function_word_does_not_outrank_a_better_title_match ... ok
+test resolve::tests::venue_function_word_does_not_remove_query_ambiguity ... ok
+test resolve::tests::venue_word_in_candidate_title_does_not_remove_query_ambiguity ... ok
+test resolve::tests::verification_needs_author_and_year_agreement ... ok
+test router::tests::mapped_text_stays_on_lopdf ... ok
+test router::tests::optional_native_routes_require_both_explicit_library_files ... ok
+test router::tests::page_evidence_reads_pdf_oxide_output ... ok
+test router::tests::page_route_is_the_documented_match ... ok
+test router::tests::page_sized_raster_without_text_is_a_scan ... ok
+test router::tests::replacement_share_routes_to_pdfium ... ok
+test router::tests::route_names_match_backends ... ok
+test router::tests::scan_with_unmapped_text_preserves_both_signals ... ok
+test router::tests::undecodable_font_warning_routes_to_pdfium ... ok
+test schema::tests::digest_is_order_independent ... ok
+test schema::tests::job_without_figures_dir_parses ... ok
+test schema::tests::line_without_role_is_body ... ok
+test schema::tests::result_round_trips_json ... ok
+test schema::tests::sha256_hex_matches_known_vectors ... ok
+test schema::tests::timings_without_hash_ms_parse ... ok
+test text_cleanup::tests::a_biography_heading_is_tagged_and_long_biographies_are_capped ... ok
+test text_cleanup::tests::a_footnote_carried_to_the_next_page_is_tagged ... ok
+test text_cleanup::tests::a_long_line_without_an_affiliation_signal_is_not_front_matter ... ok
+test text_cleanup::tests::a_long_title_with_plural_nouns_before_the_abstract_is_front_matter ... ok
+test text_cleanup::tests::a_prose_run_ends_front_matter_without_an_abstract_line ... ok
+test text_cleanup::tests::a_run_of_three_shorter_prose_lines_ends_front_matter ... ok
+test text_cleanup::tests::a_twelve_word_sentence_line_is_not_front_matter ... ok
+test text_cleanup::tests::alternating_running_heads_in_the_wide_band_are_furniture ... ok
+test text_cleanup::tests::arxiv_stamp_leaves_page_one_text ... ok
+test text_cleanup::tests::attested_hyphenated_form_keeps_the_hyphen ... ok
+test text_cleanup::tests::author_biographies_after_the_references_are_tagged ... ok
+test text_cleanup::tests::bare_caption_starts_are_tagged_unless_they_continue_a_paragraph ... ok
+test text_cleanup::tests::biography_starts ... ok
+test text_cleanup::tests::capitalised_and_all_capital_hyphens_in_the_document_pass ... ok
+test text_cleanup::tests::caption_labels_are_tagged ... ok
+test text_cleanup::tests::cleanup_is_idempotent ... ok
+test text_cleanup::tests::dot_leader_lines_are_toc ... ok
+test text_cleanup::tests::existing_tags_survive_and_furniture_wins ... ok
+test text_cleanup::tests::fragments_far_from_their_base_lines_in_reading_order_merge ... ok
+test text_cleanup::tests::fragments_on_one_row_merge_at_their_positions ... ok
+test text_cleanup::tests::fully_consumed_line_hands_its_spans_over ... ok
+test text_cleanup::tests::hyphen_is_not_joined_across_a_paragraph_break ... ok
+test text_cleanup::tests::hyphen_is_not_joined_across_columns_urls_or_capitals ... ok
+test text_cleanup::tests::hyphen_joins_across_a_page_break_past_the_page_number ... ok
+test text_cleanup::tests::hyphen_joins_when_attested_or_when_halves_are_not_words ... ok
+test text_cleanup::tests::hyphen_joins_when_the_word_is_attested ... ok
+test text_cleanup::tests::hyphen_joins_without_evidence_unless_a_compound_prefix ... ok
+test text_cleanup::tests::hyphen_policy_counts_pair_against_joined_word ... ok
+test text_cleanup::tests::hyphen_policy_in_the_document_pass ... ok
+test text_cleanup::tests::hyphen_policy_joins_all_capital_breaks ... ok
+test text_cleanup::tests::hyphen_policy_joins_an_attested_word_first ... ok
+test text_cleanup::tests::hyphen_policy_keeps_an_attested_compound ... ok
+test text_cleanup::tests::hyphen_policy_keeps_capitalised_prefix_compounds ... ok
+test text_cleanup::tests::hyphen_policy_keeps_printed_compounds ... ok
+test text_cleanup::tests::hyphen_policy_keeps_two_attested_words_and_joins_the_rest ... ok
+test text_cleanup::tests::hyphen_policy_prefix_lists ... ok
+test text_cleanup::tests::hyphen_stays_when_both_halves_are_words_elsewhere ... ok
+test text_cleanup::tests::keyword_blocks_stop_at_a_full_stop_and_need_a_label ... ok
+test text_cleanup::tests::keywords_on_page_two_after_a_title_page_are_front_matter ... ok
+test text_cleanup::tests::licence_keyword_and_affiliation_blocks_are_front_matter ... ok
+test text_cleanup::tests::lines_under_a_footnote_rule_are_footnotes ... ok
+test text_cleanup::tests::lowered_digit_becomes_a_subscript_of_its_own_line ... ok
+test text_cleanup::tests::near_body_size_fragment_is_not_a_script ... ok
+test text_cleanup::tests::number_sharing_its_row_with_text_is_not_a_page_number ... ok
+test text_cleanup::tests::page_number_forms ... ok
+test text_cleanup::tests::page_one_lines_before_the_abstract_are_front_matter ... ok
+test text_cleanup::tests::page_whose_text_does_not_match_its_lines_is_skipped ... ok
+test text_cleanup::tests::raised_letters_and_body_size_numbers_stay ... ok
+test text_cleanup::tests::raised_number_after_the_line_end_attaches_within_one_size ... ok
+test text_cleanup::tests::raised_number_at_line_start_attaches_to_the_next_word ... ok
+test text_cleanup::tests::raised_number_attaches_to_the_word_before_it ... ok
+test text_cleanup::tests::raised_number_before_a_comma_span_drops_the_space ... ok
+test text_cleanup::tests::raised_range_becomes_superscript_digits_and_minus ... ok
+test text_cleanup::tests::running_header_and_page_number_leave_the_text_only ... ok
+test text_cleanup::tests::script_forms ... ok
+test text_cleanup::tests::script_merging_has_a_per_page_work_budget ... ok
+test text_cleanup::tests::seven_point_number_on_nine_point_text_attaches ... ok
+test text_cleanup::tests::single_edge_line_stays ... ok
+test text_cleanup::tests::strong_repetition_rule ... ok
+test text_cleanup::tests::superscript_best_base_after_256_candidates_matches_full_search ... ok
+test text_cleanup::tests::superscript_line_merges_into_its_base_line ... ok
+test text_cleanup::tests::superscript_search_charges_the_complete_baseline_window ... ok
+test text_cleanup::tests::superscript_search_counts_furniture_without_hiding_later_body_lines ... ok
+test text_cleanup::tests::vertical_text_line_is_a_stamp_and_short_lines_are_not ... ok
+test text_cleanup::tests::vocabulary_counts_occurrences ... ok
+test text_cleanup::tests::wider_reach_and_ratio_have_limits ... ok
+test text_cleanup::tests::window_search_matches_a_scan_of_every_line ... ok
+test text_cleanup::tests::without_an_abstract_front_matter_ends_at_the_introduction ... ok
+test latex_refs::tests::resolve_inputs_charges_raw_bytes_before_cleaning ... ok
+
+test result: ok. 800 passed; 0 failed; 7 ignored; 0 measured; 0 filtered out; finished in 5.93s
+
+     Running unittests src/main.rs (/workspace/pdftextract/target/debug/deps/tpe-3c3e7fed973fabf7)
+
+running 16 tests
+test tests::backend_names_are_checked_against_this_build ... ok
+test tests::csv_preserves_biomedical_ids_and_refuses_legacy_headers ... ok
+test tests::parses_ranges_and_single_pages ... ok
+test tests::percentile_uses_nearest_rank ... ok
+test tests::rejects_bad_ranges ... ok
+test tests::short_hash_takes_twelve_digits ... ok
+test tests::split_selects_manifest_items ... ok
+test worker_allocator::tests::allocator_probe ... ignored, run only by the bounded parent probes
+test tests::lopdf_opens_the_probe ... ok
+test worker_allocator::tests::fallible_allocations_remain_recoverable_outside_workers ... ok
+test worker_allocator::tests::workers_abort_even_when_the_caller_uses_fallible_allocation ... ok
+
+running 1 test
+test worker_limits::tests::os_limit_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+test worker_allocator::tests::workers_preserve_small_allocations_and_existing_storage ... ok
+
+running 1 test
+test worker_limits::tests::os_limit_probe ... test worker_limits::tests::os_address_space_boundary_fails_closed_on_invalid_setup ... ok
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+
+running 1 test
+test worker_limits::tests::os_limit_probe ... worker-limit evidence: {"kind":"address_space_growth","startup_virtual_bytes":106323968,"requested_growth_bytes":33554432,"effective_address_space_bytes":139878400,"inherited_soft_bytes":8589934592,"inherited_hard_bytes":8589934592,"core_dump_bytes":0,"kernel_parent_death_signal":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+test worker_limits::tests::os_address_space_boundary_preserves_stricter_inherited_limits ... ok
+test worker_limits::tests::os_limit_probe ... ignored, invoked in a disposable subprocess by the boundary tests
+test worker_limits::tests::os_address_space_boundary_rejects_mapping_and_heap_growth ... ok
+
+test result: ok. 14 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/bibliography_column_headings.rs (/workspace/pdftextract/target/debug/deps/bibliography_column_headings-6fe54ca09303b798)
+
+running 2 tests
+test docling_text_column_headings_preserve_all_29_references ... ok
+test pdfium_column_headings_preserve_all_29_references ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.38s
+
+     Running tests/bibliography_input_safety.rs (/workspace/pdftextract/target/debug/deps/bibliography_input_safety-ee0d9942a90c71b3)
+
+running 7 tests
+test csv_cannot_create_a_missing_selected_input ... ok
+test csv_cannot_initialize_an_empty_selected_input ... ok
+test csv_aliases_of_later_inputs_are_rejected_before_the_first_append ... ok
+test dangling_symlink_aliases_cannot_create_selected_sources ... ok
+test missing_input_lexical_aliases_are_rejected_before_extraction ... ok
+test missing_input_through_a_symlinked_directory_is_preserved ... ok
+test separate_csv_still_appends_without_changing_the_pdf ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.99s
+
+     Running tests/build_identity.rs (/workspace/pdftextract/target/debug/deps/build_identity-f75783cecd96aa65)
+
+running 4 tests
+test actual_cli_matches_its_embedded_build_identity ... ok
+test cached_worktree_build_observes_common_refs_and_its_own_head ... ok
+test source_archive_does_not_claim_the_manifest_version_as_a_release ... ok
+test release_identity_tracks_environment_tags_and_dirty_source_in_cached_builds ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+     Running tests/cli_containment.rs (/workspace/pdftextract/target/debug/deps/cli_containment-73ad61f8d2e5fa34)
+
+running 19 tests
+test cancellation_does_not_launch_relays_for_the_whole_pending_batch ... ok
+test canonical_ledger_sidecars_cannot_delete_an_input_behind_a_symlink ... ok
+test deadline_and_cancellation_kill_and_reap_a_stopped_worker ... ok
+test excessive_selection_and_non_native_options_fail_before_writes ... ok
+test full_stdout_pipe_obeys_deadline_after_commit_without_changing_caller_flags ... ok
+
+running 1 test
+test parent_death_with_finite_inherited_limit_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.05s
+
+test kernel_parent_death_signal_terminates_even_a_stopped_parser ... ok
+test large_pdf_has_no_default_input_cap_and_explicit_cap_is_honored ... ok
+test lease_eof_terminates_a_worker_blocked_opening_a_request ... ok
+test ledger_and_sidecar_aliases_never_modify_selected_sources ... ok
+test limits_fail_per_document_without_publication_and_clean_captures ... ok
+test malformed_input_does_not_stop_later_input_and_folders_are_nonrecursive ... ok
+test missing_ledger_or_sidecars_cannot_be_created_as_selected_sources ... ok
+test missing_ledger_sources_behind_dangling_symlinks_are_preserved ... ok
+test native_and_existing_ocr_survive_bounded_workers_and_no_clobber_publication ... ok
+test output_aliases_are_skipped_without_writing_through_them ... ok
+test oversized_hidden_worker_request_is_rejected_before_json_decode ... ok
+test parent_death_with_finite_inherited_limit_probe ... ignored, run with a finite inherited limit in a bounded child by the parent-death test
+test sqlite_uri_and_temporary_ledger_names_are_rejected_before_writes ... ok
+test allocation_pressure_is_contained_and_the_next_document_succeeds ... ok
+
+test result: ok. 18 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 46.55s
+
+     Running tests/cli_dry_run.rs (/workspace/pdftextract/target/debug/deps/cli_dry_run-1dd9868cce3d9483)
+
+running 2 tests
+test dry_run_and_n_preserve_invalid_source_existing_ledger_and_destinations ... ok
+test ordinary_extraction_still_rejects_invalid_input ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/docling_text.rs (/workspace/pdftextract/target/debug/deps/docling_text-35fb1d7dc289f502)
+
+running 1 test
+test supervised_text_parser_ignores_ocr_and_native_runtime_environment ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/end_to_end.rs (/workspace/pdftextract/target/debug/deps/end_to_end-72944dd676b51ac2)
+
+running 14 tests
+test bibliography_acquisition_failure_keeps_schema_without_fabricating_hash ... ok
+test bibliography_cli_emits_one_json_record_without_a_ledger ... ok
+test bibliography_cli_progress_counts_pages_from_the_end ... ok
+test bibliography_cli_reports_invalid_pdf_as_json_failure ... ok
+test extract_cli_is_silent_on_stderr_without_progress ... ok
+test extract_cli_progress_reports_the_open_and_every_page ... ok
+test forty_five_pages_chunk_into_three ... ok
+test extracts_synthetic_paper_end_to_end ... ok
+test non_pdf_input_is_malformed ... ok
+test ledger_round_trips_the_result ... ok
+test page_range_beyond_document_is_an_error ... ok
+test page_range_selects_a_single_page ... ok
+test synthetic_paper_is_a_pdf ... ok
+test running_twice_writes_one_run ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.56s
+
+     Running tests/eval_cli.rs (/workspace/pdftextract/target/debug/deps/eval_cli-360f8a49717c32fd)
+
+running 4 tests
+test corpus_fetch_offline_with_empty_cache_fails ... ok
+test eval_offline_with_empty_cache_reports_one_failed_paper ... ok
+test eval_rejects_unknown_backend ... ok
+test eval_offline_empty_split_writes_empty_report ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.43s
+
+     Running tests/grobid_contract.rs (/workspace/pdftextract/target/debug/deps/grobid_contract-e72d57763b80466b)
+
+running 9 tests
+test cli_server_failure_is_nonzero_without_partial_json ... ok
+test cli_uses_bounded_worker_and_does_not_modify_source_or_leak_token ... ok
+test configured_server_preserves_tei_citations_and_coordinates_without_consolidation ... ok
+test byte_and_time_limits_fail_closed ... ok
+test endpoint_secrets_invalid_input_and_non_tei_are_rejected ... ok
+test failures_and_redirects_never_become_success_or_trigger_retries ... ok
+test unavailable_version_endpoint_does_not_upload_pdf ... ok
+test xxe_declarations_and_invalid_coordinates_are_rejected ... ok
+test default_streaming_input_and_tei_exceed_the_removed_size_caps ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.51s
+
+     Running tests/layout_real_corpus.rs (/workspace/pdftextract/target/debug/deps/layout_real_corpus-128406899dc27242)
+
+running 1 test
+test visual_real_file_reading_order_witnesses ... ignored, requires the four public, SHA-pinned PDFs; run in layout witness CI
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/liteparse_layout.rs (/workspace/pdftextract/target/debug/deps/liteparse_layout-eb8ac1f0941324cf)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/lopdf_unicode_status.rs (/workspace/pdftextract/target/debug/deps/lopdf_unicode_status-62a7e74849727373)
+
+running 5 tests
+test bibliography_cli_reports_zero_page_pdf_as_failed ... ok
+test mapping_uncertainty_survives_pipeline_json_ledger_and_bibliography ... ok
+test mixed_case_reference_headings_preserve_lists_and_reference_text ... ok
+test unknown_bytes_keep_their_original_position_between_known_characters ... ok
+test bibliography_cli_preserves_found_partial_records_but_returns_failure ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+     Running tests/native_provider.rs (/workspace/pdftextract/target/debug/deps/native_provider-ecf5b8adc1d2bc81)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/oxide_containment.rs (/workspace/pdftextract/target/debug/deps/oxide_containment-4b19cfbac776f309)
+process: sockets and process APIs denied; filesystem read and threads work
+sealed: path IO, sockets and process APIs denied; threads and memory work
+unexpected inherited descriptor rejected before restriction
+multithreaded Landlock installation rejected
+LANDLOCK_UNAVAILABLE: oxide containment Landlock ABI query (no fallback): Function not implemented (os error 38); positive filesystem allowlist probe not executed
+test result: ok. 5 bounded subprocess scenarios; see explicit Landlock availability above
+     Running tests/oxide_convert.rs (/workspace/pdftextract/target/debug/deps/oxide_convert-b18d4cf4d380dff0)
+
+running 10 tests
+test empty_and_damaged_inputs_do_not_become_claims_of_complete_extraction ... ok
+test changed_html_layout_retains_original_baseline_and_sanitizes_display ... ok
+test image_resources_are_omitted_without_image_decode_or_output_files ... ok
+test native_path_operator_diagnostic_retains_null_page_and_marks_truncated_output ... ok
+test output_overflow_is_an_error_without_changing_input ... ok
+test path_image_formula_and_silent_transform_parameters_are_rejected ... ok
+test selected_page_numbers_and_ranges_are_explicit_and_bounded ... ok
+test unicode_actual_text_and_literal_meaning_survive_all_three_converters ... ok
+test wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates ... ok
+test operator_cutoffs_fail_before_publication_in_bounded_native_workers ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.53s
+
+     Running tests/oxide_create_office.rs (/workspace/pdftextract/target/debug/deps/oxide_create_office-32bee9df8ed5d574)
+
+running 15 tests
+test buffered_table_creation_fails_explicitly_for_known_layout_defects ... ok
+test creation_rejects_active_html_invalid_dimensions_and_output_overflow ... ok
+test composition_retains_font_size_geometry_and_page_order ... ok
+test creation_round_trips_text_and_preserves_input_identity ... ok
+test html_css_table_semantics_fail_before_known_cell_overlap ... ok
+test image_creation_checks_real_decode_pixels_and_total_count ... ok
+test minimal_office_import_is_bytes_only_and_keeps_original ... ok
+test office_export_and_import_parse_all_three_formats ... ok
+test office_image_export_checks_metadata_before_decode_and_rejects_alpha_loss ... ok
+test html_css_rejects_known_page_unit_mismatch_and_resources ... ok
+test office_markdown_creation_is_real_archive_and_rejects_legacy_formats ... ok
+test office_rejects_crc_damage_zip_duplicates_and_bounded_expansion ... ok
+test office_rejects_macros_ole_external_links_and_xml_tricks ... ok
+test office_whole_document_conversion_rejects_partial_selection_and_page_limits ... ok
+test office_layout_thresholds_are_explicit_at_30_31_and_200_201 ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.97s
+
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-a98286fd8c4e4dda)
+
+running 44 tests
+test adding_to_existing_inline_or_indirect_acroform_rejects_without_catalog_loss ... ok
+test annotation_add_update_remove_and_unsafe_action_rejection ... ok
+test annotation_flatten_rejects_external_link_borders_despite_correct_appearance_corners ... ok
+test annotation_flatten_removes_selected_links_and_preserves_nonselected_no_ap_links ... ok
+test annotation_repair_keeps_unknown_properties_and_ordered_action_identity ... ok
+test appearance_bearing_fields_and_child_widgets_reject_changed_values_and_styles ... ok
+test complete_existing_form_appearance_remains_available_for_flattening ... ok
+test cyclic_acroform_read_paths_fail_before_upstream_recursion ... ok
+test choice_fields_keep_multi_values_and_lossy_xfdf_export_is_rejected ... ok
+test cyclic_bookmarks_fail_without_entering_the_upstream_unbounded_walk ... ok
+test direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails ... ok
+test edit_rejects_invalid_pages_rectangles_rotations_and_unknown_parameters ... ok
+test embedded_bytes_roundtrip_without_document_chosen_output_paths ... ok
+test direct_widget_state_dictionary_preserves_selected_custom_appearance ... ok
+test flatten_page_carrier_annotation_rejects_shadowed_inherited_fonts_images ... ok
+test flatten_page_carrier_annotation_without_contents_rejects_lost_appearance ... ok
+test flatten_page_carrier_annotation_explicit_resources_preserve_content_and_appearance ... ok
+test flatten_page_carrier_form_rejects_shadowed_inherited_fonts_images ... ok
+test flatten_page_carrier_form_without_contents_rejects_lost_appearance ... ok
+test flatten_page_carrier_malformed_contents_rejects_without_publication ... ok
+test flatten_page_carrier_form_explicit_resources_preserve_content_and_appearance ... ok
+test flatten_precision_rejects_zero_scale_and_nonzero_rounding_in_page_units ... ok
+test flatten_precision_retains_exact_tiny_scale_and_ordinary_controls ... ok
+test form_export_escapes_fdf_and_xml_and_respects_output_bounds ... ok
+test form_add_fill_inspect_update_remove_roundtrips_values_and_flags ... ok
+test hierarchical_form_names_are_not_silently_flattened_or_renamed ... ok
+test form_properties_and_hierarchical_removal_preserve_unrelated_objects ... ok
+test indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement ... ok
+test merge_rejects_signature_markers_in_every_input_slot ... ok
+test metadata_roundtrip_is_explicit_about_unicode_and_xmp_limitations ... ok
+test merge_and_split_preserve_requested_text_pages_and_range_bounds ... ok
+test page_and_item_budgets_fail_before_expanding_large_requests ... ok
+test page_reorder_duplicates_rotation_and_crop_survive_serialization ... ok
+test pinned_dom_replacement_retains_black_mask_regression_evidence ... ok
+test nonvisual_form_properties_and_noop_fill_preserve_existing_appearance_and_catalog ... ok
+test pinned_form_add_rebuild_drops_unique_catalog_and_inline_existing_fields ... ok
+test pinned_link_only_flatten_retains_interactivity_and_adapter_explicitly_rejects ... ok
+test pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejects ... ok
+test static_xfa_is_an_explicit_derivative_and_dynamic_or_external_xml_fails ... ok
+test pinned_no_ap_form_regeneration_is_preserved_as_unqualified_evidence ... ok
+test text_overlays_roundtrip_and_visually_defective_replacement_is_rejected ... ok
+test unicode_attachment_names_are_metadata_and_never_output_paths ... ok
+test visual_whiteout_explicitly_retains_recoverable_source_content ... ok
+test unregeneratable_widget_without_normal_appearance_rejects_before_field_loss ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests/oxide_query.rs (/workspace/pdftextract/target/debug/deps/oxide_query-b59768b8821fbf84)
+
+running 10 tests
+test attachments_and_content_are_exact_bytes_with_app_owned_artifact_names ... ok
+test actual_text_unicode_and_search_byte_offsets_are_preserved ... ok
+test cyclic_attachment_name_tree_is_rejected_without_entering_recursive_decoder ... ok
+test document_geometry_raw_metrics_and_source_identity_survive_queries ... ok
+test outlines_keep_unicode_and_destination_and_reject_cycles_before_upstream_walk ... ok
+test query_page_selection_is_one_based_and_rejects_unbounded_ranges ... ok
+test blank_and_damaged_pages_are_not_claimed_complete_and_limits_are_errors ... ok
+test real_words_lines_structure_paths_and_classification_are_exposed ... ok
+test region_queries_use_pdf_coordinates_and_do_not_silently_ignore_options ... ok
+test search_respects_literal_regex_case_whole_word_and_fails_on_overflow ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/oxide_render_ocr.rs (/workspace/pdftextract/target/debug/deps/oxide_render_ocr-f36e4678aca1178f)
+
+running 15 tests
+test all_pinned_one_dimensional_barcode_encoders_return_png ... ok
+test barcode_generates_png_svg_pdf_and_bounds_intermediates ... ok
+test classification_preserves_source_and_one_based_page_identity ... ok
+test classification_rejects_malformed_pdf_and_unbounded_selection ... ok
+test barcode_rejects_unimplemented_caption_and_unsafe_multibyte_numeric_paths ... ok
+test ml_capabilities_report_removed_upstream_implementations ... ok
+test ocr_requires_explicit_build_and_model_bytes ... ok
+test offline_models_require_matching_hashes_before_loading_or_host_access ... ok
+test malformed_offline_model_fails_in_a_bounded_sealed_child ... ok
+test rendering_never_silently_reads_unconfined_host_fonts ... ok
+test sealed_invalid_ocr_model_probe ... ok
+test sealed_raster_probe ... ok
+test sealed_synthetic_ocr_model_probe ... ok
+test synthetic_offline_ocr_runs_in_a_bounded_sealed_child ... ok
+test real_raster_operations_run_only_in_a_bounded_sealed_child ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.55s
+
+     Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-859ad02c32d396fc)
+
+running 29 tests
+test aes256_rejects_prohibited_or_expanding_passwords_before_writing ... ok
+test aes256_roundtrip_authentication_and_independent_decryption ... ok
+test catalog_certification_reference_blocks_rewrite_without_an_acroform ... ok
+test catalog_sanitization_removes_named_carriers_and_keeps_page_text ... ok
+test compliance_inspection_reports_failures_without_certification_claims ... ok
+test aes256_empty_user_and_normalized_unicode_passwords_keep_all_pages ... ok
+test encryption_rejects_legacy_and_silent_password_truncation ... ok
+test inline_actual_text_survives_upstream_but_native_admission_rejects_it ... ok
+test malformed_inputs_and_unknown_parameters_do_not_produce_derivatives ... ok
+test offline_verification_rejects_invalid_cms_without_trust_or_network_claim ... ok
+test output_item_and_page_limits_fail_without_returning_artifacts ... ok
+test pdfa_candidate_retains_fresh_failures_and_source_negative_control ... ok
+test redaction_checks_literal_hex_and_split_text_operands ... ok
+test redaction_outside_target_rejects_retained_content_without_artifact ... ok
+test redaction_rejects_damaged_array_stream_instead_of_silently_skipping_it ... ok
+test redaction_rejects_duplicate_targets_in_metadata_or_other_text ... ok
+test redaction_rejects_page_tree_entries_that_an_iterator_can_skip ... ok
+test redaction_rejects_pages_regions_and_unsupported_carriers ... ok
+test redaction_rejects_uncertain_filters_and_font_encodings ... ok
+test redaction_rejects_unsupported_carriers_on_untargeted_pages ... ok
+test redaction_requires_bounded_targets_present_in_the_original ... ok
+test redaction_strict_flate_verification_rejects_checksum_damage ... ok
+test rewrites_reject_filled_signature_values_but_allow_blank_fields ... ok
+test saved_text_state_retention_has_upstream_evidence_and_native_rejection ... ok
+test shared_attachment_survives_catalog_scope_and_is_explicitly_out_of_scope ... ok
+test signature_inspection_handles_unsigned_inherited_fields_and_partial_coverage ... ok
+test signature_inspection_rejects_cycles_and_does_not_filter_bad_byte_range_values ... ok
+test text_redaction_removes_target_from_decoded_objects_and_preserves_control ... ok
+test encrypted_missing_wrong_and_successful_passwords_are_distinct ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.61s
+
+     Running tests/oxide_supplements.rs (/workspace/pdftextract/target/debug/deps/oxide_supplements-d8e89226de7d1897)
+
+running 13 tests
+test cyclic_form_resources_fail_in_a_disposable_worker ... ok
+test cleanup_whole_document_scan_limit_is_atomic_for_a_small_selected_range ... ok
+test image_empty_and_decode_error_are_distinct_and_supplements_are_atomic ... ok
+test header_cleanup_is_a_separate_candidate_and_records_meaningful_false_removals ... ok
+test images_retain_png_pixels_and_repeated_paint_provenance_in_memory ... ok
+test inline_and_cmyk_images_use_real_memory_extraction ... ok
+test meaningful_heading_and_citation_loss_is_exposed_as_a_preview_only ... ok
+test mixed_tagged_untagged_cleanup_reports_partial_coverage_and_preserves_baseline ... ok
+test nested_form_and_inline_masks_reject_with_no_publication ... ok
+test page_html_has_stable_app_identity_and_no_active_resource_attributes ... ok
+test soft_mask_extraction_fails_explicitly_instead_of_returning_opaque_pixels ... ok
+test whitespace_preview_preserves_citations_duplicate_words_and_hard_hyphens ... ok
+test image_limits_fail_in_disposable_workers_without_publication ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+     Running tests/oxide_transport.rs (/workspace/pdftextract/target/debug/deps/oxide_transport-ea30c2cc154c6a77)
+
+running 7 tests
+test publisher_accepts_exact_identity_and_capture_with_unchanged_artifact_bytes ... ok
+test publisher_rejects_an_old_response_for_a_fresh_identical_request ... ok
+test publisher_rejects_changed_artifact_bytes_with_the_old_capture_digest ... ok
+test publisher_rejects_operation_and_public_request_option_swaps ... ok
+test publisher_rejects_source_size_and_count_mismatches ... ok
+test publisher_rejects_valid_but_unexpected_source_hash ... ok
+test publisher_rejects_wrong_build_and_already_published_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.36s
+
+     Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-5555963b89e96ac2)
+
+running 13 tests
+test atomic_publication_preserves_existing_files_and_repeated_outputs ... ok
+test creation_then_query_uses_workers_and_preserves_exact_source_provenance ... ok
+test deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker ... ok
+test document_links_and_actions_are_data_and_do_not_trigger_loopback_requests ... ok
+test malformed_unknown_and_out_of_range_requests_fail_without_publication ... ok
+test output_overflow_fails_before_publication_and_removes_captures ... ok
+test bounded_memory_failure_does_not_poison_the_next_operation ... ok
+test publisher_failure_leaves_source_and_existing_target_unchanged ... ok
+test receipt_write_failure_rolls_back_published_artifacts ... ok
+test redaction_verification_targets_are_omitted_from_worker_provenance_and_errors ... ok
+test passwords_use_private_request_and_file_channels_not_argv_or_reports ... ok
+test unconfined_routed_extraction_fails_before_opening_ledger_or_outputs ... ok
+test stdout_backpressure_obeys_deadline_without_changing_pipe_flags ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.22s
+
+     Running tests/pdf_extract_cff.rs (/workspace/pdftextract/target/debug/deps/pdf_extract_cff-bba2b92f6407a4a2)
+
+running 5 tests
+test cff_recovery_preserves_original_geometry_font_and_input ... ok
+test explicit_to_unicode_takes_priority_without_parsing_the_cff ... ok
+test malformed_or_unused_cff_never_silently_becomes_complete ... ok
+test cff_controls_cannot_mistake_missing_or_supplemented_glyphs_for_mappings ... ok
+test oversized_cff_is_bounded_only_when_the_font_is_used ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+     Running tests/pdf_oxide_backend.rs (/workspace/pdftextract/target/debug/deps/pdf_oxide_backend-f3c4ce174c39a156)
+
+running 11 tests
+test actual_text_recovery_is_distinct_from_lopdf ... ok
+test immutable_bytes_real_geometry_fonts_and_ranges ... ok
+test form_preflight_preserves_indirect_font_controls_and_rejects_cycles ... ok
+test malformed_and_zero_page_documents_fail_explicitly ... ok
+test replacement_glyphs_are_retained_without_global_span_configuration ... ok
+test shallow_form_subtype_omission_is_rejected_before_native_projection ... ok
+test silent_content_failure_stays_partial_in_pipeline_and_ledger ... ok
+test page_selection_is_bounded_before_extraction_and_large_documents_allow_subranges ... ok
+test table_candidates_keep_raw_rows_and_explicit_validation_error_in_ledger ... ok
+test uri_annotation_keeps_actual_target_and_indirect_rectangle ... ok
+test supervised_cli_runs_pdf_oxide_and_reports_partial ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s
+
+     Running tests/pdfium_hyphens.rs (/workspace/pdftextract/target/debug/deps/pdfium_hyphens-88717a5752c841d1)
+
+running 1 test
+test pinned_public_references_preserve_text_and_parse_fields ... ignored, requires the pinned public 2511.15503v5 PDF via TPE_HYPHEN_FIXTURE
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pdfium_paragraph_regions.rs (/workspace/pdftextract/target/debug/deps/pdfium_paragraph_regions-e25557f1ec0ed5eb)
+
+running 1 test
+test dehyphenated_paragraph_tail_is_body_and_diagram_labels_remain_figure ... ignored, requires the pinned public 2511.15503v5 PDF via TPE_HYPHEN_FIXTURE
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/pdfium_unicode.rs (/workspace/pdftextract/target/debug/deps/pdfium_unicode-cd28c5fec3038b77)
+
+running 5 tests
+test auto_does_not_accept_unresolved_pdfium_mapping_as_complete ... ok
+test bibliography_preserves_mapping_evidence_without_attempting_ocr ... ok
+test normal_text_and_existing_invisible_ocr_remain_complete ... ok
+test zero_unicode_is_reported_even_when_object_text_omits_it ... ok
+test pdfium_mapping_failures_survive_adapter_result_and_json ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.91s
+
+     Running tests/reading_order_columns.rs (/workspace/pdftextract/target/debug/deps/reading_order_columns-3365fc60ae6d067a)
+
+running 3 tests
+test heading_aligned_with_right_column_stays_with_its_prose ... ok
+test tight_heading_then_three_columns ... ok
+test tight_heading_then_two_columns ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/resource_outcomes.rs (/workspace/pdftextract/target/debug/deps/resource_outcomes-f17abb825a018504)
+
+running 2 tests
+test no_list_does_not_erase_partial_extraction_evidence ... ok
+test decoder_and_late_processing_cutoffs_reach_json_chunks_and_ledger ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/scanned_fixture.rs (/workspace/pdftextract/target/debug/deps/scanned_fixture-c663cd4708d53fff)
+
+running 7 tests
+test lcs_counts_characters_in_order ... ok
+test font_covers_letters_digits_and_space_with_distinct_glyphs ... ok
+test missing_words_compares_whole_words ... ok
+test lopdf_backend_sees_no_text_and_one_figure ... ok
+test pdfium_backend_reports_the_raster_figure ... ok
+test raster_draws_one_centred_line_of_large_soft_glyphs ... ok
+test scanned_pdf_is_image_only_and_unfiltered ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+
+     Running tests/worker_startup.rs (/workspace/pdftextract/target/debug/deps/worker_startup-4378cca612de4a69)
+
+running 2 tests
+test oversized_and_expanding_result_json_is_rejected_before_ledger_publication ... ok
+test actual_extract_and_publish_startup_records_low_and_default_limits_repeatedly ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.14s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_app-fe213c8ce6dedf42)
+
+running 40 tests
+test jobs::tests::completed_jobs_still_surface_resource_warnings ... ok
+test jobs::tests::file_urls_become_paths ... ok
+test jobs::tests::job_list_queues_one_at_a_time ... ok
+test jobs::tests::ledger_open_failure_leaves_no_final_or_staged_output ... ok
+test jobs::tests::mailbox_keeps_items_until_a_sender_is_installed ... ok
+test jobs::tests::malformed_input_fails_and_writes_nothing ... ok
+test jobs::tests::output_names_avoid_existing_files ... ok
+test jobs::tests::bibliography_job_writes_json_and_text ... ok
+test keys::tests::map_provider_round_trips ... ok
+test keys::tests::missing_key_message_names_service_and_variable_only ... ok
+test keys::tests::services_map_to_environment_variables ... ok
+test ledger::tests::corpus_lists_every_document_with_latest_run ... ok
+test ledger::tests::document_detail_round_trips_pages_references_and_markers ... ok
+test ledger::tests::foreign_database_is_a_sqlite_error ... ok
+test ledger::tests::run_without_metadata_loads_with_empty_fields ... ok
+test ledger::tests::schema_version_is_checked ... ok
+test ledger::tests::unknown_run_is_an_error ... ok
+test tpe_ai::tests::anthropic_body_matches_messages_api ... ok
+test tpe_ai::tests::anthropic_refusal_and_error_are_reported ... ok
+test tpe_ai::tests::anthropic_text_blocks_are_concatenated_skipping_thinking ... ok
+test tpe_ai::tests::ask_rejects_empty_key_and_question_before_any_io ... ok
+test tpe_ai::tests::headers_carry_the_right_auth_scheme ... ok
+test tpe_ai::tests::non_json_bodies_are_errors_with_excerpts ... ok
+test tpe_ai::tests::openai_body_matches_chat_completions ... ok
+test tpe_ai::tests::openai_content_refusal_and_error_are_reported ... ok
+test tpe_ai::tests::provider_table_is_consistent ... ok
+test view::tests::answer_title_names_provider_and_document ... ok
+test view::tests::completion_applies_only_to_the_latest_request_in_the_same_context ... ok
+test view::tests::corpus_labels_fall_back_to_hash_and_status ... ok
+test view::tests::document_context_has_header_pages_and_budget ... ok
+test view::tests::lines_are_numbered_in_reading_order_with_markers ... ok
+test view::tests::numbered_lines_maps_offsets_with_one_page_index ... ok
+test view::tests::offsets_map_to_lines ... ok
+test view::tests::panes_cycle_in_both_directions ... ok
+test view::tests::paper_record_maps_only_extracted_fields ... ok
+test view::tests::reference_labels_use_only_parsed_fields ... ok
+test view::tests::text_scale_steps_and_clamps ... ok
+test view::tests::tracker_issues_increasing_ids_and_clears_on_completion ... ok
+test view::tests::truncation_respects_char_boundaries ... ok
+test jobs::tests::text_job_writes_sibling_text_with_progress ... ok
+
+test result: ok. 40 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.31s
+
+     Running unittests src/main.rs (/workspace/pdftextract/target/debug/deps/tpe_app-25a19129bb5aefda)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_biblio-8ebfb8bb77b7a200)
+
+running 49 tests
+test client::tests::debug_hides_key_values ... ok
+test client::tests::limiter_honours_host_override ... ok
+test client::tests::limiter_spaces_requests_per_host ... ok
+test client::tests::client_uses_injected_clock ... ok
+test client::tests::offline_client_refuses_requests ... ok
+test crossref::tests::closed_access_pdf_link_requires_session ... ok
+test crossref::tests::handles_empty_and_null_fields ... ok
+test crossref::tests::offline_fetch_errors ... ok
+test crossref::tests::open_access_pdf_links_need_no_session ... ok
+test crossref::tests::single_work_and_bad_shape ... ok
+test crossref::tests::parses_work_list ... ok
+test crossref::tests::urls ... ok
+test dedupe::tests::distinct_papers_stay_apart_in_order ... ok
+test dedupe::tests::crossref_wins_even_when_listed_last ... ok
+test dedupe::tests::normalizes_titles ... ok
+test dedupe::tests::same_title_without_years_stays_apart ... ok
+test dedupe::tests::title_and_year_match_but_year_must_agree ... ok
+test dedupe::tests::transitive_bridge_merges_three ... ok
+test error::tests::status_errors_never_echo_the_uri ... ok
+test openalex::tests::abstract_reconstruction_orders_by_position ... ok
+test openalex::tests::offline_fetch_errors ... ok
+test openalex::tests::handles_nulls_and_arxiv_doi ... ok
+test openalex::tests::parses_search_results ... ok
+test openalex::tests::single_work_and_bad_shape ... ok
+test openalex::tests::urls ... ok
+test openurl::tests::openurl_contains_expected_keys ... ok
+test openurl::tests::openurl_omits_missing_fields ... ok
+test openurl::tests::unpaywall_closed_article ... ok
+test openurl::tests::unpaywall_best_location_first ... ok
+test openurl::tests::unpaywall_needs_mailto_and_network ... ok
+test pmc::tests::esearch_ids ... ok
+test pmc::tests::esummary_records_skip_errors ... ok
+test pmc::tests::europepmc_core_results ... ok
+test pmc::tests::med_source_ids_and_author_names_are_not_confused ... ok
+test pmc::tests::exact_identifier_queries_and_returned_identity ... ok
+test pmc::tests::offline_fetch_errors ... ok
+test pmc::tests::urls_include_key_only_when_present ... ok
+test resolve::tests::no_identifiers_no_candidates ... ok
+test resolve::tests::offline_locate_returns_static_candidates_only ... ok
+test semantic_scholar::tests::parses_search ... ok
+test semantic_scholar::tests::empty_pdf_url_and_nulls ... ok
+test semantic_scholar::tests::url_and_offline ... ok
+test tests::kind_strings ... ok
+test tests::scholar_url_is_encoded ... ok
+test util::tests::hosts ... ok
+test util::tests::identifiers ... ok
+test util::tests::numeric_and_malformed_entities ... ok
+test util::tests::percent_encoding ... ok
+test util::tests::strip_tags_decodes_entities ... ok
+
+test result: ok. 49 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_browser-d7450d45c9ff14df)
+
+running 81 tests
+test bundle::tests::layout_paths ... ok
+test bundle::tests::signing_is_inside_out ... ok
+test cookies::tests::debug_redacts_value ... ok
+test cookies::tests::corrupt_store_entry_is_an_error ... ok
+test cookies::tests::default_path_follows_rfc_6265 ... ok
+test cookies::tests::header_orders_longer_paths_first_and_drops_expired ... ok
+test cookies::tests::http_dates ... ok
+test cookies::tests::matching_rules ... ok
+test cookies::tests::jar_insert_replaces_and_counts ... ok
+test cookies::tests::netscape_parsing_errors_and_leniency ... ok
+test cookies::tests::netscape_round_trip ... ok
+test cookies::tests::set_cookie_basic_attributes ... ok
+test cookies::tests::set_cookie_defaults_and_rejections ... ok
+test cookies::tests::set_cookie_expiry_forms ... ok
+test cookies::tests::set_cookie_without_path_uses_the_default_path ... ok
+test cookies::tests::store_round_trip_uses_contract_layout ... ok
+test doi::tests::arxiv_ids_in_text_need_prefix ... ok
+test cookies::tests::set_cookie_rejects_public_suffix_domains ... ok
+test doi::tests::arxiv_ids_in_urls ... ok
+test doi::tests::dois_in_resolver_and_publisher_urls ... ok
+test doi::tests::declared_and_mentioned_dois_in_html ... ok
+test doi::tests::resolver_hosts ... ok
+test doi::tests::scan_finds_and_normalises ... ok
+test doi::tests::scan_rejects_non_dois_and_dedupes ... ok
+test doi::tests::scan_trims_unbalanced_brackets_and_quotes ... ok
+test doi::tests::scans_have_byte_and_identifier_limits ... ok
+test hosts::tests::allowlist_entries_are_lowercase_bare_domains ... ok
+test hosts::tests::allowlist_matches_suffixes_only ... ok
+test hosts::tests::deny_applies_to_the_unwrapped_proxy_origin ... ok
+test hosts::tests::extra_allow_and_deny ... ok
+test hosts::tests::ezproxy_hosts_are_unwrapped ... ok
+test hosts::tests::proxied_login_url_encodes_target ... ok
+test hosts::tests::research_policy_blocks_unknown_hosts_and_open_does_not ... ok
+test html::tests::attribute_values_collects_hrefs ... ok
+test html::tests::entities_decode ... ok
+test html::tests::meta_content_matches_name_or_property_case_insensitively ... ok
+test html::tests::strip_tags_drops_script_style_comments_and_decodes ... ok
+test html::tests::tags_are_found_with_lowercase_names_and_attrs ... ok
+test html::tests::unquoted_and_valueless_attributes ... ok
+test html::tests::unterminated_constructs_do_not_panic ... ok
+test pdf::tests::content_disposition_parsing ... ok
+test pdf::tests::disposition_alone_is_only_likely ... ok
+test pdf::tests::mime_type_normalises ... ok
+test pdf::tests::opaque_media_type_defers_to_filename_and_url ... ok
+test pdf::tests::pdf_links_on_a_page ... ok
+test pdf::tests::pdf_magic ... ok
+test pdf::tests::response_media_type_confirms_or_refutes ... ok
+test pdf::tests::url_only_reasons_and_filename ... ok
+test pdf::tests::url_only_verdicts ... ok
+test pdf::tests::verdict_order_and_labels ... ok
+test psl::tests::list_entries_are_lowercase_multi_label ... ok
+test psl::tests::public_and_registrable_domains ... ok
+test psl::tests::suffix_lookup_prefers_the_longest_entry ... ok
+test session::tests::arxiv_and_pdf_urls_hand_off ... ok
+test doi::tests::identifiers_cut_by_the_byte_limit_are_discarded ... ok
+test session::tests::cookies_flow_through_the_session ... ok
+test session::tests::denied_origins_stay_blocked_behind_the_proxy ... ok
+test session::tests::doi_resolver_hands_off_the_doi ... ok
+test session::tests::inspecting_a_page_collects_facts ... ok
+test session::tests::invalid_urls_are_errors_not_panics ... ok
+test session::tests::landing_pages_load_with_their_dois ... ok
+test session::tests::page_inspection_rejects_oversized_html ... ok
+test session::tests::proxied_hosts_are_judged_by_their_origin ... ok
+test session::tests::research_mode_blocks_and_open_mode_loads ... ok
+test session::tests::responses_hand_off_pdfs_but_not_login_walls ... ok
+test session::tests::set_cookie_path_defaults_from_the_request_url ... ok
+test tests::error_messages_are_readable ... ok
+test url::tests::credentials_are_dropped ... ok
+test url::tests::default_ports_are_dropped_and_others_kept ... ok
+test url::tests::extension_and_segments ... ok
+test url::tests::host_in_domain_rules ... ok
+test url::tests::ipv6_literals_parse ... ok
+test url::tests::lowercases_scheme_and_host_and_drops_fragment ... ok
+test url::tests::non_web_schemes_are_refused ... ok
+test url::tests::path_dot_segments_and_empty_segments_normalise ... ok
+test url::tests::percent_coding_round_trips ... ok
+test url::tests::resolve_relative_references ... ok
+test url::tests::scheme_less_text_defaults_to_https ... ok
+test url::tests::tracking_params_are_removed_but_order_kept ... ok
+test url::tests::whitespace_inside_is_rejected_but_around_is_trimmed ... ok
+test session::tests::capped_identifier_lists_keep_the_url_identifiers ... ok
+
+test result: ok. 81 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_common-3aba354f5138cea1)
+
+running 4 tests
+test tests::arxiv_forms_normalise ... ok
+test tests::partial_record_deserialises_with_defaults ... ok
+test tests::doi_forms_normalise ... ok
+test tests::record_round_trips ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_credentials-e107afa0b6cf727d)
+
+running 25 tests
+test api_keys::tests::service_names_are_unique_and_namespaced ... ok
+test api_keys::tests::api_key_round_trip ... ok
+test cookies::tests::cookie_debug_redacts_value ... ok
+test cookies::tests::all_expired_gives_none ... ok
+test cookies::tests::cookie_header_uses_system_clock ... ok
+test cookies::tests::cookie_expiry_filtering ... ok
+test cookies::tests::cookies_stored_as_secret_per_host ... ok
+test file_store::tests::default_params_match_argon2_defaults ... ok
+test cookies::tests::saving_empty_list_deletes_entry ... ok
+test file_store::tests::empty_passphrase_is_rejected ... ok
+test file_store::tests::encrypted_file_has_no_plaintext ... ok
+test file_store::tests::delete_and_list ... ok
+test file_store::tests::file_mode_is_0600 ... ok
+test file_store::tests::encrypted_file_round_trip ... ok
+test file_store::tests::not_a_credential_file ... ok
+test file_store::tests::no_temp_files_left_behind ... ok
+test file_store::tests::tampered_file_fails ... ok
+test file_store::tests::second_handle_sees_writes ... ok
+test keychain::tests::keychain_unavailable_off_macos ... ok
+test memory::tests::memory_store_round_trip_delete_list ... ok
+test tests::empty_names_are_rejected ... ok
+test tests::secret_constructors_agree ... ok
+test tests::secret_debug_is_redacted ... ok
+test tests::store_works_through_a_reference ... ok
+test file_store::tests::wrong_passphrase_fails ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_ffi-68a89aa69bc59efd)
+
+running 5 tests
+test alloc::tests::enforcement_is_off_in_this_process ... ok
+test alloc::tests::small_control_round_trips_through_system ... ok
+test mem::tests::small_mapping_round_trips ... ok
+test oxide_containment::tests::raw_process_child ... ignored, private helper; bounded_raw_process_denials launches isolated workers
+test oxide_containment::tests::bounded_raw_process_denials ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_search-e17a796bf86929c8)
+
+running 31 tests
+test chunker::tests::empty_and_short_text ... ok
+test chunker::tests::chunk_page_numbers_chunks ... ok
+test chunker::tests::lowercase_after_period_is_not_a_boundary ... ok
+test chunker::tests::windows_end_at_sentence_boundaries ... ok
+test embed::tests::cosine_length_mismatch_is_zero ... ok
+test chunker::tests::windows_overlap_by_forty_words_without_sentences ... ok
+test embed::tests::empty_text_gives_zero_vector ... ok
+test embed::tests::fnv_known_values ... ok
+test embed::tests::hash_embedder_is_deterministic_and_normalised ... ok
+test embed::tests::hash_embedder_cosine_sanity ... ok
+test fusion::tests::rrf_alpha_one_is_semantic_only ... ok
+test fusion::tests::rrf_alpha_zero_is_lexical_only ... ok
+test fusion::tests::rrf_counts_duplicates_once ... ok
+test fusion::tests::rrf_empty ... ok
+test fusion::tests::rrf_rewards_agreement ... ok
+test fusion::tests::rrf_weight_zero_ignores_a_list ... ok
+test index::tests::documents_without_text_are_not_reindexed ... ok
+test index::tests::embedder_mismatch_is_reported ... ok
+test index::tests::end_to_end_index_and_query ... ok
+test index::tests::fts_query_quotes_terms ... ok
+test index::tests::fts5_bm25_ranks_by_term_frequency ... ok
+test index::tests::interrupted_index_is_rebuilt ... ok
+test index::tests::newer_run_replaces_chunks_and_failed_runs_are_ignored ... ok
+test index::tests::reads_a_wal_ledger_while_a_writer_is_open ... ok
+test index::tests::reused_run_id_with_new_text_is_reindexed ... ok
+test store::tests::corrupt_bytes_are_rejected ... ok
+test index::tests::zero_k_and_empty_index ... ok
+test store::tests::flat_store_rejects_wrong_dimension ... ok
+test store::tests::flat_store_replace_and_remove ... ok
+test store::tests::flat_store_top_k ... ok
+test store::tests::flat_store_round_trips_through_file ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/bin/tpe-search.rs (/workspace/pdftextract/target/debug/deps/tpe_search-d96a7ed580c53425)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_speech-2b57acb7ed704bea)
+
+running 21 tests
+test audio::tests::resample_22050_to_16k_rounds_length ... ok
+test audio::tests::resample_is_identity_at_16k_and_for_empty_audio ... ok
+test audio::tests::resample_upsamples_8k_ramp_linearly ... ok
+test audio::tests::silence_detection ... ok
+test avspeech::tests::empty_text_is_rejected_on_every_os ... ok
+test avspeech::tests::engine_is_unsupported_off_macos ... ok
+test avspeech::tests::premium_sorts_first ... ok
+test play::tests::play_is_unsupported_off_macos ... ok
+test validate::tests::asr_round_trip_with_models_or_skip ... ok
+test validate::tests::empty_reference_is_invalid ... ok
+test validate::tests::empty_transcript_is_silent_output ... ok
+test validate::tests::exact_match_has_zero_wer ... ok
+test validate::tests::insertion_and_deletion_count ... ok
+test audio::tests::resample_24k_to_16k_has_two_thirds_length ... ok
+test validate::tests::normalise_lowercases_and_strips_punctuation ... ok
+test validate::tests::one_substitution_in_four_words_is_a_quarter ... ok
+test validate::tests::silent_synthesis_fails_before_asr ... ok
+test wav::tests::header_bytes_are_canonical ... ok
+test wav::tests::samples_are_clamped_and_nan_is_zero ... ok
+test wav::tests::zero_sample_rate_is_rejected ... ok
+test wav::tests::write_round_trips_to_disk ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/tpe-speak.rs (/workspace/pdftextract/target/debug/deps/tpe_speak-fb8551bda80a6f86)
+
+running 4 tests
+test tests::cli_definition_is_valid ... ok
+test tests::check_parses_threshold ... ok
+test tests::kokoro_without_feature_is_unsupported ... ok
+test tests::say_requires_an_output ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_zotero-d68e89ed5704e3b2)
+
+running 35 tests
+test client::tests::collections_parse_parent_false_and_key ... ok
+test client::tests::api_key_debug_is_redacted ... ok
+test client::tests::foreign_next_links_are_refused ... ok
+test client::tests::not_modified_page_is_empty ... ok
+test client::tests::items_page_reads_paging_headers ... ok
+test client::tests::offline_client_never_touches_the_network ... ok
+test client::tests::status_mapping ... ok
+test client::tests::urls_are_built_from_the_query ... ok
+test client::tests::write_result_parses_documented_shapes ... ok
+test client::tests::write_body_is_a_json_array_of_patches ... ok
+test client::tests::write_tokens_are_32_hex_and_distinct ... ok
+test headers::tests::commas_inside_url_and_unquoted_rel ... ok
+test client::tests::writes_need_a_key_and_at_most_fifty_items ... ok
+test headers::tests::last_page_has_no_next ... ok
+test headers::tests::link_header_from_docs_parses_all_entries ... ok
+test headers::tests::link_next_is_found ... ok
+test headers::tests::numeric_headers ... ok
+test import::tests::wrong_schema_is_rejected ... ok
+test import::tests::plugin_body_parses_and_maps ... ok
+test item::tests::extra_lines_parse_case_insensitively ... ok
+test item::tests::conference_paper_uses_conference_name_and_extra_doi ... ok
+test item::tests::note_and_link_patch_bodies ... ok
+test item::tests::journal_article_maps_to_record ... ok
+test item::tests::patch_from_record_book_puts_doi_in_extra ... ok
+test item::tests::parse_many_reads_an_array ... ok
+test item::tests::patch_from_record_journal ... ok
+test item::tests::preprint_maps_arxiv_and_repository ... ok
+test item::tests::years_from_zotero_dates ... ok
+test local::tests::attachment_paths_resolve_conservatively ... ok
+test item::tests::record_round_trips_through_patch ... ok
+test local::tests::local_collections_are_listed ... ok
+test local::tests::missing_database_is_not_found ... ok
+test local::tests::local_items_map_to_records ... ok
+test local::tests::uri_escapes_reserved_characters ... ok
+test local::tests::open_is_read_only ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests tpe
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_app
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_biblio
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_browser
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_common
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_credentials
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_ffi
+
+running 1 test
+test crates/tpe-ffi/src/alloc.rs - alloc (line 11) ... ignored
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_search
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_speech
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tpe_zotero
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

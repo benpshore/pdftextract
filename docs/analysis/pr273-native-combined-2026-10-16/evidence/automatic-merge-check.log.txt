@@ -1,0 +1,21 @@
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-common)
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-biblio)
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-combined-recovery/crates/tpe-ffi)
+error[E0425]: cannot find value `allow_empty` in this scope
+   --> src/acquire.rs:174:29
+    |
+174 |     if before.size == 0 && !allow_empty {
+    |                             ^^^^^^^^^^^ not found in this scope
+
+warning: unused variable: `allow_empty`
+   --> src/acquire.rs:131:5
+    |
+131 |     allow_empty: bool,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_allow_empty`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `text-processing-engine` (lib) generated 1 warning
+error: could not compile `text-processing-engine` (lib) due to 1 previous error; 1 warning emitted

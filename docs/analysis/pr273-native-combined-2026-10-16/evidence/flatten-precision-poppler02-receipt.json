@@ -1,0 +1,503 @@
+{
+  "scope": "Independent first-page Poppler render comparisons of eight bounded synthetic precision fixtures; no general rendering or flattening qualification.",
+  "renderer": "pdftoppm version 26.05.0\nCopyright 2005-2026 The Poppler Developers - http://poppler.freedesktop.org\nCopyright 1996-2011, 2022 Glyph & Cog, LLC",
+  "cases": [
+    {
+      "name": "flatten-precision-annotation-zero-scale",
+      "expected_same": false,
+      "matched": false,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-zero-scale-source.pdf",
+          "pdf_sha256": "aacebfca484e475eeed35c3f90efa32d9c9afc29b224e56dc2b10a47e9090630",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-zero-scale-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-zero-scale-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-zero-scale-source.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-zero-scale-upstream.pdf",
+          "pdf_sha256": "b70af3e960ac11e260969b842ab47595a937f69392a02611e88656720c9ba197",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-zero-scale-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-zero-scale-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-zero-scale-derivative.png",
+          "png_sha256": "b1dfbb6c1a2afc385a159a415e2a34853e88e7b09833d826864068a57a370c95"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-annotation-nonzero-rounding",
+      "expected_same": false,
+      "matched": false,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-nonzero-rounding-source.pdf",
+          "pdf_sha256": "82f50d2673b452e989ab4e0292567bae89bc319aa0b06769624e9b1665503add",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-nonzero-rounding-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-nonzero-rounding-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-nonzero-rounding-source.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-nonzero-rounding-upstream.pdf",
+          "pdf_sha256": "3b7077694bfb2cb86f2e0c964c44869ed31fbbb6a02f0d11c50a285e9c040c06",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-nonzero-rounding-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-nonzero-rounding-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-nonzero-rounding-derivative.png",
+          "png_sha256": "85fd3357dda5678d1ba3d127578f5cd1327789a86556cc306a20a33aa44d0090"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-annotation-tiny-exact",
+      "expected_same": true,
+      "matched": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-tiny-exact-source.pdf",
+          "pdf_sha256": "7769d6152ee9b5c40270b1fcc39e573f3511122da6d2e293982f4bf21b68a436",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-tiny-exact-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-tiny-exact-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-tiny-exact-source.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-tiny-exact-control.pdf",
+          "pdf_sha256": "7dde4c6ba3c1d88b13da33ef59ad6c9dec7ce93c15f381875854f42db3fdcb8c",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-tiny-exact-control.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-tiny-exact-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-tiny-exact-derivative.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-annotation-ordinary",
+      "expected_same": true,
+      "matched": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-ordinary-source.pdf",
+          "pdf_sha256": "58c5b711010cd81cab5a8a92f5454ea2ba261f3736ba3e63e572d552515db4a9",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-ordinary-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-ordinary-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-ordinary-source.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-ordinary-control.pdf",
+          "pdf_sha256": "c9624b5c51f5534811427e7132667e9bfef2f64ec733b88235af30fd70794805",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-annotation-ordinary-control.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-ordinary-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-annotation-ordinary-derivative.png",
+          "png_sha256": "597d9fdec917c91382f29f2fa6f406b2df3331b6c6dd8472f23fcfa323768585"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-form-zero-scale",
+      "expected_same": false,
+      "matched": false,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-zero-scale-source.pdf",
+          "pdf_sha256": "31c5b2b4b94c38ea1ef0791e4ed32435630ddac6fe456767293c50f64d9a17b1",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-zero-scale-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-zero-scale-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-zero-scale-source.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-zero-scale-upstream.pdf",
+          "pdf_sha256": "069fb46e281e0a1f67e42c5691c30f6035a5e12f84bf3cc17c7691e8f9a4767b",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-zero-scale-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-zero-scale-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-zero-scale-derivative.png",
+          "png_sha256": "51a6a6616815330eec134e2bd0341e70370e4cc430bf3a5f9e827837075c1936"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-form-nonzero-rounding",
+      "expected_same": false,
+      "matched": false,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-nonzero-rounding-source.pdf",
+          "pdf_sha256": "9f5262eaf0757db6c47294bf6ed83781fbb9537d1a360f6f2ca9c9f2d1e889ec",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-nonzero-rounding-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-nonzero-rounding-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-nonzero-rounding-source.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-nonzero-rounding-upstream.pdf",
+          "pdf_sha256": "9bd2400fe9da07b3dfd08133880a74a75f4de9e1243542e639d8aa7ac7d5c9b0",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-nonzero-rounding-upstream.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-nonzero-rounding-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-nonzero-rounding-derivative.png",
+          "png_sha256": "b1cba4fb6ef36d312bc150e955de1a1869692f38e33bde94b32d31b9a0aa6ef0"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-form-tiny-exact",
+      "expected_same": true,
+      "matched": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-tiny-exact-source.pdf",
+          "pdf_sha256": "1f848e0b8338a4b00593e52b06b03cf33a153f71c60f776c38338a49b5f22aeb",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-tiny-exact-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-tiny-exact-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-tiny-exact-source.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-tiny-exact-control.pdf",
+          "pdf_sha256": "8df1a7fc9916eebe68d6389ae1d20c91aa8bba06dc2af7e6d4caab2d04f6ae96",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-tiny-exact-control.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-tiny-exact-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-tiny-exact-derivative.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "name": "flatten-precision-form-ordinary",
+      "expected_same": true,
+      "matched": true,
+      "renders": [
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-ordinary-source.pdf",
+          "pdf_sha256": "9ced6a0d9df4779744d9f75dd2f4be9d7ec6fca5f968b8bd93b7ac6bb22a546d",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-ordinary-source.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-ordinary-source"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-ordinary-source.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        },
+        {
+          "pdf": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-ordinary-control.pdf",
+          "pdf_sha256": "d8226b5b390e44d16a67922367cb6a8c650c0366c97deb4b0e541899aa384b2f",
+          "command": [
+            "prlimit",
+            "--as=1073741824",
+            "--core=0",
+            "--",
+            "timeout",
+            "-k",
+            "2",
+            "15",
+            "pdftoppm",
+            "-f",
+            "1",
+            "-singlefile",
+            "-r",
+            "96",
+            "-png",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02/flatten-precision-form-ordinary-control.pdf",
+            "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-ordinary-derivative"
+          ],
+          "exit_code": 0,
+          "stderr": "\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n\nFontconfig error: No writable cache directories\n\t/var/cache/fontconfig\n",
+          "png": "/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-poppler02/flatten-precision-form-ordinary-derivative.png",
+          "png_sha256": "502a317f71b7032749c499c32f8fcb2290042f7f7dbab137bdad200f8a2b7b4b"
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": true
+}

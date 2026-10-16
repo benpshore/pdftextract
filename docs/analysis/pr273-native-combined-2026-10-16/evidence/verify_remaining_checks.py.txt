@@ -1,0 +1,48 @@
+"""Available CI checks plus the unresolved full-Docling build gate."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+destination=Path(sys.argv[1]).resolve()
+destination.mkdir(exist_ok=False)
+def git(*args):
+    return subprocess.check_output(['git',*args],text=True).strip()
+receipt={'source_commit':git('rev-parse','HEAD'),'source_tree':git('rev-parse','HEAD^{tree}'),
+         'git_status_before':git('status','--porcelain'),'checks':[],
+         'runtime_paths':{key:os.environ.get(key) for key in ['PDFIUM_DYNAMIC_LIB_PATH','DOCLING_RS_MODELS_DIR']},
+         'scope':'Linux x86_64 available CI checks; full Docling is a separate unresolved gate. No ARM64 or Python engine/API parity claim.'}
+assert not receipt['git_status_before']
+commands=[
+    ('provider-clippy',['cargo','clippy','--locked','-p','tpe-ffi','--all-targets','--features','provider','--','-D','warnings']),
+    ('provider-tests',['cargo','test','--locked','-p','tpe-ffi','--features','provider']),
+    ('web-pytest',['uv','run','--locked','pytest','web/tests/test_site_source.py']),
+    ('site-source',['uv','run','--locked','python','scripts/site_source.py','verify','--source','web']),
+    ('python-build',['uv','build','--out-dir',str(destination/'dist')]),
+    ('full-docling',['cargo','check','--locked','--workspace','--all-targets','--features',
+                     'pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr,docling,pdfium,pdf-extract,grobid']),
+]
+for name,command in commands:
+    bounded=['prlimit','--as=8589934592','--core=0','--','timeout','-k','10','300',*command]
+    log=destination/(name+'.log')
+    started=time.monotonic()
+    with log.open('wb') as output:
+        result=subprocess.run(bounded,stdout=output,stderr=subprocess.STDOUT,timeout=320,check=False)
+    row={'name':name,'command':bounded,'exit_code':result.returncode,'elapsed_seconds':round(time.monotonic()-started,3),
+         'log':str(log),'sha256':hashlib.sha256(log.read_bytes()).hexdigest()}
+    receipt['checks'].append(row)
+    (destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps(row),flush=True)
+receipt['git_status_after']=git('status','--porcelain')
+receipt['source_commit_after']=git('rev-parse','HEAD')
+receipt['source_tree_after']=git('rev-parse','HEAD^{tree}')
+receipt['source_unchanged']=not receipt['git_status_after'] and receipt['source_commit_after']==receipt['source_commit'] and receipt['source_tree_after']==receipt['source_tree']
+receipt['available_checks_passed']=receipt['source_unchanged'] and all(row['exit_code']==0 for row in receipt['checks'] if row['name']!='full-docling')
+receipt['full_docling_passed']=receipt['checks'][-1]['exit_code']==0
+receipt['passed']=receipt['available_checks_passed'] and receipt['full_docling_passed']
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({k:receipt[k] for k in ['available_checks_passed','full_docling_passed','source_unchanged']}),flush=True)
+sys.exit(0 if receipt['passed'] else 1)

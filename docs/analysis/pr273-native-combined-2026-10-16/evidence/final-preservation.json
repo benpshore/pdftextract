@@ -1,0 +1,3296 @@
+{
+  "commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "tree": "36fe1e2bf4536bcac48f33c2563ab91957292d30",
+  "status": "",
+  "checks": [
+    {
+      "path": ".github/workflows/build-binaries.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ee1dc80026e0f487546623f351984e56b4c5d616f10a07cf3dd19fd37e27966b",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "64d0cdc2363890411a0810a674a1389331c581c8bade8e2f296179abc91a7a56",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ef50218913bcf16f1f91bfbb4076bc5feb3652fcd04fd870a9519549e7246493",
+      "unchanged": true
+    },
+    {
+      "path": "docs/CLI-WORKERS.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ec892fa5c09ff321f2de76c828066fd970ade0e81a1a5b48169c54921c332a80",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/HANDOFF.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "664292461072ce2ae7e4992784653b94bf393a6fde463bce0c45123c05a83275",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/README.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0aca305cb8dae8d3bdbc1f2b6e5a2e504c58d0871886398c949970629fbabc98",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/original-native-failure.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0d891c9d3f535dc4bf792684efb3583c2966dfa19cd456790e4b6aa3a2c04312",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/sources.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "9416ba1e74480f92eb73974927b331d34e0da99f2c4d43585594a8a281e1151b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/synthetic-validator-replay.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "3662bcb4011321ca1270e8f79cbb6646ef7ddddac5994ddcdf7204ffed71f181",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/validation-summary.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0aa0739fddf9174b7edf25ba1afea92beb4a7fe2753bff7b02211a8389c3fced",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/docling-model-checksum-2026-10-11-evidence.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0f96962e09404b264f4f0ba81f2d64f658e5ba9f6c3224ebbf5bcb72259082e7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/docling-model-checksum-2026-10-11.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0b26fafe86831dcb2fdeb9d8d23403da524f52df42370e4a57be2277a660b441",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/input-open-bounds-2026-10-14.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0ebc8280751e1dac925ed68d3a08f82e3897a87164df5c1413570e3ca027d6ff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/native-diagnostics-2026-10-14.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "1d62ce3adfb545d7cf1456f868611d735b9e4196dd4e4ef8faca73e9329a44ca",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/tonight-2026-10-10.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "2024e10f3b16ea56027b30c9616858a6d640dc99030c1747e716db4af3711b45",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/tonight-2026-10-10/before-after.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "fc8bdfb7e16760b989222733c6263de10d4e41ebd68ad51a9b8924890a8ff1eb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/tonight-2026-10-10/raw-output-manifest.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "7dab5ae205869ad56c1dc39e07a891393172b4b2eb772184ca3eadf8ac99e062",
+      "unchanged": true
+    },
+    {
+      "path": "native/manifest.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+      "unchanged": true
+    },
+    {
+      "path": "native/validate_eval.py",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/fetch_layout_witnesses.py",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "bf43b561835ce32e3372fdf95f73b1546be84490ae52faec126fbd85fbe61805",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "900b0957c0261eaf4deae3168a67c529d12e3fe818c7313486374521a403f6c9",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend/STANDARD_WIDTHS-LICENSE.txt",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend/STANDARD_WIDTHS.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "d3749e4a45440865a2a7b0606f924f36acbebb8e46b00666088e63d283b46a13",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend/font_resources.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "6ae3fcfd2c1dbaa92876b726801e7d23315c2f945feb2d11db81aa432a380758",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend/standard_widths.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "f1d460835c3eb0ee7fc358c7def23848324131a4a08711be6516e41382a6f6f5",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/lopdf_backend/widths.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "2de4bedf7c100070c03d66fd8e5c42588a1a19b194cea1e22c5089984b489d61",
+      "unchanged": true
+    },
+    {
+      "path": "src/reading_order.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "3cd9ef97ee29504f5b72dede90c98b750ba6db7e69cf9776e2eb2d726054cf37",
+      "unchanged": true
+    },
+    {
+      "path": "tests/cli_dry_run.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "03aa1def1449feefcf6e72fb1edba3bf1021bfe29a1850c37a229c25e1d908b7",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/layout-witnesses/README.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "c0aac7edf805d7a2d6ad47a4bf9c25839b83d0dcba6328914ecb73e8190d54aa",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/layout-witnesses/expected.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "473e697b171f24ff46427a98eed60ac37741ee7f1a2f1d2e4f76af680a643b74",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/.gitattributes",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "a1c13568527ec73ae22806fcb504dd24fddffba3ca93d9b253ff43ad97d21678",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/README.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "59f72a1c0831c6fa8aae50c0a76316b47a086cf70d063d76594d9cef83d4f204",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/semantic-three.pdf",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "07832050f7553fcaa7e33cbb565e2236aac17243c2eec09ded69afc22f48d75a",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/semantic-three.txt",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "c4ee7ec546a7afd11711b26e1877904929d6c07db60fc500b6a932e8c1264539",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/semantic-two.pdf",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "fd5204522a871834507c26d75202dba08d0eb175e5e303f4c75582011d1f8c14",
+      "unchanged": true
+    },
+    {
+      "path": "tests/fixtures/reading-order/semantic-two.txt",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "1ce50e9b472d6c7c36980d12b7db87e32afdcd0551c877cebe785a3c343ef3ad",
+      "unchanged": true
+    },
+    {
+      "path": "tests/layout_real_corpus.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "a9f535a6bafba12c11738c6efe2e7ebfdee88fbb6b1bd0992fb3ac1e236f46a4",
+      "unchanged": true
+    },
+    {
+      "path": "tests/reading_order_columns.rs",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "fb4fac8603eb430793d906f3132a265d3a0ae67326a4b09dd62fa8f618c4d71f",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_validate_eval.py",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ca49858157e47b6cfa91729196546bc2ee6469df18b3af9b78fb8d55e309e30b",
+      "unchanged": true
+    },
+    {
+      "path": "Cargo.lock",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/tpe-ffi/Cargo.toml",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "190c12ba0e5cf5c5ab8cfe101ebeb4e2e461e7b66e8304ad7ed58a553581dcf5",
+      "unchanged": true
+    },
+    {
+      "path": "crates/tpe-ffi/src/lib.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7aff10e079a0b69c4a4fac86bd78034f7e94b5fffd7744b787ed4b579ed53415",
+      "unchanged": true
+    },
+    {
+      "path": "crates/tpe-ffi/src/oxide_containment.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d1ae6fdac875bb34df0b2ef5ef3f63828da87c8ed529fc0ee64b4e37353864cd",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/CHECKPOINT.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7994e48a0c1d1f1ff31cbff580c81fa4ba1b34d95655798e2485b0162e6aec6c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/FINAL_HANDOFF.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "bc3e7dba4b2854324c6018d1f38edc2cdd89d28427626b73e8c4d3bc80497763",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "884bf42d28cf262601133c2406a029ba380076dc246997610e0817875a9b72a1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/README.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "28dc11c870d658510018301a5b29ea3ace41637ef2d32faecf76bed97e50e0ef",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/STATE_APPEARANCE_HANDOFF.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6abf75fd5dc84750a96200a58716b9cb16de81a9f5d286970cc140e8e0812d0b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ad33f9f512727f1db91fa50996b15fc7ba732b82117dbb351e08cd50cba30f25",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/build_inventory.py",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "03872d5af0da7e0d3c239bebeb6e9507c22b3ec98221b0ab556bccfe1d5e0c6f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-matrix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b970c265e3397db6a36215da4dec7e15950f9086d2d080dfead159ccb8e3ee93",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "f00b3a120b9a6f55cfd2958bc159cf6a0853473b9cece8dada5c2df1f123e6d7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/containment-evidence.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2838475aa55d03d35301d473cfe2b37060d990b78aaae39013fd9e599e9bd001",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/containment.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d7f5be317d0294aa136c52f12cc97efab985ee9f14dce3d3c24afbaffa0ae410",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/create-office.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4e0ac1af50149650b21210d097b34a977df52be2438e8d2df7597ff6a2178c75",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/edit-forms.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c72b18af69921367f01da8bac0f0ce92386260b30c170d23b94a0a246573f9f6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-build-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "9e368df3b43c59b9511dee372dd8c4079d82078090ec4e5bc57b71e3a502c628",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4917b6105a3703ab99fccd92f4aa02a380a07494576322e6ed293329aaedbb69",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2026d6e1740523a12b3ba3a47733b2596a19cc9f31994dd86555207923604fff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2220543a8cf1c5daab6906ffdd03c060f56abdea24d30139007e29495f8eb239",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "347a923b01e222d1cb9f6da6cfe03830eb552e05308ffcb0814c9f76127dffb9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5041f80dbce223bcfa616500f168ebde623b5cd51653dac6b8ccd0f3c7b8036b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "722f616625d12bc486183deb7c69ba3d004f2defc1c98c83b300e5a23cca0b95",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7d2775aeb2023552cc9c16deb765235fc92729f0bb0bd57dcd4c7a9c7fdcd01d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c09430c7ffd06e2937e5ce4760c8bd29a52747fc779c2b74f89772476c88a32a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a6796ed8316af372e4b8de3ab7cb8049f9ea2b212df33228e6844fc8f2a1a84d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7d39926deae37e1e207df5f19712c153b93577fe2d14c433cd5463156a96052f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-clippy-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "83673cb77ab9bed14322620a79c4117528ac9ec501c1cdb3aa8c7b378fa54528",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-tests-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "16dabd5ee1720cabfee41a105c727da4e684dc37ecb2b244718663d2651bb8f5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "40bd2f3d3137a2de2278919653749453d6c515fc39cf23aedfbf104e6ed7224c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "979cdbbf3964c460cef83a9d6cbb5b67b0c518fb7e8df62d9a8e9859b10ea25d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c5b4e23afc67604838fc4845aa4d5daa6ea6ddb435c9522df7a283f43be9144c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b1589e558de12a68704dd4a8223f2d36ac6a88906f2ee6989c0778b550734808",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3d0facf767f1f3d4414933625a967c1b6679a6738724b3550dac288ab663d1da",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b21c617a8bdefd0775ff03261ac3c0c90f0a65aaf5e0e3cc94ee8dbd893f34f4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "aeb2e3ac71a9ce12d8c09ae137c5368a11ace4542d14d97d3e08a4d2c776b93d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1eae649323f4fbefac83ad21756611ef51b977121398550f41e0ed57660d5c67",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "26556eb8e96d94663d2c5b2e6234321d0d0a75151f8ab881da2c100ef094ac49",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ffi-containment-cargo-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2fedfac02b22d58d9d07ebafc5731da9f36b3a4256bede0633b0afb0dabc2e08",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01-binary.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "eeffdcefe8b7aab960fda8a8d5e9bf41102012ffb736eaf3ff72fcc6447e3ceb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8b4d27399a3eb34be49e6332c4fe087796b572030de06fb281802dbfbae11b78",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "19f453ceacee02bd61d4073c0928fff2a82c09113af9fd036c0a2272c2555292",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a6c957a496f4a8a6f368b20dcc75a6fd899f7594aedd4fdb6fbc8738081b4e93",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "172fcf130d94c3a466e22fec8155d5e98cc93a7a7ba8fc949bea931e042daf6a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "bdc825128de09db0e8b0c1e9016592184b00d19c6c7d10c820475e1b74bb8579",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c3e2d5f8c51842fa20707fd18d79002907404f967cfb951a5b26051e4ff10db3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6ae14d54ff31e9ab90d76fe3e12de067fae9cc253e98bf2a6553926ed0b135b0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c317f9eb88ecd1ec2eef51a57de0f82640c27e2e658eba256e1c7280b15040c8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de7328fd477f100cfe8e3595371183acf51100ed3c8e329438f00d3c479e20e5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "da6dd22a422690d1a3f4ff36e2d8545ca3f7dedcee30226f135db722cea2f5a7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ad3a782d8b1df68269534f0867329b22599f34eb0892ac86b7705cc53e2cca2d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d71a53dce9a2a0b5cf5c41462733727624faf5587b60841725236e8dd8d605eb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-final-guard-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2693f02f97fe1aa750e2270973a14ea32d0bc7f7661651198b5682dde6fb461b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "76fa20ec8fa85a13bc7355aae0518e0fff2a460e6c8157974c14735177687491",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1f3159ed1bc7fc8a8debba6dd531af849d01b8ad9c17f69960c0cdcf83952d3e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a4641bcafffcf6f7109cdd6e97c3f61280959b02126387ff9fd6324459bdb2f6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-poppler-001.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1af001b7aec50041873c4e38eb4df01ab20957e0c187cc2802413678223ad53e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6ad72461a2cdd04adc3418174e69a5240e66fbba7ee2d99151ff4c7985a9103f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3a0d003d102b42fe8fe755f245bd9ed865581a2f9b4e9d35d85402a909b0edbe",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b7937bcf6cccf93168b2ebcc19798d65f47f53f1571cb5a729ea2202013d6aa",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3dd25ad987d6d0df814405bfe7e99a1b61e1efcaaf9f48e767957143860001da",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-05.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "535f2f4aa097e596c5a9cabb79714224d5274e84a17e3b3a47e012cb6e0e0018",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-06.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b3c1817e668eeb34e44e6fb3b07fab9491e769175f0cbfef6f9375e4eb759c1b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-07.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ab0a43042afe787d2b46f5fbb265ff5e87c58914305f55dfac343c754de2fb07",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-08.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d4fcde1635b3c7064128216eb4fec0176fe5e3e938a40eb611dbcaa614bf0e76",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-09.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a5b2a240620322a47bcbf327ff205a915e16a38ab0df761cb74aa9924f3c8194",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-10.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b2d8eac6c86377eae663989ccafcbac104e30f82136d6ac8d62e5242e93214c2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-11.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "05ced8da19f1c6b027442bb4443477b382bbb8bae8b640ff4a4a4e9e599333ad",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-12.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "fd12daea801d6df2703b35e0d100a057a256fe7dfaa7ec64248f2f02641af320",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "fde352e3fed365901c19aac06103a6970a4c076bc682f46a3451baf31d83dfb7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-05.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c6446f84d2b9859da795e9b3df0fddf26be75b1f1b6f311bdcfd9154af474233",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-06.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/historical-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "40f0505bd28d22175d1aa6de2ee960a93a2dde8463a45578418a90e7c3213fe3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-attempt-02.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3f12ca6addd1d88de36b81b118e6908fad7d77d66b5ba7fd39127ca52029a316",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-verification-02.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d843ae9d023ca3727f592f4a5657eea315bbf8d7cfecb5e1920b1ada674c553d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-combined-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c7da21353b5162635e2cb0d38b754aca7bd7d8beadeec3d6ab88f6d03e487642",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "24fd4066f9b53613a3d0bbb82e20802a32ee62ce6d74d59fe200ef3263e4d0b3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-response.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "35130f0b9942691c4e243cf76f5962a210a619b44bce0edb88e121e980c0e5ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-stderr.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e14a0bce0b1aa2dc1be5b2bf0576af3404e861ebb70484cbbb3776c93911de69",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-response.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1cc93f0367faa87b98cebe2675cc73375be462ad9e6e5fdbdd84baaabe21e3d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-stderr.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-before-fix-native.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "14ea2914749d90bfc5a22b2ab1e51aabfe0708ad948b34284bd09a243bd9d82e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-ctm-restores-before-fix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5a7baca338b600781e2a338eefb47dfca91bd7cd0d793f4c25b0ed08023bb157",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "88b2b4ce4c6104fabf23fe3469b81e0a1d7cc65c8f176ae7967d33a03da916fb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3fff5864e8feef4ead7d277559138452374f14a51f21d658ff86b2960481082c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/recovery-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c8d7bc10e47bbe7a5da879fb25efcf1811f695bbf4103e7942486e3928fa2694",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "9498eee5f378a9f1cba73c76a3fd881fbac86dec48a564eb2ce27f4168070d67",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "516af28b151cb2c75b190a62bec9089c78878028f339238101a564f6586730b1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-poppler-001.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "faf2f88a5e516af08d17e2c7948ac38b3e73618cf8e59173029f8525987b1cf0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-fixture-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c65bd2f1fbf03c51b479d41d75ee36d45c6406b5427e19e50be780c5c8397feb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-fixture-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "805227f23e6b3d0cd41dc05fb73a0b726789b73a53ae6bbcd58cae67db7c9a3f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "87e1e3156ff8e9868b43ea6cfe98d839ceaeef348fcecea2ea2557edf21f92ba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "13f1a1fceab70fd209580101fcf59131681d84b6d260a18ce5f5ed58939e0ec5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "270e8ffee2256f871e601123c928a4f15c9b59f28e2301774d8a5a76c3da222e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8aa3b07c6a506c458d93b0a1bb2c0b5db12b31e7d74abf5c562929ce026a8033",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de306ba26b9885ef30a7048f4b69638277ec783341091b54cddd41b018ead77b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de942505094bf39e59b9222d2af2439965c7d857f007f8e8981316081d0329a5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01-source.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d88887f5fc6c28181f5c2aa28ff9e724b69c9024340914b8eaa90d73cad61894",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.patch.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6c4634d383c45d0e5a5f34fa67aea49d04cf53b4daced8a2f435946d98405fb5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b03f3ac87c2142f5789fc3ee613b9863e2ae02070ec38cd39edf4e29c1a9dbd4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-environment-availability-01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "41ebfe94e4b8d34a078a0974918d2f52772e4be0a38b92c96aeb437629d51e8b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94ad3005de20aece879eea5023132393f57e74891c9a3c008369de452490083c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6074d57003fcc6ea110a30273509a86a47775dd0f278192e554d1e01b9af5a49",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18fbb1a8740ecf55871bdec8379e6a2e70443a2e41565663f87bddf84c2e0d9f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c141314c8a95ac709c415d99c7d179b824cf519c8398765abcc11522d01bfde2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2c511ad052df12d6b75fd41c0e8eb3142c526ef9158bf19b133054b995724fbc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "54c355b83cc783f687ef51ee014c942e7619e1f2d145a1e2832059aaadd4142c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "23bdfc73e3454269f3adb713ce9b06f298ba377500455614d46828c895f03fa0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "13e464c51f06111cd86ebb779bb2d99cde1fdcb339799360a239e85887946152",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "eaf7bb94acc580ebd0446da02e35ddd783d211c290d10491bfff3ea83904eb7b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4247dd8597b8458fa7e860adc54542a6bd025c3cba74984afee1a2950ef601ff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "653c4cc101d0dfa6658b2b62c022bbc338bfcae88dc928d894d14831bc667ed3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6bef013fef5274c0362ac368d8017f29caf2f934e1430ab3b2ac495603fe0438",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-audit.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d7f8f09f606d40e4701723ed7edd83261a75d4c2a9cf3729e5c377cbd97727ba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-build.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-configure.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ctest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8a00bfdba85b83c4002cf2336cd883ae042126f0361ec6f9b2ed2d53cc537734",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6f13cb1812750dc9575c78cdd35c016f008635a81b5cf357554bdceba93be9b6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-build.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-test.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ff22d61606faf28d77b82762e370caa56a301853241f159b8a832541c567d200",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/worker-ocr-repairs-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ed252b43b0763debd21db00c83ad907a47d3ab422c60d75028b925eb65cc5980",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/feature-build-matrix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "89b42957b0f872fe4e3e74d6b4edf7c9b9a5ba6634daaccfc0fc08325367ae87",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/integration-status.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "755f63bcec1d825917edd303bf6870583fdd38741e124a141d59b711817f72ca",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/query.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "600a66f29c0be1d832904cb6af6d5f5cfb7f839ac011460df5ca918fe9c958d4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/render-ocr.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "819c8b83e94bf454a4b5fb4c1789e735ec9ee40c151e8faa9c28103b1f46f1e8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/security.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5255c3a2ee6f2f309e3ee71932692bd56ead728a85f66b133380cd3cd14e57d0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/source-inventory.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "280a918aa664a91647d4eda36bfe536b03cef87f44ec6b461f2da70ecd0d98d6",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/mod.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "407fb57be883dfcbf11417b4903eb554d8a71ece9253dd9375e9675cf9e2d03e",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/pdf_oxide_backend.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d866146f2ca03f59f4cc275d30ed27a0e72e20f2299216e81b4ce2497cf69503",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/pdf_oxide_content.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "fe625e75504ec6502aba9c87d00e0e7fa2487c1f15158596952a0e5f39608b56",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/pdf_oxide_images.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3e83cdd13ad7b0d4bf84389738c390474eff394f08454a6e3dcf3e67cd3ec443",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/pdf_oxide_resources.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "cd1a9fa97581fe7d55315552fa9d6c9214b25341a52554d59eed6264842ff881",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/pdf_oxide_supplements.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3e8fb25d7d353227046511900dda0cf44243d8fa75912e01a60ea6b4e1a8a815",
+      "unchanged": true
+    },
+    {
+      "path": "src/backend/routed_backend.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "17d98f6753ae121144487e6da5288210af0e0bb5c0b7b462b7eed356881165b0",
+      "unchanged": true
+    },
+    {
+      "path": "src/ledger.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "0033526c144069c72693ac3ea4469dc06e7575d0a6c551a8dc383d6903564430",
+      "unchanged": true
+    },
+    {
+      "path": "src/lib.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "afc76e20112b9e8b426b96c6e697ece5311b225f51b0a0769753cb3d8ce022af",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/convert.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "871ce1e74eb09b9855737e0d53e21a381fb2ae005324d6008f060dd303d59537",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/create.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "74e4fb83a1bb770e784fb69669166cdb9d4660dac5433778804882594045411c",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/mod.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "634bc785f7de35e2012efd53c2a31a4f60b6dd22159251845fa541c9a2ba9e81",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/ocr.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5158c30726394f62e122ab1e291d68b9c37909f62e2745b749c23c5443919786",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/office.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2244faf534343cfdd2b28fd56088bf5de77fc441451b3e21749a391b6cf5a9f1",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/query.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1da87d57214dda260b6ebede42659a856082c78fdaece506a9f8e29f86bcf37a",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/render.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "09f68f9735f84823dcaf082bc664a71bad3c4172ace1b2e47b59efa092567f72",
+      "unchanged": true
+    },
+    {
+      "path": "src/oxide/security.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3795aa0a49ce39a090b3668539e719bee9f36324c8b360cb6c5e4f257771e51d",
+      "unchanged": true
+    },
+    {
+      "path": "src/pipeline.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "77eec44554b57491d4e5c3d43697fb42532a8621e63488386a73eed6d7581b52",
+      "unchanged": true
+    },
+    {
+      "path": "src/schema.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1296963410fa6b6dc4b5fda5d57af02744a8b83d0471042e1d342805729ffc76",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_containment.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "cd1aa2d510333c6292582c2e1b604c586615228d94e79a9e4d908bbc09db5e71",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_convert.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7e12359790e4c27314009ce67594855674df260c6f82dca45e73a75db648245e",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_create_office.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3bd18725890d7bad0f67901a2c9385d442251fb9511d67cffce2b545a86b9414",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_query.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7abcc5c822d7c997bb23f53a682d4289bf1ed3fdc7b20d35b1cb0e0061129a33",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_render_ocr.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "182c37281714838f8087dd85d99f1b3d8a4523653c7935bb6a1a6955ba7c85a5",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_security.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "dc5b1d8cded5b060abdf835fb62000e1b02ab12c59e791b20b4dfc99ea55b16c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_supplements.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "654459d7690ab8dc331a90d51d83b0f37dd6063d28909b2eb1833cbe4b98ddf7",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_transport.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "53a97aedef8015fa17aa7a23b07bcadc77689c4e5714c864601379fec8f51ed3",
+      "unchanged": true
+    },
+    {
+      "path": "tests/oxide_worker.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b78c8e018d68564d3431fd4dea120ae61c9f436b1930bb674ea3afb207e849c0",
+      "unchanged": true
+    },
+    {
+      "path": "tests/pdf_oxide_backend.rs",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c7160d92077a5a5b81d910a864dfb91e34074ff09be0468a3db6ba2e1293d93c",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/ammonia/LICENSE-APACHE",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c6596eb7be8581c18be736c846fb9173b69eccf6ef94c5135893ec56bd92ba08",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/ammonia/LICENSE-MIT",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6ced8d1b9d96dae227bb1b31876359bbd089d8c18378e4e42eb45b84f29e9ae9",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/office_oxide/LICENSE-APACHE",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/office_oxide/LICENSE-MIT",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "9816cc65c1271b7193fa418d709ac43dda8a1b59b4b82c9f870b7f419a2ae0d5",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/office_oxide/NOTICE",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4559aeb03286b9ffa85de4303edd8d46ceac6d80c6e5e6b31eadf331f2a870ff",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/pdf_oxide/LICENSE-APACHE",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/pdf_oxide/LICENSE-DejaVu",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a56b293d91356f5cad310a5f65c2da8ef459e1b23dd3f662228d5f23b8bb9946",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/pdf_oxide/LICENSE-MIT",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "33409f3fd68d9e95a48c751757782f468bb5c183f241d26bd1028678faa0baa3",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/pdf_oxide/LICENSE-fallback-fonts",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5adcc08a77145a2569fd056e6cb7133420fa04b2a7ef35ccab6bdad9c097cc69",
+      "unchanged": true
+    },
+    {
+      "path": "third_party/pdf_oxide/NOTICE",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a914e104fc9e195ab15594a89546192b66114d6dc8e9052771a26f9a91dd537c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/HANDOFF.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "664292461072ce2ae7e4992784653b94bf393a6fde463bce0c45123c05a83275",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/README.md",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0aca305cb8dae8d3bdbc1f2b6e5a2e504c58d0871886398c949970629fbabc98",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/original-native-failure.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0d891c9d3f535dc4bf792684efb3583c2966dfa19cd456790e4b6aa3a2c04312",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/sources.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "9416ba1e74480f92eb73974927b331d34e0da99f2c4d43585594a8a281e1151b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/synthetic-validator-replay.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "3662bcb4011321ca1270e8f79cbb6646ef7ddddac5994ddcdf7204ffed71f181",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/backlog-2026-10-15/validation-summary.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0aa0739fddf9174b7edf25ba1afea92beb4a7fe2753bff7b02211a8389c3fced",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/CHECKPOINT.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7994e48a0c1d1f1ff31cbff580c81fa4ba1b34d95655798e2485b0162e6aec6c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/FINAL_HANDOFF.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "bc3e7dba4b2854324c6018d1f38edc2cdd89d28427626b73e8c4d3bc80497763",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/NATIVE_API.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "884bf42d28cf262601133c2406a029ba380076dc246997610e0817875a9b72a1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/README.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "28dc11c870d658510018301a5b29ea3ace41637ef2d32faecf76bed97e50e0ef",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/STATE_APPEARANCE_HANDOFF.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6abf75fd5dc84750a96200a58716b9cb16de81a9f5d286970cc140e8e0812d0b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/adversarial-fixtures.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ad33f9f512727f1db91fa50996b15fc7ba732b82117dbb351e08cd50cba30f25",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/build_inventory.py",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "03872d5af0da7e0d3c239bebeb6e9507c22b3ec98221b0ab556bccfe1d5e0c6f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-matrix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b970c265e3397db6a36215da4dec7e15950f9086d2d080dfead159ccb8e3ee93",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/capability-spec.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "f00b3a120b9a6f55cfd2958bc159cf6a0853473b9cece8dada5c2df1f123e6d7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/containment-evidence.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2838475aa55d03d35301d473cfe2b37060d990b78aaae39013fd9e599e9bd001",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/containment.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d7f5be317d0294aa136c52f12cc97efab985ee9f14dce3d3c24afbaffa0ae410",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/create-office.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4e0ac1af50149650b21210d097b34a977df52be2438e8d2df7597ff6a2178c75",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/edit-forms.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c72b18af69921367f01da8bac0f0ce92386260b30c170d23b94a0a246573f9f6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-build-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "9e368df3b43c59b9511dee372dd8c4079d82078090ec4e5bc57b71e3a502c628",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4917b6105a3703ab99fccd92f4aa02a380a07494576322e6ed293329aaedbb69",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2026d6e1740523a12b3ba3a47733b2596a19cc9f31994dd86555207923604fff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2220543a8cf1c5daab6906ffdd03c060f56abdea24d30139007e29495f8eb239",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "347a923b01e222d1cb9f6da6cfe03830eb552e05308ffcb0814c9f76127dffb9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5041f80dbce223bcfa616500f168ebde623b5cd51653dac6b8ccd0f3c7b8036b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "722f616625d12bc486183deb7c69ba3d004f2defc1c98c83b300e5a23cca0b95",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7d2775aeb2023552cc9c16deb765235fc92729f0bb0bd57dcd4c7a9c7fdcd01d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c09430c7ffd06e2937e5ce4760c8bd29a52747fc779c2b74f89772476c88a32a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a6796ed8316af372e4b8de3ab7cb8049f9ea2b212df33228e6844fc8f2a1a84d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7d39926deae37e1e207df5f19712c153b93577fe2d14c433cd5463156a96052f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-clippy-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "83673cb77ab9bed14322620a79c4117528ac9ec501c1cdb3aa8c7b378fa54528",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/default-tests-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "16dabd5ee1720cabfee41a105c727da4e684dc37ecb2b244718663d2651bb8f5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "40bd2f3d3137a2de2278919653749453d6c515fc39cf23aedfbf104e6ed7224c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "979cdbbf3964c460cef83a9d6cbb5b67b0c518fb7e8df62d9a8e9859b10ea25d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c5b4e23afc67604838fc4845aa4d5daa6ea6ddb435c9522df7a283f43be9144c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b1589e558de12a68704dd4a8223f2d36ac6a88906f2ee6989c0778b550734808",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3d0facf767f1f3d4414933625a967c1b6679a6738724b3550dac288ab663d1da",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b21c617a8bdefd0775ff03261ac3c0c90f0a65aaf5e0e3cc94ee8dbd893f34f4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "aeb2e3ac71a9ce12d8c09ae137c5368a11ace4542d14d97d3e08a4d2c776b93d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1eae649323f4fbefac83ad21756611ef51b977121398550f41e0ed57660d5c67",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-a39af2b-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "26556eb8e96d94663d2c5b2e6234321d0d0a75151f8ab881da2c100ef094ac49",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ffi-containment-cargo-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2fedfac02b22d58d9d07ebafc5731da9f36b3a4256bede0633b0afb0dabc2e08",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01-binary.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "eeffdcefe8b7aab960fda8a8d5e9bf41102012ffb736eaf3ff72fcc6447e3ceb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-baseline01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8b4d27399a3eb34be49e6332c4fe087796b572030de06fb281802dbfbae11b78",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "19f453ceacee02bd61d4073c0928fff2a82c09113af9fd036c0a2272c2555292",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a6c957a496f4a8a6f368b20dcc75a6fd899f7594aedd4fdb6fbc8738081b4e93",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "172fcf130d94c3a466e22fec8155d5e98cc93a7a7ba8fc949bea931e042daf6a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "bdc825128de09db0e8b0c1e9016592184b00d19c6c7d10c820475e1b74bb8579",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-poppler01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c3e2d5f8c51842fa20707fd18d79002907404f967cfb951a5b26051e4ff10db3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6ae14d54ff31e9ab90d76fe3e12de067fae9cc253e98bf2a6553926ed0b135b0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c317f9eb88ecd1ec2eef51a57de0f82640c27e2e658eba256e1c7280b15040c8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair01-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de7328fd477f100cfe8e3595371183acf51100ed3c8e329438f00d3c479e20e5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "da6dd22a422690d1a3f4ff36e2d8545ca3f7dedcee30226f135db722cea2f5a7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ad3a782d8b1df68269534f0867329b22599f34eb0892ac86b7705cc53e2cca2d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/flatten-carriers-repair02-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d71a53dce9a2a0b5cf5c41462733727624faf5587b60841725236e8dd8d605eb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-final-guard-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2693f02f97fe1aa750e2270973a14ea32d0bc7f7661651198b5682dde6fb461b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "76fa20ec8fa85a13bc7355aae0518e0fff2a460e6c8157974c14735177687491",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1f3159ed1bc7fc8a8debba6dd531af849d01b8ad9c17f69960c0cdcf83952d3e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a4641bcafffcf6f7109cdd6e97c3f61280959b02126387ff9fd6324459bdb2f6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/forms-poppler-001.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1af001b7aec50041873c4e38eb4df01ab20957e0c187cc2802413678223ad53e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6ad72461a2cdd04adc3418174e69a5240e66fbba7ee2d99151ff4c7985a9103f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3a0d003d102b42fe8fe755f245bd9ed865581a2f9b4e9d35d85402a909b0edbe",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b7937bcf6cccf93168b2ebcc19798d65f47f53f1571cb5a729ea2202013d6aa",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3dd25ad987d6d0df814405bfe7e99a1b61e1efcaaf9f48e767957143860001da",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-05.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "535f2f4aa097e596c5a9cabb79714224d5274e84a17e3b3a47e012cb6e0e0018",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-06.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b3c1817e668eeb34e44e6fb3b07fab9491e769175f0cbfef6f9375e4eb759c1b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-07.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ab0a43042afe787d2b46f5fbb265ff5e87c58914305f55dfac343c754de2fb07",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-08.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d4fcde1635b3c7064128216eb4fec0176fe5e3e938a40eb611dbcaa614bf0e76",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-09.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a5b2a240620322a47bcbf327ff205a915e16a38ab0df761cb74aa9924f3c8194",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-10.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b2d8eac6c86377eae663989ccafcbac104e30f82136d6ac8d62e5242e93214c2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-11.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "05ced8da19f1c6b027442bb4443477b382bbb8bae8b640ff4a4a4e9e599333ad",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-12.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "fd12daea801d6df2703b35e0d100a057a256fe7dfaa7ec64248f2f02641af320",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "fde352e3fed365901c19aac06103a6970a4c076bc682f46a3451baf31d83dfb7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-05.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c6446f84d2b9859da795e9b3df0fddf26be75b1f1b6f311bdcfd9154af474233",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/full-tests-06.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2d834fde0cf34a6212755fcf3ea0406c546dc5784a54bc1ac0131b8990e0df20",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/historical-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "40f0505bd28d22175d1aa6de2ee960a93a2dde8463a45578418a90e7c3213fe3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-attempt-02.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3f12ca6addd1d88de36b81b118e6908fad7d77d66b5ba7fd39127ca52029a316",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-cli-verification-02.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d843ae9d023ca3727f592f4a5657eea315bbf8d7cfecb5e1920b1ada674c553d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-combined-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c7da21353b5162635e2cb0d38b754aca7bd7d8beadeec3d6ab88f6d03e487642",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "24fd4066f9b53613a3d0bbb82e20802a32ee62ce6d74d59fe200ef3263e4d0b3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-response.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "35130f0b9942691c4e243cf76f5962a210a619b44bce0edb88e121e980c0e5ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-stderr.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e14a0bce0b1aa2dc1be5b2bf0576af3404e861ebb70484cbbb3776c93911de69",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-response.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "1cc93f0367faa87b98cebe2675cc73375be462ad9e6e5fdbdd84baaabe21e3d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-a39af2b-stderr.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-before-fix-native.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "14ea2914749d90bfc5a22b2ab1e51aabfe0708ad948b34284bd09a243bd9d82e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-ctm-restores-before-fix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5a7baca338b600781e2a338eefb47dfca91bd7cd0d793f4c25b0ed08023bb157",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "88b2b4ce4c6104fabf23fe3469b81e0a1d7cc65c8f176ae7967d33a03da916fb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "3fff5864e8feef4ead7d277559138452374f14a51f21d658ff86b2960481082c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/recovery-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c8d7bc10e47bbe7a5da879fb25efcf1811f695bbf4103e7942486e3928fa2694",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "9498eee5f378a9f1cba73c76a3fd881fbac86dec48a564eb2ce27f4168070d67",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-baseline-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "516af28b151cb2c75b190a62bec9089c78878028f339238101a564f6586730b1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/redaction-poppler-001.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "faf2f88a5e516af08d17e2c7948ac38b3e73618cf8e59173029f8525987b1cf0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-04.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-fixture-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c65bd2f1fbf03c51b479d41d75ee36d45c6406b5427e19e50be780c5c8397feb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-fixture-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "805227f23e6b3d0cd41dc05fb73a0b726789b73a53ae6bbcd58cae67db7c9a3f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-a39af2b-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "87e1e3156ff8e9868b43ea6cfe98d839ceaeef348fcecea2ea2557edf21f92ba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "13f1a1fceab70fd209580101fcf59131681d84b6d260a18ce5f5ed58939e0ec5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "270e8ffee2256f871e601123c928a4f15c9b59f28e2301774d8a5a76c3da222e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8aa3b07c6a506c458d93b0a1bb2c0b5db12b31e7d74abf5c562929ce026a8033",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-log-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de306ba26b9885ef30a7048f4b69638277ec783341091b54cddd41b018ead77b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/transport-tests-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "de942505094bf39e59b9222d2af2439965c7d857f007f8e8981316081d0329a5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-02.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-03.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01-source.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d88887f5fc6c28181f5c2aa28ff9e724b69c9024340914b8eaa90d73cad61894",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.patch.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6c4634d383c45d0e5a5f34fa67aea49d04cf53b4daced8a2f435946d98405fb5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-baseline01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "b03f3ac87c2142f5789fc3ee613b9863e2ae02070ec38cd39edf4e29c1a9dbd4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-environment-availability-01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "41ebfe94e4b8d34a078a0974918d2f52772e4be0a38b92c96aeb437629d51e8b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94ad3005de20aece879eea5023132393f57e74891c9a3c008369de452490083c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6074d57003fcc6ea110a30273509a86a47775dd0f278192e554d1e01b9af5a49",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18fbb1a8740ecf55871bdec8379e6a2e70443a2e41565663f87bddf84c2e0d9f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "c141314c8a95ac709c415d99c7d179b824cf519c8398765abcc11522d01bfde2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "2c511ad052df12d6b75fd41c0e8eb3142c526ef9158bf19b133054b995724fbc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-fmt.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "54c355b83cc783f687ef51ee014c942e7619e1f2d145a1e2832059aaadd4142c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "23bdfc73e3454269f3adb713ce9b06f298ba377500455614d46828c895f03fa0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "13e464c51f06111cd86ebb779bb2d99cde1fdcb339799360a239e85887946152",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "eaf7bb94acc580ebd0446da02e35ddd783d211c290d10491bfff3ea83904eb7b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "4247dd8597b8458fa7e860adc54542a6bd025c3cba74984afee1a2950ef601ff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01-runner.py.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "653c4cc101d0dfa6658b2b62c022bbc338bfcae88dc928d894d14831bc667ed3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-poppler01.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6bef013fef5274c0362ac368d8017f29caf2f934e1430ab3b2ac495603fe0438",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-audit.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-clippy.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "d7f8f09f606d40e4701723ed7edd83261a75d4c2a9cf3729e5c377cbd97727ba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-build.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-cmake-configure.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "687e3da330b83adc91573d40a30024e96fdbd51890d9a006c6fdc7fe8c51d1ec",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ctest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "8a00bfdba85b83c4002cf2336cd883ae042126f0361ec6f9b2ed2d53cc537734",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-pytest.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-receipt.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "6f13cb1812750dc9575c78cdd35c016f008635a81b5cf357554bdceba93be9b6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-check.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-ruff-format.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "18ba381e222ff2e3d590e705f8802e5d9fe3aab8d52c82662caf0509de82dddc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-build.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-swift-test.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "e32a000d65947a8c7135e919fd12aea91837716c2594518b2e398c394ae0e5e7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-repair01-tests.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ff22d61606faf28d77b82762e370caa56a301853241f159b8a832541c567d200",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/worker-ocr-repairs-01.txt",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "ed252b43b0763debd21db00c83ad907a47d3ab422c60d75028b925eb65cc5980",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/feature-build-matrix.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "89b42957b0f872fe4e3e74d6b4edf7c9b9a5ba6634daaccfc0fc08325367ae87",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/integration-status.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "755f63bcec1d825917edd303bf6870583fdd38741e124a141d59b711817f72ca",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/query.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "600a66f29c0be1d832904cb6af6d5f5cfb7f839ac011460df5ca918fe9c958d4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/render-ocr.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "819c8b83e94bf454a4b5fb4c1789e735ec9ee40c151e8faa9c28103b1f46f1e8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/security.md",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "5255c3a2ee6f2f309e3ee71932692bd56ead728a85f66b133380cd3cd14e57d0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/source-inventory.json",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "280a918aa664a91647d4eda36bfe536b03cef87f44ec6b461f2da70ecd0d98d6",
+      "unchanged": true
+    },
+    {
+      "path": "LICENSE",
+      "reference": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "sha256": "57411afebd084482658b294bc643db7f93b32a01d5215492f96a149fa5f92e78",
+      "unchanged": true
+    },
+    {
+      "path": "crates/tpe-ffi/src/provider.rs",
+      "reference": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "sha256": "81d89389a71aa4ca0da5a53a33be6cb29cfe3f8fe3bf4125648a931b3ce1fabf",
+      "unchanged": true
+    },
+    {
+      "path": "native/reviewed-partials.json",
+      "reference": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/app.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "700b4dbad8765647accb9b8999cb0d8b560f35e9668d8e6b9518514a3566817c",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/auto-release.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "5e3607c0e4ef868fd20ef7b9f7f0ab8da2fd369e193183196c7860848764c289",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/build-binaries.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ee1dc80026e0f487546623f351984e56b4c5d616f10a07cf3dd19fd37e27966b",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "64d0cdc2363890411a0810a674a1389331c581c8bade8e2f296179abc91a7a56",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/codeql.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "0bb9fe8b1ef784ff3c9a3370c4e25074d9f8513c6bb593ba3f05c7617a89505c",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/eval.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ceb574d1dd71aab003c804a07fa833c9c421f961fe63d13be0fd203d67459954",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/install-check.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "9bd9f987fd3aa86a59a4252a7a72bc3cb41394fd7f3139f13398f39e1b675967",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native-bibliography-evidence.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "278968707b05bd459261606ae2318873e38baf52eae3743c401805234df035c0",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native-repair-checks.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "48ba1a6e4ae19e75eb7805a6cc1f26fac01b541a0b5d251cd1adce866203bf11",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/native.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ef50218913bcf16f1f91bfbb4076bc5feb3652fcd04fd870a9519549e7246493",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/pdfium-probe.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "e7beae61321a43162a562e0653ff2e26f8f552fd64d26e2fee72c56d8e202f22",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/pmc-bibliography.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "155a4acfc9cba1545899530ca6706d3cffdc70e06ffe9418d50268e7ff8de965",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/poppler-compare.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "15dfc652fa1b795277ced2d6ff95557211273097d23bb890e0045c97ba51ce87",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/registry-accuracy.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "64e31bdb2890da20e4508bc976afc1df065b519b9393bf8453a227de7cce2007",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "5b3ddb3fc7fb0dd62af43f1015c97970c1826ccc7bed89a7f945d43b32bbc7ab",
+      "unchanged": true
+    },
+    {
+      "path": ".github/workflows/web.yml",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "cf646babe38ed8404fb5043546fd83aa0f467a458bbf9f71621b3578702ad316",
+      "unchanged": true
+    },
+    {
+      "path": "native/validate_eval.py",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+      "unchanged": true
+    },
+    {
+      "path": "native/manifest.json",
+      "reference": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+      "unchanged": true
+    },
+    {
+      "path": "Cargo.lock",
+      "reference": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+      "unchanged": true
+    },
+    {
+      "path": "src/cli_worker/oxide.rs",
+      "reference": "native plus required explicit dry_run: false field",
+      "unchanged": true
+    }
+  ],
+  "archive_heads": [
+    {
+      "pr": 54,
+      "expected": "0e7b498f3bc88fb7a1497e019f6cef739234d8d6",
+      "actual": "0e7b498f3bc88fb7a1497e019f6cef739234d8d6",
+      "matches": true
+    },
+    {
+      "pr": 55,
+      "expected": "cd14f587b11274da6f42a0a8b71773f8ac18e43b",
+      "actual": "cd14f587b11274da6f42a0a8b71773f8ac18e43b",
+      "matches": true
+    },
+    {
+      "pr": 57,
+      "expected": "4188236f65e73410d0cd30febf5ce9a890aa750d",
+      "actual": "4188236f65e73410d0cd30febf5ce9a890aa750d",
+      "matches": true
+    },
+    {
+      "pr": 64,
+      "expected": "afce5697081bb15dfec13dc70fe8c3143d334441",
+      "actual": "afce5697081bb15dfec13dc70fe8c3143d334441",
+      "matches": true
+    },
+    {
+      "pr": 68,
+      "expected": "4557fbc34ecd2924fc80aa843ec36110f5c3380f",
+      "actual": "4557fbc34ecd2924fc80aa843ec36110f5c3380f",
+      "matches": true
+    },
+    {
+      "pr": 74,
+      "expected": "dda9a6f5f18cca39709378ab0f4bc8ad25539a3f",
+      "actual": "dda9a6f5f18cca39709378ab0f4bc8ad25539a3f",
+      "matches": true
+    },
+    {
+      "pr": 75,
+      "expected": "d7e208bc6540a7f187d6c3696eefaae6d4730b38",
+      "actual": "d7e208bc6540a7f187d6c3696eefaae6d4730b38",
+      "matches": true
+    },
+    {
+      "pr": 76,
+      "expected": "4176bb4d729fcaa8916766eba07c663f2f893d7b",
+      "actual": "4176bb4d729fcaa8916766eba07c663f2f893d7b",
+      "matches": true
+    },
+    {
+      "pr": 77,
+      "expected": "e7cf5ad9a83e1b70369f142ac5fcac7dc28c181f",
+      "actual": "e7cf5ad9a83e1b70369f142ac5fcac7dc28c181f",
+      "matches": true
+    },
+    {
+      "pr": 78,
+      "expected": "f23f392efec7d3d971c976b9f18b32b53d7039b2",
+      "actual": "f23f392efec7d3d971c976b9f18b32b53d7039b2",
+      "matches": true
+    },
+    {
+      "pr": 79,
+      "expected": "2f4f026affc452d6be5b64179f75e8d9cfdb8ec1",
+      "actual": "2f4f026affc452d6be5b64179f75e8d9cfdb8ec1",
+      "matches": true
+    },
+    {
+      "pr": 80,
+      "expected": "d0a5d30b3af239389cc6bc234a8f911d1ffc5b4b",
+      "actual": "d0a5d30b3af239389cc6bc234a8f911d1ffc5b4b",
+      "matches": true
+    },
+    {
+      "pr": 81,
+      "expected": "6170f305925969a99712650b8abc2fc127c698de",
+      "actual": "6170f305925969a99712650b8abc2fc127c698de",
+      "matches": true
+    },
+    {
+      "pr": 82,
+      "expected": "edb33dfc08efae75cf22fa07b1bae882fc12f088",
+      "actual": "edb33dfc08efae75cf22fa07b1bae882fc12f088",
+      "matches": true
+    },
+    {
+      "pr": 83,
+      "expected": "dda67a8981fb4110cc66aaa9fe63d86c4852e473",
+      "actual": "dda67a8981fb4110cc66aaa9fe63d86c4852e473",
+      "matches": true
+    },
+    {
+      "pr": 84,
+      "expected": "bf25f48307e9ee1dfc4a471b85d5ded1685e3354",
+      "actual": "bf25f48307e9ee1dfc4a471b85d5ded1685e3354",
+      "matches": true
+    },
+    {
+      "pr": 85,
+      "expected": "5b81323bd788145c2e279fcd2a18b5a0be898c2f",
+      "actual": "5b81323bd788145c2e279fcd2a18b5a0be898c2f",
+      "matches": true
+    },
+    {
+      "pr": 86,
+      "expected": "861a4758230ce9643d910a29342b62a72d70ac35",
+      "actual": "861a4758230ce9643d910a29342b62a72d70ac35",
+      "matches": true
+    },
+    {
+      "pr": 87,
+      "expected": "e725632d3eb402f667d87ca5a5bf3502fae346e3",
+      "actual": "e725632d3eb402f667d87ca5a5bf3502fae346e3",
+      "matches": true
+    },
+    {
+      "pr": 88,
+      "expected": "1a8a388120d937348c853f1bd6c70ed4e1918218",
+      "actual": "1a8a388120d937348c853f1bd6c70ed4e1918218",
+      "matches": true
+    },
+    {
+      "pr": 89,
+      "expected": "33bb311e5f3f6de783a386758aee3105194e2a03",
+      "actual": "33bb311e5f3f6de783a386758aee3105194e2a03",
+      "matches": true
+    },
+    {
+      "pr": 90,
+      "expected": "0af4b62af2ab4d07a94bf36fe420903d4df77ed6",
+      "actual": "0af4b62af2ab4d07a94bf36fe420903d4df77ed6",
+      "matches": true
+    },
+    {
+      "pr": 91,
+      "expected": "e6bbf0458225bd40a943e68e2e7ebba610399861",
+      "actual": "e6bbf0458225bd40a943e68e2e7ebba610399861",
+      "matches": true
+    },
+    {
+      "pr": 92,
+      "expected": "a814e9bab05ca49f0ac3766d9523b0663dedf6be",
+      "actual": "a814e9bab05ca49f0ac3766d9523b0663dedf6be",
+      "matches": true
+    },
+    {
+      "pr": 93,
+      "expected": "1d74899107d3cc64814ffa398521b8abaad13825",
+      "actual": "1d74899107d3cc64814ffa398521b8abaad13825",
+      "matches": true
+    },
+    {
+      "pr": 94,
+      "expected": "e96fb95b0c3f48cbcb99f44bcef181e76f37b4d9",
+      "actual": "e96fb95b0c3f48cbcb99f44bcef181e76f37b4d9",
+      "matches": true
+    },
+    {
+      "pr": 95,
+      "expected": "1d8021935c09014d25a8fb5bd649b9ba45ff8ba1",
+      "actual": "1d8021935c09014d25a8fb5bd649b9ba45ff8ba1",
+      "matches": true
+    },
+    {
+      "pr": 96,
+      "expected": "6beda59896b9e8ca93e5bc39075297153f4e5efb",
+      "actual": "6beda59896b9e8ca93e5bc39075297153f4e5efb",
+      "matches": true
+    },
+    {
+      "pr": 97,
+      "expected": "bc7f4a1b193d3daf0e2213eb17a13020f748e32e",
+      "actual": "bc7f4a1b193d3daf0e2213eb17a13020f748e32e",
+      "matches": true
+    },
+    {
+      "pr": 98,
+      "expected": "e85c8e96615607abd00605f1bd5097f73bf68bd1",
+      "actual": "e85c8e96615607abd00605f1bd5097f73bf68bd1",
+      "matches": true
+    },
+    {
+      "pr": 99,
+      "expected": "0d4bf7b4edf075e597202662666554f6461c9ea6",
+      "actual": "0d4bf7b4edf075e597202662666554f6461c9ea6",
+      "matches": true
+    },
+    {
+      "pr": 100,
+      "expected": "6a84632cf035337e11c9e7a4151c6292eba7f2e5",
+      "actual": "6a84632cf035337e11c9e7a4151c6292eba7f2e5",
+      "matches": true
+    },
+    {
+      "pr": 101,
+      "expected": "bc653883fc8053416adec035a4ce6291471aaa72",
+      "actual": "bc653883fc8053416adec035a4ce6291471aaa72",
+      "matches": true
+    },
+    {
+      "pr": 106,
+      "expected": "51c231411bb72a1e47909621e6ff36c03d00d0ef",
+      "actual": "51c231411bb72a1e47909621e6ff36c03d00d0ef",
+      "matches": true
+    },
+    {
+      "pr": 107,
+      "expected": "39cd4450f5db8bdbde41c27b8f2fcf0e0d7a19ca",
+      "actual": "39cd4450f5db8bdbde41c27b8f2fcf0e0d7a19ca",
+      "matches": true
+    },
+    {
+      "pr": 108,
+      "expected": "34438e4bcc19dce60a23a29577eb829beb8fdcfe",
+      "actual": "34438e4bcc19dce60a23a29577eb829beb8fdcfe",
+      "matches": true
+    },
+    {
+      "pr": 109,
+      "expected": "d8508d52d57550bc190f941798a8219f5e330e39",
+      "actual": "d8508d52d57550bc190f941798a8219f5e330e39",
+      "matches": true
+    },
+    {
+      "pr": 110,
+      "expected": "6ba9b0550f4f553905526eb63e3823707be37a0d",
+      "actual": "6ba9b0550f4f553905526eb63e3823707be37a0d",
+      "matches": true
+    },
+    {
+      "pr": 111,
+      "expected": "34d59882f506e55c7ba5767a230ffff4e5b02e5a",
+      "actual": "34d59882f506e55c7ba5767a230ffff4e5b02e5a",
+      "matches": true
+    },
+    {
+      "pr": 112,
+      "expected": "bd07c9501f5fc3718338b2e3855587d0836ed13e",
+      "actual": "bd07c9501f5fc3718338b2e3855587d0836ed13e",
+      "matches": true
+    },
+    {
+      "pr": 113,
+      "expected": "4ffb5585fe92c9f0a265878757397df6f5e5a62f",
+      "actual": "4ffb5585fe92c9f0a265878757397df6f5e5a62f",
+      "matches": true
+    },
+    {
+      "pr": 114,
+      "expected": "d547cd688b8cdd2199ca55b3ea2d4567fd1f524e",
+      "actual": "d547cd688b8cdd2199ca55b3ea2d4567fd1f524e",
+      "matches": true
+    },
+    {
+      "pr": 115,
+      "expected": "317d65793053acec239250e156e34c6d17832705",
+      "actual": "317d65793053acec239250e156e34c6d17832705",
+      "matches": true
+    },
+    {
+      "pr": 116,
+      "expected": "d4f5aea806b4783470d3307307f3d14ce51ba010",
+      "actual": "d4f5aea806b4783470d3307307f3d14ce51ba010",
+      "matches": true
+    },
+    {
+      "pr": 117,
+      "expected": "bfff85ea484d87650fc885018f173b3a18a541cd",
+      "actual": "bfff85ea484d87650fc885018f173b3a18a541cd",
+      "matches": true
+    },
+    {
+      "pr": 118,
+      "expected": "96f019b53b91074e92ed5781484e562bdccd5c5b",
+      "actual": "96f019b53b91074e92ed5781484e562bdccd5c5b",
+      "matches": true
+    },
+    {
+      "pr": 119,
+      "expected": "80bbab4caef5f960b7f4f77372350b65533e1c9f",
+      "actual": "80bbab4caef5f960b7f4f77372350b65533e1c9f",
+      "matches": true
+    },
+    {
+      "pr": 126,
+      "expected": "c6ab5f8ceb07292b9dbb03c4a5745f67d76a466d",
+      "actual": "c6ab5f8ceb07292b9dbb03c4a5745f67d76a466d",
+      "matches": true
+    },
+    {
+      "pr": 132,
+      "expected": "bee5459dd1beabece1274fbe38a77d35a8ac2828",
+      "actual": "bee5459dd1beabece1274fbe38a77d35a8ac2828",
+      "matches": true
+    },
+    {
+      "pr": 133,
+      "expected": "102638dfa417f8d16f067121d329fcf773d3cabf",
+      "actual": "102638dfa417f8d16f067121d329fcf773d3cabf",
+      "matches": true
+    },
+    {
+      "pr": 134,
+      "expected": "7de09bfa473e29fc82335b4783b6a6c26269a6cc",
+      "actual": "7de09bfa473e29fc82335b4783b6a6c26269a6cc",
+      "matches": true
+    },
+    {
+      "pr": 135,
+      "expected": "e439b79c04d56d35256176c50630c6611843b594",
+      "actual": "e439b79c04d56d35256176c50630c6611843b594",
+      "matches": true
+    },
+    {
+      "pr": 136,
+      "expected": "77793d531574b3084710ad3563bf7e0e0c87298d",
+      "actual": "77793d531574b3084710ad3563bf7e0e0c87298d",
+      "matches": true
+    },
+    {
+      "pr": 137,
+      "expected": "85845b0fdfbb1b9f73077b1eee630d9dd3632281",
+      "actual": "85845b0fdfbb1b9f73077b1eee630d9dd3632281",
+      "matches": true
+    },
+    {
+      "pr": 138,
+      "expected": "f2ddf313604ebf16a01e61c5bd0160fb63febf8f",
+      "actual": "f2ddf313604ebf16a01e61c5bd0160fb63febf8f",
+      "matches": true
+    },
+    {
+      "pr": 139,
+      "expected": "86531f68fd6daf514105440fb542deaf4d464d6e",
+      "actual": "86531f68fd6daf514105440fb542deaf4d464d6e",
+      "matches": true
+    },
+    {
+      "pr": 140,
+      "expected": "eb7f3b7d3f63ed83f6ab6d24e3789d409e6e7314",
+      "actual": "eb7f3b7d3f63ed83f6ab6d24e3789d409e6e7314",
+      "matches": true
+    },
+    {
+      "pr": 141,
+      "expected": "6eafc85591c29e2c97c5709f126578392ac1f9ad",
+      "actual": "6eafc85591c29e2c97c5709f126578392ac1f9ad",
+      "matches": true
+    },
+    {
+      "pr": 142,
+      "expected": "d7a7c2c36dfe3862d39e9b1489b796e71886b378",
+      "actual": "d7a7c2c36dfe3862d39e9b1489b796e71886b378",
+      "matches": true
+    },
+    {
+      "pr": 143,
+      "expected": "b56a05ebe7be00d4f4be1d808e234235da97c7d7",
+      "actual": "b56a05ebe7be00d4f4be1d808e234235da97c7d7",
+      "matches": true
+    },
+    {
+      "pr": 157,
+      "expected": "2208c2c957625c7f2f3d03d1c5dae73b49cbc74e",
+      "actual": "2208c2c957625c7f2f3d03d1c5dae73b49cbc74e",
+      "matches": true
+    },
+    {
+      "pr": 158,
+      "expected": "cc6479221710b3ee03013efa58bf75003f7d0719",
+      "actual": "cc6479221710b3ee03013efa58bf75003f7d0719",
+      "matches": true
+    },
+    {
+      "pr": 159,
+      "expected": "1de685874dfacaf9ad56091c13fe6dfaecc4daf4",
+      "actual": "1de685874dfacaf9ad56091c13fe6dfaecc4daf4",
+      "matches": true
+    },
+    {
+      "pr": 160,
+      "expected": "4859e45d89f31dc0cbeaace7cd9e3d6537759ab5",
+      "actual": "4859e45d89f31dc0cbeaace7cd9e3d6537759ab5",
+      "matches": true
+    },
+    {
+      "pr": 163,
+      "expected": "7a1f7417d527fc2530a75c35b26b5fc4f2659e6f",
+      "actual": "7a1f7417d527fc2530a75c35b26b5fc4f2659e6f",
+      "matches": true
+    },
+    {
+      "pr": 171,
+      "expected": "23880f84e8964d1876461ad94a2ed5b470bb7e5d",
+      "actual": "23880f84e8964d1876461ad94a2ed5b470bb7e5d",
+      "matches": true
+    },
+    {
+      "pr": 174,
+      "expected": "c484b73a6882431a12d8a061a307491fbc5e02cc",
+      "actual": "c484b73a6882431a12d8a061a307491fbc5e02cc",
+      "matches": true
+    },
+    {
+      "pr": 175,
+      "expected": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+      "actual": "baafb472873750e7e84d32c3c8e6fa7a680e37db",
+      "matches": true
+    },
+    {
+      "pr": 187,
+      "expected": "5c0a3aa6d33ac22814e5906785aede118d772c87",
+      "actual": "5c0a3aa6d33ac22814e5906785aede118d772c87",
+      "matches": true
+    },
+    {
+      "pr": 188,
+      "expected": "0d92038160dfbdf0ec39c36f5a816e5887759ef5",
+      "actual": "0d92038160dfbdf0ec39c36f5a816e5887759ef5",
+      "matches": true
+    },
+    {
+      "pr": 189,
+      "expected": "8194834e779795692732651077cada2e10cb0767",
+      "actual": "8194834e779795692732651077cada2e10cb0767",
+      "matches": true
+    },
+    {
+      "pr": 191,
+      "expected": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9",
+      "actual": "e9e41ceb308356c98c810f489cd4a0f1dfd11da9",
+      "matches": true
+    },
+    {
+      "pr": 192,
+      "expected": "b315c36a9d93c03ef1acac9339f758431587ff51",
+      "actual": "b315c36a9d93c03ef1acac9339f758431587ff51",
+      "matches": true
+    },
+    {
+      "pr": 202,
+      "expected": "d964e9a7d939bab93bbe3ba3c57c4cc0a3c5c221",
+      "actual": "d964e9a7d939bab93bbe3ba3c57c4cc0a3c5c221",
+      "matches": true
+    },
+    {
+      "pr": 205,
+      "expected": "3b73e37101e0ad1a22372601152f81403b273c54",
+      "actual": "3b73e37101e0ad1a22372601152f81403b273c54",
+      "matches": true
+    },
+    {
+      "pr": 206,
+      "expected": "f7b41b93ba874057f79cad1dc1f5d3a6ce3fbece",
+      "actual": "f7b41b93ba874057f79cad1dc1f5d3a6ce3fbece",
+      "matches": true
+    },
+    {
+      "pr": 214,
+      "expected": "9aca9bf58b2ad2bcd90bd9c8b9323bd426c93cb9",
+      "actual": "9aca9bf58b2ad2bcd90bd9c8b9323bd426c93cb9",
+      "matches": true
+    },
+    {
+      "pr": 222,
+      "expected": "6fc3266e0860de85b0bf5bd39a364d783a1a2796",
+      "actual": "6fc3266e0860de85b0bf5bd39a364d783a1a2796",
+      "matches": true
+    },
+    {
+      "pr": 223,
+      "expected": "7385a3bcd4592a2071cd5eb93d566fe4ec472723",
+      "actual": "7385a3bcd4592a2071cd5eb93d566fe4ec472723",
+      "matches": true
+    },
+    {
+      "pr": 226,
+      "expected": "5d70fb315b33f8789d9c282109ebe65fd3f4ffae",
+      "actual": "5d70fb315b33f8789d9c282109ebe65fd3f4ffae",
+      "matches": true
+    },
+    {
+      "pr": 228,
+      "expected": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "actual": "e15e0e081fdaf8d5904b6154065b16dcd0658f5b",
+      "matches": true
+    },
+    {
+      "pr": 229,
+      "expected": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "actual": "b752bae170ae628c07b12800a44a0a37b235db28",
+      "matches": true
+    },
+    {
+      "pr": 234,
+      "expected": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "actual": "1f525461dd7426c6b35bdaeb5d62b5b37b90e3fe",
+      "matches": true
+    },
+    {
+      "pr": 242,
+      "expected": "1732c5ef5b93ac86df81a1c07ff28bcd7a135cfa",
+      "actual": "1732c5ef5b93ac86df81a1c07ff28bcd7a135cfa",
+      "matches": true
+    },
+    {
+      "pr": 243,
+      "expected": "62564c4fbea96b69ab081474cef4030c2cb62c76",
+      "actual": "62564c4fbea96b69ab081474cef4030c2cb62c76",
+      "matches": true
+    },
+    {
+      "pr": 244,
+      "expected": "727a27c30312a9985e5e7a1e2cd190b9d07fc2e7",
+      "actual": "727a27c30312a9985e5e7a1e2cd190b9d07fc2e7",
+      "matches": true
+    },
+    {
+      "pr": 245,
+      "expected": "fda07bc099f38c445c60e7e68cea372781fdd2da",
+      "actual": "fda07bc099f38c445c60e7e68cea372781fdd2da",
+      "matches": true
+    },
+    {
+      "pr": 246,
+      "expected": "3029e9314686930f51bb77b4d8992d2c2d45cc85",
+      "actual": "3029e9314686930f51bb77b4d8992d2c2d45cc85",
+      "matches": true
+    },
+    {
+      "pr": 247,
+      "expected": "d408ef17275268f99d35806ec5f50810a94004a0",
+      "actual": "d408ef17275268f99d35806ec5f50810a94004a0",
+      "matches": true
+    },
+    {
+      "pr": 248,
+      "expected": "9464e75c63b77cc8880a119967e47305a6802011",
+      "actual": "9464e75c63b77cc8880a119967e47305a6802011",
+      "matches": true
+    },
+    {
+      "pr": 249,
+      "expected": "cbbc7b12ac5d3940c6072f9e4cd96d53ba9cc8d3",
+      "actual": "cbbc7b12ac5d3940c6072f9e4cd96d53ba9cc8d3",
+      "matches": true
+    },
+    {
+      "pr": 250,
+      "expected": "1e6243566e195969030d02bad17fdee2984f9ec9",
+      "actual": "1e6243566e195969030d02bad17fdee2984f9ec9",
+      "matches": true
+    },
+    {
+      "pr": 251,
+      "expected": "76fda4fd16529ffd91b0ac289364a82b25cdeb4a",
+      "actual": "76fda4fd16529ffd91b0ac289364a82b25cdeb4a",
+      "matches": true
+    },
+    {
+      "pr": 252,
+      "expected": "c86846e3e696ca40675ef08018da9a5dbcd581be",
+      "actual": "c86846e3e696ca40675ef08018da9a5dbcd581be",
+      "matches": true
+    },
+    {
+      "pr": 253,
+      "expected": "568f90595cc37d6faae89628ff6faca06e094c8a",
+      "actual": "568f90595cc37d6faae89628ff6faca06e094c8a",
+      "matches": true
+    },
+    {
+      "pr": 254,
+      "expected": "bc9810fc080ad08315c337ade8ffc5a82ec46583",
+      "actual": "bc9810fc080ad08315c337ade8ffc5a82ec46583",
+      "matches": true
+    },
+    {
+      "pr": 255,
+      "expected": "9a85b885546bffa1b08865560db00c56d13aed97",
+      "actual": "9a85b885546bffa1b08865560db00c56d13aed97",
+      "matches": true
+    },
+    {
+      "pr": 256,
+      "expected": "c1412279b17b0c3c0da9cdd3187e4c53b0c37958",
+      "actual": "c1412279b17b0c3c0da9cdd3187e4c53b0c37958",
+      "matches": true
+    },
+    {
+      "pr": 257,
+      "expected": "f793a0d97c6b0afdbe7956828dbf1043d44aad51",
+      "actual": "f793a0d97c6b0afdbe7956828dbf1043d44aad51",
+      "matches": true
+    },
+    {
+      "pr": 258,
+      "expected": "e529eb2e763af9b1175b44cad0314f7c378dca15",
+      "actual": "e529eb2e763af9b1175b44cad0314f7c378dca15",
+      "matches": true
+    },
+    {
+      "pr": 259,
+      "expected": "108b2419c7659f7a16ebb7bd690b42980a82fe01",
+      "actual": "108b2419c7659f7a16ebb7bd690b42980a82fe01",
+      "matches": true
+    },
+    {
+      "pr": 260,
+      "expected": "4bc1cf47bf7c85b32f6c7d7bb139563c0fe95599",
+      "actual": "4bc1cf47bf7c85b32f6c7d7bb139563c0fe95599",
+      "matches": true
+    },
+    {
+      "pr": 261,
+      "expected": "f5259b439852cfd5c6a4a9dda8c87b2af8600750",
+      "actual": "f5259b439852cfd5c6a4a9dda8c87b2af8600750",
+      "matches": true
+    },
+    {
+      "pr": 262,
+      "expected": "2b4bc321340cbdad644f1b75d77a98d596c30414",
+      "actual": "2b4bc321340cbdad644f1b75d77a98d596c30414",
+      "matches": true
+    },
+    {
+      "pr": 263,
+      "expected": "46a7ecb451b14bc98259002a89edc33ad727884a",
+      "actual": "46a7ecb451b14bc98259002a89edc33ad727884a",
+      "matches": true
+    },
+    {
+      "pr": 264,
+      "expected": "e45a85ce8e475717fbc478c05c93e3ba087e0bcf",
+      "actual": "e45a85ce8e475717fbc478c05c93e3ba087e0bcf",
+      "matches": true
+    },
+    {
+      "pr": 265,
+      "expected": "21624ad1bb9096cf8f0cc95d9b0beeb4ed353192",
+      "actual": "21624ad1bb9096cf8f0cc95d9b0beeb4ed353192",
+      "matches": true
+    },
+    {
+      "pr": 266,
+      "expected": "720c9bb18cb7334b2f49abfa680b552ce6738760",
+      "actual": "720c9bb18cb7334b2f49abfa680b552ce6738760",
+      "matches": true
+    },
+    {
+      "pr": 267,
+      "expected": "4720158ab5fe0eea3f18258507cd5668c81ce649",
+      "actual": "4720158ab5fe0eea3f18258507cd5668c81ce649",
+      "matches": true
+    },
+    {
+      "pr": 268,
+      "expected": "1e1390ed51dd24cf1a04d98aabdfe2e927851a12",
+      "actual": "1e1390ed51dd24cf1a04d98aabdfe2e927851a12",
+      "matches": true
+    },
+    {
+      "pr": 269,
+      "expected": "850a66b577f03205ad4692d578319e1e7fe95417",
+      "actual": "850a66b577f03205ad4692d578319e1e7fe95417",
+      "matches": true
+    },
+    {
+      "pr": 270,
+      "expected": "e47989677e9ed490d9dad3964ea01d911447412b",
+      "actual": "e47989677e9ed490d9dad3964ea01d911447412b",
+      "matches": true
+    },
+    {
+      "pr": 271,
+      "expected": "63af29374462eae9e8404a87650ff7613095c19d",
+      "actual": "63af29374462eae9e8404a87650ff7613095c19d",
+      "matches": true
+    },
+    {
+      "pr": 273,
+      "expected": "7cabac188b5d89c5f0a9127392f5213df7d349a1",
+      "actual": "7cabac188b5d89c5f0a9127392f5213df7d349a1",
+      "matches": true
+    },
+    {
+      "pr": 275,
+      "expected": "c9f18f29a116658491689783f5bb9594e13cdba4",
+      "actual": "c9f18f29a116658491689783f5bb9594e13cdba4",
+      "matches": true
+    },
+    {
+      "pr": 276,
+      "expected": "eccb2e1194c37eaee7db4eb0951fd8e1f4029be2",
+      "actual": "eccb2e1194c37eaee7db4eb0951fd8e1f4029be2",
+      "matches": true
+    },
+    {
+      "pr": 277,
+      "expected": "b9061a6941b53196f5f68fe55b7e146d31ce8bf3",
+      "actual": "b9061a6941b53196f5f68fe55b7e146d31ce8bf3",
+      "matches": true
+    },
+    {
+      "pr": 280,
+      "expected": "bae267aff0c999c452ede13c5dea079c5243350a",
+      "actual": "bae267aff0c999c452ede13c5dea079c5243350a",
+      "matches": true
+    },
+    {
+      "pr": 281,
+      "expected": "059436c46b4e352a38d62a7922dca05ad0c927cf",
+      "actual": "059436c46b4e352a38d62a7922dca05ad0c927cf",
+      "matches": true
+    }
+  ],
+  "ancestors": [
+    {
+      "commit": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+      "is_ancestor": true
+    },
+    {
+      "commit": "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+      "is_ancestor": true
+    },
+    {
+      "commit": "4e60d3949b12f9d3baeb36067e7804ac67b39c6e",
+      "is_ancestor": true
+    },
+    {
+      "commit": "7cabac188b5d89c5f0a9127392f5213df7d349a1",
+      "is_ancestor": true
+    },
+    {
+      "commit": "bae267aff0c999c452ede13c5dea079c5243350a",
+      "is_ancestor": true
+    },
+    {
+      "commit": "059436c46b4e352a38d62a7922dca05ad0c927cf",
+      "is_ancestor": true
+    }
+  ],
+  "manual_changes_after_automatic_merge": [
+    "src/acquire.rs",
+    "src/cli_worker/oxide.rs",
+    "src/oxide/edit.rs",
+    "src/oxide/flatten.rs",
+    "src/oxide/forms.rs",
+    "tests/cli_containment.rs",
+    "tests/oxide_edit_forms.rs"
+  ],
+  "manual_source_changes_are_reviewed": true,
+  "reviewed_change_hashes": {
+    "src/acquire.rs": "f22b12f955da8389b006df2ce11bcc3163ce1a25d8a4ae382d72813bdcd6318c",
+    "src/cli_worker/oxide.rs": "5e9f625dc20f38483ccb86c44d8a3be4169fc2fd3d045d0c83d2b53a10c557b8",
+    "src/oxide/edit.rs": "1f18b59c58f5691df389bd4a4ecc78783cea63e7d345f897a6d5e122edd7f223",
+    "src/oxide/flatten.rs": "63b2b8c2d7063b01271c10ba8374ba6ca49095631804c617f6c4bbcfd00a180d",
+    "src/oxide/forms.rs": "ba93fa94c1ba042187620d7be716b3220b60ec31efee60135c7469111f06c209",
+    "tests/cli_containment.rs": "ceec060420d6f87808e8e16ab910cee98fcc00dea1a063c2a111afb4ea66131c",
+    "tests/oxide_edit_forms.rs": "b40a4b98f9dc71f4932223b8acbbf5a636525628b1f5d905a5f5d83f85eece7a"
+  },
+  "reviewed_change_scope": "Acquisition and CLI constructor integration; finite inherited-limit test readiness; parent-requested flatten precision guards and discovered external Link-border loss. Original source histories/evidence remain intact.",
+  "historical_policy_not_restamped": true,
+  "all_preserved": true
+}

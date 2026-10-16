@@ -1,0 +1,56 @@
+"""Fresh supervised precision/border cases using the immutable combined binary."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir(exist_ok=False)
+sources=Path('/workspace/tpe-combined-integration-evidence-20261016/flatten-precision-repair02')
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],text=True).strip()
+def render(path,prefix):
+    cmd=['prlimit','--as=1073741824','--core=0','--','timeout','-k','2','15','pdftoppm','-f','1','-singlefile','-r','96','-png',str(path),str(prefix)]
+    r=subprocess.run(cmd,capture_output=True,timeout=20,check=False);png=prefix.with_suffix('.png')
+    return {'command':cmd,'exit_code':r.returncode,'stderr':r.stderr.decode(errors='replace'),'png':str(png),'sha256':sha(png) if png.exists() else None}
+receipt={'scope':'Eleven bounded synthetic precision and Link-border CLI controls; no general flattening fidelity or security qualification.',
+         'source_commit':git('rev-parse','HEAD'),'source_tree':git('rev-parse','HEAD^{tree}'),'git_status_before':git('status','--porcelain'),
+         'binary':str(binary),'binary_sha256':sha(binary),'binary_version':subprocess.check_output([str(binary),'--version'],text=True).strip(),'cases':[]}
+assert not receipt['git_status_before']
+cases=[]
+for kind in ['annotation','form']:
+    for case in ['zero-scale','nonzero-rounding','tiny-exact','ordinary']:
+        cases.append((f'flatten-precision-{kind}-{case}',kind,None if case in ['tiny-exact','ordinary'] else 'appearance transform'))
+for style in ['Border','default','BS']:cases.append((f'flatten-link-border-{style}','annotation','external border'))
+for name,kind,reason in cases:
+    source=sources/(name+'-source.pdf');before=sha(source);run=out/name;run.mkdir();captures=run/'captures';captures.mkdir()
+    request=run/'request.json'
+    request.write_text(json.dumps({'operation':'edit.annotations' if kind=='annotation' else 'forms.flatten','inputs':[str(source)],'pages':[1,1] if kind=='annotation' else None,'params':{'action':'flatten'} if kind=='annotation' else {}})+'\n');request.chmod(0o600)
+    cmd=['prlimit','--as=2147483648','--core=0','--','timeout','-k','2','15',str(binary),'oxide','--request',str(request),'--out',str(run/'out'),'--timeout-ms','5000','--max-memory-growth-mib','256','--max-output-bytes','1048576']
+    with (run/'response.json').open('wb') as output,(run/'stderr.txt').open('wb') as errors:
+        result=subprocess.run(cmd,stdout=output,stderr=errors,timeout=20,check=False,env={**os.environ,'TMPDIR':str(captures),'TMP':str(captures)})
+    value=json.loads((run/'response.json').read_bytes());checks={'source_unchanged':sha(source)==before,'captures_clean':not any(captures.iterdir())}
+    row={'name':name,'source_sha256':before,'command':cmd,'exit_code':result.returncode,'response_sha256':sha(run/'response.json'),'stderr_sha256':sha(run/'stderr.txt')}
+    if reason:
+        checks.update(explicit_failure=result.returncode!=0 and value.get('status')=='failed',expected_reason=reason in value.get('error',''),no_publication=not (run/'out').exists(),no_success_payload=not value.get('output') and not value.get('output_paths'))
+        row['response']=value
+    else:
+        assert result.returncode==0,value
+        assert len(value['output_paths'])==len(value['artifact_receipts'])==1
+        artifact=Path(value['output_paths'][0]);assert artifact.resolve().is_relative_to((run/'out').resolve())
+        artifact_receipt=value['artifact_receipts'][0];containment=value['containment']
+        original=render(source,run/'source-render');derivative=render(artifact,run/'derivative-render')
+        checks.update(explicit_success=result.returncode==0,source_identity_matches=[v['sha256'] for v in value['sources']]==[before],
+                      artifact_receipt_matches=sha(artifact)==artifact_receipt['sha256'] and artifact.stat().st_size==artifact_receipt['bytes'],
+                      actual_sealed_worker=containment['mode']=='seccomp_sealed' and all(containment[k] for k in ['filesystem_enforced','network_enforced','process_enforced','seccomp_tsync']),
+                      clean_build_identity='dirty' not in value['producer']['build_version'],
+                      independent_render_matches=original['exit_code']==derivative['exit_code']==0 and original['sha256']==derivative['sha256'])
+        row.update(original_render=original,derivative_render=derivative,producer=value['producer'],artifact_receipt=artifact_receipt,containment=containment)
+    row.update(checks=checks,passed=all(checks.values()));receipt['cases'].append(row)
+    (out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+receipt['git_status_after']=git('status','--porcelain');receipt['binary_unchanged']=sha(binary)==receipt['binary_sha256']
+receipt['passed']=all(row['passed'] for row in receipt['cases']) and not receipt['git_status_after'] and receipt['binary_unchanged']
+(out/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'cases':[{k:row[k] for k in ['name','passed','checks']} for row in receipt['cases']]}))
+sys.exit(0 if receipt['passed'] else 1)

@@ -1,0 +1,10 @@
+{
+  "binary": "/workspace/tpe-combined-integration-evidence-20261016/exact-c2c87b2-01/tpe",
+  "sha256": "6c7f176f364569c0d0583a54d1a22dcea6c64690edf39b3a83db7706d70a1e93",
+  "version": "tpe git-c2c87b2",
+  "source_commit": "c2c87b22eb23da415e960088bbe4a784a5d76d94",
+  "source_tree": "425aa2328f9302cad5b0aece0c41dbb23fec6732",
+  "status": "",
+  "suite_passed": false,
+  "failure": "kernel_parent_death_signal_terminates_even_a_stopped_parser: stopped parser survived controller death"
+}

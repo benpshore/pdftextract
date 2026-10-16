@@ -1,0 +1,26 @@
+   Compiling rand v0.10.3
+   Compiling aead v0.6.1
+   Compiling aes-gcm v0.11.1
+   Compiling pkcs5 v0.8.1
+   Compiling p12-keystore v0.3.2
+   Compiling lopdf v0.42.0
+   Compiling lopdf v0.44.0
+   Compiling pdf-extract v0.12.1
+   Compiling pdf_oxide v0.3.78
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-combined-recovery)
+   Compiling docling-pdf v1.69.2
+   Compiling lopdf v0.45.0
+    Finished `test` profile [unoptimized] target(s) in 53.65s
+     Running tests/cli_containment.rs (/workspace/pdftextract/target/debug/deps/cli_containment-8b9da08bf67566d6)
+
+running 1 test
+
+running 1 test
+test parent_death_with_finite_inherited_limit_probe ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.04s
+
+test kernel_parent_death_signal_terminates_even_a_stopped_parser ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.04s
+

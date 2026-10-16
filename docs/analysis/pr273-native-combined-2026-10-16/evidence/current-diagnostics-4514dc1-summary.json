@@ -1,0 +1,81 @@
+{
+  "scope": "Synthetic fixture replay of real CLI/current clean checkout. No real artifact/corpus revalidation.",
+  "source": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "policy_file_unchanged_sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+  "cases": [
+    {
+      "kind": "partial",
+      "exit_code": 1,
+      "stderr": "Historical Partial eligibility: zero exceptions applied; historical pins unchanged; see independent current-source diagnostics\nCurrent-source diagnostics: 0 dump errors; 1 strict outcome errors; 1 retained page/reference baselines\nNative evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256\nNative evaluation invalid: incomplete paper a: status 'partial'\n",
+      "diagnostics": {
+        "schema_version": 1,
+        "historical_eligibility_errors": [
+          "reviewed-partial provenance mismatch: native_manifest_sha256"
+        ],
+        "historical_exceptions_applied": 0,
+        "baseline_errors": [],
+        "retained_baselines": [
+          "a"
+        ],
+        "dump_errors": [],
+        "strict_current_errors": [
+          "incomplete paper a: status 'partial'"
+        ],
+        "errors": [
+          "reviewed-partial provenance mismatch: native_manifest_sha256",
+          "incomplete paper a: status 'partial'"
+        ],
+        "source_provenance": {
+          "corpus_manifest_sha256": "a27167c781b48a6e8259c8d543b382b8f2a08562e76ca7651e2515317d86570c",
+          "native_manifest_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+          "cargo_lock_sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+          "metric_source_sha256": "4e620221af68dfa203b3d9f875ed0fdde594ef47c8125993544bc6ed1efe6cb6",
+          "truth_source_sha256": "8e968bbf3eb6b22012d45a3c92a2475400d9db463560a0ca576a367a3f3e0c5a",
+          "git_commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3"
+        },
+        "policy_sha256": "b98800673ccf874e0bc27631bf0b3e0a650e37816fbcf10dc3ba1d572735c17d",
+        "backend": "pdfium",
+        "split": "dev",
+        "host": "linux x86_64"
+      }
+    },
+    {
+      "kind": "complete",
+      "exit_code": 1,
+      "stderr": "Historical Partial eligibility: zero exceptions applied; historical pins unchanged; see independent current-source diagnostics\nCurrent-source diagnostics: 0 dump errors; 0 strict outcome errors; 1 retained page/reference baselines\nNative evaluation invalid: reviewed-partial provenance mismatch: native_manifest_sha256\n",
+      "diagnostics": {
+        "schema_version": 1,
+        "historical_eligibility_errors": [
+          "reviewed-partial provenance mismatch: native_manifest_sha256"
+        ],
+        "historical_exceptions_applied": 0,
+        "baseline_errors": [],
+        "retained_baselines": [
+          "a"
+        ],
+        "dump_errors": [],
+        "strict_current_errors": [],
+        "errors": [
+          "reviewed-partial provenance mismatch: native_manifest_sha256"
+        ],
+        "source_provenance": {
+          "corpus_manifest_sha256": "a27167c781b48a6e8259c8d543b382b8f2a08562e76ca7651e2515317d86570c",
+          "native_manifest_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+          "cargo_lock_sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+          "metric_source_sha256": "4e620221af68dfa203b3d9f875ed0fdde594ef47c8125993544bc6ed1efe6cb6",
+          "truth_source_sha256": "8e968bbf3eb6b22012d45a3c92a2475400d9db463560a0ca576a367a3f3e0c5a",
+          "git_commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3"
+        },
+        "policy_sha256": "b98800673ccf874e0bc27631bf0b3e0a650e37816fbcf10dc3ba1d572735c17d",
+        "backend": "pdfium",
+        "split": "dev",
+        "host": "linux x86_64"
+      }
+    },
+    {
+      "kind": "wrong-source",
+      "exit_code": 1,
+      "stderr": "Native evaluation invalid: current-source provenance mismatch: git_commit\n"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "branch": "codex/pr273-native-combined-checkpoint-20261016",
+  "integration_task": 273,
+  "state": "exact Linux combined checks passed; parent review and qualification gates remain",
+  "tested_code_commit": "4514dc1410851a2a186048be7bd9c64d7a30c0f3",
+  "tested_tree": "36fe1e2bf4536bcac48f33c2563ab91957292d30",
+  "merge_commit": "c2c87b22eb23da415e960088bbe4a784a5d76d94",
+  "parents": [
+    "88822fddfca1c84f81bb3e9c2cd0bdd3ce8fbb35",
+    "4e60d3949b12f9d3baeb36067e7804ac67b39c6e"
+  ],
+  "source_snapshot_pr_heads": 119,
+  "all_archive_refs_preserved": true,
+  "native_capability_summary": {
+    "capability_count": 84,
+    "unique_capability_ids": 84,
+    "state_counts": {
+      "explicit unsupported": 6,
+      "parent-owned parity": 1,
+      "partial adapter": 66,
+      "source-only": 11
+    },
+    "registered_operations_referenced": 70,
+    "qualified_count": 0
+  },
+  "binary": "/workspace/tpe-combined-integration-evidence-20261016/exact-4514dc1-01/tpe",
+  "binary_sha256": "03c2fa604500e1db468f0c0734f1cd21d24506b05defe0a8874aaaeafb630ccf",
+  "runtime_cli_calls": 32,
+  "rust_top_level_passed": 1365,
+  "rust_nested_probe_passed": 5,
+  "rust_ignored": 15,
+  "finite_containment_scenarios": 5,
+  "python_tooling_passed": 241,
+  "python_web_passed": 28,
+  "python_engine_api_parity": false,
+  "native_fully_qualified": false,
+  "pr_heads_updated": false,
+  "holds_revoked": false,
+  "blockers": [
+    "full Docling pinned ORT download CONNECT proxy HTTP 403",
+    "OSV audit connection unavailable",
+    "Swift/CMake/CTest unavailable",
+    "Landlock positive allowlist unavailable: ENOSYS",
+    "fresh exact-source ARM64 Native evaluation and real outcome review",
+    "historical Partial policy ineligible for changed source/dependencies",
+    "Python engine/API and exhaustive toolkit parity outstanding"
+  ],
+  "invariants": {
+    "validator_sha256": "ffd7a8b429788b5f983b27bc670c0f3e4c743b47d630379d320fc02f4bda25d0",
+    "historical_policy_sha256": "ff92be145cb8fa57e0948f984088c21079c9ad5a85bdbdb27b53d5ceed33e234",
+    "native_manifest_sha256": "8209444469c506439c8d6af65944c756da78199ff4be6ce3d60846942ac5c782",
+    "cargo_lock_sha256": "113a75ff5cc84d8d6ad3f6ba82bd1e76c011b503eedf4ec2974efd170fd8147d",
+    "license_sha256": "57411afebd084482658b294bc643db7f93b32a01d5215492f96a149fa5f92e78"
+  },
+  "evidence": [
+    "evidence/exact-4514dc1-01-receipt.json",
+    "evidence/runtime-4514dc1-01-receipt.json",
+    "evidence/remaining-4514dc1-01-receipt.json",
+    "evidence/current-diagnostics-4514dc1-summary.json",
+    "evidence/final-preservation.json"
+  ],
+  "preserved_failures": [
+    "automatic merge E0425",
+    "clean c2c87b2 parent-death readiness race",
+    "prior wrapper admitted all four precision-damaged cases",
+    "initial annotation render controls lost external borders",
+    "strict Clippy documentation/semicolon findings",
+    "full Docling and unavailable platform/audit checks"
+  ]
+}
