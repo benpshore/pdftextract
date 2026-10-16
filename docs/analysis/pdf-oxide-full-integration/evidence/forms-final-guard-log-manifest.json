@@ -1,0 +1,15 @@
+{
+  "scope": "32 forms tests passed; following strict Clippy required a test helper extraction",
+  "files": [
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-guards-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/forms-guards-03.txt",
+      "sha256": "a4641bcafffcf6f7109cdd6e97c3f61280959b02126387ff9fd6324459bdb2f6"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-12.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-12.txt",
+      "sha256": "fd12daea801d6df2703b35e0d100a057a256fe7dfaa7ec64248f2f02641af320"
+    }
+  ]
+}

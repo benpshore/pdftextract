@@ -116,19 +116,34 @@ pub fn snapshot(path: &Path, max_bytes: Option<u64>) -> Result<Snapshot, Acquire
 /// [`snapshot`] without the hash: read `path` completely with the same
 /// checks, and leave hashing to the caller.
 pub fn read_verified(path: &Path, max_bytes: Option<u64>) -> Result<Unhashed, AcquireError> {
+    read_verified_inner(path, max_bytes, false)
+}
+
+/// Bounded private auxiliary input, including a deliberately empty password.
+/// PDF/document acquisition continues to reject empty files via `read_verified`.
+pub fn read_verified_allow_empty(path: &Path, max_bytes: u64) -> Result<Unhashed, AcquireError> {
+    read_verified_inner(path, Some(max_bytes), true)
+}
+
+fn read_verified_inner(
+    path: &Path,
+    max_bytes: Option<u64>,
+    allow_empty: bool,
+) -> Result<Unhashed, AcquireError> {
     // Avoid opening known devices/FIFOs. The descriptor is checked again after
     // opening, so replacing a regular path cannot turn this into a device read.
     let before_meta = fs::metadata(path)?;
     if !before_meta.is_file() {
         return Err(AcquireError::NotAFile);
     }
-    read_observed(path, max_bytes, &before_meta)
+    read_observed(path, max_bytes, &before_meta, allow_empty)
 }
 
 fn read_observed(
     path: &Path,
     max_bytes: Option<u64>,
     before_meta: &fs::Metadata,
+    allow_empty: bool,
 ) -> Result<Unhashed, AcquireError> {
     // A regular path can become a FIFO after the metadata check. Opening
     // nonblocking lets us reject its descriptor without waiting for a writer.
@@ -157,7 +172,7 @@ fn read_observed(
     if before != observe(before_meta) {
         return Err(AcquireError::ChangedDuringRead);
     }
-    if before.size == 0 {
+    if before.size == 0 && !allow_empty {
         return Err(AcquireError::Empty);
     }
     if let Some(max) = max_bytes
@@ -252,6 +267,27 @@ mod tests {
         let file = NamedTempFile::new().unwrap();
         let err = snapshot(file.path(), None).unwrap_err();
         assert!(matches!(err, AcquireError::Empty), "{err:?}");
+    }
+
+    #[test]
+    fn auxiliary_input_allows_empty_without_relaxing_document_or_size_checks() {
+        let file = NamedTempFile::new().unwrap();
+        let auxiliary = read_verified_allow_empty(file.path(), 0).unwrap();
+        assert!(auxiliary.bytes.is_empty());
+        assert_eq!(auxiliary.source.size, 0);
+        assert!(matches!(
+            read_verified(file.path(), Some(4096)),
+            Err(AcquireError::Empty)
+        ));
+        fs::write(file.path(), b"password").unwrap();
+        assert!(matches!(
+            read_verified_allow_empty(file.path(), 7),
+            Err(AcquireError::TooLarge { size: 8, max: 7 })
+        ));
+        assert_eq!(
+            read_verified_allow_empty(file.path(), 8).unwrap().bytes,
+            b"password"
+        );
     }
 
     #[test]
@@ -396,8 +432,10 @@ mod tests {
                 )
                 .unwrap();
             }
-            let error = read_observed(&path, Some(1024), &before).unwrap_err();
-            assert!(matches!(error, AcquireError::NotAFile), "{error:?}");
+            for allow_empty in [false, true] {
+                let error = read_observed(&path, Some(1024), &before, allow_empty).unwrap_err();
+                assert!(matches!(error, AcquireError::NotAFile), "{error:?}");
+            }
             assert_eq!(fs::read(original).unwrap(), b"original bytes");
         }
     }

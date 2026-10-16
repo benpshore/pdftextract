@@ -1,0 +1,55 @@
+{
+  "result": "pass_synthetic_offline_cli_plumbing_only",
+  "checks": [
+    "four immutable digest-pinned input slots",
+    "verified sealed worker receipt",
+    "one page and two distinct painted-image placements",
+    "deterministic AB CTC spans with two character confidences",
+    "source and model digests retained",
+    "decoded and preprocessing pixels within16384",
+    "256MiB worker address-space-growth request",
+    "no artifacts or native-text replacement",
+    "all input hashes unchanged"
+  ],
+  "processed_pixels": 10056,
+  "image_placements": [
+    [
+      5.0,
+      8.0,
+      32.0,
+      32.0
+    ],
+    [
+      50.0,
+      8.0,
+      32.0,
+      32.0
+    ]
+  ],
+  "containment": {
+    "filesystem_enforced": true,
+    "landlock_abi": null,
+    "mode": "seccomp_sealed",
+    "network_enforced": true,
+    "process_enforced": true,
+    "read_only_paths": 0,
+    "scope": "operation worker only; controller and atomic publisher retain their authorized file access",
+    "seccomp_tsync": true
+  },
+  "limits": {
+    "kind": "address_space_growth",
+    "startup_virtual_bytes": 220700672,
+    "requested_growth_bytes": 268435456,
+    "effective_address_space_bytes": 489136128,
+    "inherited_soft_bytes": null,
+    "inherited_hard_bytes": null,
+    "core_dump_bytes": 0,
+    "kernel_parent_death_signal": true
+  },
+  "model_verification": "caller_digest_checked_accuracy_unverified",
+  "limitations": [
+    "Synthetic graphs deliberately ignore image content; no trained-model recognition accuracy",
+    "e36807e-dirty source snapshot; final exact-source build remains owner work",
+    "Receipt is evidence of this bounded run, not a broad security or OCR assurance"
+  ]
+}

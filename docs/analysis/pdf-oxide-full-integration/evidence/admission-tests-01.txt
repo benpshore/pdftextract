@@ -1,0 +1,176 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 23.66s
+     Running tests/oxide_convert.rs (/workspace/pdftextract/target/debug/deps/oxide_convert-586f91fe3aad51d8)
+
+running 10 tests
+test empty_and_damaged_inputs_do_not_become_claims_of_complete_extraction ... ok
+test changed_html_layout_retains_original_baseline_and_sanitizes_display ... ok
+test image_resources_are_omitted_without_image_decode_or_output_files ... ok
+test native_path_operator_diagnostic_retains_null_page_and_marks_truncated_output ... ok
+test output_overflow_is_an_error_without_changing_input ... ok
+test path_image_formula_and_silent_transform_parameters_are_rejected ... ok
+test selected_page_numbers_and_ranges_are_explicit_and_bounded ... ok
+test unicode_actual_text_and_literal_meaning_survive_all_three_converters ... ok
+test wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candidates ... ok
+test operator_cutoffs_fail_before_publication_in_bounded_native_workers ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 7.96s
+
+     Running tests/oxide_edit_forms.rs (/workspace/pdftextract/target/debug/deps/oxide_edit_forms-9a72b1088901da99)
+
+running 31 tests
+test adding_to_existing_inline_or_indirect_acroform_rejects_without_catalog_loss ... ok
+test annotation_flatten_removes_selected_links_and_preserves_nonselected_no_ap_links ... ok
+test annotation_add_update_remove_and_unsafe_action_rejection ... ok
+test annotation_repair_keeps_unknown_properties_and_ordered_action_identity ... ok
+test appearance_bearing_fields_and_child_widgets_reject_changed_values_and_styles ... ok
+test choice_fields_keep_multi_values_and_lossy_xfdf_export_is_rejected ... ok
+test complete_existing_form_appearance_remains_available_for_flattening ... ok
+test cyclic_acroform_read_paths_fail_before_upstream_recursion ... ok
+test cyclic_bookmarks_fail_without_entering_the_upstream_unbounded_walk ... ok
+test edit_rejects_invalid_pages_rectangles_rotations_and_unknown_parameters ... ok
+test direct_image_occurrence_bounds_roundtrip_and_unknown_resource_fails ... ok
+test embedded_bytes_roundtrip_without_document_chosen_output_paths ... ok
+test flatten_removes_interactive_fields_and_preserves_source_text ... ok
+test form_export_escapes_fdf_and_xml_and_respects_output_bounds ... ok
+test form_add_fill_inspect_update_remove_roundtrips_values_and_flags ... ok
+test hierarchical_form_names_are_not_silently_flattened_or_renamed ... ok
+test merge_and_split_preserve_requested_text_pages_and_range_bounds ... ok
+test merge_rejects_signature_markers_in_every_input_slot ... ok
+test metadata_roundtrip_is_explicit_about_unicode_and_xmp_limitations ... ok
+test form_properties_and_hierarchical_removal_preserve_unrelated_objects ... ok
+test page_and_item_budgets_fail_before_expanding_large_requests ... ok
+test nonvisual_form_properties_and_noop_fill_preserve_existing_appearance_and_catalog ... ok
+test page_reorder_duplicates_rotation_and_crop_survive_serialization ... ok
+test pinned_dom_replacement_retains_black_mask_regression_evidence ... ok
+test pinned_form_add_rebuild_drops_unique_catalog_and_inline_existing_fields ... ok
+test pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejects ... ok
+test pinned_link_only_flatten_retains_interactivity_and_adapter_explicitly_rejects ... ok
+test text_overlays_roundtrip_and_visually_defective_replacement_is_rejected ... ok
+test static_xfa_is_an_explicit_derivative_and_dynamic_or_external_xml_fails ... ok
+test visual_whiteout_explicitly_retains_recoverable_source_content ... ok
+test unicode_attachment_names_are_metadata_and_never_output_paths ... ok
+
+test result: ok. 31 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.20s
+
+     Running tests/oxide_query.rs (/workspace/pdftextract/target/debug/deps/oxide_query-0ebd72ff747ab13e)
+
+running 10 tests
+test attachments_and_content_are_exact_bytes_with_app_owned_artifact_names ... ok
+test actual_text_unicode_and_search_byte_offsets_are_preserved ... ok
+test cyclic_attachment_name_tree_is_rejected_without_entering_recursive_decoder ... ok
+test document_geometry_raw_metrics_and_source_identity_survive_queries ... ok
+test outlines_keep_unicode_and_destination_and_reject_cycles_before_upstream_walk ... ok
+test blank_and_damaged_pages_are_not_claimed_complete_and_limits_are_errors ... ok
+test query_page_selection_is_one_based_and_rejects_unbounded_ranges ... ok
+test real_words_lines_structure_paths_and_classification_are_exposed ... ok
+test region_queries_use_pdf_coordinates_and_do_not_silently_ignore_options ... ok
+test search_respects_literal_regex_case_whole_word_and_fails_on_overflow ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-54a3d6ec33b3e083)
+
+running 27 tests
+test aes256_rejects_prohibited_or_expanding_passwords_before_writing ... ok
+test aes256_roundtrip_authentication_and_independent_decryption ... ok
+test catalog_certification_reference_blocks_rewrite_without_an_acroform ... ok
+test catalog_sanitization_removes_named_carriers_and_keeps_page_text ... ok
+test compliance_inspection_reports_failures_without_certification_claims ... ok
+test aes256_empty_user_and_normalized_unicode_passwords_keep_all_pages ... ok
+test encryption_rejects_legacy_and_silent_password_truncation ... ok
+test inline_actual_text_survives_upstream_but_native_admission_rejects_it ... ok
+test malformed_inputs_and_unknown_parameters_do_not_produce_derivatives ... ok
+test offline_verification_rejects_invalid_cms_without_trust_or_network_claim ... ok
+test output_item_and_page_limits_fail_without_returning_artifacts ... ok
+test pdfa_candidate_retains_fresh_failures_and_source_negative_control ... ok
+test redaction_checks_literal_hex_and_split_text_operands ... ok
+test redaction_outside_target_rejects_retained_content_without_artifact ... ok
+test redaction_rejects_damaged_array_stream_instead_of_silently_skipping_it ... ok
+test redaction_rejects_duplicate_targets_in_metadata_or_other_text ... ok
+test redaction_rejects_pages_regions_and_unsupported_carriers ... ok
+test redaction_rejects_uncertain_filters_and_font_encodings ... ok
+test redaction_requires_bounded_targets_present_in_the_original ... ok
+test redaction_strict_flate_verification_rejects_checksum_damage ... ok
+test rewrites_reject_filled_signature_values_but_allow_blank_fields ... ok
+test saved_text_state_retention_has_upstream_evidence_and_native_rejection ... ok
+test shared_attachment_survives_catalog_scope_and_is_explicitly_out_of_scope ... ok
+test signature_inspection_handles_unsigned_inherited_fields_and_partial_coverage ... ok
+test signature_inspection_rejects_cycles_and_does_not_filter_bad_byte_range_values ... ok
+test text_redaction_removes_target_from_decoded_objects_and_preserves_control ... ok
+test encrypted_missing_wrong_and_successful_passwords_are_distinct ... ok
+
+test result: ok. 27 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.73s
+
+     Running tests/oxide_supplements.rs (/workspace/pdftextract/target/debug/deps/oxide_supplements-ac36b30a849ff455)
+
+running 13 tests
+test cyclic_form_resources_fail_in_a_disposable_worker ... FAILED
+test cleanup_whole_document_scan_limit_is_atomic_for_a_small_selected_range ... ok
+test image_empty_and_decode_error_are_distinct_and_supplements_are_atomic ... ok
+test header_cleanup_is_a_separate_candidate_and_records_meaningful_false_removals ... ok
+test images_retain_png_pixels_and_repeated_paint_provenance_in_memory ... ok
+test inline_and_cmyk_images_use_real_memory_extraction ... ok
+test meaningful_heading_and_citation_loss_is_exposed_as_a_preview_only ... ok
+test mixed_tagged_untagged_cleanup_reports_partial_coverage_and_preserves_baseline ... ok
+test nested_form_and_inline_masks_reject_with_no_publication ... ok
+test page_html_has_stable_app_identity_and_no_active_resource_attributes ... ok
+test soft_mask_extraction_fails_explicitly_instead_of_returning_opaque_pixels ... ok
+test whitespace_preview_preserves_citations_duplicate_words_and_hard_hyphens ... ok
+test image_limits_fail_in_disposable_workers_without_publication ... ok
+
+failures:
+
+---- cyclic_form_resources_fail_in_a_disposable_worker stdout ----
+
+thread 'cyclic_form_resources_fail_in_a_disposable_worker' (142007) panicked at tests/oxide_supplements.rs:762:5:
+expected cyclic image resource graph: {"error":"extract worker exited exit status: 1: Error: not a PDF or damaged: Form resource preflight: cyclic Form resource graph\n","ms":11.008564999999999,"path":"/tmp/.tmpe0nrPu/input.pdf","status":"failed"}
+
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    cyclic_form_resources_fail_in_a_disposable_worker
+
+test result: FAILED. 12 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.61s
+
+error: test failed, to rerun pass `--test oxide_supplements`
+     Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-c382c4d42b5adfce)
+
+running 13 tests
+test atomic_publication_preserves_existing_files_and_repeated_outputs ... ok
+test creation_then_query_uses_workers_and_preserves_exact_source_provenance ... ok
+test deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker ... ok
+test document_links_and_actions_are_data_and_do_not_trigger_loopback_requests ... ok
+test malformed_unknown_and_out_of_range_requests_fail_without_publication ... ok
+test output_overflow_fails_before_publication_and_removes_captures ... ok
+test bounded_memory_failure_does_not_poison_the_next_operation ... ok
+test publisher_failure_leaves_source_and_existing_target_unchanged ... ok
+test receipt_write_failure_rolls_back_published_artifacts ... ok
+test redaction_verification_targets_are_omitted_from_worker_provenance_and_errors ... ok
+test passwords_use_private_request_and_file_channels_not_argv_or_reports ... ok
+test unconfined_routed_extraction_fails_before_opening_ledger_or_outputs ... ok
+test stdout_backpressure_obeys_deadline_without_changing_pipe_flags ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.14s
+
+     Running tests/pdf_oxide_backend.rs (/workspace/pdftextract/target/debug/deps/pdf_oxide_backend-7adddbe81a6b1766)
+
+running 11 tests
+test actual_text_recovery_is_distinct_from_lopdf ... ok
+test immutable_bytes_real_geometry_fonts_and_ranges ... ok
+test form_preflight_preserves_indirect_font_controls_and_rejects_cycles ... ok
+test malformed_and_zero_page_documents_fail_explicitly ... ok
+test replacement_glyphs_are_retained_without_global_span_configuration ... ok
+test shallow_form_subtype_omission_is_rejected_before_native_projection ... ok
+test silent_content_failure_stays_partial_in_pipeline_and_ledger ... ok
+test page_selection_is_bounded_before_extraction_and_large_documents_allow_subranges ... ok
+test table_candidates_keep_raw_rows_and_explicit_validation_error_in_ledger ... ok
+test uri_annotation_keeps_actual_target_and_indirect_rectangle ... ok
+test supervised_cli_runs_pdf_oxide_and_reports_partial ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+error: 1 target failed:
+    `--test oxide_supplements`

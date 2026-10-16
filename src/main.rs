@@ -58,6 +58,9 @@ enum Cmd {
     Grobid(grobid_cli::Args),
     /// Extract text, metadata and citations from PDF files into a ledger.
     Extract(ExtractArgs),
+    /// Run an allowlisted PDF Oxide operation from a bounded private JSON request.
+    #[cfg(feature = "pdf-oxide")]
+    Oxide(cli_worker::oxide::Args),
     #[command(hide = true)]
     NativeWorker {
         request: PathBuf,
@@ -121,6 +124,8 @@ impl Split {
 }
 
 #[derive(Args)]
+// These are independent CLI output/projection opt-ins, not mutually exclusive states.
+#[allow(clippy::struct_excessive_bools)]
 struct ExtractArgs {
     /// Plan local PDF selection without reading contents, creating files or contacting services.
     #[arg(long, short = 'n')]
@@ -131,7 +136,7 @@ struct ExtractArgs {
     /// Path of the `SQLite` ledger; created when missing.
     #[arg(long, value_name = "FILE")]
     db: PathBuf,
-    /// Extraction backend: lopdf, pdfium, pdf-oxide, routed (pdf-oxide with per-page pdfium), liteparse-layout, mupdf, poppler, or auto without OCR.
+    /// Extraction backend: lopdf, pdfium, pdf-oxide, liteparse-layout, mupdf, poppler, or auto without OCR. Routed extraction is unavailable in this checkpoint.
     #[arg(long, default_value = "lopdf")]
     backend: String,
     /// Directory that receives `<hash>.json` and `<hash>.txt` per document.
@@ -140,9 +145,24 @@ struct ExtractArgs {
     /// Print one JSON object per file instead of a tab-separated line.
     #[arg(long)]
     json: bool,
-    /// Password for encrypted documents.
-    #[arg(long)]
+    /// Password for encrypted documents (visible in argv; prefer --password-file).
+    #[arg(long, conflicts_with = "password_file")]
     password: Option<String>,
+    /// Read an exact UTF-8 password (at most 4096 bytes) inside the private worker.
+    #[arg(long, value_name = "FILE")]
+    password_file: Option<PathBuf>,
+    /// Retain a separate optional cleanup candidate; original extraction is preserved.
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long, value_enum)]
+    pdf_oxide_cleanup_preview: Option<tpe::backend::pdf_oxide_supplements::CleanupMode>,
+    /// Add bounded raw HTML evidence and a sanitized page wrapper (images omitted).
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long)]
+    pdf_oxide_html: bool,
+    /// Return bounded decoded PNG image bytes in JSON; no image files or HTML embedding.
+    #[cfg(feature = "pdf-oxide")]
+    #[arg(long)]
+    pdf_oxide_images: bool,
     /// Inclusive 1-based page range such as `3-7`; a single number selects one page.
     #[arg(long, value_name = "A-B", value_parser = parse_pages)]
     pages: Option<(u32, u32)>,
@@ -291,6 +311,8 @@ fn main() -> anyhow::Result<ExitCode> {
         #[cfg(feature = "grobid")]
         Cmd::Grobid(args) => grobid_cli::run(&args),
         Cmd::Extract(args) => cli_worker::run(&args),
+        #[cfg(feature = "pdf-oxide")]
+        Cmd::Oxide(args) => cli_worker::oxide::run(&args),
         Cmd::NativeWorker {
             request,
             phase,

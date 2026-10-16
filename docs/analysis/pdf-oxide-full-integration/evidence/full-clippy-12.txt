@@ -1,0 +1,14 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking tpe-app v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-app)
+error: this function has too many lines (101/100)
+    --> tests/oxide_edit_forms.rs:1570:1
+     |
+1570 | fn unregeneratable_widget_without_normal_appearance_rejects_before_field_loss() {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#too_many_lines
+     = note: `-D clippy::too-many-lines` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::too_many_lines)]`
+
+error: could not compile `text-processing-engine` (test "oxide_edit_forms") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

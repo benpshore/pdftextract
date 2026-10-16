@@ -1,0 +1,629 @@
+    Checking subtle v2.6.1
+    Checking const-oid v0.10.2
+    Checking hybrid-array v0.4.15
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking ctutils v0.4.2
+    Checking bytemuck v1.25.2
+    Checking base64ct v1.8.3
+    Checking pem-rfc7468 v1.0.0
+    Checking flagset v0.4.7
+    Checking block-padding v0.4.2
+    Checking inout v0.2.2
+    Checking cipher v0.5.2
+    Checking num-bigint v0.4.8
+    Checking digest v0.11.3
+    Checking der v0.8.2
+    Checking crypto-bigint v0.7.5
+    Checking spki v0.8.1
+    Checking equator v0.4.2
+    Checking aligned-vec v0.6.4
+    Checking hmac v0.13.0
+    Checking ff v0.14.0
+    Checking v_frame v0.3.9
+    Checking pkcs8 v0.11.0
+    Checking tinystr v0.8.4
+    Checking num-rational v0.4.2
+    Checking minimal-lexical v0.2.1
+    Checking icu_locale_core v2.1.1
+    Checking nom v7.1.3
+    Checking zerocopy v0.8.59
+    Checking group v0.14.0
+    Checking sha2 v0.11.0
+    Checking zerotrie v0.2.5
+    Checking base16ct v1.0.0
+    Checking time v0.3.55
+    Checking av-scenechange v0.14.1
+    Checking half v2.7.1
+    Checking sec1 v0.8.1
+    Checking profiling v1.0.18
+    Checking icu_provider v2.1.1
+    Checking icu_collections v2.1.1
+    Checking rusticata-macros v4.1.0
+    Checking av1-grain v0.2.5
+    Checking maybe-rayon v0.1.1
+    Checking itertools v0.14.0
+    Checking num-complex v0.4.6
+    Checking universal-hash v0.6.1
+    Checking pulp v0.22.3
+    Checking rav1e v0.8.1
+    Checking asn1-rs v0.7.2
+    Checking polyval v0.7.3
+    Checking phf v0.11.3
+    Checking elliptic-curve v0.14.1
+    Checking primefield v0.14.0
+    Checking signature v3.0.0
+    Checking aes v0.9.2
+    Checking avif-serialize v0.8.9
+    Checking font-types v0.11.3
+    Checking zune-inflate v0.2.54
+    Checking color_quant v1.1.0
+    Checking lebe v0.5.3
+    Checking bit_field v0.10.3
+    Checking rgb v0.8.53
+    Checking exr v1.74.2
+    Checking ravif v0.13.0
+    Checking moxcms v0.8.1
+    Checking image-webp v0.2.4
+    Checking gif v0.14.2
+    Checking tiff v0.11.3
+    Checking read-fonts v0.39.2
+    Checking wnaf v0.14.1
+    Checking icu_properties v2.1.2
+    Checking icu_normalizer v2.1.1
+    Checking ghash v0.6.0
+    Checking rfc6979 v0.6.0
+    Checking pbkdf2 v0.13.0
+    Checking x509-cert v0.3.0
+    Checking cbc v0.2.1
+    Checking salsa20 v0.11.0
+    Checking ctr v0.10.1
+    Checking polycool v0.4.0
+    Checking aead v0.6.1
+    Checking qoi v0.4.1
+    Checking image v0.25.10
+    Checking aes-gcm v0.11.1
+    Checking kurbo v0.13.1
+    Checking scrypt v0.12.0
+    Checking cms v0.3.0-pre.1
+    Checking ecdsa v0.17.0
+    Checking web_atoms v0.1.3
+    Checking idna_adapter v1.2.1
+    Checking primeorder v0.14.0
+    Checking oid-registry v0.8.1
+    Checking der-parser v10.0.0
+    Checking font-types v0.12.5
+    Checking lazy_static v1.5.0
+    Checking strict-num v0.1.1
+    Checking data-encoding v2.11.1
+    Checking arrayref v0.3.9
+    Checking idna v1.1.0
+    Checking x509-parser v0.18.1
+    Checking tiny-skia-path v0.12.0
+    Checking fontconfig-parser v0.5.8
+    Checking read-fonts v0.43.3
+    Checking rustls v0.23.45
+    Checking markup5ever v0.35.0
+    Checking pkcs12 v0.2.0-pre.0
+    Checking pkcs5 v0.8.1
+    Checking write-fonts v0.48.1
+    Checking skrifa v0.42.1
+    Checking crypto-primes v0.7.2
+    Checking pkcs1 v0.8.0-rc.5
+    Checking sha1 v0.11.0
+    Checking rc2 v0.9.0
+    Checking des v0.9.0
+    Checking memmap2 v0.9.11
+    Checking hayro-ccitt v0.4.0
+    Checking fontdb v0.24.0
+    Checking hayro-jbig2 v0.3.1
+    Checking p12-keystore v0.3.2
+    Checking subsetter v0.2.6
+    Checking ureq v3.4.2
+    Checking html5ever v0.35.0
+    Checking cssparser v0.35.0
+    Checking rsa v0.10.0-rc.19
+    Checking phf v0.14.0
+    Checking url v2.5.8
+    Checking harfrust v0.13.3
+    Checking tiny-skia v0.12.0
+    Checking fast_image_resize v6.1.0
+    Checking p384 v0.14.0
+    Checking p256 v0.14.0
+    Checking taffy v0.14.0
+    Checking barcoders v2.0.0
+    Checking qrcode v0.14.1
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-common)
+    Checking jpeg-decoder v0.3.2
+    Checking md-5 v0.11.0
+    Checking ecb v0.2.1
+    Checking hayro-jpeg2000 v0.4.1
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking ammonia v4.1.2
+    Checking pdf_oxide v0.3.78
+    Checking lopdf v0.45.0
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-biblio)
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-ffi)
+error: binding's name is too similar to existing binding
+   --> src/oxide/create.rs:135:9
+    |
+135 |     let content = text_input(context)?;
+    |         ^^^^^^^
+    |
+note: existing binding defined here
+   --> src/oxide/create.rs:125:5
+    |
+125 |     context: &Context<'_>,
+    |     ^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#similar_names
+    = note: `-D clippy::similar-names` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::similar_names)]`
+
+error: binding's name is too similar to existing binding
+   --> src/oxide/create.rs:561:9
+    |
+561 |     let decoded = decoder
+    |         ^^^^^^^
+    |
+note: existing binding defined here
+   --> src/oxide/create.rs:547:13
+    |
+547 |     let mut decoder = image::ImageReader::with_format(std::io::Cursor::new(bytes), format);
+    |             ^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#similar_names
+
+error: binding's name is too similar to existing binding
+   --> src/oxide/create.rs:993:39
+    |
+993 | fn check_content_items(content: &str, context: &Context<'_>) -> Result<(), BackendError> {
+    |                                       ^^^^^^^
+    |
+note: existing binding defined here
+   --> src/oxide/create.rs:993:24
+    |
+993 | fn check_content_items(content: &str, context: &Context<'_>) -> Result<(), BackendError> {
+    |                        ^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#similar_names
+
+error: binding's name is too similar to existing binding
+   --> src/oxide/office.rs:335:9
+    |
+335 |     let content = context.input(0)?;
+    |         ^^^^^^^
+    |
+note: existing binding defined here
+   --> src/oxide/office.rs:327:18
+    |
+327 | fn from_markdown(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
+    |                  ^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#similar_names
+
+error: binding's name is too similar to existing binding
+    --> src/oxide/office.rs:1108:5
+     |
+1108 |     context: &Context<'_>,
+     |     ^^^^^^^
+     |
+note: existing binding defined here
+    --> src/oxide/office.rs:1107:5
+     |
+1107 |     content: &[office_oxide::ir::InlineContent],
+     |     ^^^^^^^
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#similar_names
+
+error: 5 bindings with single-character names in scope
+   --> src/oxide/render.rs:182:9
+    |
+182 |         p: &Params,
+    |         ^
+...
+235 |                 let [x, y, w, h] = p
+    |                      ^  ^  ^  ^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#many_single_char_names
+    = note: `-D clippy::many-single-char-names` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::many_single_char_names)]`
+
+error: 5 bindings with single-character names in scope
+   --> src/oxide/render.rs:348:13
+    |
+348 |         let p: Params =
+    |             ^
+...
+488 |                     let [x, y, w, h] = p.crop.ok_or_else(|| invalid("missing crop"))?;
+    |                          ^  ^  ^  ^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#many_single_char_names
+
+error: this argument is passed by value, but not consumed in the function body
+  --> src/backend/pdf_oxide_images.rs:84:33
+   |
+84 |     fn visit(&mut self, object: Object, kind: Kind, depth: usize) -> Result<(), BackendError> {
+   |                                 ^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+   = note: `-D clippy::needless-pass-by-value` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::needless_pass_by_value)]`
+help: consider taking a reference instead
+   |
+84 |     fn visit(&mut self, object: &Object, kind: Kind, depth: usize) -> Result<(), BackendError> {
+   |                                 +
+
+error: this boolean expression can be simplified
+   --> src/oxide/convert.rs:166:12
+    |
+166 |           if ![
+    |  ____________^
+167 | |             "reading_order",
+168 | |             "detect_headings",
+169 | |             "extract_tables",
+...   |
+172 | |         .contains(&key.as_str())
+173 | |             && !(operation == "convert.html" && key == "preserve_layout")
+    | |_________________________________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#nonminimal_bool
+    = note: `-D clippy::nonminimal-bool` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::nonminimal_bool)]`
+help: try
+    |
+166 ~         if !([
+167 +             "reading_order",
+168 +             "detect_headings",
+169 +             "extract_tables",
+170 +             "include_form_fields",
+171 +         ]
+172 +         .contains(&key.as_str()) || operation == "convert.html" && key == "preserve_layout")
+    |
+
+error: strict comparison of `f32` or `f64`
+   --> src/oxide/create.rs:142:38
+    |
+142 |     if operation == "create.text" && options.font_size != 12.0 {
+    |                                      ^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider comparing them within some margin of error: `(options.font_size - 12.0).abs() > error_margin`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#float_cmp
+    = note: `-D clippy::float-cmp` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::float_cmp)]`
+
+error: strict comparison of `f32` or `f64`
+   --> src/oxide/create.rs:463:8
+    |
+463 |     if options.font_size != 12.0 || options.line_height != 1.2 {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider comparing them within some margin of error: `(options.font_size - 12.0).abs() > error_margin`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#float_cmp
+
+error: strict comparison of `f32` or `f64`
+   --> src/oxide/create.rs:463:37
+    |
+463 |     if options.font_size != 12.0 || options.line_height != 1.2 {
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider comparing them within some margin of error: `(options.line_height - 1.2).abs() > error_margin`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#float_cmp
+
+error: this OR pattern can be rewritten using a range
+   --> src/oxide/create.rs:603:29
+    |
+603 |         if matches!(marker, 0xc0 | 0xc1 | 0xc2) {
+    |                             ^^^^^^^^^^^^^^^^^^ help: try: `0xc0..=0xc2`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#manual_range_patterns
+    = note: `-D clippy::manual-range-patterns` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::manual_range_patterns)]`
+
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> src/oxide/create.rs:944:5
+    |
+944 |     struct Metrics(FontManager);
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#items_after_statements
+    = note: `-D clippy::items-after-statements` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::items_after_statements)]`
+
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> src/oxide/create.rs:945:5
+    |
+945 | /     impl FontMetrics for Metrics {
+946 | |         fn text_width(&self, text: &str, size: f32) -> f32 {
+947 | |             self.0
+948 | |                 .text_width(text, "Helvetica", size)
+...   |
+951 | |     }
+    | |_____^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#items_after_statements
+
+error: this argument is passed by value, but not consumed in the function body
+    --> src/oxide/create.rs:1040:31
+     |
+1040 | pub(super) fn upstream(error: pdf_oxide::Error) -> BackendError {
+     |                               ^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+help: consider taking a reference instead
+     |
+1040 | pub(super) fn upstream(error: &pdf_oxide::Error) -> BackendError {
+     |                               +
+
+error: this argument is passed by value, but not consumed in the function body
+   --> src/oxide/edit.rs:324:31
+    |
+324 | pub(super) fn upstream(error: pdf_oxide::error::Error) -> BackendError {
+    |                               ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+help: consider taking a reference instead
+    |
+324 | pub(super) fn upstream(error: &pdf_oxide::error::Error) -> BackendError {
+    |                               +
+
+error: assigning the result of `Clone::clone()` may be inefficient
+   --> src/oxide/edit.rs:790:9
+    |
+790 |         *target = value.clone();
+    |         ^^^^^^^^^^^^^^^^^^^^^^^ help: use `clone_from()`: `target.clone_from(value)`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#assigning_clones
+    = note: `-D clippy::assigning-clones` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::assigning_clones)]`
+
+error: using `chunks_exact` with a constant chunk size
+    --> src/oxide/edit.rs:1299:33
+     |
+1299 |             for pair in entries.chunks_exact(2) {
+     |                                 ^^^^^^^^^^^^^^^ help: consider using `as_chunks` instead: `as_chunks::<2>().0`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#chunks_exact_to_as_chunks
+     = note: `-D clippy::chunks-exact-to-as-chunks` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::chunks_exact_to_as_chunks)]`
+
+error: item in documentation is missing backticks
+ --> src/oxide/forms.rs:1:5
+  |
+1 | //! AcroForm and static XFA operations on immutable inputs.
+  |     ^^^^^^^^
+  |
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#doc_markdown
+  = note: `-D clippy::doc-markdown` implied by `-D warnings`
+  = help: to override `-D warnings` add `#[allow(clippy::doc_markdown)]`
+help: try
+  |
+1 - //! AcroForm and static XFA operations on immutable inputs.
+1 + //! `AcroForm` and static XFA operations on immutable inputs.
+  |
+
+error: item in documentation is missing backticks
+    --> src/oxide/forms.rs:1109:18
+     |
+1109 |     /// Respect /NoExport by default.
+     |                  ^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#doc_markdown
+help: try
+     |
+1109 -     /// Respect /NoExport by default.
+1109 +     /// Respect /`NoExport` by default.
+     |
+
+error: wildcard matches only a single variant and will also match any future added variants
+    --> src/oxide/forms.rs:1329:13
+     |
+1329 |             _ => Err(BackendError::Malformed("source has no XFA form".into())),
+     |             ^ help: try: `XfaParams::ConvertStatic { .. }`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#match_wildcard_for_single_variants
+     = note: `-D clippy::match-wildcard-for-single-variants` implied by `-D warnings`
+     = help: to override `-D warnings` add `#[allow(clippy::match_wildcard_for_single_variants)]`
+
+error: item in documentation is missing backticks
+ --> src/oxide/ocr.rs:2:5
+  |
+2 | //! AutoExtractor's model acquisition. Recognition remains a derived result.
+  |     ^^^^^^^^^^^^^
+  |
+  = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#doc_markdown
+help: try
+  |
+2 - //! AutoExtractor's model acquisition. Recognition remains a derived result.
+2 + //! `AutoExtractor`'s model acquisition. Recognition remains a derived result.
+  |
+
+error: case-sensitive file extension comparison
+   --> src/oxide/office.rs:484:12
+    |
+484 |         if lower.ends_with(".xml") || lower.ends_with(".rels") {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: consider using a case-insensitive comparison instead
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#case_sensitive_file_extension_comparisons
+    = note: `-D clippy::case-sensitive-file-extension-comparisons` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::case_sensitive_file_extension_comparisons)]`
+help: use std::path::Path
+    |
+484 ~         if std::path::Path::new(&lower)
+485 +             .extension()
+486 ~             .is_some_and(|ext| ext.eq_ignore_ascii_case("xml")) || lower.ends_with(".rels") {
+    |
+
+error: case-sensitive file extension comparison
+   --> src/oxide/office.rs:484:39
+    |
+484 |         if lower.ends_with(".xml") || lower.ends_with(".rels") {
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: consider using a case-insensitive comparison instead
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#case_sensitive_file_extension_comparisons
+help: use std::path::Path
+    |
+484 ~         if lower.ends_with(".xml") || std::path::Path::new(&lower)
+485 +             .extension()
+486 ~             .is_some_and(|ext| ext.eq_ignore_ascii_case("rels")) {
+    |
+
+error: consider adding a `;` to the last statement for consistent formatting
+   --> src/oxide/office.rs:677:17
+    |
+677 | /                 depth = depth
+678 | |                     .checked_sub(1)
+679 | |                     .ok_or_else(|| invalid("Office XML unmatched end tag"))?
+    | |____________________________________________________________________________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#semicolon_if_nothing_returned
+    = note: `-D clippy::semicolon-if-nothing-returned` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::semicolon_if_nothing_returned)]`
+help: add a `;` here
+    |
+677 |                 depth = depth
+678 |                     .checked_sub(1)
+679 ~                     .ok_or_else(|| invalid("Office XML unmatched end tag"))?;
+    |
+
+error: this `if` statement can be collapsed
+   --> src/oxide/office.rs:961:9
+    |
+961 | /         if let Some(setup) = &section.page_setup {
+962 | |             if setup.width_twips > 288_000 || setup.height_twips > 288_000 {
+963 | |                 return Err(BackendError::Limit(
+964 | |                     "Office page geometry exceeds 14400 points".into(),
+...   |
+967 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+    = note: `-D clippy::collapsible-if` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::collapsible_if)]`
+help: collapse nested if block
+    |
+961 ~         if let Some(setup) = &section.page_setup
+962 ~             && (setup.width_twips > 288_000 || setup.height_twips > 288_000) {
+963 |                 return Err(BackendError::Limit(
+964 |                     "Office page geometry exceeds 14400 points".into(),
+965 |                 ));
+966 ~             }
+    |
+
+error: consider adding a `;` to the last statement for consistent formatting
+    --> src/oxide/office.rs:1034:17
+     |
+1034 |                 validate_elements(&note.content, context, depth + 1, items)?
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: add a `;` here: `validate_elements(&note.content, context, depth + 1, items)?;`
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#semicolon_if_nothing_returned
+
+error: this `if` statement can be collapsed
+   --> src/oxide/query.rs:835:9
+    |
+835 | /         if let Object::Reference(reference) = &object {
+836 | |             if !visited.insert(*reference) {
+837 | |                 return Err(invalid("cyclic or multiply referenced name tree"));
+838 | |             }
+839 | |         }
+    | |_________^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+help: collapse nested if block
+    |
+835 ~         if let Object::Reference(reference) = &object
+836 ~             && !visited.insert(*reference) {
+837 |                 return Err(invalid("cyclic or multiply referenced name tree"));
+838 ~             }
+    |
+
+error: this `if` statement can be collapsed
+    --> src/oxide/query.rs:1032:5
+     |
+1032 | /     if let Some((first, last)) = context.pages {
+1033 | |         if first != 1 || usize::try_from(last).ok() != Some(count) {
+1034 | |             return Err(invalid(
+1035 | |                 "document-scoped query does not accept a partial page range",
+...    |
+1038 | |     }
+     | |_____^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#collapsible_if
+help: collapse nested if block
+     |
+1032 ~     if let Some((first, last)) = context.pages
+1033 ~         && (first != 1 || usize::try_from(last).ok() != Some(count)) {
+1034 |             return Err(invalid(
+1035 |                 "document-scoped query does not accept a partial page range",
+1036 |             ));
+1037 ~         }
+     |
+
+error: this argument is passed by value, but not consumed in the function body
+  --> src/oxide/render.rs:99:24
+   |
+99 |     fn upstream(error: pdf_oxide::Error) -> BackendError {
+   |                        ^^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+help: consider taking a reference instead
+   |
+99 |     fn upstream(error: &pdf_oxide::Error) -> BackendError {
+   |                        +
+
+error: item in documentation is missing backticks
+   --> src/oxide/security.rs:146:15
+    |
+146 | /// Bound the AcroForm graph before entering an upstream recursive reader.
+    |               ^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#doc_markdown
+help: try
+    |
+146 - /// Bound the AcroForm graph before entering an upstream recursive reader.
+146 + /// Bound the `AcroForm` graph before entering an upstream recursive reader.
+    |
+
+error: casting `usize` to `i64` may wrap around the value on targets with 64-bit wide pointers
+   --> src/oxide/security.rs:513:61
+    |
+513 |     completed_trailer.insert("Prev".into(), Object::Integer(previous_xref as i64));
+    |                                                             ^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#cast_possible_wrap
+    = note: `-D clippy::cast-possible-wrap` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::cast_possible_wrap)]`
+
+error: casting `usize` to `i64` may wrap around the value on targets with 64-bit wide pointers
+    --> src/oxide/security.rs:1037:67
+     |
+1037 |             range_valid && range[2].checked_add(range[3]) == Some(input.len() as i64)
+     |                                                                   ^^^^^^^^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#cast_possible_wrap
+
+error: casting `usize` to `i64` may wrap around the value on targets with 64-bit wide pointers
+    --> src/oxide/security.rs:1089:39
+     |
+1089 |             .is_some_and(|end| end <= size as i64)
+     |                                       ^^^^^^^^^^^
+     |
+     = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#cast_possible_wrap
+
+error: adding items after statements is confusing, since items exist from the start of the scope
+   --> src/oxide/mod.rs:300:5
+    |
+300 |     type Dispatch = fn(&str, &Context<'_>, &Value) -> Option<Result<OperationOutput, BackendError>>;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#items_after_statements
+
+error: this argument is passed by value, but not consumed in the function body
+   --> src/oxide/mod.rs:362:22
+    |
+362 | fn json_error(error: serde_json::Error) -> BackendError {
+    |                      ^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#needless_pass_by_value
+help: consider taking a reference instead
+    |
+362 | fn json_error(error: &serde_json::Error) -> BackendError {
+    |                      +
+
+error: could not compile `text-processing-engine` (lib) due to 37 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `text-processing-engine` (lib test) due to 37 previous errors

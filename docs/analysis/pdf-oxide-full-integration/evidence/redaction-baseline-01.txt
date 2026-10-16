@@ -1,0 +1,20 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 9.41s
+     Running tests/oxide_security.rs (/workspace/pdftextract/target/debug/deps/oxide_security-54a3d6ec33b3e083)
+
+running 2 tests
+test inline_actual_text_survives_upstream_but_native_admission_rejects_it ... ok
+
+thread 'saved_text_state_retention_has_upstream_evidence_and_native_rejection' (139439) panicked at tests/oxide_security.rs:539:5:
+native redaction admitted saved-state failures: ["rise", "font", "char-spacing", "word-spacing", "horizontal-scale", "combined-state"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test saved_text_state_retention_has_upstream_evidence_and_native_rejection ... FAILED
+
+failures:
+
+failures:
+    saved_text_state_retention_has_upstream_evidence_and_native_rejection
+
+test result: FAILED. 1 passed; 1 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.05s
+
+error: test failed, to rerun pass `--test oxide_security`

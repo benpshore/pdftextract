@@ -1,0 +1,97 @@
+"""Bounded CLI rejection and independent rendering controls for state appearances."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+binary=Path(sys.argv[1]).resolve()
+destination=Path(sys.argv[2]).resolve()
+destination.mkdir(exist_ok=False)
+sources=Path('/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-widget-state-baseline01')
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+def render(source, prefix):
+    command=['prlimit','--as=1073741824','--core=0','--','timeout','-k','2','15',
+             'pdftoppm','-f','1','-singlefile','-r','96','-png',str(source),str(prefix)]
+    result=subprocess.run(command,capture_output=True,timeout=20,check=False)
+    image=prefix.with_suffix('.png')
+    return {'command':command,'exit_code':result.returncode,'stderr':result.stderr.decode(errors='replace'),
+            'image':str(image),'sha256':sha(image) if image.exists() else None}
+
+receipt={'scope':'Eight bounded synthetic state-appearance cases; four negative and four direct-state controls. No general form fidelity or safety qualification.',
+         'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+         'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),
+         'git_status_before':subprocess.check_output(['git','status','--porcelain'],text=True),
+         'binary':str(binary),'binary_sha256':sha(binary),
+         'binary_version':subprocess.check_output([str(binary),'--version'],text=True).strip(),
+         'script_sha256':sha(Path(__file__)),'cases':[]}
+assert not receipt['git_status_before']
+for normal in ['indirect','direct']:
+    for radio in ['false','true']:
+        for selected in ['false','true']:
+            name=f'widget-state-{normal}-radio-{radio}-selected-{selected}'
+            source=sources/(name+'-source.pdf')
+            before=sha(source)
+            run=destination/name
+            run.mkdir()
+            captures=run/'captures'
+            captures.mkdir()
+            request=run/'request.json'
+            request.write_text(json.dumps({'operation':'forms.flatten','inputs':[str(source)],'params':{}})+'\n')
+            request.chmod(0o600)
+            command=['prlimit','--as=2147483648','--core=0','--','timeout','-k','2','15',str(binary),
+                     'oxide','--request',str(request),'--out',str(run/'out'),'--timeout-ms','5000',
+                     '--max-memory-growth-mib','256','--max-output-bytes','1048576']
+            started=time.monotonic()
+            with (run/'response.json').open('wb') as output, (run/'stderr.txt').open('wb') as errors:
+                result=subprocess.run(command,stdout=output,stderr=errors,timeout=20,check=False,
+                                      env={**os.environ,'TMPDIR':str(captures),'TMP':str(captures)})
+            value=json.loads((run/'response.json').read_bytes())
+            checks={'source_unchanged':sha(source)==before,'captures_clean':not any(captures.iterdir())}
+            row={'name':name,'normal_dictionary':normal,'source_sha256':before,
+                 'request_sha256':sha(request),'command':command,'exit_code':result.returncode,
+                 'elapsed_seconds':round(time.monotonic()-started,3),
+                 'response_sha256':sha(run/'response.json'),'stderr_sha256':sha(run/'stderr.txt')}
+            if normal=='indirect':
+                checks.update({'explicit_failure':result.returncode!=0 and value.get('status')=='failed',
+                               'expected_reason':'indirect /AP /N state dictionary' in value.get('error',''),
+                               'no_publication':not (run/'out').exists(),
+                               'no_success_artifact_payload':not value.get('output') and not value.get('output_paths')})
+                row['failure_response']=value
+            else:
+                assert result.returncode==0,value
+                assert len(value['output_paths'])==len(value['output']['artifacts'])==len(value['artifact_receipts'])==1
+                artifact=Path(value['output_paths'][0]).resolve()
+                assert artifact.is_relative_to((run/'out').resolve())
+                artifact_metadata=value['output']['artifacts'][0]
+                artifact_receipt=value['artifact_receipts'][0]
+                containment=value['containment']
+                checks.update({'explicit_success':result.returncode==0,
+                               'source_identity_matches':[item['sha256'] for item in value['sources']]==[before],
+                               'appearance_requirement_reported':value['output']['data']['existing_widget_appearances_required'] is True,
+                               'published_artifact_matches_receipt':artifact.stat().st_size==artifact_receipt['bytes'] and sha(artifact)==artifact_receipt['sha256'] and artifact_metadata['name']==artifact_receipt['name'] and artifact_metadata['mime']==artifact_receipt['mime'],
+                               'out_mode_consumed_inline_bytes':artifact_metadata['bytes']==[],
+                               'clean_build_identity':'dirty' not in value['producer']['build_version'],
+                               'actual_sealed_worker':containment['mode']=='seccomp_sealed' and all(containment[key] for key in ['filesystem_enforced','network_enforced','process_enforced','seccomp_tsync'])})
+                original_render=render(source,run/'source-render')
+                derivative_render=render(artifact,run/'derivative-render')
+                checks['independent_render_matches']=original_render['exit_code']==derivative_render['exit_code']==0 and original_render['sha256']==derivative_render['sha256']
+                checks['source_unchanged_after_render']=sha(source)==before
+                row.update({'artifact':str(artifact),'artifact_sha256':sha(artifact),'producer':value['producer'],
+                            'containment':containment,'original_render':original_render,'derivative_render':derivative_render})
+            row['checks']=checks
+            row['passed']=all(checks.values())
+            receipt['cases'].append(row)
+            (destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+receipt['git_status_after']=subprocess.check_output(['git','status','--porcelain'],text=True)
+receipt['binary_unchanged']=sha(binary)==receipt['binary_sha256']
+receipt['passed']=all(row['passed'] for row in receipt['cases']) and receipt['binary_unchanged'] and not receipt['git_status_after']
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'cases':[{key:row[key] for key in ['name','passed','checks']} for row in receipt['cases']],
+                  'receipt':str(destination/'receipt.json')}))
+sys.exit(0 if receipt['passed'] else 1)

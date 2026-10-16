@@ -1,0 +1,34 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Finished `test` profile [unoptimized] target(s) in 6.37s
+     Running tests/oxide_transport.rs (/workspace/pdftextract/target/debug/deps/oxide_transport-613b35c545154f8d)
+
+running 7 tests
+test publisher_accepts_exact_identity_and_capture_with_unchanged_artifact_bytes ... ok
+test publisher_rejects_an_old_response_for_a_fresh_identical_request ... ok
+test publisher_rejects_changed_artifact_bytes_with_the_old_capture_digest ... ok
+test publisher_rejects_source_size_and_count_mismatches ... ok
+test publisher_rejects_operation_and_public_request_option_swaps ... ok
+test publisher_rejects_valid_but_unexpected_source_hash ... ok
+test publisher_rejects_wrong_build_and_already_published_state ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.37s
+
+     Running tests/oxide_worker.rs (/workspace/pdftextract/target/debug/deps/oxide_worker-c382c4d42b5adfce)
+
+running 13 tests
+test atomic_publication_preserves_existing_files_and_repeated_outputs ... ok
+test creation_then_query_uses_workers_and_preserves_exact_source_provenance ... ok
+test deadline_and_cancellation_kill_reap_and_clean_a_stopped_worker ... ok
+test document_links_and_actions_are_data_and_do_not_trigger_loopback_requests ... ok
+test malformed_unknown_and_out_of_range_requests_fail_without_publication ... ok
+test output_overflow_fails_before_publication_and_removes_captures ... ok
+test bounded_memory_failure_does_not_poison_the_next_operation ... ok
+test publisher_failure_leaves_source_and_existing_target_unchanged ... ok
+test receipt_write_failure_rolls_back_published_artifacts ... ok
+test redaction_verification_targets_are_omitted_from_worker_provenance_and_errors ... ok
+test passwords_use_private_request_and_file_channels_not_argv_or_reports ... ok
+test unconfined_routed_extraction_fails_before_opening_ledger_or_outputs ... ok
+test stdout_backpressure_obeys_deadline_without_changing_pipe_flags ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.27s
+

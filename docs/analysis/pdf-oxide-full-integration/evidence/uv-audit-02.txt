@@ -1,0 +1,5 @@
+Resolved 8 packages in 1ms
+error: Request failed after 3 retries
+  cause: error sending request for url (https://api.osv.dev/v1/querybatch)
+  cause: client error (Connect)
+  cause: tunnel error: unsuccessful

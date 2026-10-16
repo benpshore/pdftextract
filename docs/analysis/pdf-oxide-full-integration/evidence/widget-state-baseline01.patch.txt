@@ -1,0 +1,168 @@
+diff --git a/tests/oxide_edit_forms.rs b/tests/oxide_edit_forms.rs
+index fd9a693..8152ba6 100644
+--- a/tests/oxide_edit_forms.rs
++++ b/tests/oxide_edit_forms.rs
+@@ -2086,3 +2086,163 @@ fn flatten_page_carrier_annotation_rejects_shadowed_inherited_fonts_images() {
+ fn flatten_page_carrier_form_rejects_shadowed_inherited_fonts_images() {
+     assert_inherited_flatten_resources_rejected(FlattenCarrierKind::Form);
+ }
++
++fn state_appearance_fixture(indirect: bool, radio: bool, selected: bool) -> Vec<u8> {
++    let mut document = Document::load_mem(&fixture("State appearance sentinel", 1)).unwrap();
++    let page = document.get_pages()[&1];
++    let make_stream = |content: &[u8]| {
++        Stream::new(
++            dictionary! {"Type"=>"XObject", "Subtype"=>"Form", "FormType"=>1,
++            "BBox"=>vec![0.into(),0.into(),40.into(),40.into()],
++            "Resources"=>dictionary! {}},
++            content.to_vec(),
++        )
++    };
++    let on = document.add_object(make_stream(
++        b"q 1 0 1 rg 3 3 34 34 re f 0 1 1 RG 2 w 5 5 m 35 35 l S Q\n",
++    ));
++    let off = document.add_object(make_stream(
++        b"q 0 0 1 RG 3 w 2 2 36 36 re S 2 38 m 38 2 l S Q\n",
++    ));
++    let states = dictionary! {"CustomOn"=>on, "Off"=>off};
++    let states = if indirect {
++        Object::Reference(document.add_object(states))
++    } else {
++        Object::Dictionary(states)
++    };
++    let state = if selected { "CustomOn" } else { "Off" };
++    let widget = document.add_object(dictionary! {
++        "Type"=>"Annot", "Subtype"=>"Widget", "P"=>page, "F"=>4,
++        "Rect"=>vec![72.into(),580.into(),112.into(),620.into()],
++        "FT"=>"Btn", "Ff"=>if radio { 1 << 15 } else { 0 },
++        "T"=>Object::string_literal("custom-state"), "V"=>Object::Name(state.as_bytes().to_vec()),
++        "AS"=>Object::Name(state.as_bytes().to_vec()), "AP"=>dictionary! {"N"=>states}
++    });
++    document
++        .get_dictionary_mut(page)
++        .unwrap()
++        .set("Annots", vec![widget.into()]);
++    let form =
++        document.add_object(dictionary! {"Fields"=>vec![widget.into()], "NeedAppearances"=>false});
++    document.catalog_mut().unwrap().set("AcroForm", form);
++    let mut source = Vec::new();
++    document.save_to(&mut source).unwrap();
++    source
++}
++
++fn selected_state_appearance(document: &Document, indirect: bool) -> Vec<u8> {
++    let widgets = document
++        .get_page_annotations(document.get_pages()[&1])
++        .unwrap();
++    assert_eq!(widgets.len(), 1);
++    let state = widgets[0].get(b"AS").unwrap().as_name().unwrap();
++    let appearance = document.get_dict_in_dict(widgets[0], b"AP").unwrap();
++    let normal = appearance.get(b"N").unwrap();
++    assert_eq!(matches!(normal, Object::Reference(_)), indirect);
++    let states = document.dereference(normal).unwrap().1.as_dict().unwrap();
++    assert!(!states.has(b"BBox"));
++    let stream = document
++        .dereference(states.get(state).unwrap())
++        .unwrap()
++        .1
++        .as_stream()
++        .unwrap();
++    stream
++        .decompressed_content()
++        .unwrap_or_else(|_| stream.content.clone())
++}
++
++fn flatten_state_upstream(source: &[u8], prefix: &str) -> (Vec<u8>, Vec<String>) {
++    let mut editor = DocumentEditor::from_bytes(source.to_vec()).unwrap();
++    editor.flatten_forms().unwrap();
++    let native = editor.save_to_bytes().unwrap();
++    capture_form_fixture(&format!("{prefix}-upstream.pdf"), &native);
++    (native, editor.flatten_warnings().to_vec())
++}
++
++#[test]
++fn indirect_widget_state_dictionary_rejects_silent_custom_appearance_replacement() {
++    let mut admitted = Vec::new();
++    for radio in [false, true] {
++        for selected in [false, true] {
++            let source = state_appearance_fixture(true, radio, selected);
++            let prefix = format!("widget-state-indirect-radio-{radio}-selected-{selected}");
++            capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
++            let original = Document::load_mem(&source).unwrap();
++            let appearance = selected_state_appearance(&original, true);
++            let (native, warnings) = flatten_state_upstream(&source, &prefix);
++            let parsed = Document::load_mem(&native).unwrap();
++            assert!(!parsed.catalog().unwrap().has(b"AcroForm"));
++            assert!(
++                warnings.is_empty(),
++                "preserve the silent regeneration baseline"
++            );
++            let painted = invoked_form_streams(&parsed, 1);
++            assert_eq!(painted.len(), 1);
++            assert_ne!(
++                painted[0], appearance,
++                "pinned native discarded custom state paint"
++            );
++            capture_form_fixture(
++                &format!("{prefix}-observations.json"),
++                &serde_json::to_vec_pretty(&json!({
++                    "radio_flag":radio,"selected":selected,"flatten_warnings":warnings,
++                    "original_appearance":String::from_utf8_lossy(&appearance),
++                    "painted_appearance":String::from_utf8_lossy(&painted[0]),
++                    "custom_appearance_preserved":false
++                }))
++                .unwrap(),
++            );
++            match run("forms.flatten", vec![source], json!({})) {
++                Err(BackendError::Unsupported(reason))
++                    if reason.contains("indirect /AP /N state") => {}
++                Ok(output) => {
++                    assert_eq!(output.data["existing_widget_appearances_required"], true);
++                    let bytes = one_pdf(output);
++                    capture_form_fixture(&format!("{prefix}-adapter-admitted.pdf"), &bytes);
++                    assert_ne!(
++                        invoked_form_streams(&Document::load_mem(&bytes).unwrap(), 1),
++                        vec![appearance]
++                    );
++                    admitted.push(prefix);
++                }
++                other => panic!("unexpected flatten result: {other:?}"),
++            }
++        }
++    }
++    assert!(
++        admitted.is_empty(),
++        "custom appearances were replaced without rejection: {admitted:?}"
++    );
++}
++
++#[test]
++fn direct_widget_state_dictionary_preserves_selected_custom_appearance() {
++    for radio in [false, true] {
++        for selected in [false, true] {
++            let source = state_appearance_fixture(false, radio, selected);
++            let prefix = format!("widget-state-direct-radio-{radio}-selected-{selected}");
++            capture_form_fixture(&format!("{prefix}-source.pdf"), &source);
++            let original = Document::load_mem(&source).unwrap();
++            let appearance = selected_state_appearance(&original, false);
++            let (native, warnings) = flatten_state_upstream(&source, &prefix);
++            assert!(warnings.is_empty());
++            assert_eq!(
++                invoked_form_streams(&Document::load_mem(&native).unwrap(), 1),
++                vec![appearance.clone()]
++            );
++            let output = run("forms.flatten", vec![source], json!({})).unwrap();
++            assert_eq!(output.data["existing_widget_appearances_required"], true);
++            let bytes = one_pdf(output);
++            capture_form_fixture(&format!("{prefix}-adapter.pdf"), &bytes);
++            let parsed = Document::load_mem(&bytes).unwrap();
++            assert_eq!(invoked_form_streams(&parsed, 1), vec![appearance]);
++            assert!(
++                parsed
++                    .get_page_annotations(parsed.get_pages()[&1])
++                    .unwrap()
++                    .is_empty()
++            );
++        }
++    }
++}

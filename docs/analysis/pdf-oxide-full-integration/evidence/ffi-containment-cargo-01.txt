@@ -1,0 +1,37 @@
+   Compiling tpe-ffi v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-ffi)
+    Finished `test` profile [unoptimized] target(s) in 0.53s
+     Running unittests src/lib.rs (/workspace/pdftextract/target/debug/deps/tpe_ffi-37aa2d9b8f61e337)
+
+running 1 test
+
+running 1 test
+test oxide_containment::tests::raw_process_child ... process: direct fork returned EPERM
+process: direct vfork returned EPERM
+process: direct clone(process) returned EPERM
+process: clone3 unavailable; ordinary thread creation still works
+process: direct setxattrat with null arguments returned EPERM
+process: direct removexattrat with null arguments returned EPERM
+process: direct open_tree_attr with null arguments returned EPERM
+process: direct file_setattr with null arguments returned EPERM
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+
+running 1 test
+test oxide_containment::tests::raw_process_child ... sealed: direct fork returned EPERM
+sealed: direct vfork returned EPERM
+sealed: direct clone(process) returned EPERM
+sealed: clone3 unavailable; ordinary thread creation still works
+sealed: direct setxattrat with null arguments returned EPERM
+sealed: direct removexattrat with null arguments returned EPERM
+sealed: direct open_tree_attr with null arguments returned EPERM
+sealed: direct file_setattr with null arguments returned EPERM
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+test oxide_containment::tests::bounded_raw_process_denials ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.02s
+

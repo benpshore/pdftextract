@@ -1,0 +1,88 @@
+"""Bounded local evaluation of the already approved eight-fixture manifest."""
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+binary = Path(sys.argv[1]).resolve()
+destination = Path(sys.argv[2]).resolve()
+source = Path('/workspace/tpe-pdf-oxide-evidence-20261015/shared-fixtures')
+manifest_path = source / 'manifest.json'
+manifest = json.loads(manifest_path.read_text())
+destination.mkdir(parents=True, exist_ok=False)
+receipt = {
+    'scope': 'Bounded native worker behavior on approved shared fixtures; no extraction-accuracy or Python binding parity claim',
+    'binary': str(binary),
+    'binary_sha256': sha(binary),
+    'manifest_sha256': sha(manifest_path),
+    'script_sha256': sha(Path(__file__)),
+    'python': sys.version,
+    'git_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+    'git_tree': subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip(),
+    'git_status_before': subprocess.check_output(['git', 'status', '--porcelain'], text=True),
+    'fixtures': [],
+}
+for fixture in manifest['fixtures']:
+    path = source / fixture['file']
+    assert sha(path) == fixture['sha256'], fixture['id']
+    run = destination / fixture['id']
+    run.mkdir()
+    captures = run / 'captures'
+    captures.mkdir()
+    command = [
+        'prlimit', '--as=2147483648', '--core=0', '--', 'timeout', '-k', '5', '20',
+        str(binary), 'extract', '--backend', 'pdf-oxide', '--json',
+        '--db', str(run / 'ledger.sqlite'), '--out', str(run / 'out'),
+        '--timeout-ms', '10000', '--max-memory-growth-mib', '256',
+        '--max-output-bytes', '67108864', str(path),
+    ]
+    start = time.monotonic()
+    stdout = run / 'response.json'
+    stderr = run / 'stderr.txt'
+    with stdout.open('wb') as output, stderr.open('wb') as errors:
+        result = subprocess.run(command, stdout=output, stderr=errors, timeout=30,
+                                env={**os.environ, 'TMPDIR': str(captures), 'TMP': str(captures)})
+    record = {
+        'id': fixture['id'], 'source_sha256': fixture['sha256'],
+        'command': command, 'exit_code': result.returncode,
+        'elapsed_seconds': round(time.monotonic() - start, 3),
+        'stdout_sha256': sha(stdout), 'stdout_bytes': stdout.stat().st_size,
+        'stderr_sha256': sha(stderr), 'stderr_bytes': stderr.stat().st_size,
+        'source_unchanged': sha(path) == fixture['sha256'],
+        'captures_clean': not any(captures.iterdir()),
+    }
+    try:
+        value = json.loads(stdout.read_bytes())
+        record['status'] = value.get('status')
+        record['source_identity_matches'] = value.get('document', {}).get('hash') == fixture['sha256']
+        pages = value.get('pages', [])
+        record['pages'] = len(pages)
+        record['page_numbers_match'] = [p['page'] for p in pages] == list(range(1, fixture['pages'] + 1))
+        record['diagnostics'] = sum(len(p.get('diagnostics', [])) for p in pages)
+        record['table_candidates'] = sum(len(p.get('tables', [])) for p in pages)
+        record['table_candidates_all_marked_unverified'] = all(
+            table.get('validation_error') for page in pages for table in page.get('tables', [])
+        )
+        record['parser_sealing_reported'] = any('worker_containment: seccomp_sealed' in str(warning)
+                                                 for warning in value.get('warnings', []))
+        record['error'] = value.get('error')
+    except (ValueError, TypeError, KeyError) as error:
+        record['response_error'] = str(error)
+    receipt['fixtures'].append(record)
+    (destination / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+receipt['git_status_after'] = subprocess.check_output(['git', 'status', '--porcelain'], text=True)
+receipt['binary_unchanged'] = sha(binary) == receipt['binary_sha256']
+(destination / 'receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+print(json.dumps([{k: row.get(k) for k in ['id', 'exit_code', 'status', 'pages', 'source_unchanged',
+                                        'captures_clean', 'source_identity_matches', 'page_numbers_match',
+                                        'parser_sealing_reported', 'error']}
+                  for row in receipt['fixtures']], indent=2))

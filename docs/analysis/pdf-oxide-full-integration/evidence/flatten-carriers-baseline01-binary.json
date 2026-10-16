@@ -1,0 +1,8 @@
+{
+  "source": "/workspace/pdftextract/target/debug/deps/oxide_edit_forms-9a72b1088901da99",
+  "preserved_binary": "/workspace/tpe-pdf-oxide-evidence-20261015/flatten-carriers-baseline01-tests",
+  "sha256": "5c1d5629de61a9906e750da8b1f3ca31cce3a3651d9d55371de931b41da077a7",
+  "runtime_source_commit": "fe6db7e",
+  "test_source": "Four newly added regression tests, uncommitted at execution; exact failed harness binary preserved. Production source was unchanged from fe6db7e.",
+  "scope": "Synthetic fixtures, disposable 8 GiB / 300 second test process; four concrete failures, no qualification pass"
+}

@@ -19,9 +19,9 @@ libloading = { version = "0.8.9", optional = true }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
 rustix = { version = "1", features = ["mm", "stdio"] }
+libc = "0.2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-libc = "0.2"
 # Finder Services provider: an Objective-C class declared at run time.
 objc = { version = "0.2", optional = true }
 # Same ranges as objc2-avf-audio 0.3.2 so Cargo resolves ONE objc2/block2

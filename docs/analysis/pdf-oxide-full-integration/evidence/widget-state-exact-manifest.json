@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "source_commit": "e2991be508ff6e68ee175fceaea6d493da36ed89",
+  "source_tree": "b3c7da974a3734e0c456c4faee327f1fdcc7ba6a",
+  "binary_sha256": "eb66c5ca65fa94a59249d0e4526c85b897b940db2cb37d550e97321f47db917d",
+  "scope": "Native recovery branch only; bounded correction of indirect widget-state appearance replacement. PR273 combination remains untested.",
+  "documentation_commit_semantics": "Original receipts describe e2991be, not the later documentation-only evidence commit.",
+  "preserved_prior_checkpoint": "fa9beab88b24c76344039b2f524eb2236c7f67ef",
+  "preserved_prior_ref": "archive/20261016-native-fa9beab-before-state-appearance",
+  "rust_top_level_passed": 1295,
+  "rust_nested_child_probe_passed": 3,
+  "rust_summary_passed": 1298,
+  "rust_failed": 0,
+  "rust_ignored": 10,
+  "additional_containment_harness_scenarios": 5,
+  "landlock_positive_allowlist_executed": false,
+  "python314_tooling_passed": 210,
+  "widget_state_form_tests_passed": 41,
+  "supervised_negative_controls_passed": 4,
+  "supervised_direct_state_controls_passed": 4,
+  "independent_source_derivative_render_matches": 4,
+  "fully_qualified_capabilities": 0,
+  "archived_files": [
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/receipt.json",
+      "bytes": 4809,
+      "sha256": "23bdfc73e3454269f3adb713ce9b06f298ba377500455614d46828c895f03fa0"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/receipt.json",
+      "bytes": 44428,
+      "sha256": "18fbb1a8740ecf55871bdec8379e6a2e70443a2e41565663f87bddf84c2e0d9f"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/receipt.json",
+      "bytes": 44228,
+      "sha256": "6074d57003fcc6ea110a30273509a86a47775dd0f278192e554d1e01b9af5a49"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-attempt01-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_widget_state_cli_attempt01.py",
+      "bytes": 6581,
+      "sha256": "94ad3005de20aece879eea5023132393f57e74891c9a3c008369de452490083c"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-environment-availability-01.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-environment-availability-01.json",
+      "bytes": 386,
+      "sha256": "41ebfe94e4b8d34a078a0974918d2f52772e4be0a38b92c96aeb437629d51e8b"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_exact_checkpoint.py",
+      "bytes": 3623,
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-cli-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_widget_state_cli.py",
+      "bytes": 6855,
+      "sha256": "c141314c8a95ac709c415d99c7d179b824cf519c8398765abcc11522d01bfde2"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-fmt.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-clippy.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/clippy.log",
+      "bytes": 216,
+      "sha256": "2c511ad052df12d6b75fd41c0e8eb3142c526ef9158bf19b133054b995724fbc"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-tests.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/tests.log",
+      "bytes": 108906,
+      "sha256": "eaf7bb94acc580ebd0446da02e35ddd783d211c290d10491bfff3ea83904eb7b"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-format.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/ruff-format.log",
+      "bytes": 28,
+      "sha256": "13e464c51f06111cd86ebb779bb2d99cde1fdcb339799360a239e85887946152"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-ruff-check.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/ruff-check.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-exact-pytest.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/pytest.log",
+      "bytes": 1050,
+      "sha256": "0fa09ccac9a838b96476744a83202132e6876b2f598af28176722730c73a70d8"
+    }
+  ],
+  "retained_workspace_files": [
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/derivative-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/out/23d9f11f9066a6984fb28235b136d27299b95f05d1d964ee86ecb62c46ba08c6.edited.pdf",
+      "bytes": 1703,
+      "sha256": "7cd84399c26feedd40ffb9486a7cccc40bcf4c473800e143613060ba37fbe5ec"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/request.json",
+      "bytes": 194,
+      "sha256": "eb10c856aee2f16df084161efc321cd79dbcb625d317d1c74f899d0b13e37980"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/response.json",
+      "bytes": 2596,
+      "sha256": "a567d21548f152f53be2db403e0dc15e1795c8d78a24e10e24ed0c66fdbe3afe"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/source-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/derivative-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/out/bfbff437596120d53cd63ab70c0b52e69c7be0b349d48df2906a84c318000b55.edited.pdf",
+      "bytes": 1722,
+      "sha256": "413d2fc135bba2089fb1317b3cd72f0baf8ff6f28f99e4e7f14c5c74e0262289"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/request.json",
+      "bytes": 193,
+      "sha256": "3ea1c9f656361713b8deee534028fcf80a12a2b8ebab61359ab6e769792f572a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/response.json",
+      "bytes": 2595,
+      "sha256": "2414a0e38b339f98aa53ad9a8e9b4a60f1023562785f9bab17b8b2f8d7851cbf"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/source-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-false-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/derivative-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/out/397eb4c305f97c1586a142df41edaa20b58d2252ea19672644dff044f5e36573.edited.pdf",
+      "bytes": 1707,
+      "sha256": "78adbe65f7d02eb0ba08ef01eded6bb7788006fb51badca70682723ff7c23b9a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/request.json",
+      "bytes": 193,
+      "sha256": "34b0fd4cd0761c0b110305552a8a13ff4853594e0ee6413591c07114a35abaa0"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/response.json",
+      "bytes": 2595,
+      "sha256": "804d3bc5f10a4268c75931f9278e32c183b1e512eb24504a52e4042df23a5afd"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/source-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/derivative-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/out/4a7b1ae9b614281886c9de26666e281bdf1caeed25f71980d56d9c528e053c5f.edited.pdf",
+      "bytes": 1726,
+      "sha256": "d8a6cd4167a67910051e5362ef2bcf466781f923f4957cfb7b4e7b927845084a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/request.json",
+      "bytes": 192,
+      "sha256": "76d165ed0b6ca636b08d5c1b8ef20ee0c97caf0c38d6b3c1ff928cbf80f366ac"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/response.json",
+      "bytes": 2594,
+      "sha256": "e2c73284ae4383190997362df889918afa9c55f93fedc2518b806020253307e4"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/source-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-direct-radio-true-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-false/request.json",
+      "bytes": 196,
+      "sha256": "2ff3278580ad133c76e67b009d82ab25016a0c8e018ea66e96eadc593b2bf048"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-false/response.json",
+      "bytes": 378,
+      "sha256": "1aef5355387012419838b110e72fa91c0db73533a5c0358a17b09beffe7eca24"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-true/request.json",
+      "bytes": 195,
+      "sha256": "141adda217e35b10864a3dd5025be2b455b1f9684df80967c5954bd51c2954b9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-true/response.json",
+      "bytes": 368,
+      "sha256": "d98841459cf41737cfe949a6d45b81623d7997730874a8e50a0fa3446883185e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-false-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-false/request.json",
+      "bytes": 195,
+      "sha256": "b89c866b520e02ab62b2eff02392ac92aae73f51b9defddc12e516e57576a2cb"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-false/response.json",
+      "bytes": 368,
+      "sha256": "e7d4d334d4c5b6820657aecf000389f0ae58598720f37a2c27ce768d5b077c5d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-true/request.json",
+      "bytes": 194,
+      "sha256": "fca9b4ba5652e8f2e2ae80b129144d48831e657ddd3f930861b6c132afd8d48f"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-true/response.json",
+      "bytes": 367,
+      "sha256": "c6f85f73032ac56a9ed73ff82b8e54b786d29007a3a8811b33c70b07804ad055"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli01/widget-state-indirect-radio-true-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/derivative-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/out/23d9f11f9066a6984fb28235b136d27299b95f05d1d964ee86ecb62c46ba08c6.edited.pdf",
+      "bytes": 1703,
+      "sha256": "7cd84399c26feedd40ffb9486a7cccc40bcf4c473800e143613060ba37fbe5ec"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/request.json",
+      "bytes": 194,
+      "sha256": "eb10c856aee2f16df084161efc321cd79dbcb625d317d1c74f899d0b13e37980"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/response.json",
+      "bytes": 2596,
+      "sha256": "763b099c28d36345ea7b4f0051c3b9b9129d301d1a192e71d2a2d2fa04bb6048"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/source-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/derivative-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/out/bfbff437596120d53cd63ab70c0b52e69c7be0b349d48df2906a84c318000b55.edited.pdf",
+      "bytes": 1722,
+      "sha256": "413d2fc135bba2089fb1317b3cd72f0baf8ff6f28f99e4e7f14c5c74e0262289"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/request.json",
+      "bytes": 193,
+      "sha256": "3ea1c9f656361713b8deee534028fcf80a12a2b8ebab61359ab6e769792f572a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/response.json",
+      "bytes": 2595,
+      "sha256": "50653bf2755ba177ca92f49d636fc36e8985835020eed4b9d19a35da30456e09"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/source-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-false-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/derivative-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/out/397eb4c305f97c1586a142df41edaa20b58d2252ea19672644dff044f5e36573.edited.pdf",
+      "bytes": 1707,
+      "sha256": "78adbe65f7d02eb0ba08ef01eded6bb7788006fb51badca70682723ff7c23b9a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/request.json",
+      "bytes": 193,
+      "sha256": "34b0fd4cd0761c0b110305552a8a13ff4853594e0ee6413591c07114a35abaa0"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/response.json",
+      "bytes": 2595,
+      "sha256": "6861dc67ae82422c17759924c9fa0266c8b0e80c5bbe387cde6a66a2485b6420"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/source-render.png",
+      "bytes": 7725,
+      "sha256": "a483444f2d03382ecf6c5ffce0341705fa5d8c13b9500966adb5d80bdeca1345"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/derivative-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/out/4a7b1ae9b614281886c9de26666e281bdf1caeed25f71980d56d9c528e053c5f.edited.pdf",
+      "bytes": 1726,
+      "sha256": "d8a6cd4167a67910051e5362ef2bcf466781f923f4957cfb7b4e7b927845084a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/request.json",
+      "bytes": 192,
+      "sha256": "76d165ed0b6ca636b08d5c1b8ef20ee0c97caf0c38d6b3c1ff928cbf80f366ac"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/response.json",
+      "bytes": 2594,
+      "sha256": "c186a4c301db32681352f6320864d309cd0291e8c59cf1371ac8dc4c765218a7"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/source-render.png",
+      "bytes": 7700,
+      "sha256": "622bf07f1660979bffed21e90ffa9899629b90783f8d51c7f23d532c7f73bb7d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-direct-radio-true-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-false/request.json",
+      "bytes": 196,
+      "sha256": "2ff3278580ad133c76e67b009d82ab25016a0c8e018ea66e96eadc593b2bf048"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-false/response.json",
+      "bytes": 378,
+      "sha256": "d326e1ee065b631a361f96e2c700d47c9f1686ca10b3f7623fefe0b57eb4bd98"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-true/request.json",
+      "bytes": 195,
+      "sha256": "141adda217e35b10864a3dd5025be2b455b1f9684df80967c5954bd51c2954b9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-true/response.json",
+      "bytes": 368,
+      "sha256": "180821e3d844e3bdeb043c4f59cf189b7d912d23f7b1b4a955d9888bcbd8b5e7"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-false-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-false/request.json",
+      "bytes": 195,
+      "sha256": "b89c866b520e02ab62b2eff02392ac92aae73f51b9defddc12e516e57576a2cb"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-false/response.json",
+      "bytes": 377,
+      "sha256": "3d9908a079d77ca82ff618b4cbc11febfe046043f8f5b641a7becd831ef74fb3"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-false/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-true/request.json",
+      "bytes": 194,
+      "sha256": "fca9b4ba5652e8f2e2ae80b129144d48831e657ddd3f930861b6c132afd8d48f"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-true/response.json",
+      "bytes": 367,
+      "sha256": "55fa65076178a6244e345df02cb9c460ce8d37bc622df68ba5ceeae8a4667fe2"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-exact-cli02/widget-state-indirect-radio-true-selected-true/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-widget-state-01/tpe",
+      "bytes": 232531456,
+      "sha256": "eb66c5ca65fa94a59249d0e4526c85b897b940db2cb37d550e97321f47db917d"
+    }
+  ],
+  "baseline_manifest": "docs/analysis/pdf-oxide-full-integration/evidence/widget-state-manifest.json",
+  "earlier_shared_fixture_and_standalone_ocr_receipt_source": "a39af2b312a39f36f384031d7f81bb22d22daf59",
+  "first_cli_verifier_failure": "The first verifier incorrectly compared a published PDF with the emptied inline artifact payload. The publisher deliberately consumes inline bytes in --out mode. Original failed script and receipt are preserved; the corrected verifier checks actual file digest/size/name/MIME against the receipt and checks that inline bytes were consumed.",
+  "environment_availability": "Live VM commands succeeded at 2026-10-16T01:15:14.655145+00:00 after the reported 01:14 disconnect callback; no execution blocker observed."
+}

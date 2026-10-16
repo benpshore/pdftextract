@@ -1,0 +1,71 @@
+{
+  "scope": "WIP recovery logs and independent observations; the form28/29 failure remains open, no blanket qualification",
+  "records": [
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-02.log",
+      "file": "full-clippy-02.txt",
+      "sha256": "3a0d003d102b42fe8fe755f245bd9ed865581a2f9b4e9d35d85402a909b0edbe",
+      "bytes": 3890
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-03.log",
+      "file": "full-clippy-03.txt",
+      "sha256": "7b7937bcf6cccf93168b2ebcc19798d65f47f53f1571cb5a729ea2202013d6aa",
+      "bytes": 782
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-04.log",
+      "file": "full-clippy-04.txt",
+      "sha256": "3dd25ad987d6d0df814405bfe7e99a1b61e1efcaaf9f48e767957143860001da",
+      "bytes": 9043
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-05.log",
+      "file": "full-clippy-05.txt",
+      "sha256": "535f2f4aa097e596c5a9cabb79714224d5274e84a17e3b3a47e012cb6e0e0018",
+      "bytes": 2488
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-06.log",
+      "file": "full-clippy-06.txt",
+      "sha256": "b3c1817e668eeb34e44e6fb3b07fab9491e769175f0cbfef6f9375e4eb759c1b",
+      "bytes": 216
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-guards-01.log",
+      "file": "forms-guards-01.txt",
+      "sha256": "76fa20ec8fa85a13bc7355aae0518e0fff2a460e6c8157974c14735177687491",
+      "bytes": 1084
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-guards-02.log",
+      "file": "forms-guards-02.txt",
+      "sha256": "1f3159ed1bc7fc8a8debba6dd531af849d01b8ad9c17f69960c0cdcf83952d3e",
+      "bytes": 3172
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/worker-ocr-repairs-01.log",
+      "file": "worker-ocr-repairs-01.txt",
+      "sha256": "ed252b43b0763debd21db00c83ad907a47d3ab422c60d75028b925eb65cc5980",
+      "bytes": 2754
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-poppler-001/receipt.json",
+      "file": "forms-poppler-001.json",
+      "sha256": "1af001b7aec50041873c4e38eb4df01ab20957e0c187cc2802413678223ad53e",
+      "bytes": 18069
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001/attempt-02.json",
+      "file": "ocr-cli-attempt-02.json",
+      "sha256": "3f12ca6addd1d88de36b81b118e6908fad7d77d66b5ba7fd39127ca52029a316",
+      "bytes": 995
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/render-ocr-visual/synthetic-ocr-cli-001/verification-02.json",
+      "file": "ocr-cli-verification-02.json",
+      "sha256": "d843ae9d023ca3727f592f4a5657eea315bbf8d7cfecb5e1920b1ada674c553d",
+      "bytes": 1690
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+"""Record bounded verification against a clean, immutable native checkpoint."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+def git(*args):
+    return subprocess.check_output(['git', *args], text=True).strip()
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+destination = Path(sys.argv[1]).resolve()
+destination.mkdir(parents=True, exist_ok=False)
+assert not git('status', '--porcelain'), 'exact-source check requires a clean tree'
+receipt = {'source_commit':git('rev-parse','HEAD'), 'source_tree':git('rev-parse','HEAD^{tree}'),
+           'git_status_before':git('status','--porcelain'), 'python':sys.version,
+           'rust':subprocess.check_output(['rustc','--version'], text=True).strip(),
+           'features':'pdf-oxide-rendering,pdf-oxide-barcodes,pdf-oxide-signatures,pdf-oxide-ocr',
+           'scope':'Linux x86_64 combined-source repository checks; no toolkit/platform parity, trained OCR accuracy or broad safety certification',
+           'checks':[]}
+commands = [
+    ('fmt', ['cargo','fmt','--all','--check']),
+    ('clippy', ['cargo','clippy','--locked','--workspace','--all-targets','--features',receipt['features'],'--','-D','warnings']),
+    ('tests', ['cargo','test','--locked','--workspace','--features',receipt['features'],'--no-fail-fast']),
+    ('ruff-format', ['uv','run','--locked','ruff','format','--check']),
+    ('ruff-check', ['uv','run','--locked','ruff','check']),
+    ('pytest', ['uv','run','--locked','pytest']),
+]
+for name, command in commands:
+    log = destination/(name+'.log')
+    bounded = ['prlimit','--as=8589934592','--core=0','--','timeout','-k','10','600',*command]
+    start = time.monotonic()
+    with log.open('wb') as output:
+        run = subprocess.run(bounded,stdout=output,stderr=subprocess.STDOUT,check=False,timeout=620)
+    body = log.read_text(errors='replace')
+    summaries = re.findall(r'test result: (\w+)\. (\d+) passed; (\d+) failed; (\d+) ignored',body)
+    entry = {'name':name,'command':bounded,'exit_code':run.returncode,
+             'elapsed_seconds':round(time.monotonic()-start,3),'log':str(log),'sha256':sha(log),
+             'rust_summary_totals_including_nested_child_probes':{key:sum(int(row[index]) for row in summaries) for key,index in [('passed',1),('failed',2),('ignored',3)]} if summaries else None}
+    receipt['checks'].append(entry)
+    (destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    print(json.dumps(entry),flush=True)
+receipt['git_status_after'] = git('status','--porcelain')
+receipt['source_commit_after'] = git('rev-parse','HEAD')
+receipt['source_tree_after'] = git('rev-parse','HEAD^{tree}')
+receipt['source_unchanged'] = not receipt['git_status_after'] and receipt['source_commit_after']==receipt['source_commit'] and receipt['source_tree_after']==receipt['source_tree']
+binary = Path(os.environ['CARGO_TARGET_DIR'])/'debug'/'tpe'
+if binary.exists():
+    preserved = destination/'tpe'
+    shutil.copy2(binary,preserved)
+    receipt['binary'] = str(preserved)
+    receipt['binary_sha256'] = sha(preserved)
+    receipt['binary_version'] = subprocess.check_output([str(preserved),'--version'],text=True).strip()
+receipt['passed'] = receipt['source_unchanged'] and all(item['exit_code']==0 for item in receipt['checks'])
+(destination/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+print(json.dumps({'passed':receipt['passed'],'source_unchanged':receipt['source_unchanged'],'receipt':str(destination/'receipt.json')}),flush=True)
+sys.exit(0 if receipt['passed'] else 1)

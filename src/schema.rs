@@ -10,7 +10,9 @@ use serde::{Deserialize, Serialize};
 /// (stored in the references table's `extra` column). Bumped to 3 when
 /// `StageTimings::hash_ms` was added (older rows read it as 0). Bumped to 2 when
 /// `Line::role` was added: older ledgers deserialise every line as `body`.
-pub const SCHEMA_VERSION: u32 = 5;
+/// Version 6 adds structured tables and extraction diagnostics. Older runs
+/// retain their original version and gain empty collections on read.
+pub const SCHEMA_VERSION: u32 = 6;
 
 /// Pages per scheduling chunk (the "20-page chunk" of the product target).
 pub const CHUNK_PAGES: u32 = 20;
@@ -126,6 +128,100 @@ pub struct Figure {
     pub caption: Option<String>,
 }
 
+/// A detected table, retaining the backend's row/cell structure and provenance.
+/// Detection is heuristic; this record is evidence, not a completeness claim.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Table {
+    pub source: String,
+    /// A candidate with an error is retained only for evaluation. Consumers
+    /// must not use it as a validated row/cell interpretation.
+    #[serde(default)]
+    pub validation_error: Option<String>,
+    pub bbox: Option<BBox>,
+    pub has_header: bool,
+    pub col_count: u32,
+    pub rows: Vec<TableRow>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TableRow {
+    pub is_header: bool,
+    pub cells: Vec<TableCell>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct TableCell {
+    pub text: String,
+    pub bbox: Option<BBox>,
+    pub is_header: bool,
+    pub colspan: u32,
+    pub rowspan: u32,
+    /// Marked-content IDs supplied by the source parser, when available.
+    pub mcids: Vec<u32>,
+}
+
+/// A backend diagnostic with only the provenance the producer actually gives.
+/// `page` is 1-based; `None` remains document-scoped. A missing region must not
+/// be inferred from the page being processed when a warning was drained.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExtractionDiagnostic {
+    pub source: String,
+    pub stage: String,
+    pub category: String,
+    pub message: String,
+    pub page: Option<u32>,
+    pub spec_section: Option<String>,
+}
+
+/// Opt-in derived views. Original page spans/text/tables are never replaced.
+#[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
+pub struct PageSupplements {
+    pub cleanup: Option<CleanupPreview>,
+    pub html: Option<HtmlPage>,
+    pub images: Vec<MemoryImage>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct CleanupPreview {
+    pub source: String,
+    pub operation: String,
+    pub threshold: Option<f32>,
+    /// Document-wide count returned by the API; not a page-specific count.
+    pub document_regions_marked: u32,
+    pub before_text: String,
+    pub text: String,
+    pub removed_spans: Vec<Span>,
+    pub warnings: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HtmlPage {
+    pub source: String,
+    pub page_id: String,
+    /// Untrusted upstream markup, retained only as evidence; never insert into a DOM.
+    pub raw_html: String,
+    /// Sanitized fragment inside an application-owned wrapper; no URL attributes.
+    pub display_html: String,
+    pub sanitizer: String,
+}
+
+/// Explicit in-memory image output. Bytes are not written to a file or included
+/// in HTML. JSON carries a byte array; callers can omit this opt-in capability.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct MemoryImage {
+    pub source: String,
+    pub paint_order: u32,
+    pub inline: bool,
+    pub bbox: BBox,
+    pub width: u32,
+    pub height: u32,
+    pub mime: String,
+    pub sha256: String,
+    pub source_filters: Vec<String>,
+    pub source_compressed_bytes: u64,
+    pub bytes: Vec<u8>,
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PageText {
     /// 1-based page number as printed by the backend (PDF page index + 1).
@@ -141,6 +237,12 @@ pub struct PageText {
     /// Link annotations on the page (`/Annots` of subtype `Link` with a URI).
     #[serde(default)]
     pub links: Vec<Link>,
+    #[serde(default)]
+    pub tables: Vec<Table>,
+    #[serde(default)]
+    pub diagnostics: Vec<ExtractionDiagnostic>,
+    #[serde(default)]
+    pub supplements: Option<PageSupplements>,
     /// Filled by `reading_order`; empty until then.
     pub lines: Vec<Line>,
     /// Final ordered text for the page; lines joined by `\n`, paragraphs by `\n\n`.
@@ -173,6 +275,9 @@ impl PageText {
             spans: Vec::new(),
             figures: Vec::new(),
             links: Vec::new(),
+            tables: Vec::new(),
+            diagnostics: Vec::new(),
+            supplements: None,
             lines: Vec::new(),
             text: String::new(),
             warnings: Vec::new(),

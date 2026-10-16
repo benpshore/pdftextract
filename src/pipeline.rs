@@ -246,6 +246,14 @@ fn parse_while_hashing(
         let (first, last) = resolve_page_range(job.pages, page_count)?;
         let covers_all_pages = first <= 1 && last >= page_count;
         let total = last - first + 1;
+        if let Some(maximum) = session.max_selected_pages()
+            && total > maximum
+        {
+            return Err(BackendError::Limit(format!(
+                "selected {total} pages exceeds backend limit {maximum}; select a smaller page range"
+            ))
+            .into());
+        }
         observe(Progress::Opened {
             pages: page_count,
             total,
@@ -796,13 +804,36 @@ pub fn run_job_with_observed(
     job: &Job,
     observe: &mut dyn FnMut(Progress),
 ) -> Result<ExtractionResult, PipelineError> {
-    let mut identity = extractor.identity();
-
-    let mut timings = StageTimings::default();
-
     let acquire_start = Instant::now();
-    let read = acquire::read_verified(Path::new(&job.path), job.max_bytes)?;
-    timings.acquire_ms = elapsed_ms(acquire_start);
+    let max_bytes = match (job.max_bytes, extractor.max_input_bytes()) {
+        (Some(job), Some(backend)) => Some(job.min(backend)),
+        (job, backend) => job.or(backend),
+    };
+    let read = acquire::read_verified(Path::new(&job.path), max_bytes)?;
+    run_acquired_with_observed(extractor, job, read, elapsed_ms(acquire_start), observe)
+}
+
+/// Process an already acquired immutable input, allowing a disposable worker to
+/// close its input descriptors and seal path IO before any parser runs.
+pub fn run_acquired_with_observed(
+    extractor: &dyn Extractor,
+    job: &Job,
+    read: acquire::Unhashed,
+    acquire_ms: f64,
+    observe: &mut dyn FnMut(Progress),
+) -> Result<ExtractionResult, PipelineError> {
+    let maximum = match (job.max_bytes, extractor.max_input_bytes()) {
+        (Some(job), Some(backend)) => Some(job.min(backend)),
+        (job, backend) => job.or(backend),
+    };
+    if maximum.is_some_and(|limit| read.bytes.len() as u64 > limit) {
+        return Err(BackendError::Limit("acquired bytes exceed backend/job limit".into()).into());
+    }
+    let mut identity = extractor.identity();
+    let mut timings = StageTimings {
+        acquire_ms,
+        ..StageTimings::default()
+    };
 
     let parse_start = Instant::now();
     let Parsed {

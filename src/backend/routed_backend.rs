@@ -28,6 +28,10 @@ pub struct RoutedBackend {
 }
 
 impl Extractor for RoutedBackend {
+    fn max_input_bytes(&self) -> Option<u64> {
+        PdfOxideBackend.max_input_bytes()
+    }
+
     fn identity(&self) -> BackendIdentity {
         let oxide = PdfOxideBackend.identity();
         let pdfium = self.pdfium.identity();
@@ -101,6 +105,10 @@ fn keep_oxide(
 impl DocumentSession for RoutedSession {
     fn page_count(&self) -> u32 {
         self.oxide.page_count()
+    }
+
+    fn max_selected_pages(&self) -> Option<u32> {
+        self.oxide.max_selected_pages()
     }
 
     fn info(&self) -> BTreeMap<String, String> {

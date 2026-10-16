@@ -1,0 +1,25 @@
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+error[E0277]: the trait bound `Array<u8, UInt<UInt<UInt<UInt<..., ...>, ...>, ...>, ...>>: LowerHex` is not satisfied
+   --> src/cli_worker/oxide.rs:294:24
+    |
+294 |     Ok(format!("{:x}", digest.finalize()))
+    |                 ----   ^^^^^^^^^^^^^^^^^ the trait `LowerHex` is not implemented for `Array<u8, UInt<UInt<UInt<UInt<UInt<..., ...>, ...>, ...>, ...>, ...>>`
+    |                 |
+    |                 required by this formatting parameter
+    |
+    = help: the following other types implement trait `LowerHex`:
+              &T
+              &mut T
+              Access
+              AtFlags
+              CreateFlags
+              DupFlags
+              FallocateFlags
+              FdFlags
+            and 215 others
+    = note: the full name for the type has been written to '/workspace/pdftextract/target/debug/deps/tpe-9b0c3a1c86f7255c.long-type-1077096755699030709.txt'
+    = note: consider using `--verbose` to print the full type name to the console
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `text-processing-engine` (bin "tpe") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

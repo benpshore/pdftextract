@@ -1,0 +1,7 @@
+{
+  "production_commit": "fa9beab88b24c76344039b2f524eb2236c7f67ef",
+  "test_harness_file": "/workspace/tpe-pdf-oxide-evidence-20261015/widget-state-baseline01-tests.rs.txt",
+  "test_harness_sha256": "cdac96b7ba6730976d7ba16fa6049742a90631ceb6cc0744e91f1d4ce2e4cb31",
+  "patch_sha256": "6c4634d383c45d0e5a5f34fa67aea49d04cf53b4daced8a2f435946d98405fb5",
+  "scope": "New synthetic state-dictionary regressions against unchanged production source; pre-fix evidence, not qualification"
+}

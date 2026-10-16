@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "source_commit": "325166027331ee4ca6a053bd81f8ca43b7527de1",
+  "source_tree": "efb93bb23c13964bd28983644caffec9faa97c10",
+  "base_commit": "b3730aa958d947fcbf6ea45b0efef07fcfa20f29",
+  "scope": "Clean native recovery branch only; it does not contain the PR273 backlog integration checkpoint.",
+  "documentation_commit_semantics": "These unchanged receipts describe source 3251660, not the later documentation-only commit that archives them.",
+  "rust_top_level_passed": 1286,
+  "rust_nested_child_probe_passed": 3,
+  "rust_summary_passed": 1289,
+  "rust_failed": 0,
+  "rust_ignored": 10,
+  "additional_containment_harness_scenarios": 5,
+  "landlock_positive_allowlist_executed": false,
+  "landlock_unavailable_reason": "ENOSYS",
+  "python_version": "3.14.7",
+  "python_tooling_tests_passed": 210,
+  "python_binding_parity_established": false,
+  "shared_fixtures": 8,
+  "shared_fixture_pages": 29,
+  "shared_fixture_outcomes": "All returned partial / exit 1 with matching source identities and page coverage; this is not an accuracy pass.",
+  "synthetic_ocr_control_passed": true,
+  "trained_ocr_accuracy_established": false,
+  "fully_qualified_capabilities": 0,
+  "archived_files": [
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/receipt.json",
+      "bytes": 4774,
+      "sha256": "c5b4e23afc67604838fc4845aa4d5daa6ea6ddb435c9522df7a283f43be9144c"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/receipt.json",
+      "bytes": 14565,
+      "sha256": "c65bd2f1fbf03c51b479d41d75ee36d45c6406b5427e19e50be780c5c8397feb"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-fixture-manifest.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-fixtures/manifest.json",
+      "bytes": 5003,
+      "sha256": "98a5d524892d410e3a59974f73f991dd5b7c0d03cb055382a429d0d40c2ace29"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-receipt.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-3251660-01/receipt.json",
+      "bytes": 2822,
+      "sha256": "24fd4066f9b53613a3d0bbb82e20802a32ee62ce6d74d59fe200ef3263e4d0b3"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-response.json",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-3251660-01/response.json",
+      "bytes": 4205,
+      "sha256": "35130f0b9942691c4e243cf76f5962a210a619b44bce0edb88e121e980c0e5ec"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-stderr.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/ocr-exact-3251660-01/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_exact_checkpoint.py",
+      "bytes": 3623,
+      "sha256": "90da7af0398dcb52a25d3fcaed2b2c71f326cf930d44ae44e85bd9390baee936"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/shared-exact-3251660-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/evaluate_shared_fixtures.py",
+      "bytes": 4378,
+      "sha256": "4cefb08338b07f31e552913bcddfbd632c8911bebdd69296c85f2fe825509cc5"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/ocr-exact-3251660-runner.py.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/verify_synthetic_ocr.py",
+      "bytes": 3670,
+      "sha256": "a1d68c1cc1445030227de89480c42de06c29b9f54d3b1a76a1d172cfd4b58418"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-fmt.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/fmt.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-clippy.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/clippy.log",
+      "bytes": 216,
+      "sha256": "40bd2f3d3137a2de2278919653749453d6c515fc39cf23aedfbf104e6ed7224c"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-tests.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/tests.log",
+      "bytes": 109275,
+      "sha256": "3d0facf767f1f3d4414933625a967c1b6679a6738724b3550dac288ab663d1da"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-format.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/ruff-format.log",
+      "bytes": 28,
+      "sha256": "b1589e558de12a68704dd4a8223f2d36ac6a88906f2ee6989c0778b550734808"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-ruff-check.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/ruff-check.log",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "docs/analysis/pdf-oxide-full-integration/evidence/exact-3251660-pytest.txt",
+      "original_workspace_path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/pytest.log",
+      "bytes": 1050,
+      "sha256": "ccf13d67490eb763fde943be2d840aed9e0ad346960c2cae57139a498427fbf5"
+    }
+  ],
+  "retained_workspace_files": [
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/fedreg-3col/response.json",
+      "bytes": 7484528,
+      "sha256": "9fadf8e820d3abd1a9e7e5867e77482dd94fa6f0c67cdb261a9dff9328bb5b55"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/fedreg-3col/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09/response.json",
+      "bytes": 4916,
+      "sha256": "35c9d73a0336d21dc93f5ca2745dba11065e59739767fa6d3701d61d93cd6aa9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-missing_custom_and_substituted_widths_are_partial_without_losing_text-09/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13/response.json",
+      "bytes": 3813,
+      "sha256": "2936ea1886870864cedaec2bf8a90d1af08577a416109f8d073350e9a983be65"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-sparse_simple_cmap_preserves_later_codes_and_multi_character_mappings-13/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17/response.json",
+      "bytes": 3890,
+      "sha256": "fb477d26b91e84831657dae2b6ba2aa4eb8ce499c4001014a436e930dcacc79d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-tex_symbol_font_without_encoding_uses_its_builtin_encoding-17/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21/response.json",
+      "bytes": 3615,
+      "sha256": "537724123e8f18c3448e4ffa774143bd400530e4c3d35f8c6976ef1e608b63a9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/font-backend-lopdf_backend-tests-unknown_glyph_name_is_unmapped_and_warned_without_losing_the_rest-21/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/pwl04/response.json",
+      "bytes": 5302909,
+      "sha256": "f3fe07e063960d7825d4f84798570fe3a4e69f41b1fe70696cd585e936f4f90e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/pwl04/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/semantic-three/response.json",
+      "bytes": 8407,
+      "sha256": "ce505d712c56347b0ed2a2c2a10dc125eb814c532b66541d7cc7efc4f9c6869d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/semantic-three/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/semantic-two/response.json",
+      "bytes": 10768,
+      "sha256": "7c213d0946e2c5226d37af40b5f6c70066c579f343e214ccfe609ff6ab2133f9"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/shared-exact-3251660-01/semantic-two/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/exact-3251660-01/tpe",
+      "bytes": 232502056,
+      "sha256": "664036e97117038f5cff670fc86ec3e4d259ca600940b8d52d65de4eebabf84f"
+    }
+  ],
+  "excluded_from_git": "Compiled binary, fixture PDFs, generated ledgers and large raw shared-fixture outputs stay in the cloud evidence workspace. No database or release artifact is committed."
+}

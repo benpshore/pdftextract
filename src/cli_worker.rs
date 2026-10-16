@@ -23,6 +23,9 @@ use tpe::schema::{ExtractionResult, Job, Status};
 use super::ExtractArgs;
 use super::worker_limits::{self, LimitEvidence};
 
+#[cfg(feature = "pdf-oxide")]
+pub(crate) mod oxide;
+
 const MAX_DIRECTORY_ENTRIES: usize = 10_000;
 const REQUEST_BYTES: u64 = 64 * 1024;
 const DIAGNOSTIC_BYTES: u64 = 16 * 1024;
@@ -31,6 +34,11 @@ const DIAGNOSTIC_BYTES: u64 = 16 * 1024;
 struct ExtractRequest {
     job: Job,
     progress: bool,
+    #[serde(default)]
+    password_file: Option<PathBuf>,
+    #[cfg(feature = "pdf-oxide")]
+    #[serde(default)]
+    supplements: tpe::backend::pdf_oxide_supplements::Options,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -101,6 +109,34 @@ struct Outcome {
 /// Validated and bounded before any document or output is opened.
 fn input_paths(args: &ExtractArgs) -> anyhow::Result<Vec<PathBuf>> {
     check_supervised_backend(&args.backend)?;
+    #[cfg(feature = "pdf-oxide")]
+    ensure!(
+        args.backend == "pdf-oxide"
+            || !(args.pdf_oxide_cleanup_preview.is_some()
+                || args.pdf_oxide_html
+                || args.pdf_oxide_images),
+        "PDF Oxide supplement options require --backend pdf-oxide"
+    );
+    #[cfg(feature = "pdf-oxide")]
+    if oxide_backend(args) {
+        use tpe::backend::pdf_oxide_backend::{
+            MAX_INPUT_BYTES, MAX_OUTPUT_BYTES, MAX_SELECTED_PAGES,
+        };
+        ensure!(
+            args.max_bytes.is_none_or(|n| n <= MAX_INPUT_BYTES),
+            "pdf-oxide input limit cannot exceed 64 MiB"
+        );
+        ensure!(
+            args.max_output_bytes.is_none_or(|n| n <= MAX_OUTPUT_BYTES),
+            "pdf-oxide output limit cannot exceed 64 MiB"
+        );
+        if let Some((first, last)) = args.pages {
+            ensure!(
+                first > 0 && first <= last && last - first < MAX_SELECTED_PAGES,
+                "pdf-oxide selections must contain 1..=256 pages"
+            );
+        }
+    }
     ensure!((1..=4).contains(&args.jobs), "--jobs must be 1..=4");
     ensure!(
         (1..=300_000).contains(&args.timeout_ms),
@@ -175,19 +211,22 @@ fn input_paths(args: &ExtractArgs) -> anyhow::Result<Vec<PathBuf>> {
 
 fn check_supervised_backend(name: &str) -> anyhow::Result<()> {
     ensure!(
+        name != "routed",
+        "routed extraction is unsupported in this checkpoint: lazy PDFium loading has no qualified filesystem containment path; select pdf-oxide explicitly"
+    );
+    ensure!(
         matches!(
             name,
             "lopdf"
                 | "pdfium"
                 | "pdf-oxide"
-                | "routed"
                 | "liteparse-layout"
                 | "docling-text"
                 | "mupdf"
                 | "poppler"
                 | "auto"
         ),
-        "supervised extraction supports native lopdf/pdfium/pdf-oxide/routed/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
+        "supervised extraction supports native lopdf/pdfium/pdf-oxide/mupdf/poppler and liteparse-layout/docling-text only; OCR backends may spawn unsupervised children"
     );
     ensure!(
         name != "auto" || !tpe::backend::available().contains(&"docling"),
@@ -459,10 +498,17 @@ fn extract(
             backend: args.backend.clone(),
             pages: args.pages,
             password: args.password.clone(),
-            max_bytes: args.max_bytes,
+            max_bytes: input_limit(args),
             figures_dir: None,
         },
         progress: args.progress,
+        password_file: args.password_file.clone(),
+        #[cfg(feature = "pdf-oxide")]
+        supplements: tpe::backend::pdf_oxide_supplements::Options {
+            cleanup_preview: args.pdf_oxide_cleanup_preview,
+            html: args.pdf_oxide_html,
+            images: args.pdf_oxide_images,
+        },
     };
     supervise(
         args,
@@ -472,6 +518,32 @@ fn extract(
         cancelled,
         OutputSink::Capture,
     )
+}
+
+#[cfg(feature = "pdf-oxide")]
+fn oxide_backend(args: &ExtractArgs) -> bool {
+    matches!(args.backend.as_str(), "pdf-oxide" | "routed")
+}
+
+fn input_limit(args: &ExtractArgs) -> Option<u64> {
+    #[cfg(feature = "pdf-oxide")]
+    if oxide_backend(args) {
+        return Some(
+            args.max_bytes
+                .unwrap_or(tpe::backend::pdf_oxide_backend::MAX_INPUT_BYTES),
+        );
+    }
+    args.max_bytes
+}
+
+fn output_limit(args: &ExtractArgs) -> u64 {
+    #[cfg(feature = "pdf-oxide")]
+    if oxide_backend(args) {
+        return args
+            .max_output_bytes
+            .unwrap_or(tpe::backend::pdf_oxide_backend::MAX_OUTPUT_BYTES);
+    }
+    args.max_output_bytes.unwrap_or(u64::MAX)
 }
 
 fn supervise(
@@ -485,7 +557,7 @@ fn supervise(
     supervise_limits(
         WorkerBudget {
             memory_growth_mib: args.max_memory_growth_mib,
-            output_bytes: args.max_output_bytes.unwrap_or(u64::MAX),
+            output_bytes: output_limit(args),
         },
         phase,
         request,
@@ -629,7 +701,7 @@ fn deliver(
 ) -> anyhow::Result<()> {
     let request = DeliveryRequest {
         source: source.to_path_buf(),
-        max_bytes: args.max_output_bytes.unwrap_or(u64::MAX),
+        max_bytes: output_limit(args),
     };
     let sink = if stderr {
         OutputSink::Stderr
@@ -686,7 +758,7 @@ fn publish(
         path: path.to_path_buf(),
         pages: args.pages,
         json: args.json,
-        max_output_bytes: args.max_output_bytes.unwrap_or(u64::MAX),
+        max_output_bytes: output_limit(args),
     };
     let capture = supervise(
         args,
@@ -788,8 +860,14 @@ pub(super) fn run_worker(
     super::worker_allocator::enforce();
     let encoded = read_limited(request_path, REQUEST_BYTES, true)?;
     match phase {
+        #[cfg(feature = "pdf-oxide")]
+        "oxide-acquire" => oxide::acquire_worker(&encoded)?,
         #[cfg(feature = "grobid")]
         "grobid" => super::grobid_cli::worker(&encoded)?,
+        #[cfg(feature = "pdf-oxide")]
+        "oxide" => oxide::worker(&encoded, limits)?,
+        #[cfg(feature = "pdf-oxide")]
+        "oxide-publish" => oxide::publish_worker(&encoded, limits)?,
         "extract" => extract_worker(&serde_json::from_slice(&encoded)?, limits)?,
         "publish" => publish_worker(&serde_json::from_slice(&encoded)?, &limits)?,
         "deliver" => deliver_worker(&serde_json::from_slice(&encoded)?)?,
@@ -830,14 +908,29 @@ fn extract_worker(request: &ExtractRequest, limits: LimitEvidence) -> anyhow::Re
         request.job.figures_dir.is_none(),
         "worker may not export figures"
     );
+    let mut job = request.job.clone();
+    if let Some(path) = &request.password_file {
+        ensure!(job.password.is_none(), "choose only one password source");
+        let bytes = tpe::acquire::read_verified_allow_empty(path, 4096)?.bytes;
+        job.password = Some(
+            String::from_utf8(bytes).map_err(|_| anyhow::anyhow!("password file is not UTF-8"))?,
+        );
+    }
     let mut observe = |event| {
         if request.progress {
             super::report_progress(&request.job.path, event);
         }
     };
-    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        pipeline::run_job_observed(&request.job, &mut observe)
-    }))
+    #[allow(unused_mut)]
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(
+        || -> anyhow::Result<ExtractionResult> {
+            #[cfg(feature = "pdf-oxide")]
+            if job.backend == "pdf-oxide" {
+                return sealed_oxide_extraction(request, &job, &mut observe);
+            }
+            Ok(pipeline::run_job_observed(&job, &mut observe)?)
+        },
+    ))
     .map_err(|payload| anyhow::anyhow!("panic: {}", super::panic_message(&*payload)))??;
     serde_json::to_writer(
         io::stdout().lock(),
@@ -848,6 +941,42 @@ fn extract_worker(request: &ExtractRequest, limits: LimitEvidence) -> anyhow::Re
         },
     )?;
     Ok(())
+}
+
+#[cfg(feature = "pdf-oxide")]
+fn sealed_oxide_extraction(
+    request: &ExtractRequest,
+    job: &Job,
+    observe: &mut dyn FnMut(pipeline::Progress),
+) -> anyhow::Result<ExtractionResult> {
+    use tpe::backend::pdf_oxide_backend::{MAX_INPUT_BYTES, PdfOxideBackend};
+    let started = Instant::now();
+    let input = tpe::acquire::read_verified(
+        Path::new(&job.path),
+        Some(
+            job.max_bytes
+                .unwrap_or(MAX_INPUT_BYTES)
+                .min(MAX_INPUT_BYTES),
+        ),
+    )?;
+    let acquired_ms = super::elapsed_ms(started);
+    let supplemental_bytes = request.supplements.enabled().then(|| input.bytes.clone());
+    let confinement =
+        tpe_ffi::oxide_containment::install_sealed_process().map_err(anyhow::Error::msg)?;
+    let mut result =
+        pipeline::run_acquired_with_observed(&PdfOxideBackend, job, input, acquired_ms, observe)?;
+    if let Some(bytes) = supplemental_bytes {
+        let started = Instant::now();
+        tpe::backend::pdf_oxide_supplements::add_supplements(
+            &mut result,
+            &bytes,
+            job.password.as_deref(),
+            &request.supplements,
+        )?;
+        result.timings.parse_ms += super::elapsed_ms(started);
+    }
+    result.warnings.push(format!("worker_containment: {}; filesystem path IO, network and process creation denied; syscall policy synchronized across worker threads. This evidence applies only to the parser worker, not the controller/publisher or extraction accuracy.", confinement.mode));
+    Ok(result)
 }
 
 fn validate_pages(result: &ExtractionResult, range: Option<(u32, u32)>) -> anyhow::Result<()> {
