@@ -64,6 +64,144 @@ fn fixture(actual_text: Option<&str>, damaged: bool) -> Vec<u8> {
     bytes
 }
 
+fn form_fixture(inline_font: bool, inherited: bool, cyclic: bool) -> Vec<u8> {
+    let mut document = Document::with_version("1.7");
+    let tree = document.new_object_id();
+    let font = dictionary! {
+        "Type"=>"Font", "Subtype"=>"Type1", "BaseFont"=>"Helvetica", "Encoding"=>"WinAnsiEncoding",
+    };
+    let font = if inline_font {
+        Object::Dictionary(font)
+    } else {
+        Object::Reference(document.add_object(font))
+    };
+    let resources = document.new_object_id();
+    // Resources precedes the outer Subtype, reproducing the native shallow
+    // scan's confusion between an inline font and its enclosing Form.
+    let form = document.add_object(Stream::new(
+        dictionary! {
+            "Resources"=>dictionary!{"Font"=>dictionary!{"F1"=>font}},
+            "Subtype"=>"Form", "Type"=>"XObject",
+            "BBox"=>vec![0.into(),0.into(),612.into(),792.into()],
+        },
+        b"BT /F1 12 Tf 72 700 Td (FORM-CONTROL) Tj ET".to_vec(),
+    ));
+    document.objects.insert(
+        resources,
+        dictionary! {"XObject"=>dictionary!{"Fm"=>form}}.into(),
+    );
+    if cyclic {
+        document
+            .get_object_mut(form)
+            .unwrap()
+            .as_stream_mut()
+            .unwrap()
+            .dict
+            .set("Resources", resources);
+    }
+    let content = document.add_object(Stream::new(dictionary! {}, b"/Fm Do".to_vec()));
+    let page = document.add_object(dictionary! {
+        "Type"=>"Page", "Parent"=>tree, "Contents"=>content,
+        "MediaBox"=>vec![0.into(),0.into(),612.into(),792.into()],
+    });
+    document.objects.insert(
+        tree,
+        dictionary! {"Type"=>"Pages","Kids"=>vec![page.into()],"Count"=>1}.into(),
+    );
+    document
+        .get_object_mut(if inherited { tree } else { page })
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("Resources", resources);
+    let root = document.add_object(dictionary! {"Type"=>"Catalog","Pages"=>tree});
+    document.trailer.set("Root", root);
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+#[test]
+fn shallow_form_subtype_omission_is_rejected_before_native_projection() {
+    for inherited in [false, true] {
+        let bytes = form_fixture(true, inherited, false);
+        let cold = pdf_oxide::PdfDocument::from_bytes(bytes.clone()).unwrap();
+        assert!(
+            !cold.extract_text(0).unwrap().contains("FORM-CONTROL"),
+            "fixture must preserve the actual upstream omission"
+        );
+        let independent = Document::load_mem(&bytes).unwrap();
+        assert!(
+            independent
+                .objects
+                .values()
+                .any(|object| object.as_stream().is_ok_and(|stream| stream
+                    .content
+                    .windows(b"FORM-CONTROL".len())
+                    .any(|part| part == b"FORM-CONTROL")))
+        );
+        let error = PdfOxideBackend
+            .open(&bytes, None)
+            .unwrap()
+            .page_text(1)
+            .unwrap_err();
+        assert!(
+            matches!(error, BackendError::Unsupported(ref message) if message.contains("omit Form text")),
+            "{error}"
+        );
+        let inputs = [tpe::oxide::Input::new(bytes)];
+        let limits = tpe::oxide::Limits::default();
+        let context = tpe::oxide::Context::new(&inputs, None, None, &limits);
+        for operation in [
+            "query.text",
+            "query.chars",
+            "query.search",
+            "convert.text",
+            "convert.html",
+        ] {
+            let params = if operation == "query.search" {
+                serde_json::json!({"pattern":"FORM-CONTROL"})
+            } else {
+                serde_json::json!({})
+            };
+            assert!(
+                matches!(tpe::oxide::execute(operation, &context, &params), Err(BackendError::Unsupported(ref message)) if message.contains("omit Form text")),
+                "{operation}"
+            );
+        }
+    }
+}
+
+#[test]
+fn form_preflight_preserves_indirect_font_controls_and_rejects_cycles() {
+    for inherited in [false, true] {
+        let bytes = form_fixture(false, inherited, false);
+        let output = PdfOxideBackend
+            .open(&bytes, None)
+            .unwrap()
+            .page_text(1)
+            .unwrap();
+        assert_eq!(
+            output
+                .spans
+                .iter()
+                .map(|span| span.text.as_str())
+                .collect::<String>(),
+            "FORM-CONTROL"
+        );
+    }
+    let bytes = form_fixture(false, false, true);
+    let error = PdfOxideBackend
+        .open(&bytes, None)
+        .unwrap()
+        .page_text(1)
+        .unwrap_err();
+    assert!(
+        matches!(error, BackendError::Malformed(ref message) if message.contains("cyclic Form resource")),
+        "{error}"
+    );
+}
+
 #[test]
 fn immutable_bytes_real_geometry_fonts_and_ranges() {
     let mut bytes = fixture(None, false);

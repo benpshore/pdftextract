@@ -972,9 +972,7 @@ fn annotations(context: &Context<'_>, params: &Value) -> Result<OperationOutput,
     match params {
         AnnotationParams::Inspect => unreachable!(),
         AnnotationParams::Flatten => {
-            for page in context.selected_pages(count)? {
-                editor.flatten_page_annotations(page).map_err(upstream)?;
-            }
+            return flatten_annotations(context, &mut editor, count);
         }
         AnnotationParams::Edit { changes } => {
             bounded_count(
@@ -1058,6 +1056,134 @@ fn annotations(context: &Context<'_>, params: &Value) -> Result<OperationOutput,
         return Ok(output);
     }
     repair_annotations(context, output, repairs)
+}
+
+fn annotation_object(document: &PdfDocument, object: &Object) -> Result<Object, BackendError> {
+    let mut current = object.clone();
+    let mut seen = HashSet::new();
+    for _ in 0..8 {
+        let Object::Reference(reference) = current else {
+            return Ok(current);
+        };
+        if !seen.insert(reference) {
+            return Err(BackendError::Malformed(
+                "cyclic annotation reference".into(),
+            ));
+        }
+        current = document.load_object(reference).map_err(upstream)?;
+    }
+    if matches!(current, Object::Reference(_)) {
+        return Err(BackendError::Limit(
+            "annotation reference depth exceeds 8".into(),
+        ));
+    }
+    Ok(current)
+}
+
+fn raw_annotations(
+    context: &Context<'_>,
+    document: &PdfDocument,
+    page: usize,
+) -> Result<Vec<Object>, BackendError> {
+    let page = document.get_page(page).map_err(upstream)?;
+    let dict = page
+        .as_dict()
+        .ok_or_else(|| BackendError::Malformed("page is not a dictionary".into()))?;
+    let Some(annotations) = dict.get("Annots") else {
+        return Ok(Vec::new());
+    };
+    let annotations = annotation_object(document, annotations)?;
+    let annotations = annotations
+        .as_array()
+        .ok_or_else(|| BackendError::Malformed("page Annots is not an array".into()))?;
+    bounded_count(
+        annotations.len(),
+        context.limits.max_items,
+        "page annotations",
+    )?;
+    annotations
+        .iter()
+        .map(|object| {
+            let object = annotation_object(document, object)?;
+            if !matches!(object, Object::Dictionary(_)) {
+                return Err(BackendError::Malformed(
+                    "annotation is not a dictionary".into(),
+                ));
+            }
+            Ok(object)
+        })
+        .collect()
+}
+
+fn flatten_annotations(
+    context: &Context<'_>,
+    editor: &mut DocumentEditor,
+    count: usize,
+) -> Result<OperationOutput, BackendError> {
+    let selected: HashSet<_> = context.selected_pages(count)?.into_iter().collect();
+    let mut original = Vec::with_capacity(count);
+    let mut total = 0_usize;
+    for page in 0..count {
+        let annotations = raw_annotations(context, editor.source(), page)?;
+        total = total.saturating_add(annotations.len());
+        bounded_count(total, context.limits.max_items, "source annotations")?;
+        if selected.contains(&page) {
+            for object in &annotations {
+                let dict = object.as_dict().ok_or_else(|| {
+                    BackendError::Malformed("annotation is not a dictionary".into())
+                })?;
+                if dict.get("Subtype").and_then(Object::as_name) == Some("Widget") {
+                    return Err(BackendError::Unsupported("widget flattening requires forms.flatten and its AcroForm preservation/appearance checks".into()));
+                }
+                let appearance = dict
+                    .get("AP")
+                    .map(|object| annotation_object(editor.source(), object))
+                    .transpose()?;
+                let normal = appearance
+                    .as_ref()
+                    .and_then(Object::as_dict)
+                    .and_then(|dict| dict.get("N"));
+                let normal = normal
+                    .map(|object| annotation_object(editor.source(), object))
+                    .transpose()?;
+                if !matches!(normal, Some(Object::Stream { .. })) {
+                    return Err(BackendError::Unsupported(format!(
+                        "page {} has an annotation without a normal /AP stream; pinned flattening can retain interactive /Annots or discard unpainted annotation appearance",
+                        page + 1
+                    )));
+                }
+            }
+            editor.flatten_page_annotations(page).map_err(upstream)?;
+        }
+        original.push(annotations);
+    }
+    let mut output = saved(
+        context,
+        editor,
+        json!({"annotations_modified": true, "annotations_flattened": true}),
+    )?;
+    let check = PdfDocument::from_bytes(output.artifacts[0].bytes.clone()).map_err(upstream)?;
+    if check.page_count().map_err(upstream)? != count {
+        return Err(BackendError::Unsupported(
+            "annotation flattening changed the page inventory".into(),
+        ));
+    }
+    for (page, before) in original.iter().enumerate() {
+        let after = raw_annotations(context, &check, page)?;
+        if selected.contains(&page) {
+            if !after.is_empty() {
+                return Err(BackendError::Unsupported("pinned annotation flattening retained requested interactive annotations after serialization".into()));
+            }
+        } else if before != &after {
+            return Err(BackendError::Unsupported(
+                "annotation flattening failed preservation of nonselected annotations".into(),
+            ));
+        }
+    }
+    output.data["annotation_removal_verified"] = json!(true);
+    output.data["nonselected_annotations_preserved"] = json!(true);
+    output.warnings.push("Flattening copies existing normal appearance streams and verifies selected annotation removal; this does not establish complete visual fidelity.".into());
+    Ok(output)
 }
 
 #[derive(Default)]

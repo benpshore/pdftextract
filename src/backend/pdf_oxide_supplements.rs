@@ -184,6 +184,11 @@ pub fn add_supplements(
     if count != result.document.pages as usize {
         return Err(upstream("page count changed"));
     }
+    for page in &result.pages {
+        let index = checked_index(page.page, count)?;
+        super::pdf_oxide_resources::reject_misclassified_forms(&document, index)?;
+        super::pdf_oxide_content::reject_text_operator_cutoff(&document, index)?;
+    }
     let mut diagnostics = budget.warnings(&document, "supplements_open")?;
     // Cleanup owns a distinct parser. Erase masks and caches cannot affect
     // the baseline, HTML conversion, image handles, or another request.
@@ -199,6 +204,11 @@ pub fn add_supplements(
                 ));
             }
             let clean = open(bytes, password)?;
+            // Header/footer discovery also reads unselected pages.
+            for index in 0..count {
+                super::pdf_oxide_resources::reject_misclassified_forms(&clean, index)?;
+                super::pdf_oxide_content::reject_text_operator_cutoff(&clean, index)?;
+            }
             for page in &result.pages {
                 before.insert(
                     page.page,

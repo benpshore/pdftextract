@@ -230,6 +230,8 @@ fn pdf_preflight(
     let mut encoded_bytes = 0_u64;
     let mut compressed_bytes = 0_u64;
     for index in 0..count {
+        crate::backend::pdf_oxide_resources::reject_misclassified_forms(document, index)?;
+        crate::backend::pdf_oxide_content::reject_text_operator_cutoff(document, index)?;
         let page_spans = document.extract_spans(index).map_err(upstream)?;
         spans = spans
             .checked_add(page_spans.len())

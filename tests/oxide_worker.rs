@@ -721,3 +721,74 @@ fn document_links_and_actions_are_data_and_do_not_trigger_loopback_requests() {
     assert_eq!(fs::read(input).unwrap(), original);
     clean_captures(root.path());
 }
+
+#[test]
+fn redaction_verification_targets_are_omitted_from_worker_provenance_and_errors() {
+    let target = "SYNTHETIC_PRIVATE_REDACTION_TARGET";
+    let mut document = Document::load_mem(&tpe::backend::probe_pdf().unwrap()).unwrap();
+    for object in document.objects.values_mut() {
+        if let Ok(dictionary) = object.as_dict_mut()
+            && dictionary.has_type(b"Font")
+        {
+            dictionary.set("Encoding", "WinAnsiEncoding");
+        }
+    }
+    let page = document.get_pages()[&1];
+    let contents = document
+        .get_object(page)
+        .unwrap()
+        .as_dict()
+        .unwrap()
+        .get(b"Contents")
+        .unwrap()
+        .as_reference()
+        .unwrap();
+    document
+        .get_object_mut(contents)
+        .unwrap()
+        .as_stream_mut()
+        .unwrap()
+        .set_content(format!("BT /F1 12 Tf 72 720 Td ({target}) Tj ET").into_bytes());
+    let source = save(document);
+    for removes_target in [true, false] {
+        let root = TempDir::new().unwrap();
+        let input = root.path().join("input.pdf");
+        fs::write(&input, &source).unwrap();
+        let rect = if removes_target {
+            [60, 705, 500, 745]
+        } else {
+            [60, 400, 500, 450]
+        };
+        request(
+            root.path(),
+            &json!({
+                "operation":"security.redact_text", "inputs":[input],
+                "params":{"regions":[{"page":1,"rect":rect}],"verify_absent":[target]},
+            }),
+        );
+        let output = run(command(root.path(), 10_000), root.path());
+        assert!(!String::from_utf8_lossy(&output.stdout).contains(target));
+        assert!(!String::from_utf8_lossy(&output.stderr).contains(target));
+        if removes_target {
+            let receipt = success(&output);
+            assert_eq!(
+                receipt["request_options"]["redaction_targets_omitted"],
+                true
+            );
+            assert_eq!(receipt["request_options"]["redaction_target_count"], 1);
+            assert!(
+                receipt["request_options"]["parameters_without_passwords"]
+                    .get("verify_absent")
+                    .is_none()
+            );
+            let derivative = fs::read(receipt["output_paths"][0].as_str().unwrap()).unwrap();
+            let independent = Document::load_mem(&derivative).unwrap();
+            assert!(!independent.extract_text(&[1]).unwrap().contains(target));
+        } else {
+            assert!(!output.status.success());
+            empty_publication(root.path());
+        }
+        assert_eq!(fs::read(input).unwrap(), source);
+        clean_captures(root.path());
+    }
+}

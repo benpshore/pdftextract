@@ -1,0 +1,341 @@
+{
+  "scope": "Preserved synthetic failing baseline and bounded independent Poppler observations; not current implementation qualification",
+  "source_checkpoint": "37259f841d47d03a62a367c6541b70cb9e5e1c1d plus reproducer changes, before guard",
+  "files": [
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-actualtext-evidence.json",
+      "bytes": 848,
+      "sha256": "2bd0e65f448b0bde818d5fe45262d12d300c66d937cbb5a4847fa031a6d59bfe"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-actualtext-source-decoded.txt",
+      "bytes": 146,
+      "sha256": "f360d3bb418bf4c57f6f8ea8f992f0b371496f385a8cb2f053655480bead3107"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-actualtext-source.pdf",
+      "bytes": 663,
+      "sha256": "39e096e3689f8f8b325c4e62c52e337af12ee3eedafec3ff9f0b094b25d20fcf"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-actualtext-upstream-decoded.txt",
+      "bytes": 260,
+      "sha256": "3733378602a0d205975f21b7094d28626e8fa1eded71e5ccdd8479e258ccc486"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-actualtext-upstream.pdf",
+      "bytes": 877,
+      "sha256": "1f3931b97c62eeedee3f02cd5327b0d1b7e2d11149a4882f7a96dbc40e5cf30c"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-evidence.json",
+      "bytes": 1489,
+      "sha256": "519e327f951c8fc55e8b0c3e8c8e7a5b400160b5bb78d5535ec8fb7020cf4d3f"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-native-admitted.pdf",
+      "bytes": 1109,
+      "sha256": "d9e16a0a81ae232001bd7cb7d615106369b402523b7a20192fdf84dd951b8d80"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-source-decoded.txt",
+      "bytes": 177,
+      "sha256": "675fd9d14884ec291d0d428ece1e5c364abfb4db0a33dd1f679679764a7cc6db"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-source.pdf",
+      "bytes": 694,
+      "sha256": "8b80500f3cbf1e5329a2911854a36aa3bd31b586fc7badbba549f962bb2e5b52"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-upstream-decoded.txt",
+      "bytes": 492,
+      "sha256": "8ecb6675dcd6105cdad96c738fd53f68ac814906bdab9a18f8ef57a889b3b575"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-char-spacing-upstream.pdf",
+      "bytes": 1109,
+      "sha256": "d9e16a0a81ae232001bd7cb7d615106369b402523b7a20192fdf84dd951b8d80"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-evidence.json",
+      "bytes": 1498,
+      "sha256": "4ee71794f611ef79e848f2b856523760fe7d624ef612fc5c03c8bf8c59a7e41c"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-native-admitted.pdf",
+      "bytes": 1170,
+      "sha256": "16230598fc89bcad2901084a44035f4d972e9b52373934d2900444f74f46dc36"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-source-decoded.txt",
+      "bytes": 208,
+      "sha256": "ba17830adbaeba47efca139372818d410b75c2c043535e9b2d951ce1455f39c5"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-source.pdf",
+      "bytes": 725,
+      "sha256": "91ed90d7dfcd8fdc5b027e8d7b562dd57b4ad583a93bb6535717b2a701e832e6"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-upstream-decoded.txt",
+      "bytes": 553,
+      "sha256": "c767dacc47766b8a1299d740318c745a56b65150c706fde1184672170cd93bf4"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-combined-state-upstream.pdf",
+      "bytes": 1170,
+      "sha256": "16230598fc89bcad2901084a44035f4d972e9b52373934d2900444f74f46dc36"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-evidence.json",
+      "bytes": 1485,
+      "sha256": "77cdf797c1d6aaf39c43dcf60c68b40a71789dccca314bd9286958eebc2a5ff7"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-native-admitted.pdf",
+      "bytes": 1113,
+      "sha256": "ecb2ade5af68f4fcb0d6e0f662320862d6477fff8b035e5a7363163c34ba403e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-source-decoded.txt",
+      "bytes": 181,
+      "sha256": "12da35a0a3cefa848aee6052c5c3f6cfb0311b2327f5072e404a2e5ec4f557e3"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-source.pdf",
+      "bytes": 698,
+      "sha256": "e184830fdde31b62b5b6a981515ae1cfe610ceef0aa375980cfebe54b42a906c"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-upstream-decoded.txt",
+      "bytes": 496,
+      "sha256": "fca94a5489e3a75ad13d2ada712aa2e9f8032e07150b72f61e47c3b31bfa5100"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-font-upstream.pdf",
+      "bytes": 1113,
+      "sha256": "ecb2ade5af68f4fcb0d6e0f662320862d6477fff8b035e5a7363163c34ba403e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-evidence.json",
+      "bytes": 1493,
+      "sha256": "0cd75698e286982a2bfc4aed6124df7b26fa2421734cd688e9e0bdee40ab8562"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-native-admitted.pdf",
+      "bytes": 1110,
+      "sha256": "881c3c505765713e444329ea57211278fe67ecfc45747115408152b41a95dba5"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-source-decoded.txt",
+      "bytes": 178,
+      "sha256": "7872398ca782792f221de9312d60a0fbcde265427b4ca451a73000f3b9bc3a57"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-source.pdf",
+      "bytes": 695,
+      "sha256": "762ba1a0f019e3c2f8abb6f922a507f0155a6f4d0c5f4bd3b7e6a8705cdc0125"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-upstream-decoded.txt",
+      "bytes": 493,
+      "sha256": "9f493384ed8df547bb5ef703556e859d63227d181f83719c7261558a03e7b7ad"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-horizontal-scale-upstream.pdf",
+      "bytes": 1110,
+      "sha256": "881c3c505765713e444329ea57211278fe67ecfc45747115408152b41a95dba5"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-evidence.json",
+      "bytes": 1484,
+      "sha256": "7ee1881fb216d7bb9e4b4ef117050d582fdaf0d23b2155d13598e7e6c2fb159b"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-native-admitted.pdf",
+      "bytes": 1112,
+      "sha256": "4068ab5bc01b75e95f0f1c15f929f35fa01541467b5a5a5d7de8c2ec99a1820e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-source-decoded.txt",
+      "bytes": 178,
+      "sha256": "116c503595b2cf0c848c2b07e1c9db597672337c81fcd710ae70e0d793c84ee6"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-source.pdf",
+      "bytes": 695,
+      "sha256": "4c233ed4b853bba297ca39450b3e4c7bfa09862be8f76fceb761097cd01e7dd2"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-upstream-decoded.txt",
+      "bytes": 495,
+      "sha256": "8ef2c5c57b006c5bb33b39a9774ed757bcad250d16e855069dc0852ba996d9bf"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-rise-upstream.pdf",
+      "bytes": 1112,
+      "sha256": "4068ab5bc01b75e95f0f1c15f929f35fa01541467b5a5a5d7de8c2ec99a1820e"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-evidence.json",
+      "bytes": 1486,
+      "sha256": "36bea0e59a99cf7399d57419f37abbe932137087203e57ec042b58c153715613"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-native-admitted.pdf",
+      "bytes": 1103,
+      "sha256": "5ee4a36e5d14eadae754ecf29f3fb821e7923db401807e94e147bd3779ba198a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-source-decoded.txt",
+      "bytes": 178,
+      "sha256": "68deb8ad0f5038125157ec7c4f7eac537f33cd6c32467b71c582cde4027cac3d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-source.pdf",
+      "bytes": 695,
+      "sha256": "a0a0438bbda2c5e42f4d46767ca61298285a2b5f5c8d22142bb8c4ec7a173618"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-upstream-decoded.txt",
+      "bytes": 486,
+      "sha256": "bfc8ea87282db5c113e3026fda4b02a103869ca2072bca998d2200a1f4d1c70a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/fixtures-redaction-baseline01/security-redaction-word-spacing-upstream.pdf",
+      "bytes": 1103,
+      "sha256": "5ee4a36e5d14eadae754ecf29f3fb821e7923db401807e94e147bd3779ba198a"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/receipt.json",
+      "bytes": 33487,
+      "sha256": "faf2f88a5e516af08d17e2c7948ac38b3e73618cf8e59173029f8525987b1cf0"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-actualtext-source.png",
+      "bytes": 7601,
+      "sha256": "36526904fa4a7e9220ef7a32be0a409996b37e1b8d5dfa2bd5482ed3d35936a4"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-actualtext-source.txt",
+      "bytes": 36,
+      "sha256": "8e3fe9fd5661b6efe09dbd6febb986252846c6e2ae706e2c1152304663cb4e92"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-actualtext-upstream.png",
+      "bytes": 5853,
+      "sha256": "7c306f16840329e1ecb5c075bcb970f3f55e62a202288bc7f9f864b3eb9e14d3"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-actualtext-upstream.txt",
+      "bytes": 16,
+      "sha256": "86a1880f7f5499ec04ee1ba645691192acf0a2126056bf258f0c4bcfed9713d1"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-char-spacing-native-admitted.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-char-spacing-source.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-char-spacing-upstream.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-combined-state-native-admitted.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-combined-state-source.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-combined-state-upstream.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-font-native-admitted.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-font-source.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-font-upstream.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-horizontal-scale-native-admitted.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-horizontal-scale-source.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-horizontal-scale-upstream.txt",
+      "bytes": 50,
+      "sha256": "7be2f521562b8d320178ea41d94ec2e6c6a696d524327bb53055af0eb8fe2d84"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-native-admitted.png",
+      "bytes": 5853,
+      "sha256": "7c306f16840329e1ecb5c075bcb970f3f55e62a202288bc7f9f864b3eb9e14d3"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-native-admitted.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-source.png",
+      "bytes": 7601,
+      "sha256": "36526904fa4a7e9220ef7a32be0a409996b37e1b8d5dfa2bd5482ed3d35936a4"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-source.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-upstream.png",
+      "bytes": 5853,
+      "sha256": "7c306f16840329e1ecb5c075bcb970f3f55e62a202288bc7f9f864b3eb9e14d3"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-rise-upstream.txt",
+      "bytes": 36,
+      "sha256": "5f82b597779d220684b4155c230037e7600b548c231f8e7aaff291a92161b081"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-word-spacing-native-admitted.txt",
+      "bytes": 43,
+      "sha256": "510f04483f5ad6d521e8f67b394e9a5b1de88b83c4e9c8723fcd1f6637442589"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-word-spacing-source.txt",
+      "bytes": 36,
+      "sha256": "4072368d3ff43d17e732d343bffe126100e9940b54dcfb36bfd934d46829b01d"
+    },
+    {
+      "path": "/workspace/tpe-pdf-oxide-evidence-20261015/redaction-poppler-001/security-redaction-word-spacing-upstream.txt",
+      "bytes": 43,
+      "sha256": "510f04483f5ad6d521e8f67b394e9a5b1de88b83c4e9c8723fcd1f6637442589"
+    }
+  ]
+}

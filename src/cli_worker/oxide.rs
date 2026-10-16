@@ -246,6 +246,14 @@ pub(super) fn worker(encoded: &[u8], limits: LimitEvidence) -> anyhow::Result<()
         parameters.remove("user_password");
         parameters.remove("owner_password");
     }
+    let redaction_target_count = if request.operation == "security.redact_text" {
+        recorded_parameters
+            .as_object_mut()
+            .and_then(|parameters| parameters.remove("verify_absent"))
+            .and_then(|targets| targets.as_array().map(Vec::len))
+    } else {
+        None
+    };
     let response = OperationResponse {
         version: 1,
         operation: request.operation.clone(),
@@ -279,6 +287,8 @@ pub(super) fn worker(encoded: &[u8], limits: LimitEvidence) -> anyhow::Result<()
             "limits":request.limits,
             "password_supplied":password.is_some(),
             "new_passwords_omitted":request.operation == "security.encrypt",
+            "redaction_targets_omitted":request.operation == "security.redact_text",
+            "redaction_target_count":redaction_target_count,
         }),
     };
     let encoded = serde_json::to_vec(&response)?;

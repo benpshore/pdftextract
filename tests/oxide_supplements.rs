@@ -576,7 +576,8 @@ fn nested_form_and_inline_masks_reject_with_no_publication() {
 fn cyclic_form_resources_fail_in_a_disposable_worker() {
     let bytes = resource_graph_fixture("cycle");
     capture("supplement-cyclic-form-resources.pdf", &bytes);
-    assert_worker_rejects(&bytes, "cyclic image resource graph");
+    // Text admission detects this same cycle before image supplements run.
+    assert_worker_rejects(&bytes, "cyclic Form resource graph");
 }
 
 #[test]

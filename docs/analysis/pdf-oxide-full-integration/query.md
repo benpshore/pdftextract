@@ -9,10 +9,17 @@ input still requires the supervised operation worker: upstream allocations and
 fallbacks happen before post-call result checks.
 
 Every result includes the pinned source name, input SHA-256, operation and
-parameter echo, explicit `completeness: "unverified"`, and structured upstream
+parameter echo, explicit partial status and completeness, and structured upstream
 warnings with category, stage, original page index, one-based page, and spec
 section when supplied. Absence of a warning does not establish completeness.
 Document-scoped warnings keep a null page; a page is never invented for them.
+`operation_page` separately records the one-based page of the native call.
+An observed native `operator_cap_exceeded` produces `completeness: "truncated"`
+and `truncated: true`; otherwise completeness remains `unverified` and truncated
+is null (unknown), never a proof that all content was processed. Query pages and
+conversion baseline/requested projections carry their own outcomes. Search
+separates `match_limit_reached: false` from source truncation; a source cutoff
+cannot be reported as a complete search merely because it returned few matches.
 
 Outer `page` fields are one-based. Nested upstream payload indices and MCID
 scopes retain their original zero-based meaning. Search also preserves its
@@ -64,8 +71,8 @@ separately for provenance; conflicting source-to-projection mappings fail.
 Verified source caveats affect interpretation:
 
 - `extract_chars` can return an empty vector after a content decode failure.
-  The damaged-stream regression therefore requires an unverified result, not
-  an unsupported claim that the page is truly empty.
+  The decoded-content preflight now reports that failure explicitly before the
+  native character path can return an empty successful value.
 - A real pinned native-character defect affects non-ASCII ActualText:
   `extractors/text.rs` decodes the PDF text string, then calls
   `show_text(actual_text.as_bytes())` in character mode, mapping the UTF-8 bytes
@@ -112,6 +119,49 @@ Both complete effective option sets, the source digest, and typed native warning
 provenance are recorded. Raw output is limited to 1 MiB per page and checked
 against aggregate byte/item budgets; overflow is an error. All-page convenience
 converters are not used.
+
+Pinned operator-cutoff behavior was reproduced in the current Rust worker,
+independently of any Python finding. The default cap is 1,000,000 operators.
+The full/streaming-fallback parser emits `operator_cap_exceeded` with null page
+and spec section Annex C. In contrast, the >256 KiB text pre-scan routes through
+`parse_region_text_only`, whose cap branch silently stops. Both synthetic cases
+retained `CAP_PREFIX` but dropped `CAP_TAIL`; the small control retained both.
+The original observations, binary/input/output hashes and bounded commands are
+under `operator-cap-native/before-fix-native.json` in the VM evidence directory.
+
+Before a page text query, search, or conversion, the shared
+`backend/pdf_oxide_content.rs` guard runs the public
+`parse_and_execute_text_only` callback without retaining an operator vector.
+There is no `StreamingContentParser` type in the pinned public source. Native
+`parse_region_text_only` also increments its count for an unmatched restore
+that the bracketed CTM route suppresses from the callback. Therefore the guard
+charges every raw ASCII `Q` byte first, then every emitted non-restore operator.
+It raises an explicit Limit at 1,000,000 conservative text work units or above
+16 MiB decoded stream content. Literal/image `Q` bytes and injected pre-scan
+context can overcharge this ceiling; it is not an exact native count or a native
+diagnostic. The native global cap is never changed. Raw decoded content export
+is separate and does not claim to interpret every operator.
+
+Before those page calls load extraction resources, the shared Form preflight
+rejects the confirmed shallow-subtype omission shape and calls the same stream
+guard on nested decoded Forms. Its walk separately bounds aggregate Form
+decoded bytes, depth and nodes. Both baseline and requested converter parsers
+pass these gates independently. Native path-parser cutoff warnings still
+retain typed provenance and produce partial/truncated outputs. These checks
+cover the identified source paths, not every possible silent native omission.
+
+`operator_cutoffs_fail_before_publication_in_bounded_native_workers` generates
+two-page fallback/pre-scan/CTM-restore cases and runs only the sealed CLI worker with a
+15-second deadline, 512 MiB growth and 1 MiB output cap. It requires explicit
+cutoff failure and no publication. The CTM case mixes fewer than 1,000,000
+suppressed restores with text-state operators, requiring the combined work
+accounting. Its small control keeps both markers
+in baseline and derived text. The path cutoff test retains the first vector
+shape, preserves native page=null with operation_page=2, and requires explicit
+partial/truncated status. Capture names are `operator-cap-control.pdf`,
+`operator-cap-fallback.pdf`, `operator-cap-prescan.pdf`, `operator-cap-ctm-restores.pdf`, and
+`operator-cap-native-paths.pdf`. These additions await the parent's next combined
+build; no Cargo invocation was made by the query agent.
 
 Conversion controls are reading order, heading detection, and inline form
 values; HTML additionally accepts layout preservation, and Markdown accepts bold

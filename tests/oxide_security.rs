@@ -128,6 +128,96 @@ fn contains(bytes: &[u8], text: &str) -> bool {
         .any(|window| window == text.as_bytes())
 }
 
+fn capture_redaction_fixture(name: &str, data: &[u8]) {
+    // Fixed synthetic fixture names only; the owner supplies a disposable
+    // evidence directory when running the bounded regression suite.
+    if let Some(directory) = std::env::var_os("TPE_OXIDE_FIXTURE_CAPTURE") {
+        let directory = std::path::PathBuf::from(directory);
+        std::fs::create_dir_all(&directory).unwrap();
+        std::fs::write(directory.join(name), data).unwrap();
+    }
+}
+
+fn document_with_stream(payload: &[u8]) -> Vec<u8> {
+    let mut pdf = document();
+    let stream_id = pdf
+        .get_dictionary(page(&pdf))
+        .unwrap()
+        .get(b"Contents")
+        .unwrap()
+        .as_reference()
+        .unwrap();
+    pdf.objects.insert(
+        stream_id,
+        Stream::new(dictionary! {}, payload.to_vec()).into(),
+    );
+    bytes(pdf)
+}
+
+fn direct_upstream_redaction(source: &[u8]) -> (Vec<u8>, Value) {
+    let mut editor = pdf_oxide::editor::DocumentEditor::from_bytes(source.to_vec()).unwrap();
+    editor
+        .add_redaction(0, [60.0, 690.0, 250.0, 720.0], None)
+        .unwrap();
+    let report = editor
+        .apply_redactions_destructive(pdf_oxide::redaction::RedactionOptions::default())
+        .unwrap();
+    (editor.save_to_bytes().unwrap(), json!(report))
+}
+
+fn capture_redaction_observation(
+    name: &str,
+    source: &[u8],
+    upstream_bytes: &[u8],
+    upstream_report: &Value,
+    native: &Result<OperationOutput, BackendError>,
+) {
+    let original = Document::load_mem(source).unwrap();
+    let derivative = Document::load_mem(upstream_bytes).unwrap();
+    let original_stream = original
+        .get_page_content_with_limit(page(&original), 65_536)
+        .unwrap();
+    let derivative_stream = derivative
+        .get_page_content_with_limit(page(&derivative), 65_536)
+        .unwrap();
+    capture_redaction_fixture(&format!("security-redaction-{name}-source.pdf"), source);
+    capture_redaction_fixture(
+        &format!("security-redaction-{name}-upstream.pdf"),
+        upstream_bytes,
+    );
+    capture_redaction_fixture(
+        &format!("security-redaction-{name}-source-decoded.txt"),
+        &original_stream,
+    );
+    capture_redaction_fixture(
+        &format!("security-redaction-{name}-upstream-decoded.txt"),
+        &derivative_stream,
+    );
+    let native_report = match native {
+        Ok(output) => {
+            assert_eq!(output.artifacts.len(), 1);
+            capture_redaction_fixture(
+                &format!("security-redaction-{name}-native-admitted.pdf"),
+                &output.artifacts[0].bytes,
+            );
+            json!({"admitted":true,"data":output.data})
+        }
+        Err(error) => json!({"admitted":false,"error":error.to_string()}),
+    };
+    let evidence = json!({
+        "fixture":name,"engine":"pdf_oxide/0.3.78","region":[60,690,250,720],
+        "source_sha256":Input::new(source.to_vec()).sha256,
+        "upstream_sha256":Input::new(upstream_bytes.to_vec()).sha256,
+        "source_extraction":original.extract_text(&[1]).unwrap(),
+        "upstream_extraction":derivative.extract_text(&[1]).unwrap(),
+        "upstream_report":upstream_report,"native":native_report,
+    });
+    capture_redaction_fixture(
+        &format!("security-redaction-{name}-evidence.json"),
+        &serde_json::to_vec_pretty(&evidence).unwrap(),
+    );
+}
+
 #[test]
 fn aes256_roundtrip_authentication_and_independent_decryption() {
     let original = bytes(document());
@@ -337,11 +427,23 @@ fn text_redaction_removes_target_from_decoded_objects_and_preserves_control() {
         "security.redact_text",
         source,
         None,
-        json!({"regions":[{"page":1,"rect":[60,690,250,720]}]}),
+        json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
     )
     .unwrap();
     assert!(output.data["report"]["glyphs_removed"].as_u64().unwrap() > 0);
     assert_eq!(output.data["global_secret_removal_verified"], false);
+    assert_eq!(output.data["verification"]["target_count"], 1);
+    assert_eq!(output.data["verification"]["source_targets_present"], true);
+    assert_eq!(
+        output.data["verification"]["derivative_targets_absent"],
+        true
+    );
+    assert!(
+        !serde_json::to_string(&output.data)
+            .unwrap()
+            .contains(SECRET)
+    );
+    assert!(!output.warnings.join(" ").contains(SECRET));
     let result = Document::load_mem(&output.artifacts[0].bytes).unwrap();
     assert!(!contains(&recoverable_bytes(&result), SECRET));
     let text = result.extract_text(&[1]).unwrap();
@@ -352,26 +454,436 @@ fn text_redaction_removes_target_from_decoded_objects_and_preserves_control() {
 }
 
 #[test]
-fn redaction_outside_target_does_not_claim_global_secret_removal() {
-    let output = run(
+fn inline_actual_text_survives_upstream_but_native_admission_rejects_it() {
+    let payload = format!(
+        "BT /F1 12 Tf 72 700 Td /Span << /ActualText (ALTERNATE-SECRET) >> BDC ({SECRET}) Tj EMC ET\nBT /F1 12 Tf 72 650 Td ({CONTROL}) Tj ET\n"
+    );
+    let source = document_with_stream(payload.as_bytes());
+    let original = Document::load_mem(&source).unwrap();
+    assert!(original.extract_text(&[1]).unwrap().contains(SECRET));
+    assert!(contains(&recoverable_bytes(&original), "ALTERNATE-SECRET"));
+    let (upstream_bytes, upstream_report) = direct_upstream_redaction(&source);
+    let derivative = Document::load_mem(&upstream_bytes).unwrap();
+    assert!(upstream_report["glyphs_removed"].as_u64().unwrap() > 0);
+    assert!(!contains(&recoverable_bytes(&derivative), SECRET));
+    assert!(
+        contains(&recoverable_bytes(&derivative), "ALTERNATE-SECRET"),
+        "pinned ActualText retention changed; requalify instead of weakening this control"
+    );
+    assert!(derivative.extract_text(&[1]).unwrap().contains(CONTROL));
+    let native = run(
+        "security.redact_text",
+        source.clone(),
+        None,
+        json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+    );
+    capture_redaction_observation(
+        "actualtext",
+        &source,
+        &upstream_bytes,
+        &upstream_report,
+        &native,
+    );
+    assert!(
+        matches!(native, Err(BackendError::Unsupported(message)) if message.contains("marked content"))
+    );
+    assert!(contains(&recoverable_bytes(&original), "ALTERNATE-SECRET"));
+}
+
+#[test]
+fn saved_text_state_retention_has_upstream_evidence_and_native_rejection() {
+    let mut admitted = Vec::new();
+    for (name, change, target, surviving) in [
+        ("rise", "120 Ts", SECRET, SECRET),
+        ("font", "/F1 96 Tf", SECRET, "TARGET"),
+        ("char-spacing", "64 Tc", SECRET, "TARGET"),
+        ("word-spacing", "400 Tw", "SYNTHETIC TARGET", "TARGET"),
+        ("horizontal-scale", "800 Tz", SECRET, "TARGET"),
+        (
+            "combined-state",
+            "/F1 48 Tf 64 Tc 400 Tw 800 Tz 120 Ts",
+            SECRET,
+            SECRET,
+        ),
+    ] {
+        // q/Q must restore the font, rise and spacing set before q. The target
+        // is therefore 12-point text at (72,700) inside the requested region.
+        let payload = format!(
+            "BT /F1 12 Tf 0 Tc 0 Tw 100 Tz 0 Ts ET\nq BT {change} ET Q\nBT 1 0 0 1 72 700 Tm ({target}) Tj ET\nBT /F1 12 Tf 0 Tc 0 Tw 100 Tz 0 Ts 1 0 0 1 72 650 Tm ({CONTROL}) Tj ET\n"
+        );
+        let source = document_with_stream(payload.as_bytes());
+        let original = Document::load_mem(&source).unwrap();
+        assert!(original.extract_text(&[1]).unwrap().contains(target));
+        assert!(contains(&recoverable_bytes(&original), target));
+        let (upstream_bytes, upstream_report) = direct_upstream_redaction(&source);
+        let derivative = Document::load_mem(&upstream_bytes).unwrap();
+        assert!(
+            contains(&recoverable_bytes(&derivative), surviving),
+            "pinned {name} decoded-object retention changed; requalify the fixture"
+        );
+        let text = derivative.extract_text(&[1]).unwrap();
+        assert!(
+            text.contains(surviving),
+            "pinned {name} extraction retention changed"
+        );
+        assert!(text.contains(CONTROL));
+        let native = run(
+            "security.redact_text",
+            source.clone(),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[target]}),
+        );
+        capture_redaction_observation(name, &source, &upstream_bytes, &upstream_report, &native);
+        match native {
+            Ok(output) => {
+                let native_pdf = Document::load_mem(&output.artifacts[0].bytes).unwrap();
+                assert!(contains(&recoverable_bytes(&native_pdf), surviving));
+                assert!(native_pdf.extract_text(&[1]).unwrap().contains(surviving));
+                admitted.push(name);
+            }
+            Err(BackendError::Unsupported(message)) => {
+                assert!(message.contains("saved text state"))
+            }
+            Err(error) => panic!("unexpected native rejection for {name}: {error}"),
+        }
+        assert!(original.extract_text(&[1]).unwrap().contains(target));
+    }
+    assert!(
+        admitted.is_empty(),
+        "native redaction admitted saved-state failures: {admitted:?}"
+    );
+}
+
+#[test]
+fn redaction_outside_target_rejects_retained_content_without_artifact() {
+    let source = bytes(document());
+    let error = run(
+        "security.redact_text",
+        source.clone(),
+        None,
+        json!({"regions":[{"page":1,"rect":[400,400,500,500]}],"verify_absent":[SECRET]}),
+    )
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Unsupported(_)));
+    assert!(error.to_string().contains("retained target"));
+    assert!(!error.to_string().contains(SECRET));
+    let original = Document::load_mem(&source).unwrap();
+    assert!(original.extract_text(&[1]).unwrap().contains(SECRET));
+    assert!(original.extract_text(&[1]).unwrap().contains(CONTROL));
+}
+
+#[test]
+fn redaction_requires_bounded_targets_present_in_the_original() {
+    for targets in [
+        None,
+        Some(json!([])),
+        Some(json!([""])),
+        Some(json!(["x".repeat(4097)])),
+        Some(json!(vec![SECRET; 33])),
+    ] {
+        let mut params = json!({"regions":[{"page":1,"rect":[60,690,250,720]}]});
+        if let Some(targets) = targets {
+            params["verify_absent"] = targets;
+        }
+        assert!(run("security.redact_text", bytes(document()), None, params).is_err());
+    }
+    let missing = "SYNTHETIC-MISSING-VERIFICATION-TARGET";
+    let error = run(
         "security.redact_text",
         bytes(document()),
         None,
-        json!({"regions":[{"page":1,"rect":[400,400,500,500]}]}),
+        json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[missing]}),
+    )
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Unsupported(_)));
+    assert!(
+        error
+            .to_string()
+            .contains("original decoded content and extraction")
+    );
+    assert!(!error.to_string().contains(missing));
+}
+
+#[test]
+fn redaction_checks_literal_hex_and_split_text_operands() {
+    for (name, target_operator) in [
+        ("escaped", r"(SYNTHETIC\055TARGET) Tj"),
+        ("hex", "<53594E5448455449432D544152474554> Tj"),
+        ("split", "[(SYNTHETIC-) 0 (TARGET)] TJ"),
+    ] {
+        let source = document_with_stream(format!(
+            "BT /F1 12 Tf 72 700 Td {target_operator} ET\nBT /F1 12 Tf 72 650 Td ({CONTROL}) Tj ET\n"
+        ).as_bytes());
+        let original = Document::load_mem(&source).unwrap();
+        assert!(original.extract_text(&[1]).unwrap().contains(SECRET));
+        let output = run(
+            "security.redact_text",
+            source.clone(),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+        )
+        .unwrap();
+        let derivative = Document::load_mem(&output.artifacts[0].bytes).unwrap();
+        assert!(!contains(&recoverable_bytes(&derivative), SECRET));
+        let extracted = derivative.extract_text(&[1]).unwrap();
+        assert!(!extracted.contains(SECRET));
+        assert!(extracted.contains(CONTROL));
+        capture_redaction_fixture(
+            &format!("security-redaction-verified-{name}-source.pdf"),
+            &source,
+        );
+        capture_redaction_fixture(
+            &format!("security-redaction-verified-{name}-output.pdf"),
+            &output.artifacts[0].bytes,
+        );
+    }
+}
+
+#[test]
+fn redaction_rejects_duplicate_targets_in_metadata_or_other_text() {
+    for representation in ["utf8-info", "utf16-info", "other-text"] {
+        let mut pdf = document();
+        if representation == "other-text" {
+            let content = pdf
+                .get_dictionary(page(&pdf))
+                .unwrap()
+                .get(b"Contents")
+                .unwrap()
+                .as_reference()
+                .unwrap();
+            let stream = pdf
+                .get_object_mut(content)
+                .unwrap()
+                .as_stream_mut()
+                .unwrap();
+            let mut payload = stream.content.clone();
+            payload.extend_from_slice(
+                format!("\nBT /F1 12 Tf 72 600 Td ({SECRET}) Tj ET\n").as_bytes(),
+            );
+            stream.set_content(payload);
+        } else {
+            let metadata = if representation == "utf8-info" {
+                SECRET.as_bytes().to_vec()
+            } else {
+                [
+                    vec![0xfe, 0xff],
+                    SECRET.encode_utf16().flat_map(u16::to_be_bytes).collect(),
+                ]
+                .concat()
+            };
+            let info = pdf.add_object(
+                dictionary! {"Title"=>Object::String(metadata, lopdf::StringFormat::Hexadecimal)},
+            );
+            pdf.trailer.set("Info", info);
+        }
+        let source = bytes(pdf);
+        let (upstream_bytes, report) = direct_upstream_redaction(&source);
+        let native = run(
+            "security.redact_text",
+            source.clone(),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+        );
+        capture_redaction_observation(representation, &source, &upstream_bytes, &report, &native);
+        let error = native.unwrap_err();
+        assert!(
+            matches!(error, BackendError::Unsupported(_)),
+            "{representation}: {error}"
+        );
+        assert!(
+            error.to_string().contains("retained target"),
+            "{representation}: {error}"
+        );
+        assert!(!error.to_string().contains(SECRET));
+        assert!(
+            Document::load_mem(&source)
+                .unwrap()
+                .extract_text(&[1])
+                .unwrap()
+                .contains(SECRET)
+        );
+    }
+}
+
+#[test]
+fn redaction_rejects_uncertain_filters_and_font_encodings() {
+    for filter in [Some("RunLengthDecode"), Some("BogusDecode"), None] {
+        let mut pdf = document();
+        let mut dict = dictionary! {};
+        dict.set(
+            "Filter",
+            filter.map_or_else(|| Object::Integer(7), Object::from),
+        );
+        let stream = pdf.add_object(Stream::new(dict, b"SYNTHETIC-OPAQUE-CONTENT".to_vec()));
+        pdf.get_object_mut(root(&pdf))
+            .unwrap()
+            .as_dict_mut()
+            .unwrap()
+            .set("Metadata", stream);
+        let error = run(
+            "security.redact_text",
+            bytes(pdf),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+        )
+        .unwrap_err();
+        assert!(matches!(error, BackendError::Unsupported(_)));
+        assert!(error.to_string().contains("uncertain decoded content"));
+    }
+    for encoding in [
+        Object::Name(b"BogusEncoding".to_vec()),
+        dictionary! {"BaseEncoding"=>"WinAnsiEncoding"}.into(),
+    ] {
+        let mut pdf = document();
+        for object in pdf.objects.values_mut() {
+            if let Ok(dict) = object.as_dict_mut()
+                && dict.get(b"Type").and_then(Object::as_name).ok() == Some(b"Font")
+            {
+                dict.set("Encoding", encoding.clone());
+            }
+        }
+        let error = run(
+            "security.redact_text",
+            bytes(pdf),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+        )
+        .unwrap_err();
+        assert!(matches!(error, BackendError::Unsupported(_)));
+    }
+}
+
+#[test]
+fn redaction_strict_flate_verification_rejects_checksum_damage() {
+    let mut pdf = document();
+    let mut stream = Stream::new(dictionary! {}, vec![b'A'; 20_000]);
+    stream.compress().unwrap();
+    assert_eq!(stream.filters().unwrap(), vec![b"FlateDecode".as_slice()]);
+    let metadata = pdf.add_object(stream);
+    pdf.get_object_mut(root(&pdf))
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("Metadata", metadata);
+    let valid = bytes(pdf.clone());
+    let output = run(
+        "security.redact_text",
+        valid,
+        None,
+        json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
     )
     .unwrap();
-    assert_eq!(output.data["report"]["glyphs_removed"], 0);
-    let result = Document::load_mem(&output.artifacts[0].bytes).unwrap();
-    assert!(result.extract_text(&[1]).unwrap().contains(SECRET));
-    assert_eq!(output.data["global_secret_removal_verified"], false);
+    assert_eq!(
+        output.data["verification"]["derivative_targets_absent"],
+        true
+    );
+    let stream = pdf
+        .get_object_mut(metadata)
+        .unwrap()
+        .as_stream_mut()
+        .unwrap();
+    *stream.content.last_mut().unwrap() ^= 1;
+    let error = run(
+        "security.redact_text",
+        bytes(pdf),
+        None,
+        json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+    )
+    .unwrap_err();
+    assert!(matches!(error, BackendError::Unsupported(_)));
+    assert!(error.to_string().contains("uncertain decoded content"));
+}
+
+#[test]
+fn redaction_rejects_unsupported_carriers_on_untargeted_pages() {
+    for carrier in [
+        "q BT /F1 96 Tf 120 Ts ET Q",
+        "/Span << /ActualText (SECOND-PAGE-ALTERNATE) >> BDC EMC",
+    ] {
+        let mut pdf = document();
+        let mut second = pdf.get_dictionary(page(&pdf)).unwrap().clone();
+        let tree = second.get(b"Parent").unwrap().as_reference().unwrap();
+        let contents = pdf.add_object(Stream::new(
+            dictionary! {},
+            format!("{carrier}\nBT /F1 12 Tf 0 Ts 72 650 Td ({CONTROL}) Tj ET\n").into_bytes(),
+        ));
+        second.set("Contents", contents);
+        let second = pdf.add_object(second);
+        let first = page(&pdf);
+        let tree = pdf.get_object_mut(tree).unwrap().as_dict_mut().unwrap();
+        tree.set("Kids", vec![first.into(), second.into()]);
+        tree.set("Count", 2);
+        let source = bytes(pdf);
+        let error = run(
+            "security.redact_text",
+            source.clone(),
+            None,
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+        )
+        .unwrap_err();
+        assert!(matches!(error, BackendError::Unsupported(_)));
+        assert!(error.to_string().contains(if carrier.starts_with('q') {
+            "saved text state"
+        } else {
+            "marked content"
+        }));
+        let original = Document::load_mem(&source).unwrap();
+        assert!(original.extract_text(&[1]).unwrap().contains(SECRET));
+        assert!(original.extract_text(&[2]).unwrap().contains(CONTROL));
+    }
+}
+
+#[test]
+fn redaction_rejects_page_tree_entries_that_an_iterator_can_skip() {
+    for corrupt in ["unknown-child", "non-reference", "missing-parent"] {
+        let mut pdf = document();
+        let first = page(&pdf);
+        let tree = pdf
+            .get_dictionary(first)
+            .unwrap()
+            .get(b"Parent")
+            .unwrap()
+            .as_reference()
+            .unwrap();
+        if corrupt == "missing-parent" {
+            pdf.get_object_mut(first)
+                .unwrap()
+                .as_dict_mut()
+                .unwrap()
+                .remove(b"Parent");
+        } else {
+            let extra = if corrupt == "unknown-child" {
+                pdf.add_object(dictionary! {"Type"=>"Ignored","Parent"=>tree})
+                    .into()
+            } else {
+                Object::Integer(7)
+            };
+            pdf.get_object_mut(tree)
+                .unwrap()
+                .as_dict_mut()
+                .unwrap()
+                .set("Kids", vec![first.into(), extra]);
+        }
+        let source = bytes(pdf);
+        assert!(
+            run(
+                "security.redact_text",
+                source,
+                None,
+                json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
+            )
+            .is_err(),
+            "malformed page tree admitted: {corrupt}"
+        );
+    }
 }
 
 #[test]
 fn redaction_rejects_pages_regions_and_unsupported_carriers() {
     for params in [
-        json!({"regions":[]}),
-        json!({"regions":[{"page":0,"rect":[1,2,3,4]}]}),
-        json!({"regions":[{"page":1,"rect":[4,2,3,4]}]}),
+        json!({"regions":[],"verify_absent":[SECRET]}),
+        json!({"regions":[{"page":0,"rect":[1,2,3,4]}],"verify_absent":[SECRET]}),
+        json!({"regions":[{"page":1,"rect":[4,2,3,4]}],"verify_absent":[SECRET]}),
     ] {
         assert!(run("security.redact_text", bytes(document()), None, params).is_err());
     }
@@ -402,7 +914,7 @@ fn redaction_rejects_pages_regions_and_unsupported_carriers() {
                 "security.redact_text",
                 bytes(document),
                 None,
-                json!({"regions":[{"page":1,"rect":[60,690,250,720]}]})
+                json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]})
             ),
             Err(BackendError::Unsupported(_))
         ));
@@ -436,7 +948,7 @@ fn redaction_rejects_damaged_array_stream_instead_of_silently_skipping_it() {
             "security.redact_text",
             bytes(document),
             None,
-            json!({"regions":[{"page":1,"rect":[60,690,250,720]}]})
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]})
         )
         .is_err()
     );
@@ -715,7 +1227,7 @@ fn rewrites_reject_filled_signature_values_but_allow_blank_fields() {
         ("security.sanitize", json!({})),
         (
             "security.redact_text",
-            json!({"regions":[{"page":1,"rect":[60,690,250,720]}]}),
+            json!({"regions":[{"page":1,"rect":[60,690,250,720]}],"verify_absent":[SECRET]}),
         ),
         ("compliance.convert_pdf_a", json!({"standard":"PDF/A-2b"})),
     ] {
@@ -825,7 +1337,7 @@ fn output_item_and_page_limits_fail_without_returning_artifacts() {
         execute(
             "security.redact_text",
             &context,
-            &json!({"regions":[{"page":1,"rect":[60,690,250,720]},{"page":1,"rect":[60,640,250,670]}]})
+            &json!({"regions":[{"page":1,"rect":[60,690,250,720]},{"page":1,"rect":[60,640,250,670]}],"verify_absent":[SECRET]})
         ),
         Err(BackendError::Limit(_))
     ));

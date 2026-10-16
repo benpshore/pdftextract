@@ -22,7 +22,7 @@ and cancellation boundary. These local checks are not a security sandbox.
 | `edit.merge` | Empty parameters; all input PDFs in slot order. Every source must pass encrypted/signed-source policy; all page counts are checked before any import. | `merge_from_bytes` | Saved total count and source text order. A synthetic certification marker in either source position rejects. Page imports do not merge document-level outline, attachment, label, metadata or AcroForm catalogs; warning retained. |
 | `edit.split` | `ranges: [[2,3],[1,1]]`. Aggregate page count is checked before expanding ranges. One range is serialized at a time, with aggregate output budget. | `extract_pages_to_bytes` | Each derivative is reopened; page count and text assertions. No path API or whole-corpus accumulation. |
 | `edit.metadata` | `fields` map: `title`, `author`, `subject`, `keywords`, `creator`, `producer`, `creation_date`, `modification_date`; `null` clears a key. | `EditableDocument::get_info`, `set_info` | ASCII values round-trip. Non-ASCII new or retained Info values are rejected because the pinned Info writer emits raw UTF-8 while its reader expects PDF text strings. XMP is separate and may disagree. |
-| `edit.annotations` | `action: inspect`, `flatten`, or `edit` with ordered `changes`. Changes add, update contents/rectangle/RGB, or remove an index. Rectangle arguments use `[x,y,width,height]`. | `get_annotations`, `get_page`, `AnnotationWrapper` setters, `PdfPage` add/remove, `save_page`, `flatten_page_annotations`; explicit `lopdf 0.45.0` serialized-object repair | CRUD saved/read tests. All changes to one page share a DOM instance. The pinned writer omits original-annotation updates/removals; the adapter reconciles the exact original/addition inventory and changes only the requested dictionary keys and page annotation array. |
+| `edit.annotations` | `action: inspect`, `flatten`, or `edit` with ordered `changes`. Changes add, update contents/rectangle/RGB, or remove an index. Rectangle arguments use `[x,y,width,height]`. Flatten requires a normal appearance stream for every selected annotation; widget flattening uses `forms.flatten`. | `get_annotations`, `get_page`, `AnnotationWrapper` setters, `PdfPage` add/remove, `save_page`, `flatten_page_annotations`; explicit `lopdf 0.45.0` serialized-object repair | CRUD saved/read tests. All changes to one page share a DOM instance. The pinned writer omits original-annotation updates/removals; the adapter reconciles exact original/addition inventory and changes only requested dictionary keys/page arrays. Flatten separately verifies raw selected Annots are empty and nonselected annotation dictionaries are unchanged after saving. |
 | Annotation creation kinds | `text`, `free_text`, `highlight`, `underline`, `strikeout`, `squiggly`, `square`, `circle`, `stamp`, `link_uri`, `link_page`. | Corresponding pinned writer annotation builders | Plain text and HTTP(S)/internal-page links only. No JavaScript, Launch, submit action, remote-file action or rich-media payload. No link is fetched. Other annotation creation variants remain unsupported. |
 | `edit.attachments` | `action: add`, `files: [{input:1,name:"fixture.txt"}]`; or `action: extract`. Additional input slots contain explicit bytes. | `embed_file`, `extract_embedded_files`, bounded object walk and original PDF text-string decoder | Exact byte round-trip, safe generated extraction names, traversal rejection. Original UTF-16/PDFDocEncoding file names are decoded before associating upstream extracted bytes; ambiguous lossy-name projections reject. Source names are metadata, never paths. Existing EmbeddedFiles trees and indirect Names dictionaries reject additions to prevent pinned writer data loss. |
 | `edit.bookmarks` | `action: inspect`; flat records contain object ID, depth, title, raw destination identity, action presence. | Pinned object reader and PDF text-string decoder | Bounded depth/items and reference-cycle detection. Does not call the unbounded `get_outline` sibling walk or invent page numbers for unresolved destinations. Existing-document bookmark modification is not exposed by `DocumentEditor`. |
@@ -69,6 +69,16 @@ path or network resource is accepted by these modules.
   persisting updates/removals of original annotations. The corrective object
   pass rejects any inventory that differs from the expected original entries
   plus surviving additions; it does not guess which unrelated entries to remove.
+- Annotation flattening computes `flatten_data` only when appearance extraction
+  returns a nonempty list (`editor/document_editor.rs:2452`). Only that branch
+  removes the selected page's Annots array (line 2843), so a link-only page with
+  no AP returns a derivative retaining interactive links. The adapter rejects
+  selected annotations without a resolvable normal appearance stream, including
+  appearance-state dictionaries that are not qualified here. It verifies raw
+  selected annotation removal and unchanged nonselected dictionaries after
+  saving instead of relying on an enumeration API that can skip entries. Two
+  synthetic pages preserve native failure evidence and exercise accepted AP
+  flattening with an untouched link lacking AP on the nonselected page.
 - `editor/form_fields.rs:619` and the existing-field serialization path omit
   staged properties other than values. The corrective pass preserves existing
   field dictionaries and writes only typed requested flags, tooltip, rectangle,
@@ -129,6 +139,24 @@ path or network resource is accepted by these modules.
   interactive fill. There is no public verified general in-place appearance
   regeneration path; missing AP and unmarked preexisting stale AP remain visual
   qualification limits, not evidence of correctness.
+- Independent Poppler rendering of the five form fixtures confirms that the
+  same-session control paints `After`, while the separate-session flatten paints
+  stale `Before`. The same-session control loses the original border/background,
+  so it is not a qualified visual fallback. Owner evidence is in
+  `/workspace/tpe-pdf-oxide-evidence-20261015/forms-poppler-001/receipt.json`.
+  The original 28/29 test failure remains in `forms-guards-02.log`: native text
+  extraction omitted the entire control field, rather than inserting spaces.
+  `document.rs:2823` peeks at the first raw `/Subtype` without dictionary depth;
+  the generated Form's inline Helvetica `/Subtype /Type1` appears before its
+  enclosing `/Subtype /Form`, causing `extractors/text.rs:6782` to skip the Form.
+  The regression independently requires the invoked stream's exact `After` text,
+  retains cold native text/character omission, and requires a fresh document with
+  the exact Form parsed before the faulty peek to expose `After` as both text and
+  glyphs. This diagnostic preload is not a production query workaround.
+  The bounded native query receipt is `forms-native-query-001/receipt.json`:
+  executable `git-e36807e-dirty`, SHA256
+  `ffb96561450fbc21cf55d74488cee5096ed13cb78f3c8923cb52b574eacdb66e`;
+  explicitly an unqualified dirty build, not the final combined-source result.
 - The upstream annotation reader can skip malformed or direct annotation
   entries. Mutation reconciliation rejects a serialized inventory mismatch;
   read-only annotation enumeration is not proof that no other entries exist.
@@ -166,6 +194,9 @@ unchanged values/nonvisual property preservation, direct upstream stale fill
 followed by separate flatten, and flattening of an existing complete appearance.
 All earlier success assertions remain intact; the new tests distinguish rejected
 adapter operations from preserved upstream failure evidence.
+Two more tests cover native no-AP annotation flattening that retains interactive
+links, explicit adapter rejection, and selected-link removal with nonselected
+no-AP link and page-content preservation.
 The helper snapshots every input to assert it remains unchanged.
 
 When the owner supplies `TPE_OXIDE_FIXTURE_CAPTURE`, these tests retain bounded
@@ -175,8 +206,11 @@ synthetic PDFs under that directory: `forms-appearance-source.pdf`,
 `forms-appearance-upstream-same-session-control.pdf`, and
 `forms-appearance-control-flattened.pdf`. The source paints `Before` in one
 Helvetica widget, with unrelated page text and catalog sentinels. The direct
-upstream request sets that field to `After`. These are independent-rendering
-inputs, not a claim that a visual comparison has already passed.
+upstream request sets that field to `After`. The owner completed the limited
+Poppler comparison described above; it does not establish general fidelity.
+Additional captures are `forms-appearance-native-observations.json`,
+`annotations-no-ap-source.pdf`, `annotations-no-ap-upstream-flattened.pdf`,
+`annotations-selected-ap-source.pdf`, and `annotations-selected-ap-flattened.pdf`.
 
 The integration owner runs the tests in the shared Cargo target; this module
 does not run concurrent Cargo jobs. `full-tests-03.log` recorded 14/17 passes and
@@ -188,7 +222,11 @@ field requested for removal remained present. The removal repair and additional
 regressions then produced 20/22 passes in `full-tests-06.log`: UTF-16 annotation
 inspection and form geometry verification exposed the two reader defects above.
 Those assertions remain unchanged and both reader corrections are implemented.
-The six additional appearance/preservation tests bring this worker's suite to
-29 tests; owner-run results for the changed source are pending.
+The owner reported strict full-workspace Clippy passing in `full-clippy-06.log`.
+The 29-test form run passed 28, with the control's newly diagnosed native Form
+peek defect causing the remaining failure. All new form guards and original
+success assertions passed. The precise control regression and two annotation
+flattening tests bring this worker's suite to 31 tests; results for the changed
+source are pending the owner's next combined run.
 No commit, PR,
 merge, publication or release is performed by this worker.

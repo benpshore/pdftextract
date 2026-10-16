@@ -55,12 +55,25 @@ fn run(
     sources: Vec<Vec<u8>>,
     params: Value,
 ) -> Result<OperationOutput, BackendError> {
+    run_with_pages(operation, sources, None, params)
+}
+
+#[allow(
+    clippy::needless_pass_by_value,
+    reason = "tests pass owned JSON requests and source snapshots through one consistent helper"
+)]
+fn run_with_pages(
+    operation: &str,
+    sources: Vec<Vec<u8>>,
+    pages: Option<(u32, u32)>,
+    params: Value,
+) -> Result<OperationOutput, BackendError> {
     let inputs = sources.into_iter().map(Input::new).collect::<Vec<_>>();
     let snapshots = inputs.iter().map(|i| i.bytes.clone()).collect::<Vec<_>>();
     let limits = Limits::default();
     let result = execute(
         operation,
-        &Context::new(&inputs, None, None, &limits),
+        &Context::new(&inputs, None, pages, &limits),
         &params,
     );
     for (input, original) in inputs.iter().zip(snapshots) {
@@ -1386,12 +1399,100 @@ fn pinned_fill_then_separate_flatten_bakes_original_appearance_and_adapter_rejec
         "forms-appearance-upstream-same-session-control.pdf",
         &control,
     );
-    let text = PdfDocument::from_bytes(control)
-        .unwrap()
-        .extract_text(0)
+    let parsed = Document::load_mem(&control).unwrap();
+    let page_id = parsed.get_pages()[&1];
+    let resources = parsed
+        .get_dict_in_dict(parsed.get_dictionary(page_id).unwrap(), b"Resources")
         .unwrap();
+    let xobjects = parsed.get_dict_in_dict(resources, b"XObject").unwrap();
+    let page_content = Content::decode(&parsed.get_page_content(page_id)).unwrap();
+    let invocations = page_content
+        .operations
+        .iter()
+        .filter(|operation| operation.operator == "Do")
+        .collect::<Vec<_>>();
+    assert_eq!(invocations.len(), 1);
+    let form_ref = xobjects
+        .get(invocations[0].operands[0].as_name().unwrap())
+        .unwrap()
+        .as_reference()
+        .unwrap();
+    let form = parsed.get_object(form_ref).unwrap().as_stream().unwrap();
+    assert_eq!(
+        form.dict.get(b"Subtype").unwrap().as_name().unwrap(),
+        b"Form"
+    );
+    let bytes = form
+        .decompressed_content()
+        .unwrap_or_else(|_| form.content.clone());
+    let operations = Content::decode(&bytes).unwrap().operations;
+    assert_eq!(
+        operations
+            .iter()
+            .map(|operation| operation.operator.as_str())
+            .collect::<Vec<_>>(),
+        vec!["BT", "rg", "Tf", "Td", "Tj", "ET"],
+        "same-session text generation omits original background and border painting; it is not a visual fallback"
+    );
+    let shown = operations
+        .iter()
+        .filter(|operation| operation.operator == "Tj")
+        .map(|operation| operation.operands[0].as_str().unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(shown, vec![b"After".as_slice()]);
+    let appearance_resources = parsed.get_dict_in_dict(&form.dict, b"Resources").unwrap();
+    let fonts = parsed
+        .get_dict_in_dict(appearance_resources, b"Font")
+        .unwrap();
+    let helvetica = fonts.get(b"Helv").unwrap().as_dict().unwrap();
+    assert_eq!(
+        helvetica.get(b"Subtype").unwrap().as_name().unwrap(),
+        b"Type1"
+    );
+
+    // Preserve the newly observed native omission, not whitespace-normalized
+    // output: is_form_xobject peeks at the FIRST raw /Subtype, incorrectly
+    // reading the inline font's Type1 before the enclosing Form subtype.
+    let native_ref = pdf_oxide::object::ObjectRef::new(form_ref.0, form_ref.1);
+    let cold = PdfDocument::from_bytes(control.clone()).unwrap();
+    let cold_text = cold.extract_text(0).unwrap();
+    let cold_chars = cold
+        .extract_chars(0)
+        .unwrap()
+        .iter()
+        .map(|glyph| glyph.char)
+        .collect::<String>();
+    assert!(!cold.is_form_xobject(native_ref));
+    assert_eq!(cold_text, "Appearance sentinel page 1");
+    assert_eq!(cold_chars, "Appearance sentinel page 1");
+
+    // Loading the exact Form before the flawed peek uses its parsed outer
+    // dictionary. The same bytes then expose After as native text AND glyphs.
+    // This is diagnostic evidence only, never a production parser workaround.
+    let preloaded = PdfDocument::from_bytes(control).unwrap();
+    let object = preloaded.load_object(native_ref).unwrap();
+    assert_eq!(
+        object.as_dict().unwrap().get("Subtype").unwrap().as_name(),
+        Some("Form")
+    );
+    assert!(preloaded.is_form_xobject(native_ref));
+    let text = preloaded.extract_text(0).unwrap();
+    let chars = preloaded
+        .extract_chars(0)
+        .unwrap()
+        .iter()
+        .map(|glyph| glyph.char)
+        .collect::<String>();
+    capture_form_fixture("forms-appearance-native-observations.json", &serde_json::to_vec_pretty(&json!({
+        "upstream":"pdf_oxide 0.3.78", "cold_text":cold_text, "cold_chars":cold_chars,
+        "preloaded_form_text":text, "preloaded_form_chars":chars,
+        "decoded_invoked_text":"After", "same_session_style_preserved":false,
+        "limitation":"native raw Subtype peek can mistake an inline font for the enclosing Form XObject; this diagnostic preload is not a production fallback"
+    })).unwrap());
     assert!(text.contains("After"));
     assert!(!text.contains("Before"));
+    assert!(chars.contains("After"));
+    assert!(!chars.contains("Before"));
 }
 
 #[test]
@@ -1407,5 +1508,112 @@ fn complete_existing_form_appearance_remains_available_for_flattening() {
             .extract_text(0)
             .unwrap()
             .contains("Before")
+    );
+}
+
+fn link_annotation_fixture(first_has_appearance: bool) -> Vec<u8> {
+    let mut document = Document::load_mem(&fixture("Annotation selection sentinel", 2)).unwrap();
+    for (number, page_id) in document.get_pages() {
+        let mut link = dictionary! {
+            "Type"=>"Annot", "Subtype"=>"Link",
+            "Rect"=>vec![72.into(),580.into(),172.into(),600.into()],
+            "Border"=>vec![0.into(),0.into(),1.into()],
+            "A"=>dictionary! {"S"=>"URI", "URI"=>Object::string_literal(format!("https://example.invalid/synthetic-page-{number}"))},
+            "SyntheticAnnotationSentinel"=>Object::string_literal(format!("preserve-page-{number}"))
+        };
+        if number == 1 && first_has_appearance {
+            let appearance = document.add_object(Stream::new(
+                dictionary! {
+                    "Type"=>"XObject", "Subtype"=>"Form", "FormType"=>1,
+                    "BBox"=>vec![0.into(),0.into(),100.into(),20.into()],
+                    "Resources"=>dictionary! {}
+                },
+                b"q 0 0 1 RG 1 w 0.5 0.5 99 19 re S Q\n".to_vec(),
+            ));
+            link.set("AP", dictionary! {"N"=>appearance});
+        }
+        let annotation = document.add_object(link);
+        document
+            .get_dictionary_mut(page_id)
+            .unwrap()
+            .set("Annots", vec![annotation.into()]);
+    }
+    let mut bytes = Vec::new();
+    document.save_to(&mut bytes).unwrap();
+    bytes
+}
+
+#[test]
+fn pinned_link_only_flatten_retains_interactivity_and_adapter_explicitly_rejects() {
+    let source = link_annotation_fixture(false);
+    capture_form_fixture("annotations-no-ap-source.pdf", &source);
+    let original = Document::load_mem(&source).unwrap();
+    let mut editor = DocumentEditor::from_bytes(source.clone()).unwrap();
+    editor.flatten_page_annotations(0).unwrap();
+    let native = editor.save_to_bytes().unwrap();
+    capture_form_fixture("annotations-no-ap-upstream-flattened.pdf", &native);
+    let parsed = Document::load_mem(&native).unwrap();
+    for page in [1, 2] {
+        let before = original
+            .get_page_annotations(original.get_pages()[&page])
+            .unwrap();
+        let after = parsed
+            .get_page_annotations(parsed.get_pages()[&page])
+            .unwrap();
+        assert_eq!(before.len(), 1);
+        assert_eq!(
+            after, before,
+            "pinned no-AP flatten retains selected interactive links; preserve this defect evidence"
+        );
+        let action = after[0].get(b"A").unwrap().as_dict().unwrap();
+        assert_eq!(action.get(b"S").unwrap().as_name().unwrap(), b"URI");
+    }
+    assert!(
+        matches!(run_with_pages("edit.annotations", vec![source], Some((1,1)), json!({"action":"flatten"})),
+        Err(BackendError::Unsupported(reason)) if reason.contains("normal /AP") && reason.contains("interactive /Annots"))
+    );
+}
+
+#[test]
+fn annotation_flatten_removes_selected_links_and_preserves_nonselected_no_ap_links() {
+    let source = link_annotation_fixture(true);
+    capture_form_fixture("annotations-selected-ap-source.pdf", &source);
+    let original = Document::load_mem(&source).unwrap();
+    let output = run_with_pages(
+        "edit.annotations",
+        vec![source.clone()],
+        Some((1, 1)),
+        json!({"action":"flatten"}),
+    )
+    .unwrap();
+    assert_eq!(output.data["annotation_removal_verified"], true);
+    assert_eq!(output.data["nonselected_annotations_preserved"], true);
+    let bytes = one_pdf(output);
+    capture_form_fixture("annotations-selected-ap-flattened.pdf", &bytes);
+    let parsed = Document::load_mem(&bytes).unwrap();
+    let pages = parsed.get_pages();
+    assert!(!parsed.get_dictionary(pages[&1]).unwrap().has(b"Annots"));
+    assert!(parsed.get_page_annotations(pages[&1]).unwrap().is_empty());
+    assert_eq!(
+        parsed.get_page_annotations(pages[&2]).unwrap(),
+        original
+            .get_page_annotations(original.get_pages()[&2])
+            .unwrap()
+    );
+    assert_eq!(parsed.get_page_annotations(pages[&2]).unwrap().len(), 1);
+    let content = Content::decode(&parsed.get_page_content(pages[&1])).unwrap();
+    assert!(
+        content
+            .operations
+            .iter()
+            .any(|operation| operation.operator == "Do")
+    );
+    assert_eq!(
+        parsed.get_page_content(pages[&2]),
+        original.get_page_content(original.get_pages()[&2])
+    );
+    assert!(
+        matches!(run_with_pages("edit.annotations", vec![source], Some((2,2)), json!({"action":"flatten"})),
+        Err(BackendError::Unsupported(reason)) if reason.contains("normal /AP"))
     );
 }

@@ -1,0 +1,97 @@
+{
+  "qualification": "Before-fix native observation using an immutable preserved dirty binary. Current source hashes are contextual snapshots, not an exact attribution of that old binary build.",
+  "binary": {
+    "path": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-native-query-001/tpe-unqualified-dirty",
+    "sha256_before": "ffb96561450fbc21cf55d74488cee5096ed13cb78f3c8923cb52b574eacdb66e",
+    "sha256_after": "ffb96561450fbc21cf55d74488cee5096ed13cb78f3c8923cb52b574eacdb66e",
+    "build_receipt": "/workspace/tpe-pdf-oxide-evidence-20261015/forms-native-query-001/receipt.json",
+    "exact_build_tree": null
+  },
+  "input": {
+    "path": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restores-before-fix.pdf",
+    "sha256": "b1621fb487bdd5cc3eb6fbf5d58060ffc104a3345c2555250f6072476fb90228",
+    "bytes": 3500881,
+    "top_level_ctm": "1 0 0 1 0 0 cm",
+    "suppressed_restore_operators": 500032,
+    "text_state_operators": 500032,
+    "expected_markers": [
+      "CAP_PREFIX",
+      "CAP_TAIL"
+    ]
+  },
+  "generator": {
+    "path": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restore-before-fix.py",
+    "sha256": "91eead4f5e13a3acb274c8c9624c8e7846fabc713320f8b1f9c9a6d473ced511"
+  },
+  "pinned_source": [
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/content/parser.rs",
+      "sha256": "7d0528875e4605aa7406ad6ede33e2a49c9017159aac83d3b199b6d5078ff98f"
+    },
+    {
+      "path": "/workspace/.tools/cargo/registry/src/index.crates.io-1949cf8c6b5b557f/pdf_oxide-0.3.78/src/document.rs",
+      "sha256": "a5d116c2d21f4a6d26d734e64d9a6e27e29d515c2498f55233fabb1cdf2c2c3f"
+    }
+  ],
+  "current_source_context_only": [
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/backend/pdf_oxide_content.rs",
+      "sha256": "d053234169f19feac1fa8368d2fcf8e13e2ae03de76d77eb971ee1b8bda94b90"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/oxide/query.rs",
+      "sha256": "69225e417ac66ab0435a43068da9699217a7c3e2663d4bdb018917b0941e6299"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/src/oxide/convert.rs",
+      "sha256": "871ce1e74eb09b9855737e0d53e21a381fb2ae005324d6008f060dd303d59537"
+    },
+    {
+      "path": "/workspace/pdftextract-pdf-oxide/tests/oxide_convert.rs",
+      "sha256": "7e12359790e4c27314009ce67594855674df260c6f82dca45e73a75db648245e"
+    }
+  ],
+  "command_argv": [
+    "timeout",
+    "-k",
+    "2",
+    "25",
+    "prlimit",
+    "--as=2147483648",
+    "--core=0",
+    "--",
+    "/workspace/tpe-pdf-oxide-evidence-20261015/forms-native-query-001/tpe-unqualified-dirty",
+    "oxide",
+    "--request",
+    "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restores-before-fix.request.json",
+    "--timeout-ms",
+    "15000",
+    "--max-memory-growth-mib",
+    "512",
+    "--max-output-bytes",
+    "1048576"
+  ],
+  "elapsed_seconds": 0.866,
+  "exit_code": 0,
+  "stdout": {
+    "path": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restores-before-fix.stdout.json",
+    "sha256": "9dddadc1d054bedd311b6ebd0feeb504a380fe0ed790dd88791810aff7b17d6a",
+    "bytes": 3916
+  },
+  "stderr": {
+    "path": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restores-before-fix.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "data_status": null,
+  "data_truncated": null,
+  "diagnostics": [],
+  "pages": [
+    {
+      "baseline": "CAP_PREFIX\n",
+      "converted": "CAP_PREFIX\n",
+      "page": 1
+    }
+  ],
+  "error": null
+}

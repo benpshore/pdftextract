@@ -32,6 +32,14 @@ literal. New encryption passwords belong in the private request parameters and
 are omitted from response provenance. No password is needed in argv. Sources
 are read once with size/change checks before the worker seals filesystem access.
 
+`security.redact_text` requires bounded, nonempty `verify_absent` target strings
+in the private request. Values are omitted from receipts and errors; receipts
+retain only their count. The narrow adapter verifies supported decoded content
+and independent extraction before and after rewriting. Retained targets,
+uncertain decoding/encoding, marked content, saved text state and unsupported
+carriers cause an error with no derivative. This is target-specific evidence,
+not a universal secure-erasure claim. See the exact scope in [security](security.md).
+
 The worker installs a Linux syscall policy, resource limits and the existing
 controller-death lease. Its x86_64 implementation has bounded runtime evidence;
 the aarch64 implementation has not been executed in this VM. Failure to install the policy is
@@ -56,6 +64,13 @@ Family references: [query](query.md), [creation/Office](create-office.md),
 [rendering/OCR](render-ocr.md). Additional operations are `convert.text`,
 `convert.markdown` and `convert.html`; table reconstruction is disabled, and HTML
 keeps raw markup separate from an attribute-free sanitized display projection.
+Query/conversion outcomes remain `partial`; `truncated: null` means unknown.
+An observed native operator-cap warning gives `truncated: true` with its original
+category and page value. Separate operation-page context does not restamp a
+missing native page. Known silent text-cap paths are rejected by a conservative
+bounded work preflight. Text-consuming adapters also reject Form subtype shapes
+that can make the pinned reader omit a whole Form; priming its bounded cache is
+not enabled as a correctness repair.
 
 Feature combinations are explicit:
 

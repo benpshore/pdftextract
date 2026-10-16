@@ -20,7 +20,8 @@ and failure observations. Current evidence (full logs under
 
 - Python 3.14.7: 210 tests passed; Ruff format/check passed after the inventory
   formatting fixes. This is repository Python testing, not binding parity.
-- Default Rust: second Clippy pass succeeded; the second test run passed 838,
+- Default Rust: second Clippy pass succeeded; the second test run's summaries
+  total 838 passes, including three nested child-probe invocations (835 top-level),
   with 8 ignored. This does not enable the optional operation families.
 - Native history: the initial focused run passed 82 and failed 8. Run06's full
   suite passed 953, failed 4, and ignored 8. Its remaining defects were Unicode
@@ -71,8 +72,36 @@ tests preserve direct upstream defects and controls. The form target passed
 though bounded independent Poppler rendering/text extraction displays `After`.
 Its generated appearance also loses the original border/background, so it is
 not enabled as a fallback. The failed assertion and all five synthetic outputs
-are preserved; diagnosis of the native observation and exact-source verification
-remain pending.
+are preserved. Diagnosis then proved that the native shallow subtype scan mistakes
+an inline font for the enclosing Form and omits the whole Form. The next test
+revision preserves that cold-reader omission and a parsed-object diagnostic
+control; all 31 editing/form tests passed. Text-consuming adapters reject known
+misclassified/inline-subtype Forms rather than relying on cache preloading.
+
+The next focused admission run passed 114 and failed one. Its sole failure was
+the cyclic-resource test's old image-stage label: the new Form guard rejects the
+same source earlier, before publication. All 27 security, 13 worker, 31 editing/
+form, 11 backend, 10 query and 10 conversion tests passed. The supplement target
+passed 12/13. Two strict Clippy findings in the new query preflight remain to be
+repaired; this is still an unqualified checkpoint, not final-source evidence.
+
+Independent Poppler observations preserve 20 synthetic redaction PDFs, all source
+hashes unchanged. A black overlay hides the rise-case target visually while text
+extraction recovers it. ActualText retention is separately established in decoded
+objects; it is not inferred from Poppler extraction. The adapter now rejects
+q/Q saved text state and requires explicit bounded targets with independent
+pre/post decoded-content and extraction verification. Request receipts/errors
+omit target values. All-page carrier/page-tree verification and a distinct
+missing-widget-appearance flatten guard identified by parent review are being
+completed before the final exact-source run.
+
+Operator-limit baseline evidence now includes fallback, silent prescan and
+saved-state-restore paths. The latter returned success, retained the prefix,
+dropped the tail and emitted no warning. The conservative adapter preflight
+rejects these text-work ceilings without changing native caps or manufacturing
+native warnings. Query/converter completeness remains unverified or explicitly
+truncated; missing native page values remain missing with separate operation-page
+context.
 
 Parent visually confirmed additional upstream/shared-library cases: text crossing
 table borders, overlapping HTML/CSS cells, black masks during text replacement,

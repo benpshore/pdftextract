@@ -1,5 +1,9 @@
 #![cfg(feature = "pdf-oxide")]
 
+use std::io::Read;
+use std::process::{Command, Stdio};
+use std::time::{Duration, Instant};
+
 use lopdf::content::{Content, Operation};
 use lopdf::{Document, Object, Stream, dictionary};
 use serde_json::{Value, json};
@@ -119,6 +123,10 @@ fn unicode_actual_text_and_literal_meaning_survive_all_three_converters() {
             Input::new(bytes.clone()).sha256
         );
         assert_eq!(result.data["completeness"], "unverified");
+        assert_eq!(result.data["status"], "partial");
+        assert_eq!(result.data["truncated"], Value::Null);
+        assert_eq!(page["baseline_outcome"]["status"], "partial");
+        assert_eq!(page["converted_outcome"]["truncated"], Value::Null);
         assert_eq!(result.data["effective_options"]["include_artifacts"], true);
         assert_eq!(
             result.data["effective_options"]["strip_running_headers_footers"],
@@ -548,4 +556,195 @@ fn wrapped_cells_blank_rows_and_short_prose_remain_explicitly_unverified_candida
         }
         assert_eq!(inputs[0].bytes, bytes);
     }
+}
+
+fn operator_fixture(kind: &str, count: usize) -> Vec<u8> {
+    let mut content = Vec::new();
+    if kind == "paths" {
+        content.extend_from_slice(b"72 500 10 10 re S\n");
+        content.extend_from_slice(&b"n\n".repeat(count));
+        content.extend_from_slice(b"172 500 10 10 re S\n");
+    } else {
+        if kind == "fallback" {
+            // The pinned pre-scan deliberately falls back when >50 Do tokens
+            // dominate BT. These empty Form calls are bounded and nonrecursive.
+            content.extend_from_slice(&b"/Blank Do\n".repeat(51));
+        } else if kind == "ctm-restores" {
+            // A top-level cm selects the bracketed CTM pre-scan. Inside its
+            // region, unmatched Q increments native op_count but suppresses
+            // the public callback. Neither half alone reaches the ceiling.
+            content.extend_from_slice(b"1 0 0 1 0 0 cm\n");
+        }
+        content.extend_from_slice(b"BT /F1 12 Tf 72 700 Td (CAP_PREFIX) Tj\n");
+        if kind == "ctm-restores" {
+            let restores = count / 2;
+            content.extend_from_slice(&b"Q\n".repeat(restores));
+            content.extend_from_slice(&b"0 Tc\n".repeat(count - restores));
+        } else {
+            content.extend_from_slice(&b"0 Tc\n".repeat(count));
+        }
+        content.extend_from_slice(b"(CAP_TAIL) Tj ET\n");
+    }
+    let mut doc = document(&[text_content("UNCHANGED CONTROL PAGE", None), content]);
+    let form = doc.add_object(Stream::new(
+        dictionary! {
+            "Type"=>"XObject", "Subtype"=>"Form", "BBox"=>vec![0.into(),0.into(),1.into(),1.into()],
+            "Resources"=>dictionary! {},
+        },
+        Vec::new(),
+    ));
+    let page = *doc.get_pages().get(&2).unwrap();
+    doc.get_object_mut(page)
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .get_mut(b"Resources")
+        .unwrap()
+        .as_dict_mut()
+        .unwrap()
+        .set("XObject", dictionary! {"Blank"=>form});
+    save(doc)
+}
+
+fn bounded_operation(bytes: &[u8], operation: &str, params: &Value) -> (bool, Value) {
+    let root = tempfile::tempdir().unwrap();
+    let input = root.path().join("input.pdf");
+    let request = root.path().join("request.json");
+    let stdout = root.path().join("stdout.json");
+    let stderr = root.path().join("stderr.txt");
+    let out = root.path().join("out");
+    std::fs::write(&input, bytes).unwrap();
+    std::fs::write(&request, serde_json::to_vec(&json!({
+        "operation": operation, "inputs":[input], "pages":[2,2], "params":params,
+        "limits":{"max_input_bytes":8_388_608,"max_output_bytes":1_048_576,"max_pages":1,"max_items":1000,"max_pixels":1_000_000}
+    })).unwrap()).unwrap();
+    let mut child = Command::new(env!("CARGO_BIN_EXE_tpe"))
+        .args(["oxide", "--request"])
+        .arg(&request)
+        .arg("--out")
+        .arg(&out)
+        .args([
+            "--timeout-ms",
+            "15000",
+            "--max-memory-growth-mib",
+            "512",
+            "--max-output-bytes",
+            "1048576",
+        ])
+        .stdin(Stdio::null())
+        .stdout(std::fs::File::create(&stdout).unwrap())
+        .stderr(std::fs::File::create(&stderr).unwrap())
+        .spawn()
+        .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(20);
+    let status = loop {
+        if let Some(status) = child.try_wait().unwrap() {
+            break status;
+        }
+        if Instant::now() >= deadline {
+            let _ = child.kill();
+            let _ = child.wait();
+            panic!("operator-cap worker exceeded its bounded deadline");
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    };
+    let read = |path: &std::path::Path| {
+        let mut bytes = Vec::new();
+        std::fs::File::open(path)
+            .unwrap()
+            .take(1_048_577)
+            .read_to_end(&mut bytes)
+            .unwrap();
+        assert!(bytes.len() <= 1_048_576);
+        bytes
+    };
+    let stdout = read(&stdout);
+    let stderr = read(&stderr);
+    let response = serde_json::from_slice(&stdout).unwrap_or_else(|error| {
+        panic!(
+            "{error}: stdout={} stderr={}",
+            String::from_utf8_lossy(&stdout),
+            String::from_utf8_lossy(&stderr)
+        )
+    });
+    assert_eq!(std::fs::read(input).unwrap(), bytes);
+    if !status.success() {
+        assert!(!out.exists() || std::fs::read_dir(out).unwrap().next().is_none());
+    }
+    (status.success(), response)
+}
+
+#[test]
+fn operator_cutoffs_fail_before_publication_in_bounded_native_workers() {
+    let control = operator_fixture("fallback", 1000);
+    capture("operator-cap-control.pdf", &control);
+    let (success, response) =
+        bounded_operation(&control, "convert.text", &json!({"detect_headings":false}));
+    assert!(success, "{response}");
+    let data = &response["output"]["data"];
+    assert_eq!(data["status"], "partial");
+    assert_eq!(data["truncated"], Value::Null);
+    let page = &data["pages"][0];
+    assert_eq!(page["page"], 2);
+    assert!(
+        page["baseline"]
+            .as_str()
+            .unwrap()
+            .contains("CAP_PREFIXCAP_TAIL")
+    );
+    assert_eq!(page["baseline"], page["converted"]);
+    for kind in ["fallback", "prescan", "ctm-restores"] {
+        let bytes = operator_fixture(kind, 1_000_064);
+        capture(&format!("operator-cap-{kind}.pdf"), &bytes);
+        for (operation, params) in [
+            ("convert.text", json!({"detect_headings":false})),
+            ("convert.html", json!({})),
+            ("query.spans", json!({})),
+            ("query.search", json!({"pattern":"CAP_TAIL"})),
+        ] {
+            let (success, response) = bounded_operation(&bytes, operation, &params);
+            assert!(!success, "{kind}/{operation}: {response}");
+            assert!(
+                response["error"]
+                    .as_str()
+                    .unwrap()
+                    .contains("operator preflight reached 1000000 conservative text work units"),
+                "{response}"
+            );
+            assert!(
+                response.get("output").is_none(),
+                "partial projections must not leak from an errored operation"
+            );
+        }
+    }
+}
+
+#[test]
+fn native_path_operator_diagnostic_retains_null_page_and_marks_truncated_output() {
+    let bytes = operator_fixture("paths", 1_000_064);
+    capture("operator-cap-native-paths.pdf", &bytes);
+    let (success, response) = bounded_operation(&bytes, "query.paths", &json!({"kind":"all"}));
+    assert!(success, "{response}");
+    let data = &response["output"]["data"];
+    assert_eq!(data["status"], "partial");
+    assert_eq!(data["completeness"], "truncated");
+    assert_eq!(data["truncated"], true);
+    let page = &data["result"][0];
+    assert_eq!(page["page"], 2);
+    assert_eq!(page["truncated"], true);
+    assert_eq!(page["value"].as_array().unwrap().len(), 1);
+    assert!(
+        data["diagnostics"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|diagnostic| {
+                diagnostic["category"] == "operator_cap_exceeded"
+                    && diagnostic["page"].is_null()
+                    && diagnostic["upstream_page_index"].is_null()
+                    && diagnostic["operation_page"] == 2
+                    && diagnostic["spec_section"] == "Annex C"
+                    && diagnostic["stage"] == "query.paths"
+            })
+    );
 }

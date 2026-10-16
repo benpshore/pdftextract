@@ -225,7 +225,9 @@ fn actual_text_unicode_and_search_byte_offsets_are_preserved() {
     let start = usize::try_from(found["match"]["start_index"].as_u64().unwrap()).unwrap();
     let end = usize::try_from(found["match"]["end_index"].as_u64().unwrap()).unwrap();
     assert_eq!(&text[start..end], "漢字");
-    assert_eq!(matches.data["result"]["truncated"], false);
+    assert_eq!(matches.data["result"]["truncated"], Value::Null);
+    assert_eq!(matches.data["result"]["match_limit_reached"], false);
+    assert_eq!(matches.data["status"], "partial");
 }
 
 #[test]
@@ -419,9 +421,18 @@ fn blank_and_damaged_pages_are_not_claimed_complete_and_limits_are_errors() {
         .as_dict_mut()
         .unwrap()
         .set("Contents", content);
-    let output = query(&save(damaged), "query.chars", json!({}));
-    assert!(first(&output).as_array().unwrap().is_empty());
-    assert_eq!(output.data["completeness"], "unverified");
+    // The decoded-content preflight now surfaces the failed stream before
+    // native character extraction can turn it into an empty successful value.
+    assert!(matches!(
+        with_limits(
+            &save(damaged),
+            "query.chars",
+            None,
+            &Limits::default(),
+            json!({})
+        ),
+        Err(BackendError::Page { .. })
+    ));
     assert!(
         with_limits(
             b"not a PDF",

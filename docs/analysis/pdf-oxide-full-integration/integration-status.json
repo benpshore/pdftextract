@@ -52,7 +52,11 @@
       "Forms: reject insertion into existing AcroForm, stale field/descendant appearances on value/style changes, and NeedAppearances with retained AP on flatten.",
       "Publication: response and receipt writes remain inside staged artifact rollback; EISDIR failure regression preserves sources/sentinel and removes derivatives.",
       "Supervised routed extraction: reject before input/ledger/output until PDFium lazy loading is qualified.",
-      "OCR thin-crop/tensor accounting and final combined optional-feature build."
+      "OCR thin-crop/tensor accounting and final combined optional-feature build.",
+      "Redaction: explicit bounded verification targets, q/Q and ActualText/carrier admission, strict independent decoded-object/text verification; targets omitted from receipts and errors.",
+      "Annotations: require supported normal appearances before flattening, verify selected annotation removal and nonselected preservation; no-AP links return Unsupported.",
+      "Form text: reject native subtype disagreement and inline nested subtype shapes before projections; bounded nested resources and stream work checks, no cache-preload fallback.",
+      "Operator limits: conservative text work preflight rejects known silent caps; typed native warnings retain page=null and separate operation_page; query/conversion completeness stays unverified or explicitly truncated."
     ]
   },
   "shared_contract": {
@@ -210,7 +214,9 @@
         "src/oxide/mod.rs",
         "src/cli_worker/oxide.rs",
         "src/cli_worker.rs",
-        "src/backend/pdf_oxide_backend.rs"
+        "src/backend/pdf_oxide_backend.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_worker.rs",
@@ -227,7 +233,8 @@
       ],
       "remaining_gaps": [
         "Parser allocation occurs before some retained-result checks; hostile input requires the supervised worker.",
-        "Cipher/malformed-input and zero-page behavior across every operation and binding still needs the parent parity program."
+        "Cipher/malformed-input and zero-page behavior across every operation and binding still needs the parent parity program.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs"
@@ -291,7 +298,9 @@
         "src/oxide/query.rs",
         "src/oxide/edit.rs",
         "src/oxide/forms.rs",
-        "src/oxide/security.rs"
+        "src/oxide/security.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -306,7 +315,8 @@
       ],
       "remaining_gaps": [
         "A general reference-preserving object graph interface is absent.",
-        "Indirect-object decoding can allocate before local bounds, and malformed graph coverage is limited to current synthetic cases."
+        "Indirect-object decoding can allocate before local bounds, and malformed graph coverage is limited to current synthetic cases.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -338,7 +348,9 @@
       "bounded_adapter_coverage": "Queries expose MediaBox/visible-box corners, rotation and one-based source page identities. Page-text raw upstream width/height values remain separate from independently computed extents; the extraction adapter rejects nonfinite boxes.",
       "implementation_paths": [
         "src/oxide/query.rs",
-        "src/backend/pdf_oxide_backend.rs"
+        "src/backend/pdf_oxide_backend.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -352,7 +364,8 @@
       ],
       "remaining_gaps": [
         "All rotation, CropBox, transformed-text and cross-binding coordinate cases remain unqualified.",
-        "Raw upstream geometry and derived span geometry are distinct observations."
+        "Raw upstream geometry and derived span geometry are distinct observations.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -383,7 +396,9 @@
       "implementation_paths": [
         "src/backend/pdf_oxide_backend.rs",
         "src/pipeline.rs",
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/pdf_oxide_backend.rs",
@@ -398,7 +413,8 @@
       ],
       "remaining_gaps": [
         "Pinned native non-ASCII ActualText remaps UTF-8 bytes through fonts and can produce mojibake; original observations remain with diagnostics.",
-        "Character completeness, font-width accuracy and broad glyph/Unicode parity are unverified."
+        "Character completeness, font-width accuracy and broad glyph/Unicode parity are unverified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -429,7 +445,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Granular selected-page outputs preserve settings, source geometry, raw spans/chars and named merging/threshold profiles under aggregate output/item budgets.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -442,7 +460,8 @@
       ],
       "remaining_gaps": [
         "Upstream repair/filter behavior differs by representation; agreement of counts is not correctness.",
-        "Font, bidi, ligature, multi-column and complex-script coverage remains a parent parity obligation."
+        "Font, bidi, ligature, multi-column and complex-script coverage remains a parent parity obligation.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs"
@@ -473,7 +492,9 @@
       "implementation_paths": [
         "src/backend/pdf_oxide_backend.rs",
         "src/pipeline.rs",
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/pdf_oxide_backend.rs",
@@ -489,7 +510,8 @@
       ],
       "remaining_gaps": [
         "Empty output can reflect decode failure, absent text or OCR need; complete text recovery is not established.",
-        "All toolkit and Python 3.14 text behavior still needs common frozen-fixture comparison."
+        "All toolkit and Python 3.14 text behavior still needs common frozen-fixture comparison.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs"
@@ -520,7 +542,9 @@
       "bounded_adapter_coverage": "Explicit query reading-order choices and converter effective options are retained; page_text exposes top-to-bottom, column-aware and structure order, while structured output exposes auto/single/two-column modes.",
       "implementation_paths": [
         "src/oxide/query.rs",
-        "src/oxide/convert.rs"
+        "src/oxide/convert.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -534,7 +558,8 @@
       ],
       "remaining_gaps": [
         "Independent XY-cut, simple, article-thread and tagged-structure strategy parity is not implemented or qualified as a complete set.",
-        "Column/order and meaningful-heading regression fixtures still need independent acceptance."
+        "Column/order and meaningful-heading regression fixtures still need independent acceptance.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/pipeline/reading_order/mod.rs",
@@ -565,7 +590,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Bounded structured output retains regions, roles, columns, sections, source spans and boxes with explicit heuristic uncertainty.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -578,7 +605,8 @@
       ],
       "remaining_gaps": [
         "Eager hierarchical content export is not exposed because nested image payloads lack a bounded provenance contract.",
-        "Role labels and reading order are not independently validated semantic structure."
+        "Role labels and reading order are not independently validated semantic structure.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/structured.rs",
@@ -606,7 +634,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Finite PDF-coordinate rectangles select text/chars/spans/words/lines/paths with explicit intersection/containment/positive-overlap semantics and invalid-combination rejection.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -619,7 +649,8 @@
       ],
       "remaining_gaps": [
         "Region-specific table and image extraction are not exposed by this query; whole-page table/image adapters do not satisfy those region obligations.",
-        "Boundary/rotation and transformed-resource behavior needs a wider frozen fixture set."
+        "Boundary/rotation and transformed-resource behavior needs a wider frozen fixture set.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -695,7 +726,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Selected pages return bounded path/rectangle/vector-line observations and inert content-stream artifacts, preserving upstream operations/style/geometry.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -708,7 +741,8 @@
       ],
       "remaining_gaps": [
         "Path observations are not full rendering evidence; nested transforms, clipping, patterns and unsupported graphics operators need broader checks.",
-        "No arbitrary low-level PDF operator execution or mutation is exposed."
+        "No arbitrary low-level PDF operator execution or mutation is exposed.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -737,7 +771,9 @@
       "bounded_adapter_coverage": "Per-page classification retains heuristic signals and reasons without invoking document-wide error-to-empty fallbacks, AutoExtractor or model acquisition.",
       "implementation_paths": [
         "src/oxide/query.rs",
-        "src/oxide/ocr.rs"
+        "src/oxide/ocr.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -751,7 +787,8 @@
       ],
       "remaining_gaps": [
         "Automatic native/OCR routing is not enabled by these operations.",
-        "Classification accuracy, OCR-required decisions and complete-page recognition remain unqualified."
+        "Classification accuracy, OCR-required decisions and complete-page recognition remain unqualified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/extractors/auto.rs",
@@ -789,7 +826,9 @@
         "src/oxide/query.rs",
         "src/oxide/convert.rs",
         "src/oxide/edit.rs",
-        "src/oxide/render.rs"
+        "src/oxide/render.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/pdf_oxide_backend.rs",
@@ -806,7 +845,8 @@
       ],
       "remaining_gaps": [
         "Some upstream recovery/font-drop paths emit no structured warning; a quiet result is not complete.",
-        "Thread-local and nested-document warning sinks can have incomplete attribution; region provenance is not invented."
+        "Thread-local and nested-document warning sinks can have incomplete attribution; region provenance is not invented.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/extractors/warnings.rs",
@@ -834,7 +874,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Font statistics, bounded embedded font programs/width and Unicode maps, layer names/default-off observations, and shallow/deep ink names have inert query outputs.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -847,7 +889,8 @@
       ],
       "remaining_gaps": [
         "Upstream deduplicates embedded subsets by base name and largest program; a retained program is not necessarily a superset.",
-        "Complete nested resource, shaping/width, tint/visibility and font provenance parity is unverified."
+        "Complete nested resource, shaping/width, tint/visibility and font provenance parity is unverified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -873,7 +916,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Per-page literal/regex search bounds source pattern, compiled/DFA size, nesting and match count; preserves case/whole-word options, Unicode byte offsets and span-level boxes.",
       "implementation_paths": [
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs"
@@ -886,7 +931,8 @@
       ],
       "remaining_gaps": [
         "Boxes cover matching spans, not exact glyph highlights.",
-        "Cross-page search/cache behavior and the full upstream search surface remain unqualified; no hidden whole-document preparation is used."
+        "Cross-page search/cache behavior and the full upstream search surface remain unqualified; no hidden whole-document preparation is used.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/search/text_search.rs",
@@ -916,7 +962,9 @@
       "bounded_adapter_coverage": "Outline queries preflight bounded First/Next and destination graphs, detect cycles, compare parsed node counts, and retain raw destination/action identities without executing them.",
       "implementation_paths": [
         "src/oxide/query.rs",
-        "src/oxide/edit.rs"
+        "src/oxide/edit.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -931,7 +979,8 @@
       ],
       "remaining_gaps": [
         "Unresolved destinations remain unresolved rather than receiving invented page numbers.",
-        "Existing-document bookmark mutation and bookmark-driven split are separate unimplemented obligations."
+        "Existing-document bookmark mutation and bookmark-driven split are separate unimplemented obligations.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/outline.rs"
@@ -989,7 +1038,9 @@
       "bounded_adapter_coverage": "query.document returns producer/creator and document declarations; edit.metadata reads and writes a bounded set of Info fields with explicit ASCII-only preservation guards.",
       "implementation_paths": [
         "src/oxide/query.rs",
-        "src/oxide/edit.rs"
+        "src/oxide/edit.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_query.rs",
@@ -1004,7 +1055,8 @@
       ],
       "remaining_gaps": [
         "There is no complete read-only Info plus bounded XMP query; Info/XMP disagreement and malicious/large XML handling remain open.",
-        "Non-ASCII Info rewriting rejects instead of claiming round-trip support."
+        "Non-ASCII Info rewriting rejects instead of claiming round-trip support.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/editor/document_editor.rs",
@@ -1032,7 +1084,9 @@
       "extraction_or_other_surfaces": [],
       "bounded_adapter_coverage": "Fallible per-page native conversion retains baseline and requested projections, complete effective options and source/page warnings; changed options use a separate parser and each page is capped at 1 MiB.",
       "implementation_paths": [
-        "src/oxide/convert.rs"
+        "src/oxide/convert.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_convert.rs"
@@ -1045,7 +1099,8 @@
       ],
       "remaining_gaps": [
         "Table reconstruction is explicitly unsupported, while images/formula/file outputs and automatic cleanup are disabled.",
-        "Baseline is another native projection, not original PDF strings; Markdown fidelity and reading order are unverified."
+        "Baseline is another native projection, not original PDF strings; Markdown fidelity and reading order are unverified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -1075,7 +1130,9 @@
       "bounded_adapter_coverage": "Raw/baseline HTML remains separate from an attribute-free structural-tag display projection with escaped source-hash/page wrappers; no resource paths or external fetches are enabled.",
       "implementation_paths": [
         "src/oxide/convert.rs",
-        "src/backend/pdf_oxide_supplements.rs"
+        "src/backend/pdf_oxide_supplements.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_convert.rs",
@@ -1089,7 +1146,8 @@
       ],
       "remaining_gaps": [
         "Sanitized display HTML omits image/style/link-resource semantics and is not a browser-faithful reconstruction.",
-        "Raw markup stays untrusted, and native table reconstruction is blocked."
+        "Raw markup stays untrusted, and native table reconstruction is blocked.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/document.rs",
@@ -2255,7 +2313,9 @@
       "bounded_adapter_coverage": "Bounded name-tree traversal and original UF/F string decoding identify immutable attachment bytes; generated artifact names cannot use source names as paths. Additions reject existing EmbeddedFiles trees or indirect Names dictionaries.",
       "implementation_paths": [
         "src/oxide/edit.rs",
-        "src/oxide/query.rs"
+        "src/oxide/query.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_edit_forms.rs",
@@ -2269,7 +2329,8 @@
       ],
       "remaining_gaps": [
         "Upstream may omit malformed streams; even empty extraction is uncertain.",
-        "Merging into existing attachment/name trees and broad Unicode/duplicate-name interoperability remain unsupported or unqualified."
+        "Merging into existing attachment/name trees and broad Unicode/duplicate-name interoperability remain unsupported or unqualified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/writer/embedded_files.rs",
@@ -2300,7 +2361,9 @@
       "implementation_paths": [
         "src/oxide/security.rs",
         "src/oxide/query.rs",
-        "src/cli_worker/oxide.rs"
+        "src/cli_worker/oxide.rs",
+        "src/backend/pdf_oxide_content.rs",
+        "src/backend/pdf_oxide_resources.rs"
       ],
       "relevant_test_target_paths": [
         "tests/oxide_security.rs",
@@ -2315,7 +2378,8 @@
       ],
       "remaining_gaps": [
         "PDF permission flags are observations, not application authorization enforcement.",
-        "Cipher/platform/binding parity and all permission semantics remain unqualified."
+        "Cipher/platform/binding parity and all permission semantics remain unqualified.",
+        "Known Form subtype omission and silent text-cap paths are conservatively gated; projections remain partial/unverified and an observed native cap marks truncation. These guards do not establish general completeness."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/encryption.rs",
@@ -2382,7 +2446,7 @@
         "edit.whiteout"
       ],
       "extraction_or_other_surfaces": [],
-      "bounded_adapter_coverage": "redact_text performs a bounded explicit rectangle text rewrite after rejecting unsupported carriers and reports actual glyph counts with global_secret_removal_verified=false. whiteout is a separate visual overlay requiring acknowledgement that text remains.",
+      "bounded_adapter_coverage": "Bounded region text rewrite requires explicit verification targets that exist before and are absent after in independently decoded objects/streams, text operands and extraction. Saved q/Q text state, ActualText/marked content, unsupported carriers or uncertain decoding/encoding reject without derivatives. Target values are omitted from response provenance; global_secret_removal_verified remains false. Whiteout remains a separate acknowledged visual overlay.",
       "implementation_paths": [
         "src/oxide/security.rs",
         "src/oxide/edit.rs"
@@ -2399,7 +2463,8 @@
       ],
       "remaining_gaps": [
         "XObjects, inline images, marked/alternate text, tagged content, annotations and unknown operators reject; image/path/Type3/OCG destructive coverage is missing.",
-        "Duplicate secrets in metadata, fonts or other locations are not globally removed or verified."
+        "Duplicate secrets in metadata, fonts or other locations are not globally removed or verified.",
+        "The supported explicit-target verifier is narrow; no universal erasure, all-font/encoding, image, forensic or cross-viewer security claim. Final exact-source regression evidence remains pending."
       ],
       "source_inventory_refs": [
         "pdf_oxide:src/redaction.rs",

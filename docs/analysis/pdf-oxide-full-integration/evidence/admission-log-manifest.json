@@ -1,0 +1,89 @@
+{
+  "scope": "Intermediate unqualified source; exact final-source verification pending",
+  "files": [
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/admission-build-01.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/admission-build-01.txt",
+      "bytes": 597,
+      "sha256": "9e368df3b43c59b9511dee372dd8c4079d82078090ec4e5bc57b71e3a502c628"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/admission-tests-01.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/admission-tests-01.txt",
+      "bytes": 11376,
+      "sha256": "2026d6e1740523a12b3ba3a47733b2596a19cc9f31994dd86555207923604fff"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/full-clippy-07.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/full-clippy-07.txt",
+      "bytes": 1577,
+      "sha256": "ab0a43042afe787d2b46f5fbb265ff5e87c58914305f55dfac343c754de2fb07"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/ruff-format-04.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-format-04.txt",
+      "bytes": 25,
+      "sha256": "7b9e1c2572d63a1cc33b9b4106c486be5e6437816bd2309e82a1028f9e21b15a"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/ruff-check-04.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/ruff-check-04.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/pytest-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/pytest-03.txt",
+      "bytes": 1050,
+      "sha256": "3fff5864e8feef4ead7d277559138452374f14a51f21d658ff86b2960481082c"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/uv-audit-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/uv-audit-03.txt",
+      "bytes": 208,
+      "sha256": "94a58fedf95fc23d72c7cc8b3e4b5e3bdbc9f6cfd6182d9e489999dcc0736f13"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/swift-build-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/swift-build-03.txt",
+      "bytes": 44,
+      "sha256": "13f1a1fceab70fd209580101fcf59131681d84b6d260a18ce5f5ed58939e0ec5"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/swift-test-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/swift-test-03.txt",
+      "bytes": 44,
+      "sha256": "8aa3b07c6a506c458d93b0a1bb2c0b5db12b31e7d74abf5c562929ce026a8033"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/cmake-configure-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-configure-03.txt",
+      "bytes": 44,
+      "sha256": "c09430c7ffd06e2937e5ce4760c8bd29a52747fc779c2b74f89772476c88a32a"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/cmake-build-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/cmake-build-03.txt",
+      "bytes": 44,
+      "sha256": "722f616625d12bc486183deb7c69ba3d004f2defc1c98c83b300e5a23cca0b95"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/ctest-03.log",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/ctest-03.txt",
+      "bytes": 45,
+      "sha256": "7d39926deae37e1e207df5f19712c153b93577fe2d14c433cd5463156a96052f"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/before-fix-native.json",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-before-fix-native.json",
+      "bytes": 9134,
+      "sha256": "14ea2914749d90bfc5a22b2ab1e51aabfe0708ad948b34284bd09a243bd9d82e"
+    },
+    {
+      "source": "/workspace/tpe-pdf-oxide-evidence-20261015/operator-cap-native/ctm-restores-before-fix.json",
+      "preserved": "docs/analysis/pdf-oxide-full-integration/evidence/operator-cap-ctm-restores-before-fix.json",
+      "bytes": 3623,
+      "sha256": "5a7baca338b600781e2a338eefb47dfca91bd7cd0d793f4c25b0ed08023bb157"
+    }
+  ]
+}

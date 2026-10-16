@@ -11,8 +11,11 @@ use pdf_oxide::pipeline::BoldMarkerBehavior;
 use serde::Serialize;
 use serde_json::{Value, json};
 
+use super::query::{apply_outcome, outcome};
 use super::{Context, OperationOutput};
 use crate::backend::BackendError;
+use crate::backend::pdf_oxide_content::reject_text_operator_cutoff;
+use crate::backend::pdf_oxide_resources::reject_misclassified_forms;
 use crate::backend::pdf_oxide_supplements::safe_page_html;
 
 pub const OPERATIONS: &[&str] = &["convert.text", "convert.markdown", "convert.html"];
@@ -75,24 +78,55 @@ fn run(
     });
     budget.retain(&data)?;
     let mut diagnostics = Vec::new();
-    drain(&baseline, "baseline.open", &mut diagnostics, &mut budget)?;
+    drain(
+        &baseline,
+        "baseline.open",
+        None,
+        &mut diagnostics,
+        &mut budget,
+    )?;
     if let Some(document) = &requested {
-        drain(document, "requested.open", &mut diagnostics, &mut budget)?;
+        drain(
+            document,
+            "requested.open",
+            None,
+            &mut diagnostics,
+            &mut budget,
+        )?;
     }
     let mut pages = Vec::with_capacity(selected.len());
     for index in selected {
         let page = u32::try_from(index + 1)
             .map_err(|_| BackendError::Limit("page number exceeds u32".into()))?;
+        let page_diagnostic_start = diagnostics.len();
+        reject_misclassified_forms(&baseline, index)?;
+        reject_text_operator_cutoff(&baseline, index)?;
         let original = project(operation, &baseline, index, &baseline_options)?;
         check_text(&original, context.limits.max_output_bytes)?;
-        drain(&baseline, "baseline.convert", &mut diagnostics, &mut budget)?;
-        let converted = if let Some(document) = &requested {
+        drain(
+            &baseline,
+            "baseline.convert",
+            Some(page),
+            &mut diagnostics,
+            &mut budget,
+        )?;
+        let baseline_outcome = outcome(&diagnostics[page_diagnostic_start..]);
+        let (converted, converted_outcome) = if let Some(document) = &requested {
+            let diagnostic_start = diagnostics.len();
+            reject_misclassified_forms(document, index)?;
+            reject_text_operator_cutoff(document, index)?;
             let output = project(operation, document, index, &effective_options)?;
             check_text(&output, context.limits.max_output_bytes)?;
-            drain(document, "requested.convert", &mut diagnostics, &mut budget)?;
-            output
+            drain(
+                document,
+                "requested.convert",
+                Some(page),
+                &mut diagnostics,
+                &mut budget,
+            )?;
+            (output, outcome(&diagnostics[diagnostic_start..]))
         } else {
-            original.clone()
+            (original.clone(), baseline_outcome.clone())
         };
         if converted.trim().is_empty() {
             let diagnostic = json!({
@@ -103,20 +137,24 @@ fn run(
             budget.item(&diagnostic)?;
             diagnostics.push(diagnostic);
         }
-        let value = if operation == "convert.html" {
+        let mut value = if operation == "convert.html" {
             let display = safe_page_html(&context.inputs[0].sha256, page, &converted)?;
             json!({
                 "page": page, "page_id": format!("pdf-{}-page-{page}", context.inputs[0].sha256),
                 "baseline_raw_html": original, "raw_html": converted, "display_html": display,
+                "baseline_outcome": baseline_outcome, "converted_outcome": converted_outcome,
                 "sanitizer": "shared structural-tag allowlist; no source attributes, active tags, styles, URLs or resources",
             })
         } else {
-            json!({"page": page, "baseline": original, "converted": converted})
+            json!({"page": page, "baseline": original, "converted": converted,
+                "baseline_outcome": baseline_outcome, "converted_outcome": converted_outcome})
         };
+        apply_outcome(&mut value, &diagnostics[page_diagnostic_start..]);
         budget.item(&value)?;
         pages.push(value);
     }
     data["pages"] = Value::Array(pages);
+    apply_outcome(&mut data, &diagnostics);
     data["diagnostics"] = Value::Array(diagnostics);
     Ok(OperationOutput {
         data,
@@ -272,6 +310,7 @@ fn invalid(message: &str) -> BackendError {
 fn drain(
     document: &PdfDocument,
     stage: &str,
+    operation_page: Option<u32>,
     diagnostics: &mut Vec<Value>,
     budget: &mut Budget,
 ) -> Result<(), BackendError> {
@@ -279,6 +318,7 @@ fn drain(
         let value = json!({
             "source": SOURCE, "stage": stage, "category": warning.category.as_str(),
             "message": warning.message, "page": warning.page.and_then(|page| page.checked_add(1)),
+            "operation_page": operation_page,
             "upstream_page_index": warning.page, "spec_section": warning.spec_section,
         });
         budget.item(&value)?;

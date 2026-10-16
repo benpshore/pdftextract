@@ -27,7 +27,11 @@ pub mod native_provider;
 #[cfg(feature = "pdf-oxide")]
 pub mod pdf_oxide_backend;
 #[cfg(feature = "pdf-oxide")]
+pub(crate) mod pdf_oxide_content;
+#[cfg(feature = "pdf-oxide")]
 pub mod pdf_oxide_images;
+#[cfg(feature = "pdf-oxide")]
+pub(crate) mod pdf_oxide_resources;
 #[cfg(feature = "pdf-oxide")]
 pub mod pdf_oxide_supplements;
 #[cfg(feature = "pdfium")]

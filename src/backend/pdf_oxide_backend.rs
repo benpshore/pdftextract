@@ -249,8 +249,13 @@ fn page_error(page: u32, error: impl std::fmt::Display) -> BackendError {
 }
 
 fn format_warning(warning: &Warning) -> String {
+    let prefix = if warning.category.as_str() == "operator_cap_exceeded" {
+        "resource_limit"
+    } else {
+        "extraction_incomplete"
+    };
     format!(
-        "extraction_incomplete: pdf-oxide {}: {}",
+        "{prefix}: pdf-oxide {}: {}",
         warning.category.as_str(),
         warning.message
     )
@@ -376,6 +381,8 @@ impl DocumentSession for PdfOxideSession {
             return Err(limit("page extraction calls exceed 256"));
         }
         let index = usize::try_from(page - 1).map_err(|error| page_error(page, error))?;
+        super::pdf_oxide_resources::reject_misclassified_forms(&self.document, index)?;
+        super::pdf_oxide_content::reject_text_operator_cutoff(&self.document, index)?;
         let source_page = self
             .document
             .get_page(index)

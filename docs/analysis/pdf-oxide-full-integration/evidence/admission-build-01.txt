@@ -1,0 +1,12 @@
+    Checking xattr v1.6.1
+    Checking tpe-common v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-common)
+    Checking tar v0.4.46
+   Compiling text-processing-engine v0.2.0 (/workspace/pdftextract-pdf-oxide)
+    Checking tempfile v3.27.0
+    Checking tpe-biblio v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-biblio)
+    Checking tract-nnef v0.22.5
+    Checking tpe-ffi v0.2.0 (/workspace/pdftextract-pdf-oxide/crates/tpe-ffi)
+    Checking tract-onnx-opl v0.22.5
+    Checking tract-onnx v0.22.5
+    Checking pdf_oxide v0.3.78
+    Finished `dev` profile [unoptimized] target(s) in 27.50s

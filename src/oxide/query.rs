@@ -19,6 +19,8 @@ use serde_json::{Value, json};
 
 use super::{Artifact, Context, OperationOutput};
 use crate::backend::BackendError;
+use crate::backend::pdf_oxide_content::reject_text_operator_cutoff;
+use crate::backend::pdf_oxide_resources::reject_misclassified_forms;
 
 const SOURCE: &str = "pdf-oxide/0.3.78";
 const UNCERTAIN: &str = "extraction_incomplete: pinned PDF Oxide can silently skip content, fonts, or mappings; query completeness and reading order are unverified";
@@ -73,7 +75,7 @@ fn run(
     let count = doc.page_count().map_err(upstream)?;
     let mut budget = Budget::new(context);
     let mut diagnostics = Vec::new();
-    drain_diagnostics(&doc, "open", &mut diagnostics, &mut budget)?;
+    drain_diagnostics(&doc, "open", None, &mut diagnostics, &mut budget)?;
     let mut artifacts = Vec::new();
     let result = match operation {
         "query.document" => {
@@ -184,12 +186,13 @@ fn run(
         }
         "query.search" => {
             let pages = context.selected_pages(count)?;
-            search(&doc, pages, params, &mut budget)?
+            search(&doc, pages, params, &mut budget, &mut diagnostics)?
         }
         _ => {
             let pages = context.selected_pages(count)?;
             let mut result = Vec::new();
             for page in pages {
+                let diagnostic_start = diagnostics.len();
                 let value = if operation == "query.content" {
                     let bytes = doc.get_page_content_data(page).map_err(upstream)?;
                     let name = format!("page-{:06}-content.bin", page + 1);
@@ -202,17 +205,27 @@ fn run(
                     });
                     json!({"artifact": name, "byte_count": byte_count})
                 } else {
+                    reject_misclassified_forms(&doc, page)?;
+                    reject_text_operator_cutoff(&doc, page)?;
                     page_query(operation, &doc, page, params, &mut budget)
                         .map_err(|error| on_page(page, error))?
                 };
                 budget.items(1)?;
-                result.push(json!({"page": page + 1, "value": value}));
-                drain_diagnostics(&doc, operation, &mut diagnostics, &mut budget)?;
+                drain_diagnostics(
+                    &doc,
+                    operation,
+                    Some(page + 1),
+                    &mut diagnostics,
+                    &mut budget,
+                )?;
+                let mut record = json!({"page": page + 1, "value": value});
+                apply_outcome(&mut record, &diagnostics[diagnostic_start..]);
+                result.push(record);
             }
             Value::Array(result)
         }
     };
-    drain_diagnostics(&doc, operation, &mut diagnostics, &mut budget)?;
+    drain_diagnostics(&doc, operation, None, &mut diagnostics, &mut budget)?;
     if operation == "query.chars" && optional_str(params, "representation", "native")? == "native" {
         diagnostics.push(budget.value(&json!({
             "source": SOURCE, "stage": "extract_chars", "page": null,
@@ -220,7 +233,7 @@ fn run(
             "message": "Pinned native character mode remaps already decoded non-ASCII ActualText through font bytes and can produce mojibake. Native observations are retained; representation=span_derived uses the span Unicode path with derived character geometry.",
         }))?);
     }
-    let data = json!({
+    let mut data = json!({
         "source": SOURCE,
         "source_sha256": context.inputs[0].sha256,
         "operation": operation,
@@ -236,6 +249,7 @@ fn run(
         "result": result,
         "diagnostics": diagnostics,
     });
+    apply_outcome(&mut data, &diagnostics);
     // Include the envelope, parameter echo and diagnostic text in the actual
     // aggregate wire budget, in addition to the per-value checks above.
     let artifact_bytes = artifacts.iter().try_fold(0_u64, |sum, artifact| {
@@ -587,6 +601,7 @@ fn search(
     pages: Vec<usize>,
     params: &Value,
     budget: &mut Budget,
+    diagnostics: &mut Vec<Value>,
 ) -> Result<Value, BackendError> {
     let pattern = params
         .get("pattern")
@@ -623,12 +638,15 @@ fn search(
         .map_err(|error| invalid(&format!("search regex: {error}")))?;
     let mut found = Vec::new();
     for page in pages {
+        reject_misclassified_forms(doc, page)?;
+        reject_text_operator_cutoff(doc, page)?;
         let options = SearchOptions {
             max_results: maximum.saturating_sub(found.len()).saturating_add(1),
             ..Default::default()
         };
         let matches = TextSearcher::search_page(doc, page, &regex, &options)
             .map_err(|error| on_page(page, upstream(error)))?;
+        drain_diagnostics(doc, "query.search", Some(page + 1), diagnostics, budget)?;
         if found.len().saturating_add(matches.len()) > maximum {
             return Err(limit(
                 "search results exceed max_results; no truncated result is published",
@@ -643,9 +661,14 @@ fn search(
             found.push(json!({"page": page + 1, "match": value}));
         }
     }
-    Ok(
-        json!({"matches": found, "offset_unit": "UTF-8 bytes in upstream span-joined page text", "geometry": "whole matching span boxes, not exact glyph highlights", "truncated": false}),
-    )
+    let mut result = json!({
+        "matches": found,
+        "offset_unit": "UTF-8 bytes in upstream span-joined page text",
+        "geometry": "whole matching span boxes, not exact glyph highlights",
+        "match_limit_reached": false,
+    });
+    apply_outcome(&mut result, diagnostics);
+    Ok(result)
 }
 
 fn spans_value(spans: &[TextSpan], budget: &mut Budget) -> Result<Value, BackendError> {
@@ -882,6 +905,7 @@ fn preflight_name_tree(doc: &PdfDocument, key: &str, max_items: usize) -> Result
 fn drain_diagnostics(
     doc: &PdfDocument,
     stage: &str,
+    operation_page: Option<usize>,
     output: &mut Vec<Value>,
     budget: &mut Budget,
 ) -> Result<(), BackendError> {
@@ -891,10 +915,33 @@ fn drain_diagnostics(
             "source": SOURCE, "stage": stage,
             "category": warning.category.as_str(), "message": warning.message,
             "page": warning.page.and_then(|n| n.checked_add(1)),
+            "operation_page": operation_page,
             "upstream_page_index": warning.page, "spec_section": warning.spec_section,
         }))?);
     }
     Ok(())
+}
+
+/// Missing native warnings cannot establish absence of truncation: the pinned
+/// text-region parser for streams larger than 256 KiB can reach its cap silently.
+/// Keep the category itself unchanged and do not manufacture a native page.
+pub(super) fn outcome(diagnostics: &[Value]) -> Value {
+    let truncated = diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic["category"] == "operator_cap_exceeded");
+    json!({
+        "status": "partial",
+        "completeness": if truncated { "truncated" } else { "unverified" },
+        "truncated": if truncated { Some(true) } else { None::<bool> },
+        "truncation_detection": "native diagnostics only; null means unknown, including the pinned silent text-region cap path",
+    })
+}
+
+pub(super) fn apply_outcome(record: &mut Value, diagnostics: &[Value]) {
+    // All callers construct an object locally; no user data controls this map.
+    if let (Some(record), Value::Object(fields)) = (record.as_object_mut(), outcome(diagnostics)) {
+        record.extend(fields);
+    }
 }
 
 fn validate_params(operation: &str, params: &Value) -> Result<(), BackendError> {

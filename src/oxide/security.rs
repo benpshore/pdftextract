@@ -583,14 +583,51 @@ struct Region {
 #[serde(deny_unknown_fields)]
 struct RedactParams {
     regions: Vec<Region>,
+    #[serde(default)]
+    verify_absent: Vec<String>,
 }
 
 fn redact_text(context: &Context<'_>, params: &Value) -> Result<OperationOutput, BackendError> {
     let params: RedactParams = parse(params)?;
+    let result = redact_verified_text(context, &params);
+    result.map_err(|error| {
+        if params
+            .verify_absent
+            .iter()
+            .any(|target| !target.is_empty() && error.to_string().contains(target.as_str()))
+        {
+            invalid("redaction processing failed; sensitive details omitted")
+        } else {
+            error
+        }
+    })
+}
+
+fn redact_verified_text(
+    context: &Context<'_>,
+    params: &RedactParams,
+) -> Result<OperationOutput, BackendError> {
     item_limit(context, params.regions.len())?;
     if params.regions.is_empty() {
         return Err(invalid(
             "text redaction requires at least one explicit region",
+        ));
+    }
+    if params.verify_absent.is_empty() {
+        return Err(BackendError::Unsupported(
+            "text redaction requires explicit verify_absent targets for independent verification"
+                .into(),
+        ));
+    }
+    item_limit(context, params.verify_absent.len())?;
+    if params.verify_absent.len() > 32
+        || params
+            .verify_absent
+            .iter()
+            .any(|target| target.is_empty() || target.len() > 4096)
+    {
+        return Err(invalid(
+            "redaction verification target count or byte length exceeds its bounds",
         ));
     }
     let document = bounded_document(context)?;
@@ -643,7 +680,32 @@ fn redact_text(context: &Context<'_>, params: &Value) -> Result<OperationOutput,
             )?;
         }
     }
-    let mut notes = warnings(&document);
+    // Target absence is checked across the entire derivative. Other source
+    // pages must therefore meet the same supported-carrier contract.
+    for page in 0..count {
+        if checked_pages.insert(page) {
+            preflight_text_redaction(
+                &document,
+                page,
+                context,
+                &mut total_content,
+                &mut total_operators,
+            )?;
+        }
+    }
+    let before =
+        verify_redaction_content(context.input(0)?, context, count, &params.verify_absent)?;
+    if before
+        .iter()
+        .any(|(objects, extraction)| !objects || !extraction)
+    {
+        return Err(BackendError::Unsupported(
+            "redaction verification could not establish every target in the original decoded content and extraction".into(),
+        ));
+    }
+    // Source diagnostics can contain the very text being removed. Only a
+    // count is retained in this sensitive operation's response.
+    let mut omitted_diagnostics = document.take_structured_warnings().len();
     let mut editor = DocumentEditor::from_document(document).map_err(upstream)?;
     for region in &params.regions {
         editor
@@ -654,17 +716,468 @@ fn redact_text(context: &Context<'_>, params: &Value) -> Result<OperationOutput,
         .apply_redactions_destructive(RedactionOptions::default())
         .map_err(upstream)?;
     let bytes = editor.save_to_bytes().map_err(upstream)?;
-    notes.extend(warnings(editor.source()));
-    notes.push("Text content in the explicit regions was processed; duplicate text on other pages, metadata, fonts and other document structures is not guaranteed removed. Review the derivative before sharing.".into());
+    if bytes.len() as u64 > context.limits.max_output_bytes {
+        return Err(BackendError::Limit("redaction output byte limit".into()));
+    }
+    let after = verify_redaction_content(&bytes, context, count, &params.verify_absent)?;
+    if after
+        .iter()
+        .any(|(objects, extraction)| *objects || *extraction)
+    {
+        return Err(BackendError::Unsupported(
+            "redaction verification found retained target content; no derivative is returned"
+                .into(),
+        ));
+    }
+    omitted_diagnostics += editor.source().take_structured_warnings().len();
     Ok(OperationOutput {
         data: json!({
             "scope":"text_content_only", "report":report, "rewrite":"full",
             "regions":params.regions.iter().map(|region| json!({"page":region.page,"rect":region.rect})).collect::<Vec<_>>(),
             "global_secret_removal_verified":false,
+            "verification":{"engine":"lopdf/0.45.0","scope":"explicit targets in bounded decoded objects, streams, text operands and extraction","target_count":params.verify_absent.len(),"source_targets_present":true,"derivative_targets_absent":true},
+            "source_diagnostics_omitted":omitted_diagnostics,
         }),
         artifacts: vec![pdf_artifact("text-redacted.pdf", bytes)],
-        warnings: notes,
+        warnings: vec!["Only explicit verification targets were checked in supported decoded content and independent extraction. This does not establish universal secret removal, image redaction or complete sanitization.".into()],
     })
+}
+
+fn verification_uncertain() -> BackendError {
+    BackendError::Unsupported(
+        "redaction verification encountered unsupported or uncertain decoded content; no derivative is returned".into(),
+    )
+}
+
+struct RedactionScan<'a> {
+    context: &'a Context<'a>,
+    patterns: Vec<Vec<Vec<u8>>>,
+    found: Vec<bool>,
+    nodes: usize,
+    scanned_bytes: usize,
+    byte_limit: usize,
+}
+
+impl RedactionScan<'_> {
+    fn node(&mut self, depth: usize) -> Result<(), BackendError> {
+        self.nodes = self.nodes.saturating_add(1);
+        item_limit(self.context, self.nodes)?;
+        if depth > 64 {
+            return Err(BackendError::Limit(
+                "redaction verification object depth limit".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    fn scan(&mut self, bytes: &[u8]) -> Result<(), BackendError> {
+        self.scanned_bytes = self.scanned_bytes.saturating_add(bytes.len());
+        if self.scanned_bytes > self.byte_limit {
+            return Err(BackendError::Limit(
+                "redaction verification decoded byte limit".into(),
+            ));
+        }
+        for (patterns, found) in self.patterns.iter().zip(&mut self.found) {
+            *found |= patterns
+                .iter()
+                .any(|pattern| bytes.windows(pattern.len()).any(|window| window == pattern));
+        }
+        Ok(())
+    }
+
+    fn dictionary(&mut self, dict: &lopdf::Dictionary, depth: usize) -> Result<(), BackendError> {
+        for (name, value) in dict {
+            self.scan(name)?;
+            self.object(value, depth + 1)?;
+        }
+        Ok(())
+    }
+
+    fn object(&mut self, object: &lopdf::Object, depth: usize) -> Result<(), BackendError> {
+        self.node(depth)?;
+        match object {
+            lopdf::Object::String(bytes, _) | lopdf::Object::Name(bytes) => self.scan(bytes)?,
+            lopdf::Object::Array(items) => {
+                for item in items {
+                    self.object(item, depth + 1)?;
+                }
+            }
+            lopdf::Object::Dictionary(dict) => self.dictionary(dict, depth)?,
+            // Streams are decoded exactly once by the top-level object walk.
+            // A nested stream is outside this representation's verified scope.
+            lopdf::Object::Stream(_) => return Err(verification_uncertain()),
+            _ => {}
+        }
+        Ok(())
+    }
+}
+
+/// Decode only representations for which failure cannot silently become partial
+/// output. lopdf's ordinary Flate decoder accepts some corrupt/truncated inputs.
+fn strict_redaction_stream(stream: &lopdf::Stream, limit: usize) -> Result<Vec<u8>, BackendError> {
+    if stream.dict.has(b"F") || stream.dict.has(b"FFilter") || stream.dict.has(b"FDecodeParms") {
+        return Err(verification_uncertain());
+    }
+    if let Ok(params) = stream.dict.get(b"DecodeParms")
+        && !matches!(params, lopdf::Object::Null)
+    {
+        return Err(verification_uncertain());
+    }
+    if !stream.dict.has(b"Filter") {
+        if stream.content.len() > limit {
+            return Err(BackendError::Limit(
+                "redaction verification decoded byte limit".into(),
+            ));
+        }
+        return Ok(stream.content.clone());
+    }
+    let filters = stream.filters().map_err(|_| verification_uncertain())?;
+    if filters.as_slice() != [b"FlateDecode".as_slice()] {
+        return Err(verification_uncertain());
+    }
+    let mut decoder = flate2::Decompress::new(true);
+    let mut output = Vec::new();
+    let mut consumed = 0;
+    loop {
+        let mut chunk = [0_u8; 8192];
+        let before_in = decoder.total_in();
+        let before_out = decoder.total_out();
+        let status = decoder
+            .decompress(
+                &stream.content[consumed..],
+                &mut chunk,
+                flate2::FlushDecompress::Finish,
+            )
+            .map_err(|_| verification_uncertain())?;
+        let read = usize::try_from(decoder.total_in() - before_in)
+            .map_err(|_| verification_uncertain())?;
+        let written = usize::try_from(decoder.total_out() - before_out)
+            .map_err(|_| verification_uncertain())?;
+        consumed = consumed
+            .checked_add(read)
+            .ok_or_else(verification_uncertain)?;
+        if output.len().saturating_add(written) > limit {
+            return Err(BackendError::Limit(
+                "redaction verification decoded byte limit".into(),
+            ));
+        }
+        output.extend_from_slice(&chunk[..written]);
+        if status == flate2::Status::StreamEnd {
+            if consumed != stream.content.len() {
+                return Err(verification_uncertain());
+            }
+            return Ok(output);
+        }
+        if read == 0 && written == 0 {
+            return Err(verification_uncertain());
+        }
+    }
+}
+
+fn verify_redaction_font(font: &lopdf::Dictionary) -> Result<(), BackendError> {
+    let name = |key| font.get(key).and_then(lopdf::Object::as_name).ok();
+    if name(b"Subtype") != Some(b"Type1")
+        || name(b"Encoding") != Some(b"WinAnsiEncoding")
+        || font.has(b"ToUnicode")
+        || font.has(b"FontDescriptor")
+        || !matches!(
+            name(b"BaseFont"),
+            Some(
+                b"Helvetica"
+                    | b"Helvetica-Bold"
+                    | b"Helvetica-Oblique"
+                    | b"Helvetica-BoldOblique"
+                    | b"Times-Roman"
+                    | b"Times-Bold"
+                    | b"Times-Italic"
+                    | b"Times-BoldItalic"
+                    | b"Courier"
+                    | b"Courier-Bold"
+                    | b"Courier-Oblique"
+                    | b"Courier-BoldOblique"
+            )
+        )
+    {
+        return Err(verification_uncertain());
+    }
+    Ok(())
+}
+
+fn append_redaction_text(
+    object: &lopdf::Object,
+    text: &mut String,
+    scan: &mut RedactionScan<'_>,
+    depth: usize,
+) -> Result<(), BackendError> {
+    scan.node(depth)?;
+    match object {
+        lopdf::Object::String(bytes, _) => {
+            let encoding = lopdf::Encoding::SimpleEncoding(b"WinAnsiEncoding");
+            for byte in bytes {
+                let character = encoding
+                    .bytes_to_string(&[*byte])
+                    .map_err(|_| verification_uncertain())?;
+                if character.chars().count() != 1 {
+                    return Err(verification_uncertain());
+                }
+                if text.len().saturating_add(character.len()) > scan.byte_limit {
+                    return Err(BackendError::Limit(
+                        "redaction verification text byte limit".into(),
+                    ));
+                }
+                text.push_str(&character);
+            }
+        }
+        lopdf::Object::Array(items) => {
+            for item in items {
+                append_redaction_text(item, text, scan, depth + 1)?;
+            }
+        }
+        lopdf::Object::Integer(_) | lopdf::Object::Real(_) => {}
+        _ => return Err(verification_uncertain()),
+    }
+    Ok(())
+}
+
+fn verified_redaction_pages(
+    document: &lopdf::Document,
+    scan: &mut RedactionScan<'_>,
+) -> Result<std::collections::BTreeMap<u32, lopdf::ObjectId>, BackendError> {
+    // lopdf's normal page iterator bounds recursion but silently skips malformed
+    // entries. Validate every branch and count before using its text extractor.
+    enum Step {
+        Visit(lopdf::ObjectId, Option<lopdf::ObjectId>, usize),
+        EndBranch(usize, usize),
+    }
+    let root = document
+        .trailer
+        .get(b"Root")
+        .and_then(lopdf::Object::as_reference)
+        .map_err(|_| verification_uncertain())?;
+    let catalog = document
+        .objects
+        .get(&root)
+        .and_then(|value| value.as_dict().ok())
+        .ok_or_else(verification_uncertain)?;
+    let tree = catalog
+        .get(b"Pages")
+        .and_then(lopdf::Object::as_reference)
+        .map_err(|_| verification_uncertain())?;
+    let mut pending = vec![Step::Visit(tree, None, 0)];
+    let mut seen = HashSet::new();
+    let mut pages = std::collections::BTreeMap::new();
+    while let Some(step) = pending.pop() {
+        let (id, parent, depth) = match step {
+            Step::Visit(id, parent, depth) => (id, parent, depth),
+            Step::EndBranch(first, count) => {
+                if pages.len().checked_sub(first) != Some(count) {
+                    return Err(verification_uncertain());
+                }
+                continue;
+            }
+        };
+        scan.node(depth)?;
+        if !seen.insert(id) {
+            return Err(verification_uncertain());
+        }
+        let dict = document
+            .objects
+            .get(&id)
+            .and_then(|value| value.as_dict().ok())
+            .ok_or_else(verification_uncertain)?;
+        let actual_parent = dict
+            .get(b"Parent")
+            .ok()
+            .map(lopdf::Object::as_reference)
+            .transpose()
+            .map_err(|_| verification_uncertain())?;
+        if actual_parent != parent {
+            return Err(verification_uncertain());
+        }
+        match dict
+            .get(b"Type")
+            .and_then(lopdf::Object::as_name)
+            .map_err(|_| verification_uncertain())?
+        {
+            b"Pages" => {
+                let count = dict
+                    .get(b"Count")
+                    .and_then(lopdf::Object::as_i64)
+                    .ok()
+                    .and_then(|value| usize::try_from(value).ok())
+                    .ok_or_else(verification_uncertain)?;
+                if count > scan.context.limits.max_pages as usize {
+                    return Err(BackendError::Limit(
+                        "redaction verification page tree limit".into(),
+                    ));
+                }
+                let children = dict
+                    .get(b"Kids")
+                    .and_then(lopdf::Object::as_array)
+                    .map_err(|_| verification_uncertain())?;
+                pending.push(Step::EndBranch(pages.len(), count));
+                for child in children.iter().rev() {
+                    let child = child.as_reference().map_err(|_| verification_uncertain())?;
+                    pending.push(Step::Visit(child, Some(id), depth + 1));
+                }
+                item_limit(scan.context, pending.len())?;
+            }
+            b"Page" => {
+                let number = u32::try_from(pages.len().saturating_add(1))
+                    .map_err(|_| verification_uncertain())?;
+                if number > scan.context.limits.max_pages {
+                    return Err(BackendError::Limit(
+                        "redaction verification page tree limit".into(),
+                    ));
+                }
+                pages.insert(number, id);
+            }
+            _ => return Err(verification_uncertain()),
+        }
+    }
+    if pages != document.get_pages() {
+        return Err(verification_uncertain());
+    }
+    Ok(pages)
+}
+
+fn verify_redaction_content(
+    bytes: &[u8],
+    context: &Context<'_>,
+    expected_pages: usize,
+    targets: &[String],
+) -> Result<Vec<(bool, bool)>, BackendError> {
+    let byte_limit = usize::try_from(context.limits.max_input_bytes)
+        .map_err(|_| BackendError::Limit("redaction verification byte limit".into()))?;
+    let document = lopdf::Document::load_mem_with_options(
+        bytes,
+        lopdf::LoadOptions {
+            strict: true,
+            max_decompressed_size: Some(byte_limit),
+            ..Default::default()
+        },
+    )
+    .map_err(|_| verification_uncertain())?;
+    if document.is_encrypted() {
+        return Err(verification_uncertain());
+    }
+    item_limit(context, document.objects.len())?;
+    let patterns = targets
+        .iter()
+        .map(|target| {
+            vec![
+                target.as_bytes().to_vec(),
+                target.encode_utf16().flat_map(u16::to_be_bytes).collect(),
+                target.encode_utf16().flat_map(u16::to_le_bytes).collect(),
+            ]
+        })
+        .collect();
+    let mut scan = RedactionScan {
+        context,
+        patterns,
+        found: vec![false; targets.len()],
+        nodes: 0,
+        scanned_bytes: 0,
+        byte_limit,
+    };
+    let mut streams = HashMap::new();
+    for (id, object) in &document.objects {
+        if let lopdf::Object::Stream(stream) = object {
+            scan.node(0)?;
+            scan.dictionary(&stream.dict, 0)?;
+            let decoded =
+                strict_redaction_stream(stream, byte_limit.saturating_sub(scan.scanned_bytes))?;
+            scan.scan(&decoded)?;
+            streams.insert(*id, decoded);
+        } else {
+            scan.object(object, 0)?;
+        }
+    }
+    scan.dictionary(&document.trailer, 0)?;
+    let pages = verified_redaction_pages(&document, &mut scan)?;
+    if pages.len() != expected_pages || pages.len() > context.limits.max_pages as usize {
+        return Err(verification_uncertain());
+    }
+    let mut found_in_extraction = vec![false; targets.len()];
+    let mut content_bytes = 0_usize;
+    let mut extracted_bytes = 0_usize;
+    for (number, id) in pages {
+        let page = document
+            .get_dictionary(id)
+            .map_err(|_| verification_uncertain())?;
+        let contents: Vec<&lopdf::Object> = match page.get(b"Contents").ok() {
+            None | Some(lopdf::Object::Null) => Vec::new(),
+            Some(object @ lopdf::Object::Reference(_)) => vec![object],
+            Some(lopdf::Object::Array(items)) => items.iter().collect(),
+            _ => return Err(verification_uncertain()),
+        };
+        let mut decoded = Vec::new();
+        for object in contents {
+            scan.node(0)?;
+            let id = object
+                .as_reference()
+                .map_err(|_| verification_uncertain())?;
+            let bytes = streams.get(&id).ok_or_else(verification_uncertain)?;
+            content_bytes = content_bytes.saturating_add(bytes.len()).saturating_add(1);
+            if content_bytes > byte_limit {
+                return Err(BackendError::Limit(
+                    "redaction verification page content byte limit".into(),
+                ));
+            }
+            decoded.extend_from_slice(bytes);
+            decoded.push(b'\n');
+        }
+        let operations = lopdf::content::Content::decode_strict(&decoded)
+            .map_err(|_| verification_uncertain())?
+            .operations;
+        let fonts = document
+            .get_page_fonts(id)
+            .map_err(|_| verification_uncertain())?;
+        for font in fonts.values() {
+            verify_redaction_font(font)?;
+        }
+        let mut has_font = false;
+        let mut text = String::new();
+        for operation in &operations {
+            scan.node(0)?;
+            if operation.operator == "Tf" {
+                let font = operation
+                    .operands
+                    .first()
+                    .and_then(|value| value.as_name().ok())
+                    .ok_or_else(verification_uncertain)?;
+                if !fonts.contains_key(font) {
+                    return Err(verification_uncertain());
+                }
+                has_font = true;
+            }
+            if matches!(operation.operator.as_str(), "Tj" | "TJ" | "'" | "\"") {
+                if !has_font {
+                    return Err(verification_uncertain());
+                }
+                for operand in &operation.operands {
+                    append_redaction_text(operand, &mut text, &mut scan, 0)?;
+                }
+            }
+            for operand in &operation.operands {
+                scan.object(operand, 0)?;
+            }
+        }
+        scan.scan(text.as_bytes())?;
+        let extraction = document
+            .extract_text_with_limit(&[number], byte_limit)
+            .map_err(|_| verification_uncertain())?;
+        extracted_bytes = extracted_bytes.saturating_add(extraction.len());
+        if extracted_bytes > byte_limit {
+            return Err(BackendError::Limit(
+                "redaction verification extracted byte limit".into(),
+            ));
+        }
+        for (target, found) in targets.iter().zip(&mut found_in_extraction) {
+            *found |= extraction.contains(target.as_str());
+        }
+    }
+    Ok(scan.found.into_iter().zip(found_in_extraction).collect())
 }
 
 fn preflight_text_redaction(
@@ -727,6 +1240,14 @@ fn preflight_text_redaction(
         }) {
             return Err(BackendError::Unsupported(
                 "text redaction refuses XObjects, inline images, marked content and unknown operators; their content removal is not verified".into(),
+            ));
+        }
+        if operators
+            .iter()
+            .any(|operator| matches!(operator, Operator::SaveState | Operator::RestoreState))
+        {
+            return Err(BackendError::Unsupported(
+                "text redaction refuses q/Q saved text state; pinned geometry restoration can retain recoverable target text".into(),
             ));
         }
     }
