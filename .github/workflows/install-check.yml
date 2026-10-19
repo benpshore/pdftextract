@@ -48,7 +48,7 @@ jobs:
       # that was just published.
       MISE_MINIMUM_RELEASE_AGE: "0"
     steps:
-      - uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
+      - uses: jdx/mise-action@08ae2a091c038e1e05ec6f5115dc5c69d5a2a6b8 # v5.1.2
         with:
           install: false
           cache: false
