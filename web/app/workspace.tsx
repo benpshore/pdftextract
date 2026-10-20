@@ -7,6 +7,8 @@ import DOMPurify from 'dompurify';
 import {Button} from '@/components/ui/button';
 import {clipHtml, parseFeed, safeUrl, textDois, doiFrom} from '@/lib/clip';
 import {expandUploads} from '@/lib/imports';
+import {collectFolder,dropEntries,enumerateDirectoryHandle,enumerateDropEntries,enumerateFileList,ensureReadable,pickDirectory,supportsDirectoryPicker} from '@/lib/folder-traversal';
+import type {DirectoryHandleLike,FolderImport,FolderProgress,Scan} from '@/lib/folder-traversal';
 import {recognizeImage} from '@/lib/image-ocr';
 import {extractOffice} from '@/lib/office';
 import {captureSource, saveExtracted, uploadOriginal, uploadAssetFile, decodeSource} from '@/lib/upload-client';
@@ -14,15 +16,17 @@ import {retainArticleImages} from '@/lib/article-assets';
 import {readWorkspace, writeWorkspace} from '@/lib/workspace-storage';
 import type {DocumentRow, Extracted} from '@/lib/types';
 
-type Phase = 'waiting'|'fetching'|'uploading'|'extracting'|'saving'|'saved'|'failed'|'cancelled'|'interrupted';
+type Phase = 'waiting'|'fetching'|'uploading'|'extracting'|'saving'|'saved'|'failed'|'cancelled'|'interrupted'|'unsupported';
 type Source = {type:'file';file:File;url?:string;decoded?:string;member?:boolean}|{type:'url';url:string;feed:boolean}|{type:'stored';name:string;url?:string;decoded?:string;member?:boolean};
-type QueueItem = {id:string;name:string;source:Source;phase:Phase;progress:number|null;message:string;error?:string;record?:DocumentRow;result?:Extracted;savePending?:boolean;retrySave?:boolean;parentId?:string};
+// `path` is the folder-relative path of a folder import; it names the queue entry and is kept with the saved original.
+type QueueItem = {id:string;name:string;source:Source;phase:Phase;progress:number|null;message:string;error?:string;record?:DocumentRow;result?:Extracted;savePending?:boolean;retrySave?:boolean;parentId?:string;path?:string};
 type Selection = {queueId:string}|{record:DocumentRow;result:Extracted|null};
 type Snapshot = {version:1;items:QueueItem[];draft:{url:string;kind:string;paste:string;query:string};selection:{queueId?:string;documentId?:string}|null;view:string;scroll:number};
-type DropEntry = {isFile:boolean;isDirectory:boolean;name:string;file?:(done:(file:File)=>void,fail:(error:DOMException)=>void)=>void;createReader?:()=>{readEntries:(done:(entries:DropEntry[])=>void,fail:(error:DOMException)=>void)=>void}};
+type FolderScan = {root:string;label:string;progress:number|null};
 const activePhases = new Set<Phase>(['waiting','fetching','uploading','extracting','saving']);
 const messageOf = (error:unknown) => error instanceof Error ? error.message : String(error);
-const phaseLabel = (phase:Phase) => ({waiting:'Waiting',fetching:'Fetching',uploading:'Saving original',extracting:'Extracting',saving:'Saving result',saved:'Saved',failed:'Needs attention',cancelled:'Cancelled',interrupted:'Interrupted'})[phase];
+const phaseLabel = (phase:Phase) => ({waiting:'Waiting',fetching:'Fetching',uploading:'Saving original',extracting:'Extracting',saving:'Saving result',saved:'Saved',failed:'Needs attention',cancelled:'Cancelled',interrupted:'Interrupted',unsupported:'Not imported'})[phase];
+const folderOf = (path:string) => path.includes('/') ? path.slice(0,path.lastIndexOf('/')) : '';
 
 async function json<T>(response:Response):Promise<T> {
   if (!response.ok) { let message=await response.text();try { message=JSON.parse(message).error||message; } catch {} throw new Error(message||'Request failed ('+response.status+').'); }
@@ -82,6 +86,9 @@ export default function Workspace({userId}:{userId:string}) {
   const [queue,setQueue]=useState<QueueItem[]>([]),[selection,setSelection]=useState<Selection|null>(null),[documents,setDocuments]=useState<DocumentRow[]>([]);
   const [url,setUrl]=useState(''),[kind,setKind]=useState('file'),[paste,setPaste]=useState(''),[query,setQuery]=useState(''),[view,setView]=useState('text');
   const [error,setError]=useState(''),[recoveryWarning,setRecoveryWarning]=useState(''),[announcement,setAnnouncement]=useState(''),[queueOpen,setQueueOpen]=useState(true),[uploadOpen,setUploadOpen]=useState(false),[savedOpen,setSavedOpen]=useState(false),[dragging,setDragging]=useState(false),[loading,setLoading]=useState(false),[restored,setRestored]=useState(false);
+  // Folder imports: one scan at a time, its summary stays until dismissed, and picked directory handles are re-used this session without a new prompt.
+  const [folderScan,setFolderScan]=useState<FolderScan|null>(null),[folderNotice,setFolderNotice]=useState(''),[folderNames,setFolderNames]=useState<string[]>([]);
+  const folderAbort=useRef<AbortController|null>(null),folderHandles=useRef<DirectoryHandleLike[]>([]);
   const queueRef=useRef<QueueItem[]>([]),selectionRef=useRef<Selection|null>(null),running=useRef(false),mounted=useRef(true),generation=useRef(0),listGeneration=useRef(0),dirtyDraft=useRef(false),recoveryReady=useRef(false);
   const pendingDisposals=useRef(new Map<string,()=>Promise<void>>()),composerValue=useRef(paste);composerValue.current=paste;
   const controllers=useRef(new Map<string,AbortController>()),completions=useRef(new Map<string,{resolve:(value:unknown)=>void;reject:(reason:unknown)=>void}>());
@@ -130,7 +137,7 @@ export default function Workspace({userId}:{userId:string}) {
   openSavedRef.current=openSaved;
   function openRecord(record:DocumentRow,scroll=0) {historySelection(record.id);void openSaved(record.id,'text',scroll);}
 
-  function add(sources:{source:Source;name:string;parentId?:string}[],start=true):string[] {
+  function add(sources:{source:Source;name:string;parentId?:string;path?:string}[],start=true):string[] {
     const items=sources.map(input=>({...input,id:crypto.randomUUID(),phase:'waiting' as const,progress:null,message:'Waiting to import.'}));
     queueRef.current=[...queueRef.current,...items];setQueue(queueRef.current);setQueueOpen(true);
     if(items.length&&!selectionRef.current&&!loading)selectQueue(items[0].id);
@@ -138,6 +145,53 @@ export default function Workspace({userId}:{userId:string}) {
     return items.map(item=>item.id);
   }
   function addFiles(files:Iterable<File>) {add(Array.from(files,file=>({source:{type:'file' as const,file},name:file.webkitRelativePath||file.name})));}
+  // Every scanned file lands in the queue: supported ones wait for import, the rest stay listed with their reason.
+  function addFolderResult(result:FolderImport) {
+    const ids=add(result.files.map(entry=>({source:{type:'file' as const,file:entry.file},name:entry.path,path:entry.path})),false);
+    for(const skip of result.skipped){
+      if(skip.kind!=='unsupported'&&skip.kind!=='too-large'&&skip.kind!=='unreadable')continue;
+      const id=add([{source:{type:'stored',name:skip.path},name:skip.path,path:skip.path}],false)[0];
+      update(id,{phase:'unsupported',error:skip.reason,message:'Not imported.',progress:null});
+    }
+    setFolderNotice(result.message);setAnnouncement(result.message);
+    if(ids.length)queueMicrotask(()=>void pumpRef.current());
+  }
+  async function importFolder(root:string,scan:()=>Promise<Scan>) {
+    if(folderAbort.current){const busy='A folder is still being scanned. Wait for it or press Cancel, then add '+root+' again.';setError(busy);setAnnouncement(busy);return;} // one scan at a time
+    const controller=new AbortController();folderAbort.current=controller;
+    const onProgress=(event:FolderProgress)=>{if(mounted.current)setFolderScan({root,label:event.label,progress:event.total?100*event.prepared/event.total:null});};
+    setFolderScan({root,label:'Scanning '+root,progress:null});setFolderNotice('');setError('');
+    try {
+      const scanned=await scan();
+      const result=await collectFolder(root,scanned,{signal:controller.signal,onProgress});
+      if(mounted.current)addFolderResult(result);
+    }catch(reason){
+      const text=controller.signal.aborted?'Folder import cancelled; nothing from '+root+' was added.':'Could not read '+root+': '+messageOf(reason);
+      if(mounted.current){setFolderNotice(text);setAnnouncement(text);}
+    }finally{folderAbort.current=null;if(mounted.current)setFolderScan(null);}
+  }
+  function cancelFolderScan() {folderAbort.current?.abort(new DOMException('Folder import cancelled.','AbortError'));}
+  function rememberFolder(handle:DirectoryHandleLike) {
+    folderHandles.current=[handle,...folderHandles.current.filter(known=>known!==handle&&known.name!==handle.name)].slice(0,3);
+    setFolderNames(folderHandles.current.map(known=>known.name));
+  }
+  async function importDirectoryHandle(handle:DirectoryHandleLike) {
+    if(!await ensureReadable(handle)){const text='Reading '+handle.name+' was not allowed. Choose the folder again to grant access.';setFolderNotice(text);setAnnouncement(text);return;}
+    rememberFolder(handle);
+    await importFolder(handle.name,()=>enumerateDirectoryHandle(handle,{signal:folderAbort.current?.signal,onProgress:event=>{if(mounted.current)setFolderScan({root:handle.name,label:event.label+' ('+event.found+' files found)',progress:null});}}));
+  }
+  // Chrome/Edge open the system folder picker; other browsers get the directory input (webkitdirectory).
+  async function chooseFolder() {
+    setUploadOpen(false);uploadTrigger.current?.focus({preventScroll:true});
+    if(!supportsDirectoryPicker()){folderInput.current?.click();return;}
+    try {const handle=await pickDirectory(folderHandles.current[0]);if(handle)await importDirectoryHandle(handle);}
+    catch(reason){setError('The folder picker is unavailable here: '+messageOf(reason)+' Use Add files instead.');}
+  }
+  function importFolderInput(files:FileList) {
+    const list=Array.from(files);if(!list.length)return;
+    const root=(list[0].webkitRelativePath||list[0].name).split('/')[0]||'folder';
+    void importFolder(root,async()=>enumerateFileList(list));
+  }
   function rereadOriginal() {
     if(!selected||pending)return;
     const id=add([{source:{type:'stored',name:selected.original_name,url:selected.source_url||undefined},name:selected.title}],false)[0];
@@ -192,7 +246,7 @@ export default function Workspace({userId}:{userId:string}) {
       }else {file=item.source.file;sourceUrl=item.source.url||'';decoded=item.source.decoded;}
       signal.throwIfAborted();
       let record=item.record;
-      if(!record){update(id,{phase:'uploading',progress:0,message:'Saving the original…'});record=await uploadOriginal(file,{sourceUrl,signal,onProgress:fraction=>update(id,{progress:100*fraction})});update(id,{record});
+      if(!record){update(id,{phase:'uploading',progress:0,message:'Saving the original…'});record=await uploadOriginal(file,{sourceUrl,signal,path:item.path,onProgress:fraction=>update(id,{progress:100*fraction})});update(id,{record});
         const current=selectionRef.current;if(current&&'queueId'in current&&current.queueId===id)historySelection(record.id,id,view,true);
       }
       signal.throwIfAborted();update(id,{phase:'extracting',progress:null,message:'Reading the saved source…'});
@@ -263,10 +317,12 @@ export default function Workspace({userId}:{userId:string}) {
   }
   async function drop(event:DragEvent) {
     event.preventDefault();setDragging(false);if(savedOpenRef.current)return;
-    const entries=Array.from(event.dataTransfer.items).map(item=>(item as unknown as {webkitGetAsEntry?:()=>DropEntry|null}).webkitGetAsEntry?.()).filter((entry):entry is DropEntry=>!!entry);
-    if(entries.some(entry=>entry.isDirectory)){
-      const stack=entries.map(entry=>({entry,path:entry.name}));
-      while(stack.length){const current=stack.pop()!;try{if(current.entry.isFile&&current.entry.file){const file=await new Promise<File>((resolve,reject)=>current.entry.file!(resolve,reject));add([{source:{type:'file',file},name:current.path}]);}else if(current.entry.createReader){const reader=current.entry.createReader();while(true){const children=await new Promise<DropEntry[]>((resolve,reject)=>reader.readEntries(resolve,reject));if(!children.length)break;stack.push(...children.reverse().map(entry=>({entry,path:current.path+'/'+entry.name})));}}}catch(reason){const failed=add([{source:{type:'stored',name:current.path},name:current.path}],false)[0];update(failed,{phase:'failed',message:'Reselect this folder or file to try again.',error:'Could not read '+current.path+': '+messageOf(reason)});}}
+    // Entries must be taken synchronously, before the first await, or the browser forgets them.
+    const dropped=dropEntries(Array.from(event.dataTransfer.items));
+    if(dropped.hasDirectory){
+      const roots=dropped.entries.map(entry=>entry.name);
+      await importFolder(roots.length===1?roots[0]:roots.length+' dropped items',()=>enumerateDropEntries(dropped.entries,{signal:folderAbort.current?.signal,onProgress:progress=>{if(mounted.current)setFolderScan({root:roots[0],label:progress.label+' ('+progress.found+' files found)',progress:null});}}));
+      if(dropped.files.length)addFiles(dropped.files);
     }else if(event.dataTransfer.files.length)addFiles(event.dataTransfer.files);
     else addText(event.dataTransfer.getData('text/uri-list').split('\n').filter(line=>!line.startsWith('#')).join('\n')||event.dataTransfer.getData('text/plain'),event.dataTransfer.getData('text/html'));
   }
@@ -371,12 +427,14 @@ export default function Workspace({userId}:{userId:string}) {
       <form className="composer" onSubmit={event=>{event.preventDefault();submitComposer();}}>
         <label htmlFor="source-paste" className="sr-only">Paste a link or text</label>
         <textarea id="source-paste" rows={2} value={paste} onFocus={()=>void detectClipboardUrl()} onChange={event=>{dirtyDraft.current=true;setPaste(event.target.value);}} onKeyDown={event=>{if(event.key==='Enter'&&(event.metaKey||event.ctrlKey)){event.preventDefault();submitComposer();}}} placeholder="Paste a link or text…"/>
-        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={holdUploadPointer} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>chooseUpload(folderInput.current)}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button></div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
+        <div className="composer-actions"><div className="add-menu" ref={uploadWrap} onPointerDown={holdUploadPointer} onBlur={event=>{const next=event.relatedTarget,wrap=event.currentTarget;if(next instanceof Node){if(!wrap.contains(next))setUploadOpen(false);return;}/* Focus went to browser UI or a spot that takes none (Safari never focuses buttons on click): decide once any press has settled. */setTimeout(()=>{if(!uploadPointer.current&&!wrap.contains(document.activeElement))setUploadOpen(false);},0);}}><Tip label="Upload" suppress={uploadOpen}><button ref={uploadTrigger} type="button" className="upload-trigger" aria-label="Upload" aria-expanded={uploadOpen} onClick={()=>setUploadOpen(open=>!open)}><Upload aria-hidden="true"/></button></Tip>{uploadOpen&&<div ref={uploadPanel} className="add-menu-options" role="group" aria-labelledby="upload-title"><p id="upload-title" className="menu-title">Upload</p><button type="button" onClick={()=>chooseUpload(fileInput.current)}><Files aria-hidden="true"/>Add files</button><button type="button" onClick={()=>void chooseFolder()}><FolderOpen aria-hidden="true"/>Add folder</button><button type="button" onClick={()=>chooseUpload(photoInput.current)}><ImagePlus aria-hidden="true"/>Add photos</button>{folderNames.map((name,index)=><button key={name} type="button" onClick={()=>{setUploadOpen(false);uploadTrigger.current?.focus({preventScroll:true});void importDirectoryHandle(folderHandles.current[index]);}}><FolderOpen aria-hidden="true"/>Import {name} again</button>)}</div>}</div><span className="composer-hint">Or drop files here</span><Button type="submit" disabled={!paste.trim()} aria-label="Import pasted source" className="send-button"><ArrowUp/></Button></div>
         <input ref={fileInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose source files" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
-        <input ref={element=>{folderInput.current=element;element?.setAttribute('webkitdirectory','');}} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
+        <input ref={element=>{folderInput.current=element;element?.setAttribute('webkitdirectory','');}} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" multiple aria-label="Choose a folder" onChange={event=>{if(event.target.files)importFolderInput(event.target.files);event.target.value='';}}/>
         <input ref={photoInput} className="sr-only" tabIndex={-1} aria-hidden="true" type="file" accept="image/*" multiple aria-label="Choose photos" onChange={event=>{if(event.target.files)addFiles(event.target.files);event.target.value='';}}/>
       </form>
       {errorNotice}
+      {folderScan&&<div className="notice folder-scan" role="status" aria-live="polite" aria-atomic="true"><FolderOpen aria-hidden="true"/><div style={{flex:1,minWidth:0}}><p>{folderScan.label}</p><progress max={100} value={folderScan.progress??undefined} aria-label={'Scanning '+folderScan.root}/></div><Button type="button" variant="outline" onClick={cancelFolderScan} aria-label={'Cancel the folder import of '+folderScan.root}>Cancel</Button></div>}
+      {folderNotice&&!folderScan&&<div className="notice folder-summary" role="status"><FolderOpen aria-hidden="true"/><p>{folderNotice}</p><button className="icon-button" onClick={()=>setFolderNotice('')} aria-label="Dismiss folder import summary"><X/></button></div>}
       {recoveryWarning&&<div className="notice" role="status"><AlertCircle/><p>{recoveryWarning}</p></div>}
       {!!queue.length&&<section className="queue-panel" aria-label="Imports"><button className="section-toggle" aria-expanded={queueOpen} onClick={()=>setQueueOpen(!queueOpen)}><span>{pending?'Importing…':'Recent imports'}</span><ChevronDown/></button>{queueOpen&&<ol className="queue-list">{queue.map(item=><li key={item.id} className={'queue-item '+(selectedItem?.id===item.id?'selected':'')}><div className="queue-row"><button className="queue-open" onClick={()=>selectQueue(item.id)} aria-current={selectedItem?.id===item.id?true:undefined}><strong>{item.name}</strong><span className={'queue-phase phase-'+item.phase}>{phaseLabel(item.phase)}</span></button>{activePhases.has(item.phase)&&<button className="icon-button" onClick={()=>cancelItem(item.id)} aria-label={'Cancel '+item.name}><X/></button>}{['failed','cancelled','interrupted'].includes(item.phase)&&(item.source.type!=='stored'||!!item.record)&&<Button variant="outline" onClick={()=>retry(item.id,!!item.savePending)}>{item.savePending?'Save again':'Retry'}</Button>}</div>{activePhases.has(item.phase)&&<><progress max={100} value={item.progress??undefined} aria-label={item.name+' progress'}/><p className="help">{item.message}</p></>}{item.error&&<p className="queue-error">{item.error}</p>}</li>)}</ol>}</section>}
     </aside><section id="reader" className="result-pane" aria-label="Document reader" aria-busy={loading} tabIndex={-1}>
@@ -395,6 +453,6 @@ export default function Workspace({userId}:{userId:string}) {
         </>:<div className="notice"><p>{selectedItem?.message||'The original is saved. No extraction result is available yet.'}</p>{selected&&<><Button asChild variant="outline"><a href={'/api/documents/'+selected.id+'/original'}>Open original</a></Button>{!pending&&<Button variant="outline" onClick={rereadOriginal}>Re-read original</Button>}</>}</div>}
       </>}
     </section></div>
-    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div>{errorNotice}<form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><ul className="document-list">{documents.length?documents.map(record=><li key={record.id}><button aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong dir="auto">{record.title}</strong><span className="help">{[record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved',savedAt(record.created_at)].filter(Boolean).join(' · ')}</span></button></li>):<li className="help">Your saved sources appear here.</li>}</ul></div></div>
+    <div className="saved-layer" hidden={!savedOpen}><div className="saved-scrim" aria-hidden="true" onClick={()=>closeSaved()}/><div id="saved-panel" className="saved-panel" role="dialog" aria-modal="true" aria-labelledby="saved-title"><div className="saved-head"><h2 id="saved-title">Saved articles</h2><button ref={savedClose} type="button" className="icon-button" aria-label="Close saved articles" onClick={()=>closeSaved()}><X aria-hidden="true"/></button></div>{errorNotice}<form className="search-form" onSubmit={event=>{event.preventDefault();void refresh(query).catch(reason=>setError(messageOf(reason)));}}><label className="sr-only" htmlFor="search">Search saved articles</label><input id="search" value={query} onChange={event=>{dirtyDraft.current=true;setQuery(event.target.value);}} placeholder="Search"/><Button type="submit" variant="outline" aria-label="Search"><Search/></Button></form><ul className="document-list">{documents.length?documents.map(record=><li key={record.id}><button aria-current={selected?.id===record.id?true:undefined} className={'document-item '+(selected?.id===record.id?'selected':'')} onClick={()=>openSavedArticle(record)}><strong dir="auto">{record.title}</strong><span className="help">{[folderOf(record.original_name)&&'In '+folderOf(record.original_name),record.status==='uploaded'?'Original saved':record.status==='failed'?'Needs attention':'Saved',savedAt(record.created_at)].filter(Boolean).join(' · ')}</span></button></li>):<li className="help">Your saved sources appear here.</li>}</ul></div></div>
   </main>;
 }
