@@ -1,0 +1,127 @@
+{
+  "schema_version": 5,
+  "document": {
+    "hash": "ce061489c99fb500e1663bb9b3afa85196cec3306c96108762f48e49a054d324",
+    "size": 10742,
+    "pages": 1,
+    "sources": [
+      {
+        "path": "/workspace/pdftextract-region-fusion/experiments/region-fusion/fixtures/control-named-cmap.pdf",
+        "inode": 1445420,
+        "device": 27,
+        "mtime_unix": 1791081682,
+        "size": 10742
+      }
+    ]
+  },
+  "backend": {
+    "name": "lopdf",
+    "version": "0.45.0",
+    "config_digest": "0036b10244edafb6e049aad42c64ea149c52476466f47548061cd815888edbba"
+  },
+  "status": "complete",
+  "pages": [
+    {
+      "page": 1,
+      "width": 612.0,
+      "height": 792.0,
+      "rotation": 0,
+      "spans": [
+        {
+          "text": "BASELINE REGION RETAINS THIS TEXT.",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 288.0,
+            "y1": 733.2
+          },
+          "font": "Helvetica",
+          "size": 14.0,
+          "seq": 0
+        },
+        {
+          "text": "RECOVER ALPHA 2026",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 617.6,
+            "x1": 298.24112,
+            "y1": 639.6
+          },
+          "font": "FixtureDejaVuSans",
+          "size": 22.0,
+          "seq": 1
+        }
+      ],
+      "figures": [],
+      "links": [],
+      "lines": [
+        {
+          "text": "BASELINE REGION RETAINS THIS TEXT.",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 719.2,
+            "x1": 288.0,
+            "y1": 733.2
+          },
+          "column": 0,
+          "spans": [
+            0
+          ],
+          "role": "body"
+        },
+        {
+          "text": "RECOVER ALPHA 2026",
+          "bbox": {
+            "x0": 50.0,
+            "y0": 617.6,
+            "x1": 298.24112,
+            "y1": 639.6
+          },
+          "column": 1,
+          "spans": [
+            1
+          ],
+          "role": "body"
+        }
+      ],
+      "text": "BASELINE REGION RETAINS THIS TEXT.\n\nRECOVER ALPHA 2026",
+      "warnings": []
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "first_page": 1,
+      "last_page": 1,
+      "status": "complete",
+      "text_sha256": "525cc154d2480b7aad974b74dda39236210b94c917b6e3097e7a77c08735ae9e",
+      "ms": 20.649148999999998
+    }
+  ],
+  "metadata": {
+    "title": null,
+    "authors": [],
+    "doi": null,
+    "arxiv_id": null,
+    "year": 2026,
+    "venue": null,
+    "abstract_text": null,
+    "keywords": [],
+    "info": {},
+    "provenance": {
+      "year": "first_page:year"
+    }
+  },
+  "references": [],
+  "citations": [],
+  "warnings": [],
+  "timings": {
+    "acquire_ms": 0.032108,
+    "parse_ms": 2.908517,
+    "order_ms": 17.740631999999998,
+    "metadata_ms": 16.730906,
+    "citations_ms": 57.084006,
+    "write_ms": 1.829666,
+    "hash_ms": 0.335307
+  }
+}

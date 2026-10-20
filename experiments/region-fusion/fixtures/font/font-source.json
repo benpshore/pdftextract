@@ -1,0 +1,70 @@
+{
+  "ascent": 1901,
+  "bbox": [
+    16,
+    -29,
+    1497,
+    1520
+  ],
+  "descent": -483,
+  "fonttools_version": "4.61.1",
+  "glyphs": {
+    " ": {
+      "gid": 3,
+      "width": 651
+    },
+    "0": {
+      "gid": 19,
+      "width": 1303
+    },
+    "2": {
+      "gid": 21,
+      "width": 1303
+    },
+    "6": {
+      "gid": 25,
+      "width": 1303
+    },
+    "A": {
+      "gid": 36,
+      "width": 1401
+    },
+    "C": {
+      "gid": 38,
+      "width": 1430
+    },
+    "E": {
+      "gid": 40,
+      "width": 1294
+    },
+    "H": {
+      "gid": 43,
+      "width": 1540
+    },
+    "L": {
+      "gid": 47,
+      "width": 1141
+    },
+    "O": {
+      "gid": 50,
+      "width": 1612
+    },
+    "P": {
+      "gid": 51,
+      "width": 1235
+    },
+    "R": {
+      "gid": 53,
+      "width": 1423
+    },
+    "V": {
+      "gid": 57,
+      "width": 1401
+    }
+  },
+  "retain_gids": true,
+  "source_font_sha256": "57f73e11f51999432bf7ab22ce55b6f945d5eca1bf824404cfa9ec2e3718c84e",
+  "subset_font_sha256": "2c1d4fa969bb74374279ae0e64a1955fe8f943b60a944e92aeada7ffcb15c460",
+  "subset_text": "RECOVER ALPHA 2026",
+  "units_per_em": 2048
+}
