@@ -63,7 +63,8 @@ const helpers = {
     '@/lib/image-ocr': { recognizeImage: async () => { throw Error('Unexpected OCR'); } },
     '@/lib/office': { extractOffice: async () => { throw Error('Unexpected Office extraction'); } },
     '@/lib/article-assets': { retainArticleImages: async (record, result) => result, retainOfficeAssets: async (record, result) => result },
-    '@/lib/workspace-storage': { readWorkspace: async () => stored, writeWorkspace: async (owner, snapshot) => { assert.equal(owner, 'owner-A'); stored = snapshot; } },
+    '@/lib/document-client': { deleteStoredDocument: async () => { throw Error('Unexpected deletion in existing workspace test'); } },
+    '@/lib/workspace-storage': { readWorkspaceDeletions: async () => [], readWorkspace: async () => stored, writeWorkspace: async (owner, snapshot) => { assert.equal(owner, 'owner-A'); stored = snapshot; } },
     '@/lib/upload-client': { decodeSource: uploadModule.exports.decodeSource, uploadOriginal: async (file, { onProgress }) => {
             const text = await file.text(), id = 'doc' + (rows.size + 1), row = { id, title: file.name, kind: text.startsWith('<') ? 'html' : 'text', original_name: file.name, status: 'uploaded', engine: '', created_at: new Date().toISOString(), sha256: 'hash', bytes: file.size, source_url: null };
             rows.set(id, row);
