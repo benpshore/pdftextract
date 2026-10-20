@@ -709,6 +709,60 @@
       "sha256": "42841e5ad76159a9cac6b466c5c10238caebe6bf2a37ec421ee39096fdbe70da"
     },
     {
+      "bytes": 6261,
+      "mode": "0644",
+      "path": "lib/zotero/README.md",
+      "sha256": "a90e109484e7c900b576fb1a53decb498cced691b9d785b161424dc0142b685f"
+    },
+    {
+      "bytes": 16364,
+      "mode": "0644",
+      "path": "lib/zotero/ZoteroPanel.tsx",
+      "sha256": "2e1768f4ec0c96a4a871467c0b21e9d5d7784693984b47fae8cbd9a9bffb7700"
+    },
+    {
+      "bytes": 22675,
+      "mode": "0644",
+      "path": "lib/zotero/api.ts",
+      "sha256": "33868f62f04b35aa74a0d24d599230752cdc6e23a2785ea06c1ac17dc4dcdbd9"
+    },
+    {
+      "bytes": 6368,
+      "mode": "0644",
+      "path": "lib/zotero/hooks.ts",
+      "sha256": "af669f4fe95595eae2afee60d57bcefecb346d748bf543c26ec2d77200602771"
+    },
+    {
+      "bytes": 1495,
+      "mode": "0644",
+      "path": "lib/zotero/index.ts",
+      "sha256": "cc7dc2de3a9c46273bbfee96b847a04ade7f216e9af2936615ffc67d90c61375"
+    },
+    {
+      "bytes": 3848,
+      "mode": "0644",
+      "path": "lib/zotero/key-storage.ts",
+      "sha256": "604e4085b7eaaa78a56db62934f874c431f9e2026d057892d9b74e3df271f362"
+    },
+    {
+      "bytes": 11079,
+      "mode": "0644",
+      "path": "lib/zotero/mapping.ts",
+      "sha256": "eaf13727de807b95b2c2f4707757f9e6d0291d0bbd343760e950b7cfb65225af"
+    },
+    {
+      "bytes": 2406,
+      "mode": "0644",
+      "path": "lib/zotero/md5.ts",
+      "sha256": "c3327169b17abd1d9bf4ccda6789ea38b88d9affccfab761bc7e4cb7dfa4bb79"
+    },
+    {
+      "bytes": 3674,
+      "mode": "0644",
+      "path": "lib/zotero/send.ts",
+      "sha256": "e603eca2afde0a4f502b816958595706da23d691e273bf3c913059ad899f3af4"
+    },
+    {
       "bytes": 133,
       "mode": "0644",
       "path": "next.config.ts",
