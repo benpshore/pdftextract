@@ -1,0 +1,75 @@
+{
+  "observed_at": "2026-10-04T14:12:54Z",
+  "owner": "Busybody Bob",
+  "state": "queued, not started",
+  "execution": "sole sequential steward; no children or automation",
+  "gate": "All pending merges held; PR222 open draft, formal review resources missing",
+  "current_design_priority": 233,
+  "deferred_research_order": [
+    230,
+    231,
+    232
+  ],
+  "issues": [
+    {
+      "number": 230,
+      "url": "https://github.com/benpshore/pdftextract/issues/230",
+      "title": "[Agent queue] Verify Zotero PDF metadata and GROBID execution boundaries",
+      "state": "open",
+      "labels": [
+        "task",
+        "agent-created"
+      ],
+      "updated_at": "2026-10-04T13:59:30Z",
+      "body_sha256": "39d5b680a2d31e245c295a2ef24320f83db0da6c488d5490712c418a40b4d81d",
+      "owner": "Busybody Bob",
+      "next_review": "2026-10-05 UTC or explicit parent resume",
+      "done_criteria": "Exact acceptance/provenance in linked agent-owned issue; queued work must be explicitly resumed sequentially."
+    },
+    {
+      "number": 231,
+      "url": "https://github.com/benpshore/pdftextract/issues/231",
+      "title": "[Agent queue] Research Bear web clipping strategy and applicability",
+      "state": "open",
+      "labels": [
+        "task",
+        "agent-created"
+      ],
+      "updated_at": "2026-10-04T14:07:51Z",
+      "body_sha256": "727a8f79b3d51508888530aaa66bab4a93dc53415d7ef3a8feac2d9adb2fdf0b",
+      "owner": "Busybody Bob",
+      "next_review": "2026-10-05 UTC or explicit parent resume",
+      "done_criteria": "Exact acceptance/provenance in linked agent-owned issue; queued work must be explicitly resumed sequentially."
+    },
+    {
+      "number": 232,
+      "url": "https://github.com/benpshore/pdftextract/issues/232",
+      "title": "[Agent queue] Trace engine bindings and scholarly bibliography implementation",
+      "state": "open",
+      "labels": [
+        "task",
+        "agent-created"
+      ],
+      "updated_at": "2026-10-04T14:05:17Z",
+      "body_sha256": "eba6a297da6d1dca46906dc8b3449a2814fecced660dc40b6aadec269ba5c4e6",
+      "owner": "Busybody Bob",
+      "next_review": "2026-10-05 UTC or explicit parent resume",
+      "done_criteria": "Exact acceptance/provenance in linked agent-owned issue; queued work must be explicitly resumed sequentially."
+    },
+    {
+      "number": 233,
+      "url": "https://github.com/benpshore/pdftextract/issues/233",
+      "title": "[Agent queue] Alpha v2 compact layout and accessible upload symbol",
+      "state": "open",
+      "labels": [
+        "task",
+        "agent-created"
+      ],
+      "updated_at": "2026-10-04T14:09:25Z",
+      "body_sha256": "c25af09b2349401b9c6aac7e2c4be96cd30b3fd78131b05ea7f9968c2a92c8a3",
+      "owner": "Busybody Bob",
+      "next_review": "2026-10-05 UTC or explicit parent resume",
+      "done_criteria": "Exact acceptance/provenance in linked agent-owned issue; queued work must be explicitly resumed sequentially."
+    }
+  ]
+}
