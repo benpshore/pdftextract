@@ -42,6 +42,7 @@ pub mod eval;
 #[cfg(feature = "grobid")]
 pub mod grobid;
 pub mod latex_refs;
+pub mod layout_text;
 pub mod ledger;
 pub mod metadata;
 pub mod pipeline;
