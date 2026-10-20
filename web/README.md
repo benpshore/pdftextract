@@ -24,6 +24,7 @@ This directory is the complete portable application source for the private TPE C
 | `db/`, `drizzle/` | Authoritative document schema and immutable deployment migrations |
 | `scripts/`, `build/`, `vite.config.ts`, package/lock files | Reproducible dependency assets, tests and Workers-compatible production build |
 | `docs/OFFICE.md` | Office format evidence and explicit limitations |
+| `docs/IMAGE_OCR_CHECKPOINT.md` | Browser OCR diagnosis, acceptance tests and explicit limits; legacy feature work paused for the clean rebuild |
 
 PDF engines do not parse HTML. PHP-served HTML uses the HTML path; raw PHP source is retained as text, never executed. General binary/media originals can be stored without falsely claiming text extraction. Audio/video transcription, a native processing service, complete scanned-PDF OCR, full iWork decoding, and live JavaScript page rendering remain separate unfinished work.
 
@@ -51,7 +52,7 @@ pnpm run build
 
 Before local type checking/building, create the local binding configuration as described in `../docs/WEB_ALPHA.md`. An external host must implement a verified identity boundary rather than trusting caller-supplied authentication headers. Do not disable authorization to make deployment work.
 
-The focused tests use JSDOM, mocks, Node/WASM and real local Workers D1/R2 bindings as identified in each script. They are **not** proof of iPhone/iPad browser behavior or 50 GB capacity. `scripts/test-browser-imports.mjs` is a separate browser harness; its execution has not been verified in this workspace. `scripts/test-browser-ui.mjs` is a second, manual browser harness for the Upload symbol, tooltips and saved-articles dialog (Chromium against a running `pnpm dev`; device emulation only, not Safari or a real iPhone, and not part of CI).
+The focused tests use JSDOM, mocks, Node/WASM and real local Workers D1/R2 bindings as identified in each script. They are **not** proof of iPhone/iPad browser behavior or 50 GB capacity. `scripts/test-browser-imports.mjs` is a separate browser harness; its execution has not been verified in this workspace. `scripts/test-browser-ui.mjs` is a second, manual browser harness for the Upload symbol, tooltips and saved-articles dialog (Chromium against a running `pnpm dev`; device emulation only, not Safari or a real iPhone, and not part of CI). `scripts/test-browser-ocr.mjs` exercises the visible Upload/Add photos controls through real local storage, CPU/WASM OCR, reader and saved-result reopen. It uses synthetic imperfect photos, records source hashes and tests empty/error/cancellation recovery. It runs in Web alpha CI alongside `scripts/test-ocr-lifecycle.mjs`; it does not qualify the deployed Site or a portable WASI runtime.
 
 ## Source completeness and deployment
 
