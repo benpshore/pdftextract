@@ -1,0 +1,29 @@
+name: knowOS public component smoke
+on:
+  push:
+    branches: [codex/knowos-components]
+  pull_request:
+    paths: ['ci/knowos/**', '.github/workflows/knowos-components.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  components:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      ORT_DISABLE_TELEMETRY: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: '1'
+      DO_NOT_TRACK: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.23'
+      - name: Synthetic extraction oracle
+        run: |
+          uv venv --python 3.14 /tmp/knowos-probe
+          uv pip install --python /tmp/knowos-probe/bin/python 'torch==2.14.1+cpu' torchvision --index https://download.pytorch.org/whl/cpu
+          uv pip install --python /tmp/knowos-probe/bin/python 'pdf-oxide==0.3.78' 'docling[rapidocr,vlm]==2.140.0' reportlab
+          /tmp/knowos-probe/bin/python ci/knowos/component_probe.py
