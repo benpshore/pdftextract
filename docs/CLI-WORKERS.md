@@ -98,3 +98,28 @@ races, source/output/ledger aliases, stopped-worker deadlines, signal cancellati
 parent death, request/capture bounds, and pipe backpressure. The release workflow
 runs these on native Linux x64/ARM64 and macOS ARM64. A configured workflow is not
 evidence of a passing run; retain exact commit, runner and run IDs with each result.
+
+## Offline planning and fidelity
+
+`extract --dry-run` (alias `-n`) lists the selected local PDF paths as JSON
+planning records. It performs bounded directory/metadata and source/destination
+alias checks, then returns before reading PDF contents, opening SQLite, creating
+workers/temp files or contacting a service. It does **not** check checksums, PDF
+validity/encryption, destination write permission, native runtime availability,
+OCR, Photos or Zotero permissions. Those are reported as unchecked. It never
+requests OS authorization or downloads models. Planning does not establish the
+checksum inventory needed for Ben's proposed copy-first workflow.
+
+`complete` means no incomplete-extraction signal was detected; it is not verified
+semantic completeness, correct reading order, or agreement with a reference.
+Missing/substituted font advances and detected unresolved column interleaving
+now make the result `partial`. Provisional text needs source review, especially
+for mathematics, tables, captions and non-Latin scripts. Comparing extractors
+cannot certify fidelity. The default package cannot OCR a scanned PDF with no
+text layer; a previously embedded OCR layer is ordinary PDF text here.
+
+This command does not recurse, inventory a library, skip completed jobs on rerun,
+resume pages/chunks, or ingest Photos/Zotero/Office files. The process and memory
+limits are per file: lopdf still loads document objects eagerly and the pipeline
+accumulates pages. It is not the requested bounded per-page knowledge-library
+workflow. Persistent ingestion design is paused pending reuse research.

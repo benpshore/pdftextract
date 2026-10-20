@@ -215,33 +215,9 @@ def load_reviewed_partials(
     }
     if provenance.get("paper_inputs") != selected:
         raise ValueError("reviewed-partial input provenance mismatch")
-    policies = policy.get("papers")
-    if not isinstance(policies, dict) or not isinstance(policies.get(backend, {}), dict):
-        raise ValueError("reviewed-partial paper policies must be objects")
-    allowed = policies.get(backend, {})
+    allowed = policy_outcomes(policy, selected, backend)
     for paper_id, outcome in allowed.items():
-        if not isinstance(outcome, dict) or outcome.get("inputs") != selected.get(paper_id):
-            raise ValueError(f"reviewed-partial source pin mismatch: {paper_id}")
-        warnings = outcome.get("warnings")
-        if (
-            type(outcome.get("pages")) is not int
-            or outcome["pages"] <= 0
-            or not isinstance(warnings, list)
-            or not warnings
-            or any(not isinstance(w, str) or ": resource_limit:" not in w for w in warnings)
-            or type(outcome.get("warning_count")) is not int
-            or outcome["warning_count"] < len(warnings)
-        ):
-            raise ValueError(f"invalid reviewed-partial outcome: {paper_id}")
-        baseline = outcome.get("reference_baseline")
-        if (
-            not isinstance(baseline, dict)
-            or baseline.keys() != {"truth_refs", "matched_refs", "spurious_refs"}
-            or any(type(count) is not int or count < 0 for count in baseline.values())
-            or baseline["truth_refs"] <= 0
-            or not 0 < baseline["matched_refs"] <= baseline["truth_refs"]
-        ):
-            raise ValueError(f"invalid reviewed-partial reference baseline: {paper_id}")
+        warnings = outcome["warnings"]
         # A genuinely Complete result no longer uses a Partial exception.
         # validate_dumps still rejects a Complete label hiding a cutoff.
         if dependency_changed or (partial_ids is not None and paper_id not in partial_ids):
@@ -269,10 +245,90 @@ def load_reviewed_partials(
     }
 
 
+def policy_outcomes(policy: dict, selected: dict, backend: str) -> dict:
+    """Validate immutable per-input baselines separately from exception eligibility."""
+    policies = policy.get("papers")
+    if not isinstance(policies, dict) or not isinstance(policies.get(backend, {}), dict):
+        raise ValueError("reviewed-partial paper policies must be objects")
+    allowed = policies.get(backend, {})
+    for paper_id, outcome in allowed.items():
+        if not isinstance(outcome, dict) or outcome.get("inputs") != selected.get(paper_id):
+            raise ValueError(f"reviewed-partial source pin mismatch: {paper_id}")
+        warnings = outcome.get("warnings")
+        if (
+            type(outcome.get("pages")) is not int
+            or outcome["pages"] <= 0
+            or not isinstance(warnings, list)
+            or not warnings
+            or any(not isinstance(w, str) or ": resource_limit:" not in w for w in warnings)
+            or type(outcome.get("warning_count")) is not int
+            or outcome["warning_count"] < len(warnings)
+        ):
+            raise ValueError(f"invalid reviewed-partial outcome: {paper_id}")
+        baseline = outcome.get("reference_baseline")
+        if (
+            not isinstance(baseline, dict)
+            or baseline.keys() != {"truth_refs", "matched_refs", "spurious_refs"}
+            or any(type(count) is not int or count < 0 for count in baseline.values())
+            or baseline["truth_refs"] <= 0
+            or not 0 < baseline["matched_refs"] <= baseline["truth_refs"]
+        ):
+            raise ValueError(f"invalid reviewed-partial reference baseline: {paper_id}")
+    return allowed
+
+
 def diagnostics_digest(warnings: list) -> str:
     """Pin the full ordered page diagnostics without duplicating large dumps."""
     encoded = json.dumps(warnings, ensure_ascii=True, separators=(",", ":")).encode()
     return hashlib.sha256(encoded).hexdigest()
+
+
+def diagnostic_baselines(manifest, manifest_hash, policy, provenance, split, backend, current_pins):
+    """Retain comparable page/reference baselines without granting any exception.
+
+    Native models and dependencies may differ for this comparison. Corpus,
+    scorer and truth identities must still match. This function never makes
+    historical eligibility succeed and never changes the historical pins.
+    """
+    required = {*PROVENANCE_FILES, "corpus_manifest_sha256"}
+    if (
+        not isinstance(policy, dict)
+        or type(policy.get("version")) is not int
+        or policy["version"] != 1
+        or policy.get("split") != split
+        or policy.get("host") != host_label()
+    ):
+        raise ValueError("invalid diagnostic baseline policy version/split/host")
+    pins = policy.get("provenance_pins")
+    if not isinstance(pins, dict) or pins.keys() != required:
+        raise ValueError("diagnostic baseline policy provenance pins are incomplete")
+    if any(not isinstance(value, str) or not value for value in pins.values()):
+        raise ValueError("invalid diagnostic baseline provenance pin")
+    if not re.fullmatch(r"[0-9a-f]{64}", pins["cargo_lock_sha256"]):
+        raise ValueError("invalid diagnostic baseline dependency pin")
+    if (
+        current_pins.keys() != required
+        or any(provenance.get(field) != value for field, value in current_pins.items())
+        or current_pins["corpus_manifest_sha256"] != manifest_hash
+    ):
+        raise ValueError("diagnostic baselines require verified current-source pins")
+    for field in ("corpus_manifest_sha256", "metric_source_sha256", "truth_source_sha256"):
+        if pins[field] != current_pins[field]:
+            raise ValueError(f"diagnostic baselines are not comparable: {field}")
+    for field, expected in (("backend", backend), ("split", split), ("host", host_label())):
+        if provenance.get(field) != expected:
+            raise ValueError(f"diagnostic baseline provenance mismatch: {field}")
+    selected = {
+        item["id"]: {key: item[key] for key in ("pdf_sha256", "source_sha256")}
+        for item in manifest["items"]
+        if split == "all" or item.get("split") == split
+    }
+    if provenance.get("paper_inputs") != selected:
+        raise ValueError("diagnostic baseline input provenance mismatch")
+    return {
+        paper_id: {**outcome, "partial_eligible": False}
+        for paper_id, outcome in policy_outcomes(policy, selected, backend).items()
+    }
 
 
 def validate_dumps(report: dict, dumps: dict) -> list[str]:
@@ -378,6 +434,63 @@ def dump_name(paper_id: str) -> str:
     return paper_id.replace(":", "_") + ".json"
 
 
+def evaluate_evidence(
+    manifest, manifest_hash, report, policy, provenance, split, backend, dumps, current_pins
+):
+    """Report current diagnostics even when historical exception eligibility fails."""
+    dump_errors = validate_dumps(report, dumps)
+    historical_errors = []
+    reviewed = {}
+    try:
+        reviewed = load_reviewed_partials(
+            manifest,
+            manifest_hash,
+            policy,
+            provenance,
+            split,
+            backend,
+            dumps,
+            {paper["id"] for paper in report["papers"] if paper.get("status") == "partial"},
+            current_pins,
+        )
+    except (KeyError, TypeError, IndexError, AttributeError, ValueError) as error:
+        historical_errors.append(str(error))
+    if dump_errors or historical_errors:
+        reviewed = {}
+
+    baseline_errors = []
+    baselines = {}
+    try:
+        baselines = diagnostic_baselines(
+            manifest, manifest_hash, policy, provenance, split, backend, current_pins
+        )
+    except (KeyError, TypeError, IndexError, AttributeError, ValueError) as error:
+        baseline_errors.append(str(error))
+    # Independently report strict current outcomes: Partial is always rejected
+    # here, even when a historical allowance can qualify the overall gate.
+    current_errors = validate(manifest, report, split, backend, baselines)
+    acceptance_errors = validate(manifest, report, split, backend, reviewed or baselines)
+    exceptions = sum(
+        paper.get("status") == "partial"
+        and reviewed.get(paper["id"], {}).get("partial_eligible", False)
+        and paper.get("pages") == reviewed[paper["id"]]["pages"]
+        and paper.get("warnings") == reviewed[paper["id"]]["warning_count"]
+        for paper in report["papers"]
+    )
+    return {
+        "schema_version": 1,
+        "historical_eligibility_errors": historical_errors,
+        "historical_exceptions_applied": exceptions,
+        "baseline_errors": baseline_errors,
+        "retained_baselines": sorted(baselines),
+        "dump_errors": dump_errors,
+        "strict_current_errors": current_errors,
+        "errors": list(
+            dict.fromkeys(historical_errors + baseline_errors + dump_errors + acceptance_errors)
+        ),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifest", type=Path, required=True)
@@ -388,24 +501,31 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--provenance", type=Path)
     parser.add_argument("--dumps", type=Path)
     parser.add_argument(
+        "--diagnostics-json",
+        type=Path,
+        help="write separate current/historical diagnostics to a new file (never overwrite)",
+    )
+    parser.add_argument(
         "--source-root",
         type=Path,
         default=Path(__file__).resolve().parents[1],
         help="checkout that produced the evaluated artifact (defaults to this checkout)",
     )
     args = parser.parse_args(argv)
+    errors = []
     try:
         manifest_bytes = args.manifest.read_bytes()
         manifest = json.loads(manifest_bytes)
         report = json.loads(args.report.read_text())
         if not isinstance(manifest, dict) or not isinstance(report, dict):
             raise ValueError("manifest and report must be JSON objects")
-        reviewed = None
+        diagnostics = None
         supplied = [bool(args.reviewed_partials), bool(args.provenance), bool(args.dumps)]
         if any(supplied) and not all(supplied):
             raise ValueError("--reviewed-partials, --provenance and --dumps are required together")
         if args.reviewed_partials:
-            policy = json.loads(args.reviewed_partials.read_text())
+            policy_bytes = args.reviewed_partials.read_bytes()
+            policy = json.loads(policy_bytes)
             provenance = json.loads(args.provenance.read_text())
             current_pins = verify_current_provenance(
                 provenance, source_provenance(args.source_root, args.manifest)
@@ -414,27 +534,48 @@ def main(argv: list[str] | None = None) -> int:
                 paper_id: json.loads((args.dumps / dump_name(paper_id)).read_text())
                 for paper_id in (paper["id"] for paper in report["papers"])
             }
-            dump_errors = validate_dumps(report, dumps)
-            if dump_errors:
-                raise ValueError("; ".join(dump_errors))
-            reviewed = load_reviewed_partials(
+            diagnostics = evaluate_evidence(
                 manifest,
                 hashlib.sha256(manifest_bytes).hexdigest(),
+                report,
                 policy,
                 provenance,
                 args.split,
                 args.backend,
                 dumps,
-                {paper["id"] for paper in report["papers"] if paper.get("status") == "partial"},
                 current_pins,
             )
-            if current_pins["cargo_lock_sha256"] != policy["provenance_pins"]["cargo_lock_sha256"]:
+            diagnostics.update(
+                source_provenance={**current_pins, "git_commit": provenance["git_commit"]},
+                policy_sha256=hashlib.sha256(policy_bytes).hexdigest(),
+                backend=args.backend,
+                split=args.split,
+                host=host_label(),
+            )
+            if diagnostics["historical_exceptions_applied"] == 0:
                 print(
-                    "Historical Partial exceptions are inapplicable: dependency lock differs; "
-                    "zero exceptions applied; historical pins and reference baselines retained",
+                    "Historical Partial eligibility: zero exceptions applied; "
+                    "historical pins unchanged; see independent current-source diagnostics",
                     file=sys.stderr,
                 )
-        errors = validate(manifest, report, args.split, args.backend, reviewed)
+            print(
+                "Current-source diagnostics: "
+                f"{len(diagnostics['dump_errors'])} dump errors; "
+                f"{len(diagnostics['strict_current_errors'])} strict outcome errors; "
+                f"{len(diagnostics['retained_baselines'])} retained page/reference baselines",
+                file=sys.stderr,
+            )
+        errors = (
+            diagnostics["errors"]
+            if diagnostics
+            else validate(manifest, report, args.split, args.backend)
+        )
+        if args.diagnostics_json:
+            if diagnostics is None:
+                raise ValueError("--diagnostics-json requires provenance, policy and dumps")
+            with args.diagnostics_json.open("x") as output:
+                json.dump(diagnostics, output, indent=2)
+                output.write("\n")
     except (
         KeyError,
         TypeError,
@@ -444,7 +585,7 @@ def main(argv: list[str] | None = None) -> int:
         ValueError,
         subprocess.CalledProcessError,
     ) as error:
-        errors = [str(error)]
+        errors.append(str(error))
     if errors:
         for error in errors:
             print(f"Native evaluation invalid: {error}", file=sys.stderr)

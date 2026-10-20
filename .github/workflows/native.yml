@@ -128,7 +128,7 @@ jobs:
         run: |
           status=0
           for b in lopdf pdfium docling-text docling; do
-            if ! uv run python native/validate_eval.py --manifest corpus/manifest.json --split dev --backend "$b" --report "eval-native/$b/report.json" --provenance "eval-native/$b/provenance.json" --dumps "eval-native/$b/dumps" --reviewed-partials native/reviewed-partials.json; then
+            if ! uv run python native/validate_eval.py --manifest corpus/manifest.json --split dev --backend "$b" --report "eval-native/$b/report.json" --provenance "eval-native/$b/provenance.json" --dumps "eval-native/$b/dumps" --reviewed-partials native/reviewed-partials.json --diagnostics-json "eval-native/$b/validation.json"; then
               status=1
             fi
           done

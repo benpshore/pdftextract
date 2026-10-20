@@ -122,13 +122,39 @@ pub fn read_verified(path: &Path, max_bytes: Option<u64>) -> Result<Unhashed, Ac
     if !before_meta.is_file() {
         return Err(AcquireError::NotAFile);
     }
+    read_observed(path, max_bytes, &before_meta)
+}
+
+fn read_observed(
+    path: &Path,
+    max_bytes: Option<u64>,
+    before_meta: &fs::Metadata,
+) -> Result<Unhashed, AcquireError> {
+    // A regular path can become a FIFO after the metadata check. Opening
+    // nonblocking lets us reject its descriptor without waiting for a writer.
+    // This does not bound ordinary filesystem I/O; CLI worker deadlines still
+    // provide that process boundary. Keep valid regular-file symlinks working.
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    let mut file = File::from(
+        rustix::io::retry_on_intr(|| {
+            rustix::fs::open(
+                path,
+                rustix::fs::OFlags::RDONLY
+                    | rustix::fs::OFlags::CLOEXEC
+                    | rustix::fs::OFlags::NONBLOCK,
+                rustix::fs::Mode::empty(),
+            )
+        })
+        .map_err(std::io::Error::from)?,
+    );
+    #[cfg(not(any(target_os = "linux", target_os = "macos")))]
     let mut file = File::open(path)?;
     let opened = file.metadata()?;
     if !opened.is_file() {
         return Err(AcquireError::NotAFile);
     }
     let before = observe(&opened);
-    if before != observe(&before_meta) {
+    if before != observe(before_meta) {
         return Err(AcquireError::ChangedDuringRead);
     }
     if before.size == 0 {
@@ -293,5 +319,86 @@ mod tests {
         let dir = tempdir().unwrap();
         let err = snapshot(&dir.path().join("missing.pdf"), None).unwrap_err();
         assert!(matches!(err, AcquireError::Io(_)), "{err:?}");
+    }
+
+    #[test]
+    #[cfg(unix)]
+    fn regular_file_symlinks_keep_the_verified_content() {
+        let dir = tempdir().unwrap();
+        let original = dir.path().join("original.pdf");
+        let alias = dir.path().join("alias.pdf");
+        fs::write(&original, b"verified original bytes").unwrap();
+        std::os::unix::fs::symlink(&original, &alias).unwrap();
+        let snapshot = snapshot(&alias, Some(1024)).unwrap();
+        assert_eq!(snapshot.bytes, b"verified original bytes");
+        assert_eq!(snapshot.hash, ContentHash(sha256_hex(&snapshot.bytes)));
+        assert_eq!(fs::read(original).unwrap(), snapshot.bytes);
+    }
+
+    #[test]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn fifo_replacement_cannot_block_input_open() {
+        use std::process::{Command, Stdio};
+        use std::time::{Duration, Instant};
+
+        let mut child = Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "acquire::tests::fifo_replacement_probe",
+                "--ignored",
+                "--nocapture",
+            ])
+            .stdin(Stdio::null())
+            .spawn()
+            .unwrap();
+        let started = Instant::now();
+        loop {
+            if let Some(status) = child.try_wait().unwrap() {
+                assert!(status.success(), "FIFO replacement probe exited {status}");
+                break;
+            }
+            if started.elapsed() > Duration::from_secs(5) {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!("input open waited for a writer after replacement with a FIFO");
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+    }
+
+    #[test]
+    #[ignore = "run in a bounded subprocess by fifo_replacement_cannot_block_input_open"]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    fn fifo_replacement_probe() {
+        for symlink in [false, true] {
+            let dir = tempdir().unwrap();
+            let path = dir.path().join("input.pdf");
+            let original = dir.path().join("original.pdf");
+            fs::write(&path, b"original bytes").unwrap();
+            let before = fs::metadata(&path).unwrap();
+            // Deterministically replace the path in the gap between metadata
+            // observation and opening, without a timing-dependent race loop.
+            fs::rename(&path, &original).unwrap();
+            if symlink {
+                let fifo = dir.path().join("fifo");
+                rustix::fs::mkfifoat(
+                    rustix::fs::CWD,
+                    &fifo,
+                    rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+                )
+                .unwrap();
+                std::os::unix::fs::symlink(fifo, &path).unwrap();
+            } else {
+                rustix::fs::mkfifoat(
+                    rustix::fs::CWD,
+                    &path,
+                    rustix::fs::Mode::RUSR | rustix::fs::Mode::WUSR,
+                )
+                .unwrap();
+            }
+            let error = read_observed(&path, Some(1024), &before).unwrap_err();
+            assert!(matches!(error, AcquireError::NotAFile), "{error:?}");
+            assert_eq!(fs::read(original).unwrap(), b"original bytes");
+        }
     }
 }
