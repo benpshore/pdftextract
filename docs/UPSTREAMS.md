@@ -51,3 +51,67 @@ Provision dependencies explicitly. Accepted artifacts must support offline proce
 Prefer unmodified upstream releases. Keep required patches small, explicit, and covered by fixtures, with upstream issue/PR references. If a fork is needed, separate its tracking branch from accepted application pins. Do not continuously rebase whole upstream source trees into the application.
 
 These workflows are planned, not active yet. GitHub builds use public/synthetic fixtures. Bulk extraction runs on explicitly selected machines; do not make a personal Mac a public PR runner or upload private corpora as a side effect of implementation.
+
+## Crate dependency review (2026-10-05)
+
+Produced with `sh scripts/deps-report.sh --online` at commit `1bc92cc`
+(toolchain 1.98.1, host `x86_64-unknown-linux-gnu`, default features;
+`Cargo.lock` SHA-256 `c903547b…b89f365`). These are proposals: nothing below
+was applied, `cargo update` was not run and no manifest or lockfile changed.
+Re-run the report before acting; crates.io moves.
+
+### Outdated direct dependencies (proposals)
+
+| crate | declared | locked | newest | proposal |
+| --- | --- | --- | --- | --- |
+| `sha2` (tpe-search) | `0.10` | 0.10.9 | 0.11.0 | Align with the root crate's `sha2 = "0.11"`: one `sha2` removes the `digest`, `block-buffer`, `crypto-common`, `cpufeatures` and `rand_core` duplicates listed below. Own PR for `crates/tpe-search`; verify FTS/embedding hashes in its tests. |
+| `signal-hook` (root) | `0.3` | 0.3.18 | 0.4.5 | Major bump touching the worker signal path; check the 0.4 API against `src/` signal handling in a dedicated PR with the worker-startup and CLI-containment tests. |
+| `pdfium-render` (optional `pdfium`) | `0.8` | not resolved on Linux by default | 0.9.4 | Keep 0.8 while `docling-pdf 1.69.2` pins the same major, so one `pdfium-render` links libpdfium (root `Cargo.toml` comment). Moves together with the docling pins. |
+| `docling-core`, `docling-pdf` (optional) | `=1.69.2` | not resolved by default | 1.96.1 | Deliberate exact pins; a bump is a native-backend candidate update (PDFium, models, ONNX Runtime together), not a lockfile refresh. |
+| `office_oxide` (optional) | `=0.1.9` | not resolved by default | 0.1.13 | Held back on purpose: `pdf_oxide 0.3.78` breaks against 0.1.13 (root `Cargo.toml` comment). |
+| `roxmltree` (optional `grobid`) | `=0.20.0` | not resolved by default | 0.21.1 | Exact pin; revalidate the GROBID TEI tests before moving. |
+| `libloading` (tpe-ffi `provider`) | `0.8.9` | not resolved by default | 0.9.0 | `pdfium-render` already pulls 0.9.0 under `pdfium`; moving `tpe-ffi` to 0.9 would leave one copy in native builds. |
+| `libc` (tpe-ffi, macOS) | `0.2` | not on Linux | 1.0.0-alpha.5 | Prerelease; stay on 0.2. |
+| `ruff` (uv dev group) | `>=0.14` | 0.16.9 | 0.16.10 | `uv lock --upgrade-package ruff` in a Python-tooling PR. |
+
+Every other direct dependency in the default Linux scope (anyhow, argon2,
+chacha20poly1305, clap, flate2, futures, hex, lopdf, regex, rusqlite, rustix,
+serde, serde_json, tar, tempfile, thiserror, unicode-normalization, ureq,
+zeroize) is at its newest crates.io release.
+
+### Duplicate crate versions (default Linux scope)
+
+- `sha2` 0.10.9 (tpe-search) and 0.11.0 (root, lopdf): the only duplicate a
+  workspace manifest controls; it drags `digest` 0.10.7/0.11.3, `block-buffer`
+  0.10.4/0.12.1, `crypto-common` 0.1.7/0.2.2, `cpufeatures` 0.2.17/0.3.1 and
+  `rand_core` 0.6.4/0.10.1.
+- `getrandom` 0.2.17 (ring 0.17, rand_core 0.6) and 0.4.3 (lopdf, rand 0.10,
+  tempfile, crypto-common 0.2): upstream; resolves when ring moves to
+  getrandom 0.4.
+- `syn` 2.0.119 (zerocopy-derive, zeroize_derive) and 3.0.6 (clap_derive,
+  serde_derive, thiserror-impl, futures-macro): proc-macro only, build time.
+
+### Licenses and native code (default Linux scope, 179 crates outside the workspace)
+
+All declared licenses are permissive: MIT and/or Apache-2.0 alone for 156 crates,
+plus BSD-3-Clause (3), ISC, Zlib, Unlicense, 0BSD, BSL-1.0, Unicode-3.0 and
+CDLA-Permissive-2.0 variants. No GPL, LGPL, AGPL or undeclared license in the
+default graph. The GPL/AGPL engines (Poppler, MuPDF) are never resolved by
+Cargo: they are user-built providers (`native/README.md`). Crates compiling
+native code by default: `cc` for `libsqlite3-sys` 0.38.2 (bundled SQLite) and
+`ring` 0.17.14; `pkg-config`/`vcpkg` are probed, not required. Optional
+features add `cxx` (usearch), `aws-lc-sys` with `cmake` fallback (reqwest via
+liteparse, fastembed), `ort-sys` (ONNX Runtime download), `bindgen`/libclang
+and `freetype-sys` (GPUI, macOS), `cef-dll-sys` (tpe-browser) and `zstd-sys`
+(kokoro-tts).
+
+### Python audit
+
+`uv audit --preview-features audit-command` needs a uv release with the
+`audit` subcommand (CI installs the latest uv through `astral-sh/setup-uv`).
+On the 2026-10-05 review host, uv 0.8.17 has no such subcommand and a current
+uv run through `uvx --from 'uv>=0.9' uv audit --preview-features audit-command`
+(uv 0.12.23) could not reach `api.osv.dev` through that host's egress, so the
+result there is "not run"; the required `ci` check's python job is the
+authoritative audit run. The uv project has two dev dependencies (pytest 9.1.1,
+ruff 0.16.9) and no runtime dependency.

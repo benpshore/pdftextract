@@ -1,3 +1,18 @@
+# Workspace Cargo configuration. Everything in this file must hold on every
+# developer host and on every CI runner: it forces no linker, no rustflags and
+# no C compiler, so a build here and a build in CI resolve the same way.
+# Per-host preferences (mold or lld, target-cpu, clang instead of gcc) belong
+# in ~/.cargo/config.toml or the environment, where they cannot change what
+# CI tests. `sh scripts/toolchain-doctor.sh` reports what the host resolves.
+#
+# C/C++ toolchain contract (docs/RUST_BUILD.md, "C/C++ toolchain: clang and
+# gcc"): every build compiles C through the `cc` crate (bundled SQLite from
+# libsqlite3-sys, and ring). The `cc` crate uses `$CC` when set, else `cc`;
+# rustc links through `cc` regardless of `$CC`. To make one driver compile
+# and link, set both `CC` and `CARGO_TARGET_<TRIPLE>_LINKER`. CI uses the
+# runner default: gcc on ubuntu-latest and ubuntu-24.04-arm, Apple clang on
+# macos-15. No supported target needs a `-C link-arg`, and none is set.
+
 # LiteParse's transitive PDFium build script auto-downloads an unchecked native
 # artifact unless BOTH paths are set. Keep it offline/fail-closed: provision the
 # hash-verified library and headers first. Explicit caller paths take precedence.
@@ -6,3 +21,18 @@
 [env]
 PDFIUM_LIB_PATH = { value = ".pdfium/lib", relative = true }
 PDFIUM_INCLUDE_PATH = { value = ".pdfium/include", relative = true }
+
+# Host-local examples, deliberately inactive. Copy one into ~/.cargo/config.toml
+# (never into this file) when you want a faster linker on your machine; a
+# `linker` or `rustflags` key in this file makes the doctor warn.
+#
+# [target.x86_64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+#
+# [target.aarch64-unknown-linux-gnu]
+# linker = "clang"
+# rustflags = ["-C", "link-arg=-fuse-ld=mold"]
+#
+# aarch64-apple-darwin: Apple clang with ld64 is the only tested pair; there is
+# nothing to override, and MACOSX_DEPLOYMENT_TARGET is left to rustc's default.
