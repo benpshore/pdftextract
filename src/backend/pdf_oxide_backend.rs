@@ -12,6 +12,9 @@ use pdf_oxide::PdfDocument;
 use pdf_oxide::extractors::warnings::Warning;
 use pdf_oxide::object::Object;
 
+use unicode_normalization::UnicodeNormalization;
+
+use crate::backend::lopdf_backend::expand_ligatures;
 use crate::backend::{BackendError, DocumentSession, EncryptionProblem, Extractor};
 use crate::schema::{BBox, BackendIdentity, Link, PageText, Span, config_digest};
 
@@ -29,8 +32,9 @@ impl Extractor for PdfOxideBackend {
             name: "pdf-oxide".into(),
             version: PDF_OXIDE_VERSION.into(),
             config_digest: config_digest(&BTreeMap::from([
-                ("adapter".into(), "1".into()),
+                ("adapter".into(), "2".into()),
                 ("api".into(), "extract_chars".into()),
+                ("ligatures".into(), "expand".into()),
                 (
                     "links".into(),
                     "pdf_oxide_objects_bounded_uri_targets".into(),
@@ -241,9 +245,20 @@ impl DocumentSession for PdfOxideSession {
             .document
             .extract_chars(index)
             .map_err(|error| page_error(page, error))?;
+        let mut ligatures: u32 = 0;
         for (sequence, ch) in chars.into_iter().enumerate() {
             let seq = u32::try_from(sequence)
                 .map_err(|_| page_error(page, "character count exceeds u32"))?;
+            // The same normalisation as `lopdf`: Latin presentation-form
+            // ligatures become their letters, everything else stays as the
+            // parser mapped it, in NFC. ASCII needs neither.
+            let text = if ch.char.is_ascii() {
+                ch.char.to_string()
+            } else {
+                let (expanded, count) = expand_ligatures(ch.char.to_string());
+                ligatures = ligatures.saturating_add(count);
+                expanded.nfc().collect()
+            };
             let bbox = BBox {
                 x0: ch.bbox.x,
                 y0: ch.bbox.y,
@@ -262,12 +277,17 @@ impl DocumentSession for PdfOxideSession {
                 None
             };
             output.spans.push(Span {
-                text: ch.char.to_string(),
+                text,
                 bbox,
                 font: (!ch.font_name.is_empty()).then_some(ch.font_name),
                 size: (ch.font_size.is_finite() && ch.font_size > 0.0).then_some(ch.font_size),
                 seq,
             });
+        }
+        if ligatures > 0 {
+            output
+                .warnings
+                .push(format!("ligatures expanded: {ligatures}"));
         }
         if output
             .spans
