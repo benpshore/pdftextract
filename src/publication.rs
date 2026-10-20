@@ -1,12 +1,122 @@
 //! Complete-file, no-clobber publication with rollback on handled errors.
 //! SQLite commits last. This is not a cross-filesystem crash transaction;
 //! see docs/PUBLICATION.md for the observable boundary and recovery limits.
+//!
+//! Outputs may be staged gzip-compressed ([`Compression::Gzip`]): the bytes
+//! are encoded while they stream into the staging file, which is then synced
+//! and linked exactly like an uncompressed one, under the usual name plus
+//! `.gz`. Nothing here touches the SQLite ledger, which stays uncompressed.
 
 use std::fs;
-use std::io::{self, Write};
+use std::io::{self, Read, Write};
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU8, Ordering};
 
+use flate2::write::GzEncoder;
 use tempfile::NamedTempFile;
+
+/// A gzip (deflate) compression level between 1 (fastest) and 9 (smallest).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct GzipLevel(u8);
+
+impl GzipLevel {
+    /// The lowest accepted level.
+    pub const MIN: u8 = 1;
+    /// The highest accepted level.
+    pub const MAX: u8 = 9;
+    /// zlib's default trade-off, used when no level is chosen.
+    pub const DEFAULT: Self = Self(6);
+
+    /// Validate a level; `0` (store only) and anything above 9 are rejected.
+    ///
+    /// # Errors
+    /// `InvalidInput` when `level` is outside `1..=9`.
+    pub fn new(level: u8) -> io::Result<Self> {
+        if (Self::MIN..=Self::MAX).contains(&level) {
+            Ok(Self(level))
+        } else {
+            Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                format!(
+                    "gzip level {level} is outside {}..={}",
+                    Self::MIN,
+                    Self::MAX
+                ),
+            ))
+        }
+    }
+
+    /// The numeric level.
+    #[must_use]
+    pub fn get(self) -> u8 {
+        self.0
+    }
+}
+
+impl Default for GzipLevel {
+    fn default() -> Self {
+        Self::DEFAULT
+    }
+}
+
+/// How staged bytes are encoded before they are synced and linked.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Compression {
+    /// Bytes are written as given.
+    #[default]
+    None,
+    /// One RFC 1952 gzip member per file; the final name gains `.gz`.
+    Gzip(GzipLevel),
+}
+
+impl Compression {
+    /// Gzip at `level`, validated by [`GzipLevel::new`].
+    ///
+    /// # Errors
+    /// `InvalidInput` when `level` is outside `1..=9`.
+    pub fn gzip(level: u8) -> io::Result<Self> {
+        GzipLevel::new(level).map(Self::Gzip)
+    }
+
+    /// What is appended to every published name: `""` or `".gz"`.
+    #[must_use]
+    pub fn suffix(self) -> &'static str {
+        match self {
+            Self::None => "",
+            Self::Gzip(_) => ".gz",
+        }
+    }
+
+    /// The gzip level, or `None` when bytes are written as given.
+    #[must_use]
+    pub fn gzip_level(self) -> Option<GzipLevel> {
+        match self {
+            Self::None => None,
+            Self::Gzip(level) => Some(level),
+        }
+    }
+}
+
+/// `0` means [`Compression::None`]; `1..=9` is a gzip level.
+static PROCESS_DEFAULT: AtomicU8 = AtomicU8::new(0);
+
+/// Set what [`StagedOutputs::stage`] uses for the rest of this process. The
+/// `tpe` publish worker adopts its controller's `--gzip` choice this way;
+/// library callers that want an explicit choice use [`StagedOutputs::stage_with`].
+pub fn set_process_default(compression: Compression) {
+    let level = compression.gzip_level().map_or(0, GzipLevel::get);
+    PROCESS_DEFAULT.store(level, Ordering::Release);
+}
+
+/// The compression [`StagedOutputs::stage`] applies: [`Compression::None`]
+/// unless [`set_process_default`] changed it.
+#[must_use]
+pub fn process_default() -> Compression {
+    match PROCESS_DEFAULT.load(Ordering::Acquire) {
+        0 => Compression::None,
+        level => Compression::Gzip(GzipLevel(level)),
+    }
+}
 
 /// Complete staged files, published without overwriting existing paths.
 pub struct StagedOutputs {
@@ -18,7 +128,38 @@ pub struct StagedOutputs {
 
 impl StagedOutputs {
     /// Write and sync each temporary sibling before making any final name visible.
+    ///
+    /// Bytes are encoded with [`process_default`]; see [`Self::stage_with`].
     pub fn stage(source: &Path, files: &[(&str, Vec<u8>)]) -> io::Result<Self> {
+        Self::stage_with(source, files, process_default())
+    }
+
+    /// As [`Self::stage`], with an explicit [`Compression`]. Each `suffix`
+    /// (such as `.json`) gains [`Compression::suffix`] in every published name.
+    pub fn stage_with(
+        source: &Path,
+        files: &[(&str, Vec<u8>)],
+        compression: Compression,
+    ) -> io::Result<Self> {
+        let mut readers: Vec<(&str, &[u8])> = files
+            .iter()
+            .map(|(suffix, bytes)| (*suffix, bytes.as_slice()))
+            .collect();
+        let mut streams: Vec<(&str, &mut dyn Read)> = readers
+            .iter_mut()
+            .map(|(suffix, bytes)| (*suffix, bytes as &mut dyn Read))
+            .collect();
+        Self::stage_streams(source, &mut streams, compression)
+    }
+
+    /// Stream each reader into its staging file, encoding on the way, and
+    /// sync it before making any final name visible. No output is held in
+    /// memory as a whole: the gzip encoder keeps a small fixed buffer.
+    pub fn stage_streams(
+        source: &Path,
+        files: &mut [(&str, &mut dyn Read)],
+        compression: Compression,
+    ) -> io::Result<Self> {
         let directory = source
             .parent()
             .filter(|p| !p.as_os_str().is_empty())
@@ -45,10 +186,12 @@ impl StagedOutputs {
                 // not chmod afterwards or read/change the process-wide umask.
                 builder.permissions(fs::Permissions::from_mode(0o666));
             }
-            let mut file = builder.tempfile_in(&staged.directory)?;
-            file.write_all(bytes)?;
+            let file = builder.tempfile_in(&staged.directory)?;
+            encode(&mut **bytes, file.as_file(), compression)?;
             file.as_file().sync_all()?;
-            staged.files.push(((*suffix).to_owned(), file));
+            staged
+                .files
+                .push((format!("{suffix}{}", compression.suffix()), file));
         }
         Ok(staged)
     }
@@ -193,6 +336,24 @@ fn same_file(_a: &fs::Metadata, _b: &fs::Metadata) -> io::Result<bool> {
 
 fn sync_directory(path: &Path) -> io::Result<()> {
     fs::File::open(path)?.sync_all()
+}
+
+/// Copy `reader` into `file`, gzip-encoding it when asked. Both paths stream
+/// through `io::copy`'s fixed buffer; `finish` writes the gzip trailer
+/// (CRC-32 and length) so a short file is detectable by any decoder.
+fn encode(reader: &mut dyn Read, mut file: &fs::File, compression: Compression) -> io::Result<()> {
+    match compression {
+        Compression::None => {
+            io::copy(reader, &mut file)?;
+        }
+        Compression::Gzip(level) => {
+            let mut encoder =
+                GzEncoder::new(file, flate2::Compression::new(u32::from(level.get())));
+            io::copy(reader, &mut encoder)?;
+            encoder.finish()?;
+        }
+    }
+    file.flush()
 }
 
 #[cfg(test)]
