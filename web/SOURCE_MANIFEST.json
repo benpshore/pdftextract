@@ -718,13 +718,13 @@
       "bytes": 2467,
       "mode": "0644",
       "path": "package.json",
-      "sha256": "7298f205b38952b53c12207bd95637036fe30f33d58b78c7868be39ca457b192"
+      "sha256": "37fed50a81566520de6fe19100179bb331cad392e268a2782db54a206a39b3a1"
     },
     {
       "bytes": 362820,
       "mode": "0644",
       "path": "pnpm-lock.yaml",
-      "sha256": "3652e8b5aed20aa5ed2e038e3c69ca7bf9745e714bd134e60fd40850d4ec17d2"
+      "sha256": "bc05498ddf3d78dee3c3f90fce42ef3ef86395752b214edad5a327e329ef955e"
     },
     {
       "bytes": 758,
