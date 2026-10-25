@@ -21,9 +21,27 @@ pub enum ZError {
         /// Start of the response body (at most 300 characters).
         message: String,
     },
+    /// 400: the request body or a parameter was invalid.
+    #[error("bad request (400): {0}")]
+    BadRequest(String),
     /// 403: the key is invalid or lacks the needed privileges.
     #[error("forbidden (403): the API key is invalid or lacks the needed permission")]
     Forbidden,
+    /// 409: the library is locked (for example during a sync); retry later.
+    #[error("conflict (409): the target library is locked")]
+    Conflict,
+    /// 413: the request body or the uploaded file exceeds the server's limit.
+    #[error("request too large (413): {0}")]
+    TooLarge(String),
+    /// The server refused one object of a multi-object write (a per-object
+    /// entry in the `failed` map).
+    #[error("write refused ({code}): {message}")]
+    WriteFailed {
+        /// Per-object HTTP-style code.
+        code: u16,
+        /// Server message.
+        message: String,
+    },
     /// 404 from the API, or a missing local file.
     #[error("not found: {0}")]
     NotFound(String),
