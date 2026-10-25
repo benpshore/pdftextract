@@ -43,6 +43,63 @@ one- or two-reference list is currently reported `not_found`. The current
 implementation rechecks the growing suffix, so a very long bibliography or a
 document with no detectable list can take more work than these test cases.
 
+## Detection and segmentation rules (2026-10-05)
+
+The list heading is recognised in English (`References`, `Bibliography`,
+`Works cited`, `Literature cited`, `References cited`, `Literature`,
+`Sources`, `Notes and references`), German (`Literaturverzeichnis`,
+`Literatur`, `Quellenverzeichnis`, `Quellen`, `Referenzen`, `Schrifttum`),
+French (`Références`, `Références bibliographiques`, `Bibliographie`),
+Spanish (`Referencias`, `Referencias bibliográficas`, `Bibliografía`,
+`Literatura citada`, `Obras citadas`), Portuguese (`Referências`,
+`Referências bibliográficas`, `Bibliografia`), Italian (`Riferimenti
+bibliografici`, `Opere citate`), Dutch (`Referenties`, `Literatuur`,
+`Literatuurlijst`, `Bronnen`, `Bibliografie`), Polish (`Literatura`,
+`Piśmiennictwo`) and Russian (`Литература`, `Список литературы`,
+`Библиография`, `Список источников`), in any case, with an optional section
+number or letter, an optional `Supplementary`/`Selected`/`Additional`-type
+prefix, a trailing `:` or `.`, and letter-spaced (`R E F E R E N C E S`).
+The word must fill the line and a reference entry must follow within three
+content lines, so the same word inside prose or in a table of contents
+opens no list.
+
+A journal that repeats `References` as the running head of every page of the
+list no longer splits it. In the forward path a heading line in a
+running-head position (the page's margin bands, or a top row separated from
+the body) that repeats the heading of the open list, and that the list
+continues after (a printed label above `1`, a hanging-indent continuation,
+or the same text in a running-head position on another page), opens no new
+list, and the line itself is dropped from the entries. In the backward scan a
+found list whose heading shows that evidence is held while earlier pages are
+read; it is returned, with a warning, only when no earlier list start absorbs
+it. A list whose heading sits in the top band but opens with `[1]` or `1.`
+is accepted at once, as before. A running head worded differently from the
+heading (`REFERENCES` over a `Bibliography` list) still splits the list, and
+a heading in the top band followed by a fresh author-year entry on a single
+page cannot be told from a running head and is accepted as a list start.
+
+Entries numbered `(1)`, `(2)` segment like `1)` lists and keep the printed
+label. An arXiv identifier broken by a line wrap after its period
+(`arXiv:2301.` then `12345`) or after `abs/` is read whole; DOIs and URLs
+already were.
+
+### Offline measurement
+
+`tests/bibliography_synthetic_cases.rs` holds 20 synthetic page-text cases
+(headings in eight languages, running heads, `(n)` labels, entries spanning
+page breaks and columns, de-hyphenation, wrapped DOIs/URLs/arXiv ids,
+Chicago/Vancouver/IEEE/German field parsing). Each case is one test, so the
+pass count is the score. Against the base commit `1bc92cc` the suite passed
+8/20; after this change it passes 20/20. Three of the twelve baseline
+failures were expectation errors in the new cases (authors are kept as
+printed, `Smith, John`; page ranges use an en dash) and were corrected to the
+documented conventions; the other nine were defects fixed here. The
+committed retained-span fixtures (`tests/bibliography_column_headings.rs`,
+29 references on both backends) and the existing `citations`/`bibliography`
+unit tests pass unchanged. No corpus was downloaded; the arXiv and PMC
+harnesses were not run and their numbers in [EVAL.md](EVAL.md) and
+[PMC_EVAL.md](PMC_EVAL.md) are not refreshed by this change.
+
 ## Evidence and limits
 
 The [five-paper audit](analysis/2026-09-29-reverse-bibliography-audit.md)

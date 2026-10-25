@@ -286,18 +286,86 @@ const COMPOUND_HEADS: &[&str] = &[
     "world",
 ];
 
+/// The heading words of a reference list, matched without regard to case:
+/// English (`References`, `Bibliography`, `Works cited`, `Literature
+/// cited`, `References cited`, `Literature`, `Sources`, the RSC `Notes and
+/// references` in either order), German (`Literaturverzeichnis`,
+/// `Literatur`, `Quellenverzeichnis`, `Quellen`, `Referenzen`,
+/// `Schrifttum`), French (`Références`, `Références bibliographiques`,
+/// `Bibliographie`), Spanish (`Referencias`, `Referencias bibliográficas`,
+/// `Bibliografía`, `Literatura citada`, `Obras citadas`), Portuguese
+/// (`Referências`, `Referências bibliográficas`, `Bibliografia`), Italian
+/// (`Riferimenti bibliografici`, `Bibliografia`, `Opere citate`), Dutch
+/// (`Referenties`, `Literatuur`, `Literatuurlijst`, `Bronnen`,
+/// `Bibliografie`), Polish (`Literatura`, `Piśmiennictwo`) and Russian
+/// (`Литература`, `Список литературы`, `Библиография`,
+/// `Список источников`). The word must fill the line ([`heading_re`]), so
+/// `References [1] and [2] agree.` is not a heading.
+const HEADING_WORDS: &str = r"(?i:notes\s+and\s+references|references\s+and\s+notes|references(?:\s+cited)?|reference\s+list|bibliography|works\s+cited|literature\s+cited|cited\s+literature|literature|sources|literaturverzeichnis|literatur|quellenverzeichnis|quellen|referenzen|schrifttum|références(?:\s+bibliographiques)?|bibliographie|referencias(?:\s+bibliográficas)?|bibliografía|literatura\s+citada|obras\s+citadas|referências(?:\s+bibliográficas)?|bibliografia|riferimenti(?:\s+bibliografici)?|opere\s+citate|referenties|literatuur(?:lijst)?|bronnen|bibliografie|literatura|piśmiennictwo|литература|список\s+литературы|библиография|список\s+источников)";
+
 /// A reference-list heading: `References`, `7. References`, `A Bibliography`,
-/// `Supplementary References`, `References for the Appendices`,
-/// `References and Notes`, and the RSC `Notes and references` (either
-/// order in any case).
+/// `Supplementary References`, `Selected Bibliography`, `References for the
+/// Appendices`, `References and Notes`, `References.`, and the same in the
+/// other languages of [`HEADING_WORDS`] (`Literaturverzeichnis`,
+/// `Références bibliographiques`, `Referencias`, ...), in any case. A
+/// letter-spaced heading (`R E F E R E N C E S`) matches through
+/// [`unspaced_heading`]; see [`is_heading_line`].
 fn heading_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| {
-        Regex::new(
-            r"^\s*(?:(?:\d+|[IVX]+)\.?\s*|[A-Z]\.?\s+)?(?:(?:Supplementary|Supplemental|Additional|Appendix|Further|Extended|Online|SUPPLEMENTARY|SUPPLEMENTAL|ADDITIONAL|APPENDIX)\s+)?(?i:notes\s+and\s+references|references\s+and\s+notes|references|reference list|bibliography|works cited|literature cited)(?:\s+(?:for|of|to|and|in|FOR|OF|TO|AND|IN)\s+[\p{L}\s’'\-]{1,40})?\s*:?\s*$",
-        )
+        Regex::new(&format!(
+            r"^\s*(?:(?:\d+|[IVX]+)\.?\s*|[A-Z]\.?\s+)?(?:(?i:Supplementary|Supplemental|Additional|Appendix|Further|Extended|Online|Selected|Main|Primary|Weiterführende|Verwendete)\s+)?{HEADING_WORDS}(?:\s+(?i:for|of|to|and|in)\s+[\p{{L}}\s’'\-]{{1,40}})?\s*[:.]?\s*$"
+        ))
         .expect("valid regex")
     })
+}
+
+/// The text of a heading for comparing a running head with the heading
+/// it repeats: letter-spacing closed up ([`unspaced_heading`]), without a
+/// leading section number or letter, without trailing punctuation,
+/// whitespace collapsed and lower-cased (`7. References` and `REFERENCES`
+/// both give `references`; `References for the Appendices` differs).
+fn heading_key(text: &str) -> String {
+    static LEAD: OnceLock<Regex> = OnceLock::new();
+    let lead = LEAD.get_or_init(|| {
+        Regex::new(r"^\s*(?:(?:\d+|[IVX]+)\.?\s*|[A-Z]\.?\s+)?").expect("valid regex")
+    });
+    let closed = unspaced_heading(text).unwrap_or_else(|| text.trim().to_string());
+    let rest = lead
+        .find(&closed)
+        .map_or(closed.as_str(), |m| &closed[m.end()..]);
+    rest.trim_end_matches([':', '.', ' '])
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join(" ")
+        .to_lowercase()
+}
+
+/// Is `text` a reference-list heading ([`heading_re`]), as printed or
+/// letter-spaced (`R E F E R E N C E S`, [`unspaced_heading`])?
+fn is_heading_line(text: &str) -> bool {
+    heading_re().is_match(text)
+        || unspaced_heading(text).is_some_and(|joined| heading_re().is_match(&joined))
+}
+
+/// A letter-spaced heading closed up: `R E F E R E N C E S` →
+/// `REFERENCES`. `None` unless the line is at least four single letters
+/// separated by single spaces (a trailing `.` or `:` may follow).
+fn unspaced_heading(text: &str) -> Option<String> {
+    let trimmed = text.trim();
+    let body = trimmed.trim_end_matches([':', '.']);
+    let tokens: Vec<&str> = body.split(' ').collect();
+    if tokens.len() < 4
+        || !tokens.iter().all(|token| {
+            let mut chars = token.chars();
+            matches!((chars.next(), chars.next()), (Some(c), None) if c.is_alphabetic())
+        })
+    {
+        return None;
+    }
+    let mut joined: String = tokens.concat();
+    joined.push_str(&trimmed[body.len()..]);
+    Some(joined)
 }
 
 fn end_heading_re() -> &'static Regex {
@@ -401,9 +469,11 @@ fn dot_label_re() -> &'static Regex {
     RE.get_or_init(|| Regex::new(r"^\s*(\d+)\.\s+").expect("valid regex"))
 }
 
+/// `12) ` or `(12) `: group 1 is the number; the label is read from the
+/// match so `(12)` keeps its opening parenthesis.
 fn paren_label_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"^\s*(\d+)\)\s+").expect("valid regex"))
+    RE.get_or_init(|| Regex::new(r"^\s*(\(?)(\d+)\)\s+").expect("valid regex"))
 }
 
 fn page_number_re() -> &'static Regex {
@@ -559,11 +629,15 @@ fn comma_venue_re() -> &'static Regex {
     })
 }
 
+/// An arXiv identifier after `arXiv:` or `abs/`: `2301.12345`,
+/// `2301.12345v2`, `hep-th/9901001`. Group 1 is the identifier; a single
+/// space that a line wrap left after the period of a new-style id
+/// (`arXiv:2301.` + `12345`) is tolerated and removed by [`find_arxiv`].
 fn arxiv_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| {
         Regex::new(
-            r"(?i)(?:arxiv[\s:.]*|abs/)(\d{4}\.\d{4,5}(?:v\d+)?|[a-z\-]+(?:\.[a-z]{2})?/\d{7})",
+            r"(?i)(?:arxiv[\s:.]*|abs/ ?)(\d{4}\. ?\d{4,5}(?:v\d+)?|[a-z\-]+(?:\.[a-z]{2})?/\d{7})",
         )
         .expect("valid regex")
     })
@@ -862,9 +936,11 @@ fn clause_re() -> &'static Regex {
     })
 }
 
+/// A printed numeric label on its own: `[12]`, `12.`, `12)`, `(12)`, `12`.
+/// Group 1 is the number.
 fn numbered_label_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| Regex::new(r"^\[?(\d+)[\].)]?$").expect("valid regex"))
+    RE.get_or_init(|| Regex::new(r"^[\[(]?(\d+)[\].)]?$").expect("valid regex"))
 }
 
 /// A bare `[n]` label with nothing after it (the label column of an IEEE
@@ -1030,10 +1106,17 @@ fn numbered_run_follows(pages: &[PageText], pos: usize, first_line: usize) -> bo
 /// taken as printed; without any heading, a `[1] ... [2] ... [3]` run opens
 /// a heading-less list (see [`headingless_section`]).
 pub fn find_reference_sections(pages: &[PageText]) -> Vec<ReferenceSection> {
-    let mut candidates: Vec<(usize, ReferenceSection)> = Vec::new();
+    // `(page position, section, in a running-head position)`.
+    let mut candidates: Vec<(usize, ReferenceSection, bool)> = Vec::new();
     for (pos, page) in pages.iter().enumerate() {
+        let mut flags: Option<Vec<bool>> = None;
         for (i, line) in page.lines.iter().enumerate() {
-            if heading_re().is_match(&line.text) {
+            if is_heading_line(&line.text) {
+                let furniture = flags
+                    .get_or_insert_with(|| furniture_flags(page))
+                    .get(i)
+                    .copied()
+                    .unwrap_or(true);
                 candidates.push((
                     pos,
                     ReferenceSection {
@@ -1041,19 +1124,42 @@ pub fn find_reference_sections(pages: &[PageText]) -> Vec<ReferenceSection> {
                         first_line: i,
                         heading: line.text.trim().to_string(),
                     },
+                    furniture,
                 ));
             }
         }
     }
     let mut sections: Vec<ReferenceSection> = Vec::new();
-    for (k, (pos, section)) in candidates.iter().enumerate() {
-        let stop = candidates.get(k + 1).map(|(p, next)| (*p, next.first_line));
+    let mut repeated: Option<Vec<String>> = None;
+    for (k, (pos, section, furniture)) in candidates.iter().enumerate() {
+        // A journal repeats the section title as the running head of every
+        // page of the list: a heading in a running-head position that
+        // repeats the heading of the open list ([`heading_key`]), with the
+        // evidence of a running head ([`running_head_evidence`]), opens no
+        // new list. A differently worded heading (`References for the
+        // Appendices` numbered on from the main list) does.
+        if *furniture
+            && sections
+                .last()
+                .is_some_and(|open| heading_key(&open.heading) == heading_key(&section.heading))
+            && running_head_evidence(
+                pages,
+                *pos,
+                section.first_line,
+                repeated.get_or_insert_with(|| repeated_furniture(pages)),
+            )
+        {
+            continue;
+        }
+        let stop = candidates
+            .get(k + 1)
+            .map(|(p, next, _)| (*p, next.first_line));
         if list_follows(pages, *pos, section.first_line, stop) {
             sections.push(section.clone());
         }
     }
     if sections.is_empty()
-        && let Some((_, last)) = candidates.last()
+        && let Some((_, last, _)) = candidates.last()
     {
         sections.push(last.clone());
     }
@@ -1063,6 +1169,116 @@ pub fn find_reference_sections(pages: &[PageText]) -> Vec<ReferenceSection> {
         sections.push(section);
     }
     sections
+}
+
+/// Does the heading line of `section` sit where a running head goes
+/// (the page's margin bands or its separated top row, [`furniture_flags`])?
+/// A heading-less list and a heading whose page is not in `pages` are
+/// never in that position.
+fn heading_in_furniture_position(pages: &[PageText], section: &ReferenceSection) -> bool {
+    if section.heading.is_empty() {
+        return false;
+    }
+    pages
+        .iter()
+        .find(|page| page.page == section.first_page)
+        .and_then(|page| furniture_flags(page).get(section.first_line).copied())
+        .unwrap_or(false)
+}
+
+/// Content lines after a heading examined by [`continues_list`].
+const CONTINUATION_LOOKAHEAD: usize = 12;
+
+/// The printed number of a line that opens a numbered entry in any style
+/// (`[12]`, `12.`, `12)`, `(12)`, `12 Q. Zhang`).
+fn any_numbered_label(text: &str) -> Option<u32> {
+    [Style::Bracket, Style::Dot, Style::Paren, Style::Bare]
+        .into_iter()
+        .find_map(|style| numbered_label(style, text).map(|(number, _)| number))
+}
+
+/// Does the list after the heading at (`pos`, `first_line`) continue a
+/// list begun on an earlier page (`Some(true)`): its first content line
+/// carries a label above `1`, or carries none and sits right of the next
+/// entry start (a hanging-indent continuation), or carries none while the
+/// next label within [`CONTINUATION_LOOKAHEAD`] lines is above `1`. A
+/// list that opens with `[1]` / `1.` begins here (`Some(false)`). An
+/// author-year entry at the start level says nothing: the page may begin
+/// with a new entry of a list already running (`None`).
+fn list_start_kind(pages: &[PageText], pos: usize, first_line: usize) -> Option<bool> {
+    let mut first_x0: Option<Option<f32>> = None;
+    let mut seen = 0usize;
+    for (p, page) in pages.iter().enumerate().skip(pos) {
+        let skip = if p == pos { first_line + 1 } else { 0 };
+        let flags = furniture_flags(page);
+        for (i, line) in page.lines.iter().enumerate().skip(skip) {
+            let text = line.text.trim();
+            if text.is_empty()
+                || is_accent_only(text)
+                || page_number_re().is_match(text)
+                || (flags.get(i).copied().unwrap_or(false) && is_heading_line(text))
+            {
+                continue;
+            }
+            if let Some(number) = any_numbered_label(text) {
+                return Some(number > 1);
+            }
+            let x0 = line.bbox.map(|b| b.x0);
+            let Some(first) = first_x0 else {
+                first_x0 = Some(x0);
+                seen += 1;
+                continue;
+            };
+            if opens_entry(text)
+                && let (Some(first), Some(x0)) = (first, x0)
+            {
+                return (first - x0 > INDENT_TOLERANCE).then_some(true);
+            }
+            seen += 1;
+            if seen >= CONTINUATION_LOOKAHEAD {
+                return None;
+            }
+        }
+    }
+    None
+}
+
+/// Is the heading at (`pos`, `first_line`), set in a running-head position,
+/// the running head of a list begun on an earlier page: the list continues
+/// after it ([`list_start_kind`]), or, when the page opens with a new
+/// entry, the same text sits in a running-head position on another page
+/// too (`repeated`, [`repeated_furniture`])? A list that opens with its
+/// first label begins here.
+fn running_head_evidence(
+    pages: &[PageText],
+    pos: usize,
+    first_line: usize,
+    repeated: &[String],
+) -> bool {
+    match list_start_kind(pages, pos, first_line) {
+        Some(kind) => kind,
+        None => pages
+            .get(pos)
+            .and_then(|page| page.lines.get(first_line))
+            .is_some_and(|line| repeated.contains(&digit_key(line.text.trim()))),
+    }
+}
+
+/// Is the heading of `section` the running head of a list that began on
+/// an earlier page: a heading in a running-head position
+/// ([`heading_in_furniture_position`]) with the evidence of
+/// [`running_head_evidence`]? A backward scan that finds such a section
+/// has not read the page the list starts on.
+pub fn heading_is_running_head(pages: &[PageText], section: &ReferenceSection) -> bool {
+    if !heading_in_furniture_position(pages, section) {
+        return false;
+    }
+    pages
+        .iter()
+        .position(|page| page.page == section.first_page)
+        .is_some_and(|pos| {
+            running_head_evidence(pages, pos, section.first_line, &repeated_furniture(pages))
+        })
 }
 
 /// The main reference list: the first heading of [`find_reference_sections`]
@@ -1226,6 +1442,11 @@ fn section_lines_with_furniture(
             if furniture && repeated.contains(&digit_key(text)) && !bare_label_re().is_match(text) {
                 continue;
             }
+            // `References` as the running head of a list page is never
+            // entry text, even when it repeats on no other page read.
+            if furniture && is_heading_line(text) {
+                continue;
+            }
             if page_number_re().is_match(text) {
                 let margin = line.bbox.is_some_and(|b| in_margin(b, page.height));
                 let continues = !margin
@@ -1352,11 +1573,15 @@ fn numbered_label(style: Style, text: &str) -> Option<(u32, String)> {
         Style::AuthorYear | Style::Detached => return None,
     };
     let caps = re.captures(text)?;
-    let number: u32 = caps.get(1)?.as_str().parse().ok()?;
+    let (open, digits) = match style {
+        Style::Paren => (caps.get(1).map_or("", |m| m.as_str()), caps.get(2)?),
+        _ => ("", caps.get(1)?),
+    };
+    let number: u32 = digits.as_str().parse().ok()?;
     let label = match style {
         Style::Bracket => format!("[{number}]"),
         Style::Dot => format!("{number}."),
-        Style::Paren => format!("{number})"),
+        Style::Paren => format!("{open}{number})"),
         Style::Bare => number.to_string(),
         Style::AuthorYear | Style::Detached => return None,
     };
@@ -2587,7 +2812,8 @@ fn find_arxiv(text: &str) -> Option<(Range<usize>, String)> {
     let caps = arxiv_re().captures(text)?;
     let whole = caps.get(0)?;
     let id = caps.get(1)?;
-    Some((whole.range(), id.as_str().to_string()))
+    let id: String = id.as_str().chars().filter(|c| *c != ' ').collect();
+    Some((whole.range(), id))
 }
 
 /// First URL with its byte range, closed up across line wraps
