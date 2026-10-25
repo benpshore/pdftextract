@@ -131,6 +131,10 @@ summary { display: list-item; padding: .6rem 0; cursor: pointer; font-weight: 55
 .add-menu-options button { display: flex; align-items: center; gap: .65rem; width: 100%; text-align: left; padding: .5rem .65rem; border-radius: .45rem; }
 .add-menu-options button:hover { background: var(--accent); }
 .add-menu-options svg { width: 20px; }
+.pdf-controls { display: grid; gap: .5rem; margin: .4rem; padding: .5rem; border: 1px solid var(--border); max-width: 260px; }
+.pdf-controls label { display: grid; gap: .2rem; font-size: .85rem; }
+.pdf-controls select { width: 100%; font: inherit; background: var(--popover); color: var(--popover-foreground); }
+.pdf-controls a { font-size: .8rem; text-decoration: underline; }
 .menu-title { margin: 0; padding: .35rem .65rem .25rem; color: var(--muted-foreground); font-size: .82rem; font-weight: 600; }
 .help { color: var(--muted-foreground); font-size: .9rem; line-height: 1.5; }
 .tip-wrap { position: relative; display: inline-flex; }
