@@ -1,0 +1,43 @@
+{
+  "contract_version": 1,
+  "regions": [
+    {
+      "adjudicated_text": "RECOVER ALPHA 2026",
+      "candidate_backend": "pdfium",
+      "candidate_version": null,
+      "expected_baseline_text": "\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd\ufffd",
+      "expected_candidate_text": "RECOVER ALPHA 2026",
+      "frame": "producer_declared_pdf_user_space_unrotated",
+      "id": "recovery-target",
+      "page": 1,
+      "page_geometry": {
+        "height": 792.0,
+        "rotation": 0,
+        "width": 612.0
+      },
+      "page_index": 0,
+      "provenance": {
+        "frame_basis": "Generator fixes MediaBox=CropBox=[0,0,612,792], Rotate=0, PDF text coordinates bottom-left in points; MuPDF raster uses 2 pixels/point with top-left image origin.",
+        "method": "Predeclared source strings/glyph map followed by separate-engine MuPDF raster review; no candidate-derived truth. Baseline expected text is a captured regression assertion.",
+        "record_reference": "experiments/region-fusion/fixtures/visual-review.json sha256=8897a411b571a6b9094190a1233cb49ef758b44285c4fafc33499aac18f95240",
+        "renderer": "PyMuPDF 1.26.6 / MuPDF 1.26.11",
+        "renderer_config_digest": "05f8dbfb5288ff434e5a4cc4c1b974a5d2ceb760fcc07329107dd25ff5bc9405",
+        "reviewer": "/root/pdfium_audit; /root/fusion_design; /root (AI source and visual review, not blind/human annotation)"
+      },
+      "region": {
+        "x0": 40.0,
+        "x1": 315.0,
+        "y0": 608.0,
+        "y1": 650.0
+      },
+      "render_artifact": {
+        "sha256": "3164d458097f50a137f5b555915c60dd7258d26b9ab97fab008e0781ce18c85d",
+        "size": 22306
+      }
+    }
+  ],
+  "source": {
+    "sha256": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f",
+    "size": 10736
+  }
+}

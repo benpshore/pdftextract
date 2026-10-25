@@ -1,0 +1,70 @@
+{
+  "encoding": "custom identity CMap stream",
+  "fixture": "negative-empty-tounicode",
+  "frame": {
+    "axes": "x-right-y-up",
+    "crop_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "height": 792,
+    "media_box": [
+      0,
+      0,
+      612,
+      792
+    ],
+    "origin": "bottom-left",
+    "page": 1,
+    "rotation_degrees": 0,
+    "units": "pt",
+    "width": 612
+  },
+  "input_sha256": "ef40d5b45f720ff59a633b5690a407516a8e9f51eeb46baf277b8557132de46b",
+  "purpose": "negative: mapping absent",
+  "region_bbox_semantics": "Generously enclosing source-authored regions, not exact painted glyph bounds or backend measurements.",
+  "regions": [
+    {
+      "baseline_xy": [
+        50,
+        722
+      ],
+      "expected_action": "retain baseline exactly",
+      "expected_text": "BASELINE REGION RETAINS THIS TEXT.",
+      "font_size_pt": 14,
+      "id": "good-neighbor",
+      "region_bbox": [
+        40,
+        708,
+        330,
+        742
+      ],
+      "source_font": "Good",
+      "source_operation": "content object 4, first text show"
+    },
+    {
+      "baseline_xy": [
+        50,
+        622
+      ],
+      "expected_action": "adjudicate candidate against source truth",
+      "expected_text": "RECOVER ALPHA 2026",
+      "font_size_pt": 22,
+      "id": "recovery-target",
+      "region_bbox": [
+        40,
+        608,
+        315,
+        650
+      ],
+      "source_font": "Recovery",
+      "source_operation": "content object 4, second text show"
+    }
+  ],
+  "repeated_text": false,
+  "schema": "region-fusion-fixture-truth-v1",
+  "to_unicode": "empty valid CMap",
+  "truth_basis": "Predeclared generator strings, glyph-to-Unicode table and PDF text-show operators; never extracted candidate text."
+}

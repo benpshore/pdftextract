@@ -1,0 +1,102 @@
+{
+  "adjudicated_regions": [
+    {
+      "baseline_xy": [
+        50,
+        722
+      ],
+      "expected_action": "retain baseline exactly",
+      "expected_text": "BASELINE REGION RETAINS THIS TEXT.",
+      "font_size_pt": 14,
+      "id": "good-neighbor",
+      "region_bbox": [
+        40,
+        708,
+        330,
+        742
+      ],
+      "source_font": "Good",
+      "source_operation": "content object 4, first text show"
+    },
+    {
+      "baseline_xy": [
+        50,
+        622
+      ],
+      "expected_action": "adjudicate candidate against source truth",
+      "expected_text": "RECOVER ALPHA 2026",
+      "font_size_pt": 22,
+      "id": "recovery-target",
+      "region_bbox": [
+        40,
+        608,
+        315,
+        650
+      ],
+      "source_font": "Recovery",
+      "source_operation": "content object 4, second text show"
+    }
+  ],
+  "limitations": [
+    "Reviewers were given expected source strings before viewing; not blind or human annotation.",
+    "PDFium render and candidate share runtime; MuPDF raster is separate-engine visual evidence.",
+    "Witness-assisted selection tests functional adjudicated projection, not holdout accuracy or automatic correctness discovery.",
+    "Authored enclosing region boxes are not exact glyph bounds."
+  ],
+  "render_artifacts": {
+    "mupdf": {
+      "path": "captured/positive-stream-cmap/page-1-mupdf.png",
+      "sha256": "3164d458097f50a137f5b555915c60dd7258d26b9ab97fab008e0781ce18c85d",
+      "size": 22306
+    },
+    "pdfium": {
+      "path": "captured/positive-stream-cmap/page-1-pdfium.png",
+      "sha256": "3393417e193601a57936304e97db75480492e8cc2f5dbf5cef863dc4fe65e665",
+      "size": 27809
+    }
+  },
+  "renderer_config": {
+    "alpha": false,
+    "height_pixels": 1584,
+    "matrix": [
+      2,
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    "page_index": 0,
+    "pdf_input_sha256": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f",
+    "renderer": "PyMuPDF 1.26.6 / MuPDF 1.26.11",
+    "width_pixels": 1224
+  },
+  "renderer_config_digest": "05f8dbfb5288ff434e5a4cc4c1b974a5d2ceb760fcc07329107dd25ff5bc9405",
+  "reviewers": [
+    {
+      "kind": "AI visual/source review",
+      "name": "/root/pdfium_audit",
+      "observed": "Exact two source-declared lines visible; clear vertical separation."
+    },
+    {
+      "kind": "Separate AI visual review of MuPDF and PDFium PNGs",
+      "name": "/root/fusion_design",
+      "observed": "Both renders visibly show exactly BASELINE REGION RETAINS THIS TEXT. and RECOVER ALPHA 2026 with no additional visible target-neighborhood content."
+    },
+    {
+      "kind": "AI visual review of MuPDF PNG",
+      "name": "/root",
+      "observed": "Both lines visibly match predeclared generator truth."
+    }
+  ],
+  "runtime_selection_separation": "This review freezes source/render truth. The approved selection witness can reference this record, but raw parser artifacts and per-run timings/config paths remain separately captured observations.",
+  "schema": "region-fusion-visual-review-v1",
+  "source": {
+    "sha256": "97779d74bc9f286de6f4578ce86f47a266d7f263a28ce37b955b61b7333f2a1f",
+    "size": 10736
+  },
+  "source_truth_artifact": {
+    "path": "positive-stream-cmap.truth.json",
+    "sha256": "bfd8d562f4838ede854ad651bc15ddef16785b56da33a3c5c12425cc107fe3a6"
+  }
+}
