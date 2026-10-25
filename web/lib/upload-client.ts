@@ -1,5 +1,5 @@
 import type {DocumentRow, Extracted} from './types';
-export type UploadOptions={kind?:string;sourceUrl?:string;signal?:AbortSignal;onProgress?:(fraction:number)=>void};
+export type UploadOptions={kind?:string;sourceUrl?:string;path?:string;signal?:AbortSignal;onProgress?:(fraction:number)=>void};
 type AssetReceipt={url:string;id:string};
 async function responseJson<T>(response:Response):Promise<T>{
  if(!response.ok){let message=await response.text();try{message=JSON.parse(message).error||message;}catch{}
@@ -53,7 +53,8 @@ async function multipart(file:Blob,metadata:Record<string,unknown>,options:Uploa
 }
 export async function uploadOriginal(file:File,options:UploadOptions={}):Promise<DocumentRow>{
  const kind=await detectFileKind(file);
- return await multipart(file,{target:'original',kind,name:file.name,sourceUrl:options.sourceUrl||null,mime:file.type},options) as DocumentRow;
+ // `path` is the folder-relative path of a folder import; the saved record keeps it as original_name so lists can show the folder structure.
+ return await multipart(file,{target:'original',kind,name:file.name,path:options.path||null,sourceUrl:options.sourceUrl||null,mime:file.type},options) as DocumentRow;
 }
 export async function saveExtracted(record:DocumentRow,result:Extracted,options:UploadOptions={}):Promise<void>{
  const bytes=new Blob([JSON.stringify(result)],{type:'application/json'});
