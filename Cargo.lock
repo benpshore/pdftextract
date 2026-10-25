@@ -8638,6 +8638,7 @@ dependencies = [
  "tpe-common",
  "tpe-ffi",
  "ureq",
+ "url",
 ]
 
 [[package]]
