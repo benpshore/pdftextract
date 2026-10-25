@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "note": "Pinned ocrs model files for the `ocrs` engine of tpe-image-text; fetched by crates/tpe-image-text/fetch-models.sh into .models/ocrs/ (see docs/IMAGE_TEXT.md). Keep one entry object per line: fetch-models.sh falls back to a line-oriented reader when python3 is absent. The engine refuses a file whose size or sha256 differs from this manifest; the URLs are the ones ocrs itself downloads from and are unversioned, so the digest is the identity.",
+  "source": "https://github.com/robertknight/ocrs-models (models released 2024-01-01, Apache-2.0)",
+  "entries": [
+    {"name": "detection", "url": "https://ocrs-models.s3-accelerate.amazonaws.com/text-detection.rten", "dest": "text-detection.rten", "bytes": 2510284, "sha256": "f15cfb56bd02c4bf478a20343986504a1f01e1665c2b3a0ad66340f054b1b5ca"},
+    {"name": "recognition", "url": "https://ocrs-models.s3-accelerate.amazonaws.com/text-recognition.rten", "dest": "text-recognition.rten", "bytes": 9716568, "sha256": "e484866d4cce403175bd8d00b128feb08ab42e208de30e42cd9889d8f1735a6e"}
+  ]
+}
