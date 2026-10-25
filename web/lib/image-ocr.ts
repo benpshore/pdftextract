@@ -2,10 +2,26 @@ import type { Extracted, LinkEvidence } from './types';
 
 export type OcrProgress = { status: string; progress: number };
 export const OCR_ASSET_BASE = '/ocr/7.0.0';
+export const OCR_TIMEOUT_MS = 120_000;
+export type OcrOptions = { timeoutMs?: number };
 const WORKING_PIXELS = 4_000_000;
 const WORKING_SIDE = 4096;
 type Dimensions = { width: number; height: number; orientation: number };
 const ascii = new TextDecoder('latin1');
+
+/** Observe abandoned work and dispose resources that arrive after cancellation. */
+function waitFor<T>(operation: Promise<T>, signal: AbortSignal, disposeLate?: (value: T) => void): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason);
+    signal.addEventListener('abort', abort, { once: true });
+    operation.then(value => {
+      signal.removeEventListener('abort', abort);
+      if (signal.aborted) { disposeLate?.(value); reject(signal.reason); }
+      else resolve(value);
+    }, error => { signal.removeEventListener('abort', abort); reject(signal.aborted ? signal.reason : error); });
+    if (signal.aborted) abort();
+  });
+}
 
 export function isOcrImage(file: File | string): boolean {
   return typeof file === 'string' ? /\.(?:png|jpe?g|webp)$/i.test(file) : /^(?:image\/png|image\/jpeg|image\/webp)$/i.test(file.type) || /\.(?:png|jpe?g|webp)$/i.test(file.name);
@@ -115,7 +131,9 @@ class OcrWorker {
     this.worker.onerror = event => this.close(new Error(event.message || 'The OCR worker failed to load.'));
     this.worker.onmessageerror = () => this.close(new Error('The OCR worker returned an unreadable message.'));
     this.worker.onmessage = event => {
+      if (this.closed) return;
       const packet = event.data;
+      if (!packet || typeof packet !== 'object') { this.close(new Error('The OCR worker returned an unreadable message.')); return; }
       if (packet.status === 'progress') {
         const value = Number(packet.data?.progress);
         this.progress?.({ status: String(packet.data?.status || 'Recognizing image'), progress: Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0 });
@@ -134,10 +152,12 @@ class OcrWorker {
     const jobId = `image-${++this.counter}`;
     return new Promise((resolve, reject) => {
       this.pending.set(jobId, { resolve, reject });
-      this.worker.postMessage({ workerId: 'tpe-image-ocr', jobId, action, payload }, transfer);
+      try { this.worker.postMessage({ workerId: 'tpe-image-ocr', jobId, action, payload }, transfer); }
+      catch (error) { this.close(error instanceof Error ? error : new Error(String(error))); }
     });
   }
   close(error = new Error('OCR worker closed.')) {
+    if (this.closed) return;
     this.closed = error;
     this.worker.terminate();
     this.signal?.removeEventListener('abort', this.abort);
@@ -150,42 +170,69 @@ function ocrLinks(text: string): LinkEvidence[] {
   const matches = text.match(/10\.\d{4,9}\/[^\s<>"?#]+/gi) || [];
   return Array.from(new Set(matches.map(doi => doi.replace(/[.,;]+$/, '')))).map(doi => ({ url: `https://doi.org/${doi}`, doi, kind: 'OCR DOI (unverified)' }));
 }
-export async function recognizeImage(file: File, onProgress?: (event: OcrProgress) => void, signal?: AbortSignal): Promise<Extracted> {
-  signal?.throwIfAborted();
-  onProgress?.({ status: 'Inspecting image', progress: 0 });
-  const original = await inspectOcrImage(file, signal);
-  // Working-raster memory budget, not an accepted-image size cap. Preserve the
-  // full original and disclose the lower processing resolution in the result.
-  const scale = Math.min(1, Math.sqrt(WORKING_PIXELS / (original.width * original.height)), WORKING_SIDE / Math.max(original.width, original.height));
-  const width = Math.max(1, Math.floor(original.width * scale)), height = Math.max(1, Math.floor(original.height * scale));
+export async function recognizeImage(file: File, onProgress?: (event: OcrProgress) => void, callerSignal?: AbortSignal, options: OcrOptions = {}): Promise<Extracted> {
+  callerSignal?.throwIfAborted();
+  const timeoutMs = options.timeoutMs ?? OCR_TIMEOUT_MS;
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > OCR_TIMEOUT_MS) throw new Error(`OCR timeout must be between 0 and ${OCR_TIMEOUT_MS} milliseconds.`);
+  const controller = new AbortController(), signal = controller.signal;
+  const abort = () => controller.abort(callerSignal?.reason);
+  callerSignal?.addEventListener('abort', abort, { once: true });
+  let stage = 'Inspecting image', fraction = 0, range: [number, number] = [0, 0];
+  const report = (status: string, progress: number) => { stage = status; fraction = Math.max(fraction, progress); onProgress?.({ status, progress: fraction }); };
+  const deadline = setTimeout(() => controller.abort(new DOMException(`Image OCR timed out while ${stage.toLowerCase()}. Retry or use a clearer working image; the original remains saved.`, 'TimeoutError')), timeoutMs);
   let bitmap: ImageBitmap | undefined, canvas: HTMLCanvasElement | undefined, worker: OcrWorker | undefined;
   try {
-    bitmap = await createImageBitmap(file, { resizeWidth: width, resizeHeight: height, resizeQuality: 'high', imageOrientation: 'from-image' });
-    signal?.throwIfAborted();
+    report('Inspecting image', 0);
+    const original = await waitFor(inspectOcrImage(file, signal), signal);
+    // Preserve the full original; the pixel budget applies to the working raster.
+    const scale = Math.min(1, Math.sqrt(WORKING_PIXELS / (original.width * original.height)), WORKING_SIDE / Math.max(original.width, original.height));
+    const width = Math.max(1, Math.floor(original.width * scale)), height = Math.max(1, Math.floor(original.height * scale));
+    report('Preparing image for OCR', 0.05);
+    signal.throwIfAborted();
+    bitmap = await waitFor(createImageBitmap(file, { resizeWidth: width, resizeHeight: height, resizeQuality: 'high', imageOrientation: 'from-image' }), signal, late => late.close());
+    signal.throwIfAborted();
     canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
     const context = canvas.getContext('2d');
     if (!context) throw new Error('The browser could not allocate the OCR working image. The full original remains saved.');
     context.fillStyle = '#fff'; context.fillRect(0, 0, canvas.width, canvas.height); context.drawImage(bitmap, 0, 0);
-    const png = await new Promise<Blob>((resolve, reject) => canvas!.toBlob(value => value ? resolve(value) : reject(new Error('The browser could not encode the OCR working image.')), 'image/png'));
-    const image = new Uint8Array(await png.arrayBuffer());
-    signal?.throwIfAborted();
-    worker = new OcrWorker(onProgress, signal);
+    const png = await waitFor(new Promise<Blob>((resolve, reject) => canvas!.toBlob(value => value ? resolve(value) : reject(new Error('The browser could not encode the OCR working image.')), 'image/png')), signal);
+    const image = new Uint8Array(await waitFor(png.arrayBuffer(), signal));
+    signal.throwIfAborted();
+    worker = new OcrWorker(event => report(event.status, range[0] + event.progress * (range[1] - range[0])), signal);
+    range = [0.1, 0.2]; report('Loading OCR runtime', range[0]);
     await worker.call('load', { options: { lstmOnly: true, corePath: new URL(`${OCR_ASSET_BASE}/core`, location.origin).href, logging: false } });
+    range = [0.2, 0.35]; report('Loading English OCR model', range[0]);
     await worker.call('loadLanguage', { langs: 'eng', options: { langPath: new URL(`${OCR_ASSET_BASE}/lang`, location.origin).href, gzip: true, cacheMethod: 'write', cachePath: 'tpe-eng-best-int-1.0.0', lstmOnly: true } });
+    range = [0.35, 0.4]; report('Initializing OCR', range[0]);
     await worker.call('initialize', { langs: 'eng', oem: 1, config: {} });
-    const output = await worker.call('recognize', { image, options: {}, output: { text: true, blocks: false, hocr: false, tsv: false, pdf: false } }, [image.buffer]) as { text?: unknown; confidence?: unknown };
-    if (typeof output.text !== 'string') throw new Error('OCR returned no valid text result.');
-    const text = output.text.trim(), confidence = typeof output.confidence === 'number' && Number.isFinite(output.confidence) ? output.confidence : null;
+    type Output = { text: string; confidence?: unknown };
+    const attempts: { segmentation: 'auto' | 'sparse'; characters: number; confidence: number | null }[] = [];
+    const recognize = async (sparse: boolean): Promise<Output> => {
+      range = sparse ? [0.7, 0.95] : [0.4, 0.7];
+      report(sparse ? 'No text in first pass; trying sparse-text OCR' : 'Recognizing image text', range[0]);
+      // Keep one bounded PNG for a possible second pass. The worker receives a copy.
+      const output = await worker!.call('recognize', { image, options: sparse ? { tessedit_pageseg_mode: '11' } : {}, output: { text: true, blocks: false, hocr: false, tsv: false, pdf: false } }) as Output;
+      if (!output || typeof output.text !== 'string') throw new Error('OCR returned no valid text result.');
+      attempts.push({ segmentation: sparse ? 'sparse' : 'auto', characters: output.text.trim().length, confidence: output.text.trim() && typeof output.confidence === 'number' && Number.isFinite(output.confidence) ? output.confidence : null });
+      return output;
+    };
+    let output = await recognize(false);
+    if (!output.text.trim()) output = await recognize(true);
+    const text = output.text.trim(), confidence = attempts.at(-1)!.confidence;
     const warnings = ['OCR is an English-model transcription and may omit or misread text. Compare important details and identifiers with the saved original.'];
     if (scale < 1) warnings.push(`The full original was retained. OCR used a ${canvas.width} × ${canvas.height} working image to control browser memory; small print may be missed.`);
     if (!text) warnings.push('No text was recognized; this does not establish that the original image has no text.');
-    onProgress?.({ status: 'OCR finished; review the transcription', progress: 1 });
-    return { title: file.name, text, markdown: text, links: ocrLinks(text), warnings, engine: 'Tesseract.js 7.0.0 (CPU/WASM)', status: 'partial', metadata: { ocr: { language: 'eng', confidence, originalWidth: original.width, originalHeight: original.height, processedWidth: canvas.width, processedHeight: canvas.height, downscaled: scale < 1, runtime: 'cpu-wasm', model: 'eng best_int 1.0.0' } } };
+    if (attempts.length > 1) warnings.push('The automatic page pass found no text. A sparse-text pass was attempted; its text order may not match the original.');
+    signal.throwIfAborted();
+    report(text ? 'OCR finished; review the transcription' : 'OCR finished without recognized text', 1);
+    signal.throwIfAborted();
+    return { title: file.name, text, markdown: text, links: ocrLinks(text), warnings, engine: 'Tesseract.js 7.0.0 (CPU/WASM)', status: 'partial', metadata: { ocr: { language: 'eng', confidence, outcome: text ? 'text' : 'empty', attempts, timeoutMs, originalWidth: original.width, originalHeight: original.height, processedWidth: canvas.width, processedHeight: canvas.height, downscaled: scale < 1, runtime: 'cpu-wasm', model: 'eng best_int 1.0.0' } } };
   } catch (error) {
     if (signal?.aborted) throw signal.reason;
     if (error instanceof RangeError) throw new Error('The browser could not allocate memory to decode this image. The full original remains saved; try a lower-resolution working copy.');
     throw error;
   } finally {
+    clearTimeout(deadline); callerSignal?.removeEventListener('abort', abort);
     worker?.close(); bitmap?.close();
     if (canvas) { canvas.width = 1; canvas.height = 1; }
   }
