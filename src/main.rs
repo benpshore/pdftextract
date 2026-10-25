@@ -167,6 +167,12 @@ struct ExtractArgs {
     /// Replay buffered JSON progress on stderr after each extraction worker exits.
     #[arg(long)]
     progress: bool,
+    /// Write every `--out` file gzip-compressed (RFC 1952) under its usual name plus `.gz`; the ledger stays uncompressed.
+    #[arg(long, requires = "out")]
+    gzip: bool,
+    /// gzip level for `--gzip`: 1 (fastest) to 9 (smallest).
+    #[arg(long, default_value_t = 6, value_name = "1-9", value_parser = clap::value_parser!(u8).range(1..=9), requires = "gzip")]
+    gzip_level: u8,
 }
 
 #[derive(Args)]
@@ -287,13 +293,19 @@ fn main() -> anyhow::Result<ExitCode> {
     match cli.command {
         #[cfg(feature = "grobid")]
         Cmd::Grobid(args) => grobid_cli::run(&args),
-        Cmd::Extract(args) => cli_worker::run(&args),
+        Cmd::Extract(args) => {
+            relay_gzip_to_workers(&args)?;
+            cli_worker::run(&args)
+        }
         Cmd::NativeWorker {
             request,
             phase,
             growth_bytes,
             parent,
-        } => cli_worker::run_worker(&request, &phase, growth_bytes, parent),
+        } => {
+            adopt_gzip_from_env()?;
+            cli_worker::run_worker(&request, &phase, growth_bytes, parent)
+        }
         Cmd::Bibliography(args) => run_bibliography(&args),
         Cmd::Stats { db } => {
             run_stats(&db)?;
@@ -393,6 +405,67 @@ fn check_backend(name: &str) -> anyhow::Result<()> {
 /// `--figures-dir` as the job field.
 fn figures_dir_field(dir: Option<&Path>) -> Option<String> {
     dir.map(|path| path.to_string_lossy().into_owned())
+}
+
+/// Carries `--gzip` from the `extract` controller to its workers. The
+/// publisher is a separate process (`cli_worker`), so the level travels in the
+/// inherited environment; the flag decides, the variable only relays it.
+const GZIP_LEVEL_ENV: &str = "TPE_GZIP_LEVEL";
+
+/// The gzip level `--gzip` asks for; `None` without the flag.
+fn gzip_level(args: &ExtractArgs) -> Option<u8> {
+    args.gzip.then_some(args.gzip_level)
+}
+
+/// Make the environment agree with `--gzip` before any worker is spawned.
+/// Rust 2024 has no safe `set_var`, so when they disagree the controller
+/// re-executes itself with the variable set or removed: same PID, arguments
+/// and descriptors, so signals, parent-death protection and the exit code
+/// are unchanged.
+fn relay_gzip_to_workers(args: &ExtractArgs) -> anyhow::Result<()> {
+    let wanted = gzip_level(args).map(|level| level.to_string());
+    let current = std::env::var_os(GZIP_LEVEL_ENV);
+    if current.as_deref() == wanted.as_deref().map(std::ffi::OsStr::new) {
+        return Ok(());
+    }
+    exec_with_gzip_env(wanted.as_deref())
+}
+
+#[cfg(unix)]
+fn exec_with_gzip_env(level: Option<&str>) -> anyhow::Result<()> {
+    use std::os::unix::process::CommandExt;
+    let mut command = std::process::Command::new(std::env::current_exe()?);
+    command.args(std::env::args_os().skip(1));
+    match level {
+        Some(level) => command.env(GZIP_LEVEL_ENV, level),
+        None => command.env_remove(GZIP_LEVEL_ENV),
+    };
+    // `exec` replaces this process image and only returns on failure.
+    Err(command.exec()).context("relaying --gzip to the extraction workers")
+}
+
+#[cfg(not(unix))]
+fn exec_with_gzip_env(_level: Option<&str>) -> anyhow::Result<()> {
+    bail!("--gzip needs Linux or macOS: the publish worker cannot be given the level here")
+}
+
+/// In a worker: adopt the relayed `--gzip` level as the publication default,
+/// so the unchanged `StagedOutputs::stage` call in the publisher compresses.
+fn adopt_gzip_from_env() -> anyhow::Result<()> {
+    let Some(value) = std::env::var_os(GZIP_LEVEL_ENV) else {
+        return Ok(());
+    };
+    let level: u8 = value
+        .to_str()
+        .and_then(|text| text.parse().ok())
+        .with_context(|| {
+            format!(
+                "{GZIP_LEVEL_ENV} must be a gzip level 1..=9, not {}",
+                value.display()
+            )
+        })?;
+    tpe::publication::set_process_default(tpe::publication::Compression::gzip(level)?);
+    Ok(())
 }
 
 /// Process exit code for a batch: failure when any item failed.
