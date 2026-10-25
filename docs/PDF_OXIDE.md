@@ -20,6 +20,13 @@ Rust error E0063. Both packages have crates.io checksums in Cargo.lock.
 - `extract_chars` supplies actual character positions, font names and sizes.
   The adapter retains U+FFFD and does not mutate the upstream global switch
   which otherwise filters replacement glyphs from high-level spans.
+- Each character goes through the same text normalisation as `lopdf`: the
+  Latin presentation-form ligatures U+FB00 to U+FB06 become their letters
+  (`ﬁ` to `fi`) and non-ASCII text is put in NFC; nothing else is remapped.
+  A page with expansions carries `ligatures expanded: N`, and the adapter
+  digest records `ligatures=expand` (adapter revision 2) so cached runs from
+  before the change stay distinct. See the comparison harness in
+  [ENGINE.md](ENGINE.md#cross-backend-comparison-harness).
 - Page dimensions come from validated, inherited MediaBox coordinates;
   rotation is preserved. Invalid geometry produces an error or an absent
   glyph box, never an invented rectangle.
