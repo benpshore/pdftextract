@@ -1,0 +1,27 @@
+[package]
+name = "tpe-export"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+description = "Reverse-citation exports of an extracted article and its reference list: Zotero RDF, Zotero CSV and SQLite"
+
+[[bin]]
+name = "tpe-export"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+regex = "1"
+same-file = "1"
+rusqlite = { version = "0.40", features = ["bundled"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+text-processing-engine = { path = "../.." }
+thiserror = "2"
+
+[dev-dependencies]
+roxmltree = "=0.20.0"
+
+[lints]
+workspace = true
