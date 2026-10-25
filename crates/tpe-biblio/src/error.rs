@@ -16,6 +16,15 @@ pub enum BiblioError {
     /// The server answered 429 (rate limited).
     #[error("rate limited by the server (HTTP 429)")]
     RateLimited,
+    /// The server answered 429 or 503 with a `Retry-After` header: wait
+    /// `after` before asking again.
+    #[error("HTTP status {status}: retry after {after:?}")]
+    RetryAfter {
+        /// The HTTP status (429 or 503).
+        status: u16,
+        /// The delay the server asked for.
+        after: std::time::Duration,
+    },
     /// Any other non-success HTTP status.
     #[error("HTTP status {0}")]
     Status(u16),
