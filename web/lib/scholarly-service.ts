@@ -69,6 +69,9 @@ export async function attachScholarly(record:Record<string,unknown>,user:string,
   signal.throwIfAborted();
   const generatedAt=new Date().toISOString();
   const adapted=await adaptGrobidResult({grobidJson,record:record as unknown as DocumentRow,generatedAt,...(nativeResolutionJson?{nativeResolutionJson}:{} )});
+  if(resolverWarning&&'items'in adapted.bibliography.references)for(const reference of adapted.bibliography.references.items){
+    reference.resolution={status:'unavailable',providers:[],note:'The requested native resolution stage did not complete. Extracted identifiers remain unverified.'};
+  }
   const evidenceId=crypto.randomUUID(), evidenceKey=`${id}/scholarly/${evidenceId}.json`,resultKey=`${id}/results/${crypto.randomUUID()}`;
   adapted.bibliography.source.result_key=resultKey;
   const result:Extracted={...prior,bibliography:adapted.bibliography,warnings:[...new Set([...prior.warnings,...adapted.warnings,...(resolverWarning?[resolverWarning]:[])])],metadata:{...prior.metadata,scholarly_display_name:adapted.naming,scholarly:{schema:'tpe.scholarly-attachment',version:1,evidence_id:evidenceId,mode:health.mode,generated_at:generatedAt,has_resolution:!!nativeResolutionJson}}};

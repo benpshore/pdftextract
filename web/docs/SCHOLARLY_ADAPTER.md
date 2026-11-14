@@ -45,6 +45,15 @@ A streamed GET helper rechecks local scholarly version after the entire body arr
 Evidence downloads are owner-bound passive attachments with hash verification.
 
 Optional resolution invokes the existing native bibliography command separately.
+A reported request error without an accepted result is `unavailable`, not a
+completed unresolved lookup. An optional resolver-stage HTTP/transport failure
+also marks reference resolution unavailable while saving the supplied GROBID
+bibliography and keeping extracted identifiers unverified. Completed not-found,
+mismatch and ambiguous attempts stay unresolved; no attempts stays not-requested.
+A later explicitly accepted compatible result may recover from an earlier error.
+All supplied attempts and identifiers remain in canonical evidence; no failed
+stage gets an invented resolver artifact.
+
 Only unique exact raw-reference joins with compatible identifiers and known
 providers are accepted; canonical resolver attempts remain separate. Bridge wall,
 input/output and child-kill bounds are tested, but native bibliography lacks the
@@ -57,6 +66,7 @@ coordinate that interface with the native owner before enabling resolution.
 
 Run `node web/scripts/test-scholarly-adapter.mjs`,
 `node web/scripts/test-scholarly-controls.mjs`,
+`node web/scripts/test-scholarly-resolution.mjs`,
 `node web/scripts/test-scholarly-client.mjs`,
 `node scripts/test-site-scholarly-workers.mjs` and
 `node --test scripts/scholarly-local-runtime.test.mjs` from the repository root.

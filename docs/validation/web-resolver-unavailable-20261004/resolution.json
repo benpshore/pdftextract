@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "error stays unavailable in saved projection/CSV with exact attempts, extracted identifiers and native evidence retained",
+    "error/not_found stays unavailable in saved projection/CSV with exact attempts, extracted identifiers and native evidence retained",
+    "not_found/error stays unavailable in saved projection/CSV with exact attempts, extracted identifiers and native evidence retained",
+    "not_found remains distinct from failed requests",
+    "mismatch remains distinct from failed requests",
+    "ambiguous remains distinct from failed requests",
+    "no attempts remains not-requested",
+    "a later explicitly accepted compatible result survives an earlier failed request",
+    "conflicting accepted identifiers remain withheld"
+  ],
+  "passed": 9,
+  "scope": "Actual adapter and CSV; real captured bibliography, synthetic source-bound resolver contract outcomes. No new live/native/registry/browser qualification."
+}

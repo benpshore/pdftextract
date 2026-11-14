@@ -298,6 +298,10 @@ function applyNativeResolution(references: BibliographicReference[], native: Nat
       reference.resolution = { status: 'unavailable', providers: [], note: 'The supplied native bibliography stage did not complete.' }; continue;
     }
     if (!result) {
+      if(match.attempts.some(attempt=>attempt.outcome==='error')){
+        reference.resolution={status:'unavailable',providers:[],note:'Native resolution could not complete because a reported request failed. Extracted identifiers remain unverified; attempts are retained in canonical evidence.'};
+        continue;
+      }
       reference.resolution = { status: match.attempts.length ? 'unresolved' : 'not-requested', providers: [], note: match.attempts.length ? 'Native attempts supplied no accepted resolution; details remain in the canonical artifact.' : 'No native resolution attempts were supplied for this reference.' }; continue;
     }
     const doiValues = [reference.doi, match.doi, match.doi_link, result.doi].filter((value): value is string => !!value?.trim()).map(value => value.trim().toLowerCase());

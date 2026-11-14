@@ -1,0 +1,42 @@
+{
+  "base_pr": 211,
+  "base_sha": "c1a3a28027922c6a36e396d7feeccedc00d5b46b",
+  "backend_handoff": "https://github.com/benpshore/pdftextract/issues/195#issuecomment-5976310680",
+  "native_attempt_error_semantics": "src/schema.rs Attempt outcome:error is a failed request, not a completed lookup abstention.",
+  "producer_sample": {
+    "source_commit": "78ff9429f9e0231562396e58b3a51bd81e7fdbd1",
+    "path": "docs/validation/grobid-cpu/rust-client-fixed-live.json",
+    "sha256": "1aadf263bbfe76e06a65cb8043fb9c86928dd3ace22499a6daae510da74999f4",
+    "byte_identical_to_existing_adapter_fixture": true,
+    "scope": "Retrieved published actual producer sample; not a new GROBID execution."
+  },
+  "checks": {
+    "resolution_contract_checks": 9,
+    "workers_groups": 7,
+    "adapter_checks": 18,
+    "citation_groups": 5,
+    "typescript": "passed",
+    "production_build": "passed",
+    "ruff": "passed",
+    "python_tests": 92,
+    "source_export_tests": 28,
+    "portable_source_files": 184
+  },
+  "independent_review": "Nine resolver and seven D1/R2 groups pass independently; no blocking issue found.",
+  "limitations": [
+    "Backend fresh live resolver smoke had 0/2 passed with transport errors; no success or correct-abstention claim.",
+    "Resolver fixtures in these web tests are synthetic contracts over actual captured bibliography.",
+    "No runtime handoff exposes a current same-environment native/GROBID bridge; no duplicate toolchain/image build.",
+    "Parent visual QA remains blocked: cloud browser net::ERR_BLOCKED_BY_CLIENT on loopback; no bypass.",
+    "OSV local audit proxy-blocked; Cargo, Swift and CMake absent. Exact new-head hosted CI must reach terminal status.",
+    "Formal scan deferred; no deployment/migration/access/credentials/public endpoint/native-owner edits/merge/release. PR211/207/192 source heads remain unchanged."
+  ],
+  "sources": {
+    "web/lib/scholarly-adapter.ts": "8d7802410db89ea4dc2e5dc8cd26cd391bc3cacb887daed2542150a78f739679",
+    "web/lib/scholarly-service.ts": "4fd1240984b274bd16f68eb041210c4a9a4d286f92979ff9c366bc4184add076",
+    "web/scripts/test-scholarly-resolution.mjs": "edb4795434c4dd14de6b83c4a308235408d4a0ac14116da1b96a2e9fcdc1ccb2",
+    "scripts/test-site-scholarly-workers.mjs": "5b4bffb3a0c5ed859443dedd56fc5672cbb46cafdf855daed88da207017faa64",
+    "web/SOURCE_MANIFEST.json": "89151318fbed8d4d1b3399db02e9fd0d9dc871cd8209f8e5c73d7f4a231825a0",
+    ".github/workflows/web.yml": "269ee623ffb4b4d757d05cde01c0f5ef727402b4e60ff9a871ef44db67fa9cf0"
+  }
+}
